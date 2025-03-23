@@ -37,59 +37,117 @@ const SUPABASE_URL = 'https://jckwvrzcjuggnfcbogrr.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impja3d2cnpjanVnZ25mY2JvZ3JyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA2OTIwMTYsImV4cCI6MjA1NjI2ODAxNn0.p2a0om1X40AJVhldUdtaU-at0SSPz6hLbrAg-ELHcnY';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Load saved data from localStorage on page load
-document.addEventListener('DOMContentLoaded', async () => {
-    // First check if we have data in Supabase
+// Once the document is ready
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('Document ready, initializing...');
+    
+    // Define elements
+    body = document.body;
+    adminPanel = document.getElementById('adminPanel');
+    adminBtn = document.getElementById('adminBtn');
+    closeAdminBtn = document.getElementById('closeAdminBtn');
+    saveChangesBtn = document.getElementById('saveChangesBtn');
+    adminAlert = document.getElementById('adminAlert');
+    adminResultsContainer = document.getElementById('admin-results');
+    
+    // Check if user is logged in (using sessionStorage for session-only login)
+    isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+    console.log('Login status:', isLoggedIn ? 'Logged in' : 'Not logged in');
+    
+    if (adminBtn) {
+        if (isLoggedIn) {
+            adminBtn.textContent = 'Open Admin Panel';
+            adminBtn.addEventListener('click', openAdminPanel);
+        } else {
+            adminBtn.textContent = 'Admin Login';
+            adminBtn.addEventListener('click', showLoginForm);
+        }
+    }
+    
+    // Initialize Supabase client
     try {
+        // Load initial data
         const { data, error } = await supabaseClient
             .from('site_data')
             .select('data')
             .eq('id', 1)
             .single();
         
-        if (!error && data && data.data) {
-            console.log('Loading saved data from Supabase');
+        if (error) {
+            console.error('Error loading initial data from Supabase:', error);
+            // Try to initialize with default data
+            initializeWithDefaultData();
+        } else if (data && data.data) {
             siteData = data.data;
-            
-            // Apply the saved data to the page
+            console.log('✅ Initial data loaded from Supabase successfully');
             updateSiteContent(siteData);
-            return; // No need to check localStorage if Supabase worked
-        }
-    } catch (supabaseError) {
-        console.error('Error loading from Supabase:', supabaseError);
-    }
-    
-    // If Supabase failed, check if we have saved data in localStorage
-    try {
-        const storedData = localStorage.getItem('siteData');
-        if (storedData) {
-            console.log('Loading saved data from localStorage');
-            const data = JSON.parse(storedData);
-            siteData = data;
-            
-            // Apply the saved data to the page
-            updateSiteContent(data);
-            
-            // Also push this data to Supabase for future use
-            try {
-                await supabaseClient
-                    .from('site_data')
-                    .upsert({ id: 1, data: siteData }, { onConflict: 'id' });
-                console.log('✅ Synchronized localStorage data to Supabase');
-            } catch (syncError) {
-                console.error('Failed to sync localStorage data to Supabase:', syncError);
-            }
+        } else {
+            console.log('No initial data found in Supabase');
+            initializeWithDefaultData();
         }
     } catch (error) {
-        console.error('Error loading saved data:', error);
+        console.error('Error during initialization:', error);
+        initializeWithDefaultData();
     }
     
-    // Check login status
-    if (localStorage.getItem('adminLoggedIn') === 'true') {
-        console.log('Auto-login from localStorage flag');
-        isLoggedIn = true;
+    // Set up admin panel event listeners if logged in
+    if (isLoggedIn) {
+        if (closeAdminBtn) closeAdminBtn.addEventListener('click', closeAdminPanel);
+        if (saveChangesBtn) saveChangesBtn.addEventListener('click', saveAdminChanges);
     }
+    
+    // Set up danger zone functionality
+    setupDangerZone();
 });
+
+// Initialize with default data
+function initializeWithDefaultData() {
+    console.log('Using default data');
+    siteData = {
+        personalInfo: {
+            name: 'Dr. Ahmed Mahmoud',
+            title: 'Mathematics Educator',
+            qualifications: [
+                'Ph.D. in Mathematics Education',
+                'Master\'s in Applied Mathematics',
+                'Bachelor\'s in Mathematics'
+            ],
+            experience: '15+ years of teaching experience'
+        },
+        experience: {
+            schools: [
+                'International School of Mathematics',
+                'Elite Academy',
+                'Science High School'
+            ],
+            centers: [
+                'Math Excellence Center',
+                'Advanced Learning Institute',
+                'STEM Education Hub'
+            ],
+            onlinePlatforms: [
+                'MathPro Online',
+                'EduTech Academy',
+                'Virtual Learning Center'
+            ]
+        },
+        results: {
+            subjects: [
+                {name: 'Mathematics', score: 85},
+                {name: 'Physics', score: 78},
+                {name: 'Chemistry', score: 82},
+                {name: 'Biology', score: 75}
+            ]
+        },
+        contact: {
+            email: 'teacher@example.com',
+            formUrl: 'https://forms.google.com/your-form-link'
+        }
+    };
+    
+    // Apply default data to the page
+    updateSiteContent(siteData);
+}
 
 // Mobile Menu Functionality
 function toggleMenu() {
@@ -341,70 +399,8 @@ if (revealElements.length > 0) {
 // Results Chart
 const chartCanvas = document.getElementById('resultsChart');
 
-if (chartCanvas && typeof Chart !== 'undefined') {
-    const ctx = chartCanvas.getContext('2d');
-    
-    const resultsChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Mathematics', 'Physics', 'Chemistry', 'Biology'],
-            datasets: [
-                {
-                    label: 'A* Grades',
-                    data: [85, 78, 72, 68],
-                    backgroundColor: '#3b82f6',
-                    borderRadius: 6,
-                },
-                {
-                    label: 'A Grades',
-                    data: [92, 85, 80, 75],
-                    backgroundColor: '#60a5fa',
-                    borderRadius: 6,
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: {
-                        padding: 20,
-                        font: {
-                            size: 14
-                        }
-                    }
-                },
-                title: {
-                    display: true,
-                    text: 'Student Performance by Subject',
-                    padding: {
-                        top: 10,
-                        bottom: 30
-                    },
-                    font: {
-                        size: 16,
-                        weight: 'bold'
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: value => value + '%'
-                    }
-                }
-            },
-            animation: {
-                duration: 2000,
-                easing: 'easeInOutQuart'
-            }
-        }
-    });
-}
+// Remove the chart initialization here since we're handling it through updateResultsChart
+// This prevents conflicts with our chart management
 
 // Add hover animations to cards
 document.querySelectorAll('.bg-white.rounded-lg').forEach(card => {
@@ -471,13 +467,47 @@ if (addResultBtn) addResultBtn.addEventListener('click', addNewResult);
 const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) logoutBtn.addEventListener('click', adminLogout);
 
-// Add danger zone functionality
-const dangerZone = document.getElementById('dangerZone');
-const showDangerBtn = document.getElementById('showDangerBtn');
-const toggleDangerBtn = document.getElementById('toggleDangerBtn');
-const clearDataBtn = document.getElementById('clearDataBtn');
+// Setup danger zone functionality
+function setupDangerZone() {
+    const dangerZone = document.getElementById('dangerZone');
+    const showDangerBtn = document.getElementById('showDangerBtn');
+    const toggleDangerBtn = document.getElementById('toggleDangerBtn');
+    const clearDataBtn = document.getElementById('clearDataBtn');
+    
+    // Only set up these listeners if user is logged in
+    if (!isLoggedIn) return;
+    
+    // Set up toggle danger zone listener
+    if (showDangerBtn) {
+        showDangerBtn.addEventListener('click', toggleDangerZone);
+    }
+    
+    // Set up hide danger zone listener
+    if (toggleDangerBtn) {
+        toggleDangerBtn.addEventListener('click', toggleDangerZone);
+    }
+    
+    // Set up clear data listener
+    if (clearDataBtn) {
+        clearDataBtn.addEventListener('click', clearAllData);
+    }
+    
+    // Set up admin panel event listeners
+    document.addEventListener('adminPanelOpened', function() {
+        if (showDangerBtn) showDangerBtn.classList.remove('hidden');
+    });
+    
+    document.addEventListener('adminPanelClosed', function() {
+        if (showDangerBtn) showDangerBtn.classList.add('hidden');
+        if (dangerZone) dangerZone.classList.add('hidden');
+    });
+}
 
+// Toggle danger zone visibility
 function toggleDangerZone() {
+    const dangerZone = document.getElementById('dangerZone');
+    const showDangerBtn = document.getElementById('showDangerBtn');
+    
     if (dangerZone) {
         if (dangerZone.classList.contains('hidden')) {
             dangerZone.classList.remove('hidden');
@@ -488,65 +518,6 @@ function toggleDangerZone() {
         }
     }
 }
-
-function clearAllData() {
-    if (confirm('Are you sure you want to clear all saved data? This action cannot be undone.')) {
-        // Clear localStorage data
-        localStorage.removeItem('siteData');
-        
-        // Clear Supabase data
-        supabaseClient
-            .from('site_data')
-            .delete()
-            .eq('id', 1)
-            .then(({ data, error }) => {
-                if (error) {
-                    console.error('Error clearing Supabase data:', error);
-                } else {
-                    console.log('✅ Supabase data cleared successfully');
-                }
-            });
-        
-        // Reset chart if it exists
-        if (window.resultsChart) {
-            try {
-                window.resultsChart.destroy();
-                window.resultsChart = null;
-                console.log('✅ Chart destroyed successfully');
-            } catch (chartError) {
-                console.error('Error destroying chart:', chartError);
-            }
-        }
-        
-        // Show alert
-        showAdminAlert('All saved data has been cleared. Reload the page to see default values.');
-        
-        // Disable the save button until page reload
-        if (saveChangesBtn) {
-            saveChangesBtn.disabled = true;
-            saveChangesBtn.innerHTML = '<i class="fas fa-sync mr-2"></i> Reload Page Required';
-        }
-    }
-}
-
-// Set up danger zone event listeners
-if (showDangerBtn) {
-    showDangerBtn.addEventListener('click', toggleDangerZone);
-    
-    // Show the danger button when admin panel is open
-    document.addEventListener('adminPanelOpened', function() {
-        showDangerBtn.classList.remove('hidden');
-    });
-    
-    // Hide the danger button when admin panel is closed
-    document.addEventListener('adminPanelClosed', function() {
-        showDangerBtn.classList.add('hidden');
-        if (dangerZone) dangerZone.classList.add('hidden');
-    });
-}
-
-if (toggleDangerBtn) toggleDangerBtn.addEventListener('click', toggleDangerZone);
-if (clearDataBtn) clearDataBtn.addEventListener('click', clearAllData);
 
 // Show admin login modal
 function showAdminLogin() {
@@ -587,12 +558,12 @@ async function handleAdminLogin(event) {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="admin-loading"></span> Logging in...';
     
-    // DIRECT CHECK: Always check password directly first for reliability
+    // DIRECT CHECK: Always check password directly for reliability
     if (password === 'admin123') {
         console.log('✅ Login successful via direct password check');
         isLoggedIn = true;
-        // Save login state to localStorage
-        localStorage.setItem('adminLoggedIn', 'true');
+        // Save login state to sessionStorage (cleared when browser is closed)
+        sessionStorage.setItem('adminLoggedIn', 'true');
         hideAdminLogin();
         openAdminPanel(); 
         submitBtn.disabled = false;
@@ -676,9 +647,7 @@ async function openAdminPanel() {
     if (!isLoggedIn) return;
     
     try {
-        let dataLoaded = false;
-        
-        // First try to load from Supabase
+        // Try to load from Supabase
         try {
             const { data, error } = await supabaseClient
                 .from('site_data')
@@ -686,75 +655,28 @@ async function openAdminPanel() {
                 .eq('id', 1)
                 .single();
             
-            if (error) throw error;
-            
-            if (data && data.data) {
+            if (error) {
+                console.error('Error loading from Supabase:', error);
+                // If no data is loaded yet, use defaults
+                if (!siteData) {
+                    initializeWithDefaultData();
+                }
+            } else if (data && data.data) {
                 siteData = data.data;
-                console.log('✅ Data loaded from Supabase successfully');
-                dataLoaded = true;
-            }
-        } catch (supabaseError) {
-            console.error('Error loading from Supabase:', supabaseError);
-        }
-        
-        // If Supabase failed, try localStorage as fallback
-        if (!dataLoaded) {
-            try {
-                const storedData = localStorage.getItem('siteData');
-                if (storedData) {
-                    siteData = JSON.parse(storedData);
-                    console.log('✅ Data loaded from localStorage');
-                    dataLoaded = true;
+                console.log('✅ Data loaded for admin panel from Supabase successfully');
+            } else {
+                console.log('No data found in Supabase for admin panel');
+                // If no data is loaded yet, use defaults
+                if (!siteData) {
+                    initializeWithDefaultData();
                 }
-            } catch (localStorageError) {
-                console.error('Error reading from localStorage:', localStorageError);
             }
-        }
-        
-        // If all else fails, use default data
-        if (!dataLoaded) {
-            console.log('Using default data');
-            siteData = {
-                personalInfo: {
-                    name: 'Dr. Ahmed Mahmoud',
-                    title: 'Mathematics Educator',
-                    qualifications: [
-                        'Ph.D. in Mathematics Education',
-                        'Master\'s in Applied Mathematics',
-                        'Bachelor\'s in Mathematics'
-                    ],
-                    experience: '15+ years of teaching experience'
-                },
-                experience: {
-                    schools: [
-                        'International School of Mathematics',
-                        'Elite Academy',
-                        'Science High School'
-                    ],
-                    centers: [
-                        'Math Excellence Center',
-                        'Advanced Learning Institute',
-                        'STEM Education Hub'
-                    ],
-                    onlinePlatforms: [
-                        'MathPro Online',
-                        'EduTech Academy',
-                        'Virtual Learning Center'
-                    ]
-                },
-                results: {
-                    subjects: [
-                        {name: 'Mathematics', score: 85},
-                        {name: 'Physics', score: 78},
-                        {name: 'Chemistry', score: 82},
-                        {name: 'Biology', score: 75}
-                    ]
-                },
-                contact: {
-                    email: 'teacher@example.com',
-                    formUrl: 'https://forms.google.com/your-form-link'
-                }
-            };
+        } catch (error) {
+            console.error('Error in admin data loading:', error);
+            // Use current data or defaults
+            if (!siteData) {
+                initializeWithDefaultData();
+            }
         }
         
         // Populate admin form with data
@@ -774,8 +696,8 @@ async function openAdminPanel() {
             document.dispatchEvent(new CustomEvent('adminPanelOpened'));
         }
     } catch (error) {
-        console.error('Error loading data:', error);
-        showAdminAlert('Failed to load site data.', true);
+        console.error('Error opening admin panel:', error);
+        showAdminAlert('Failed to open admin panel. Please try again.', true);
     }
 }
 
@@ -873,18 +795,14 @@ function closeAdminPanel() {
 // Logout function
 function adminLogout() {
     isLoggedIn = false;
-    localStorage.removeItem('adminLoggedIn');
+    sessionStorage.removeItem('adminLoggedIn');
     closeAdminPanel();
     showAdminAlert('You have been logged out successfully.');
 }
 
 // Save admin changes
 async function saveAdminChanges() {
-    if (!isLoggedIn || !saveChangesBtn) return;
-    
-    // Add loading indicator
-    const originalBtnText = saveChangesBtn.innerHTML;
-    saveChangesBtn.innerHTML = '<span class="admin-loading"></span> Saving...';
+    saveChangesBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
     saveChangesBtn.disabled = true;
     
     try {
@@ -894,86 +812,67 @@ async function saveAdminChanges() {
                 name: document.getElementById('admin-name').value,
                 title: document.getElementById('admin-title').value,
                 experience: document.getElementById('admin-experience').value,
-                qualifications: document.getElementById('admin-qualifications').value
-                    .split('\n')
-                    .filter(line => line.trim() !== '')
+                qualifications: Array.from(document.querySelectorAll('#admin-qualifications-list li'))
+                    .map(li => li.textContent.trim())
+                    .filter(text => text !== '')
             },
             experience: {
-                schools: document.getElementById('admin-schools').value
-                    .split('\n')
-                    .filter(line => line.trim() !== ''),
-                centers: document.getElementById('admin-centers').value
-                    .split('\n')
-                    .filter(line => line.trim() !== ''),
-                onlinePlatforms: document.getElementById('admin-platforms').value
-                    .split('\n')
-                    .filter(line => line.trim() !== '')
+                schools: Array.from(document.querySelectorAll('#admin-schools-list li'))
+                    .map(li => li.textContent.trim())
+                    .filter(text => text !== ''),
+                centers: Array.from(document.querySelectorAll('#admin-centers-list li'))
+                    .map(li => li.textContent.trim())
+                    .filter(text => text !== ''),
+                onlinePlatforms: Array.from(document.querySelectorAll('#admin-platforms-list li'))
+                    .map(li => li.textContent.trim())
+                    .filter(text => text !== '')
             },
             results: {
-                subjects: Array.from(adminResultsContainer.querySelectorAll('.admin-result-item'))
-                    .map(item => {
-                        const name = item.querySelector('.subject-name').value.trim();
-                        const score = parseInt(item.querySelector('.subject-score').value) || 0;
-                        if (name === '') return null;
-                        return { name, score };
-                    })
-                    .filter(item => item !== null)
+                subjects: Array.from(document.querySelectorAll('#admin-results-list .result-item')).map(item => {
+                    return {
+                        name: item.querySelector('.subject-name').textContent.trim(),
+                        score: parseInt(item.querySelector('.subject-score').textContent.trim())
+                    };
+                })
             },
             contact: {
                 email: document.getElementById('admin-email').value,
                 formUrl: document.getElementById('admin-form-url').value
             }
         };
-        
-        // Always save to localStorage as a backup
-        try {
-            localStorage.setItem('siteData', JSON.stringify(updatedData));
-            console.log('✅ Data saved to localStorage successfully');
-        } catch (storageError) {
-            console.error('localStorage save failed:', storageError);
-        }
+
+        // Update the chart with new data (if needed)
+        updateResultsChart(updatedData.results.subjects);
         
         // Save to Supabase
-        try {
-            // We use a fixed ID (1) since we only have one set of site data
-            const { data, error } = await supabaseClient
-                .from('site_data')
-                .upsert({ id: 1, data: updatedData }, { onConflict: 'id' });
+        const { data, error } = await supabaseClient
+            .from('site_data')
+            .upsert({ 
+                id: 1, 
+                data: updatedData,
+                updated_at: new Date()
+            })
+            .select();
             
-            if (error) throw error;
-            console.log('✅ Data saved to Supabase successfully', data);
-        } catch (supabaseError) {
-            console.error('Supabase save failed:', supabaseError);
-            // Still consider it a success if localStorage worked
-            if (!localStorage.getItem('siteData')) {
-                throw new Error('Failed to save data to both Supabase and localStorage');
-            }
+        if (error) {
+            console.error('Error saving to Supabase:', error);
+            throw new Error(`Failed to save to Supabase: ${error.message}`);
         }
         
-        // Update the global data variable
+        // Update local data reference
         siteData = updatedData;
         
-        // Safely update the site content including the chart
-        try {
-            updateSiteContent(updatedData);
-        } catch (updateError) {
-            console.error('Error updating site content:', updateError);
-            // Don't fail the whole save operation because of the UI update
-        }
+        // Update website content with the new data
+        updateSiteContent(siteData);
         
-        // Show success message
-        showAdminAlert('Changes saved successfully!');
+        showAdminAlert('Changes saved successfully! Data updated in Supabase.');
+        console.log('✅ Changes saved to Supabase');
         
-        // Close admin panel after a delay
-        setTimeout(() => {
-            closeAdminPanel();
-        }, 1500);
     } catch (error) {
-        console.error('Save error:', error);
-        showAdminAlert('Error saving changes: ' + error.message, true);
+        console.error('Error saving changes:', error);
+        showAdminAlert('Failed to save changes. Please try again.', true);
     } finally {
-        // Restore button
-        saveChangesBtn.innerHTML = originalBtnText;
+        saveChangesBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
         saveChangesBtn.disabled = false;
     }
 }
@@ -1060,18 +959,25 @@ function updateSiteContent(data) {
 
 // Update results chart with new data
 function updateResultsChart(subjects) {
+    // First destroy any existing chart to prevent memory leaks and conflicts
+    if (window.resultsChart) {
+        try {
+            window.resultsChart.destroy();
+            window.resultsChart = null;
+        } catch (e) {
+            console.error('Error destroying existing chart:', e);
+        }
+    }
+    
     // Get the chart canvas
     const ctx = document.getElementById('resultsChart');
-    if (!ctx) return; // Exit if chart canvas doesn't exist
+    if (!ctx) {
+        console.error('Chart canvas element not found');
+        return;
+    }
     
-    if (window.resultsChart) {
-        // Update existing chart
-        window.resultsChart.data.labels = subjects.map(subject => subject.name);
-        window.resultsChart.data.datasets[0].data = subjects.map(subject => subject.score);
-        window.resultsChart.update();
-    } else {
-        // Chart doesn't exist yet, create it
-        console.log('Creating new results chart');
+    try {
+        // Always create a fresh chart
         window.resultsChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -1121,11 +1027,14 @@ function updateResultsChart(subjects) {
                     }
                 },
                 animation: {
-                    duration: 2000,
+                    duration: 1000,
                     easing: 'easeOutQuart'
                 }
             }
         });
+        console.log('✅ Chart created/updated successfully');
+    } catch (error) {
+        console.error('Failed to create chart:', error);
     }
 }
 
@@ -1212,3 +1121,44 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', revealSection);
     revealSection();
 });
+
+// Clear all data
+function clearAllData() {
+    if (confirm('Are you sure you want to clear all saved data? This action cannot be undone.')) {
+        // Clear localStorage data
+        localStorage.removeItem('siteData');
+        
+        // Clear Supabase data
+        supabaseClient
+            .from('site_data')
+            .delete()
+            .eq('id', 1)
+            .then(({ data, error }) => {
+                if (error) {
+                    console.error('Error clearing Supabase data:', error);
+                } else {
+                    console.log('✅ Supabase data cleared successfully');
+                }
+            });
+        
+        // Reset chart if it exists
+        if (window.resultsChart) {
+            try {
+                window.resultsChart.destroy();
+                window.resultsChart = null;
+                console.log('✅ Chart destroyed successfully');
+            } catch (chartError) {
+                console.error('Error destroying chart:', chartError);
+            }
+        }
+        
+        // Show alert
+        showAdminAlert('All saved data has been cleared. Reload the page to see default values.');
+        
+        // Disable the save button until page reload
+        if (saveChangesBtn) {
+            saveChangesBtn.disabled = true;
+            saveChangesBtn.innerHTML = '<i class="fas fa-sync mr-2"></i> Reload Page Required';
+        }
+    }
+}
