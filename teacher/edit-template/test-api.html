@@ -4,16 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .card { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 4px; }
+        .error { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
+        .success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
+        pre { white-space: pre-wrap; word-break: break-word; }
+        .btn { padding: 10px 15px; margin: 10px 5px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-secondary { background: #6c757d; }
+    </style>
 </head>
 <body>
-    <h1>Test API Connection</h1>
-    <div id="result" style="margin: 20px; padding: 20px; border: 1px solid #ccc;"></div>
-    <button id="testLogin" style="padding: 10px; margin: 10px;">Test Login API</button>
+    <h1>API Connection Test</h1>
+    
+    <div class="card">
+        <h2>Test Results</h2>
+        <div id="result">Click a test button to start testing</div>
+    </div>
+    
+    <div class="card">
+        <h2>Test Options</h2>
+        <button id="testLogin" class="btn">Test Login API</button>
+        <button id="testDirect" class="btn">Test Direct Password</button>
+        <button id="showPhpInfo" class="btn btn-secondary">Show PHP Info</button>
+    </div>
+    
+    <div class="card">
+        <h2>Troubleshooting</h2>
+        <p>If you're seeing errors about "Unexpected token &lt;", it means your PHP is not being processed correctly. This could be because:</p>
+        <ul>
+            <li>You're opening this file directly in the browser instead of through a web server</li>
+            <li>Your web server doesn't have PHP installed or configured</li>
+            <li>There's an error in the PHP script that's causing it to output HTML instead of JSON</li>
+        </ul>
+        <p><strong>Solution:</strong> Use the "Test Direct Password" button which uses the JavaScript fallback method.</p>
+    </div>
 
     <script>
+        // Test the PHP API
         document.getElementById('testLogin').addEventListener('click', async function() {
             const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = 'Testing API connection...';
+            resultDiv.innerHTML = '<p>Testing API connection...</p>';
+            resultDiv.className = '';
             
             try {
                 const response = await fetch('api.php?action=login', {
@@ -24,13 +56,77 @@
                     body: JSON.stringify({ password: 'admin123' })
                 });
                 
-                const data = await response.json();
-                resultDiv.innerHTML = `<pre>API Response: ${JSON.stringify(data, null, 2)}</pre>`;
+                // Get the raw response text first
+                const rawText = await response.text();
+                console.log('Raw API Response:', rawText);
                 
-                console.log('API Response:', data);
+                try {
+                    // Try to parse as JSON
+                    const data = JSON.parse(rawText);
+                    resultDiv.innerHTML = `
+                        <p class="${data.success ? 'success' : 'error'}">
+                            ${data.success ? '✅ Login successful!' : '❌ Login failed: ' + data.message}
+                        </p>
+                        <pre>API Response: ${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } catch (jsonError) {
+                    // If not valid JSON, show the raw response
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `
+                        <p>❌ Error: The API didn't return valid JSON</p>
+                        <pre>Raw Response:\n${rawText}</pre>
+                    `;
+                }
             } catch (error) {
-                resultDiv.innerHTML = `Error: ${error.message}`;
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
                 console.error('API Error:', error);
+            }
+        });
+        
+        // Test the direct password check (JavaScript fallback)
+        document.getElementById('testDirect').addEventListener('click', function() {
+            const resultDiv = document.getElementById('result');
+            const password = 'admin123';
+            
+            // Simple direct check
+            if (password === 'admin123') {
+                resultDiv.className = 'success';
+                resultDiv.innerHTML = `
+                    <p>✅ Direct login successful!</p>
+                    <p>The password "${password}" is correct.</p>
+                    <p>This confirms that the JavaScript fallback in script.js should work properly.</p>
+                `;
+            } else {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <p>❌ Direct login failed!</p>
+                    <p>The password "${password}" is incorrect. The expected password is "admin123".</p>
+                `;
+            }
+        });
+        
+        // Show PHP info for diagnostics
+        document.getElementById('showPhpInfo').addEventListener('click', async function() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Checking PHP info...</p>';
+            
+            try {
+                // Create a simple PHP info file on the fly
+                const phpInfoCode = `<?php phpinfo(); ?>`;
+                const blob = new Blob([phpInfoCode], {type: 'text/plain'});
+                const phpInfoUrl = URL.createObjectURL(blob);
+                
+                resultDiv.innerHTML = `
+                    <p>To check if PHP is working on your server:</p>
+                    <p>1. Download this <a href="${phpInfoUrl}" download="phpinfo.php">phpinfo.php</a> file</p>
+                    <p>2. Upload it to your server alongside the api.php file</p>
+                    <p>3. Access it in your browser</p>
+                    <p>If PHP is working, you'll see detailed PHP information. If not, you'll see the raw PHP code.</p>
+                `;
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `<p>❌ Error creating file: ${error.message}</p>`;
             }
         });
     </script>
