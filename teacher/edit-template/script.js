@@ -17,6 +17,20 @@ const closeMenuBtn = document.getElementById('closeMenuBtn');
 const mobileMenu = document.getElementById('mobileMenu');
 const mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
 const body = document.body;
+const adminBtn = document.getElementById('adminBtn');
+const adminBtnMobile = document.getElementById('adminBtnMobile');
+const adminLoginModal = document.getElementById('adminLoginModal');
+const adminLoginForm = document.getElementById('adminLoginForm');
+const cancelLoginBtn = document.getElementById('cancelLogin');
+const adminPanel = document.getElementById('adminPanel');
+const closeAdminPanelBtn = document.getElementById('closeAdminPanel');
+const saveChangesBtn = document.getElementById('saveChangesBtn');
+const addResultBtn = document.getElementById('addResultBtn');
+const adminResultsContainer = document.getElementById('admin-results-container');
+
+// Global state
+let siteData = null;
+let isLoggedIn = false;
 
 // Mobile Menu Functionality
 function toggleMenu() {
@@ -369,3 +383,477 @@ if (footerBottom) {
     const year = new Date().getFullYear();
     footerBottom.innerHTML = `&copy; ${year} Sportscout. All rights reserved.`;
 }
+
+// Admin Functionality
+if (adminBtn) adminBtn.addEventListener('click', showAdminLogin);
+if (adminBtnMobile) adminBtnMobile.addEventListener('click', showAdminLogin);
+if (cancelLoginBtn) cancelLoginBtn.addEventListener('click', hideAdminLogin);
+if (closeAdminPanelBtn) closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
+if (adminLoginForm) adminLoginForm.addEventListener('submit', handleAdminLogin);
+if (saveChangesBtn) saveChangesBtn.addEventListener('click', saveAdminChanges);
+if (addResultBtn) addResultBtn.addEventListener('click', addNewResult);
+
+// Show admin login modal
+function showAdminLogin() {
+    if (adminLoginModal) {
+        adminLoginModal.classList.remove('hidden');
+        const passwordInput = document.getElementById('adminPassword');
+        if (passwordInput) passwordInput.focus();
+    }
+}
+
+// Hide admin login modal
+function hideAdminLogin() {
+    if (adminLoginModal) {
+        adminLoginModal.classList.add('hidden');
+        if (adminLoginForm) adminLoginForm.reset();
+    }
+}
+
+// Handle admin login
+async function handleAdminLogin(event) {
+    event.preventDefault();
+    
+    const passwordInput = document.getElementById('adminPassword');
+    if (!passwordInput) return;
+    
+    const password = passwordInput.value;
+    if (!password) return;
+    
+    try {
+        const response = await fetch('api.php?action=login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            isLoggedIn = true;
+            hideAdminLogin();
+            openAdminPanel();
+        } else {
+            showAdminAlert('Invalid password. Please try again.', true);
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        showAdminAlert('Login failed. Please try again.', true);
+    }
+}
+
+// Show admin alert
+function showAdminAlert(message, isError = false) {
+    // Remove any existing alerts
+    const existingAlerts = document.querySelectorAll('.admin-alert');
+    existingAlerts.forEach(alert => alert.remove());
+    
+    // Create new alert
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `admin-alert ${isError ? 'error' : ''}`;
+    alertDiv.innerHTML = `
+        <i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    // Add alert to modal or panel
+    if (adminPanel && adminPanel.classList.contains('hidden')) {
+        // Add to login modal
+        const form = document.getElementById('adminLoginForm');
+        if (form) form.parentNode.insertBefore(alertDiv, form);
+    } else {
+        // Add to admin panel
+        const panelHeader = document.querySelector('#adminPanel .container > div:first-child');
+        if (panelHeader) panelHeader.insertAdjacentElement('afterend', alertDiv);
+    }
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// Open admin panel and load data
+async function openAdminPanel() {
+    if (!isLoggedIn) return;
+    
+    try {
+        // Fetch site data
+        const response = await fetch('api.php?action=getData');
+        siteData = await response.json();
+        
+        // Populate admin form with data
+        populateAdminForm(siteData);
+        
+        // Show admin panel
+        if (adminPanel) {
+            adminPanel.classList.remove('hidden');
+            body.classList.add('overflow-hidden');
+        }
+    } catch (error) {
+        console.error('Error loading data:', error);
+        showAdminAlert('Failed to load site data.', true);
+    }
+}
+
+// Populate admin form with data
+function populateAdminForm(data) {
+    // Personal Info
+    document.getElementById('admin-name').value = data.personalInfo.name || '';
+    document.getElementById('admin-title').value = data.personalInfo.title || '';
+    document.getElementById('admin-experience').value = data.personalInfo.experience || '';
+    document.getElementById('admin-qualifications').value = (data.personalInfo.qualifications || []).join('\n');
+    
+    // Experience
+    document.getElementById('admin-schools').value = (data.experience.schools || []).join('\n');
+    document.getElementById('admin-centers').value = (data.experience.centers || []).join('\n');
+    document.getElementById('admin-platforms').value = (data.experience.onlinePlatforms || []).join('\n');
+    
+    // Results
+    populateResultsForm(data.results.subjects || []);
+    
+    // Contact
+    document.getElementById('admin-email').value = data.contact.email || '';
+    document.getElementById('admin-form-url').value = data.contact.formUrl || '';
+}
+
+// Populate results form
+function populateResultsForm(subjects) {
+    if (!adminResultsContainer) return;
+    
+    // Clear container
+    adminResultsContainer.innerHTML = '';
+    
+    // Add each subject
+    subjects.forEach((subject, index) => {
+        addResultItem(subject.name, subject.score);
+    });
+    
+    // Add an empty one if none exist
+    if (subjects.length === 0) {
+        addResultItem('', '');
+    }
+}
+
+// Add a new result item to the form
+function addResultItem(name = '', score = '') {
+    if (!adminResultsContainer) return;
+    
+    const resultItem = document.createElement('div');
+    resultItem.className = 'admin-result-item';
+    resultItem.innerHTML = `
+        <input type="text" class="form-input subject-name" placeholder="Subject name" value="${name}">
+        <input type="number" class="form-input subject-score" placeholder="Score" min="0" max="100" value="${score}">
+        <button type="button" class="remove-btn">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+    `;
+    
+    // Add remove functionality
+    const removeBtn = resultItem.querySelector('.remove-btn');
+    if (removeBtn) {
+        removeBtn.addEventListener('click', () => {
+            // Only remove if there's more than one result item
+            if (adminResultsContainer.children.length > 1) {
+                resultItem.remove();
+            }
+        });
+    }
+    
+    adminResultsContainer.appendChild(resultItem);
+}
+
+// Add a new empty result
+function addNewResult() {
+    addResultItem();
+}
+
+// Close admin panel
+function closeAdminPanel() {
+    if (adminPanel) {
+        adminPanel.classList.add('hidden');
+        body.classList.remove('overflow-hidden');
+    }
+}
+
+// Save admin changes
+async function saveAdminChanges() {
+    if (!isLoggedIn || !saveChangesBtn) return;
+    
+    // Add loading indicator
+    const originalBtnText = saveChangesBtn.innerHTML;
+    saveChangesBtn.innerHTML = '<span class="admin-loading"></span> Saving...';
+    saveChangesBtn.disabled = true;
+    
+    try {
+        // Collect data from form
+        const updatedData = {
+            personalInfo: {
+                name: document.getElementById('admin-name').value,
+                title: document.getElementById('admin-title').value,
+                experience: document.getElementById('admin-experience').value,
+                qualifications: document.getElementById('admin-qualifications').value
+                    .split('\n')
+                    .filter(line => line.trim() !== '')
+            },
+            experience: {
+                schools: document.getElementById('admin-schools').value
+                    .split('\n')
+                    .filter(line => line.trim() !== ''),
+                centers: document.getElementById('admin-centers').value
+                    .split('\n')
+                    .filter(line => line.trim() !== ''),
+                onlinePlatforms: document.getElementById('admin-platforms').value
+                    .split('\n')
+                    .filter(line => line.trim() !== '')
+            },
+            results: {
+                subjects: Array.from(adminResultsContainer.querySelectorAll('.admin-result-item'))
+                    .map(item => {
+                        const name = item.querySelector('.subject-name').value.trim();
+                        const score = parseInt(item.querySelector('.subject-score').value) || 0;
+                        if (name === '') return null;
+                        return { name, score };
+                    })
+                    .filter(item => item !== null)
+            },
+            contact: {
+                email: document.getElementById('admin-email').value,
+                formUrl: document.getElementById('admin-form-url').value
+            }
+        };
+        
+        // Send data to server
+        const response = await fetch('api.php?action=saveData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ data: updatedData })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAdminAlert('Changes saved successfully!');
+            siteData = updatedData;
+            updateSiteContent(updatedData);
+            
+            // Close admin panel after a delay
+            setTimeout(() => {
+                closeAdminPanel();
+            }, 1500);
+        } else {
+            showAdminAlert('Failed to save changes.', true);
+        }
+    } catch (error) {
+        console.error('Save error:', error);
+        showAdminAlert('Error saving changes. Please try again.', true);
+    } finally {
+        // Restore button
+        saveChangesBtn.innerHTML = originalBtnText;
+        saveChangesBtn.disabled = false;
+    }
+}
+
+// Update site content with new data
+function updateSiteContent(data) {
+    // Update page title
+    document.title = `${data.personalInfo.name} - ${data.personalInfo.title}`;
+    
+    // Update name in navigation
+    const navName = document.querySelector('header nav a.text-2xl');
+    if (navName) navName.textContent = data.personalInfo.name;
+    
+    // Update hero section
+    const heroTitle = document.querySelector('#hero h1');
+    if (heroTitle) {
+        const spanElement = heroTitle.querySelector('span');
+        const spanHTML = spanElement ? spanElement.outerHTML : '<span class="text-yellow-400">Mathematics</span>';
+        heroTitle.innerHTML = `Inspiring Minds Through ${spanHTML}`;
+    }
+    
+    const heroDesc = document.querySelector('#hero p.text-lg');
+    if (heroDesc) {
+        heroDesc.textContent = data.personalInfo.experience;
+    }
+    
+    // Update about section
+    const qualsList = document.querySelector('#about ul');
+    if (qualsList) {
+        qualsList.innerHTML = data.personalInfo.qualifications.map(qual => `
+            <li class="flex items-center">
+                <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
+                <span>${qual}</span>
+            </li>
+        `).join('');
+    }
+    
+    // Update experience section
+    const schoolsList = document.querySelector('#experience .experience-card:nth-child(1) ul');
+    if (schoolsList) {
+        schoolsList.innerHTML = data.experience.schools.map(school => `
+            <li class="flex items-center">
+                <i class="fas fa-check text-green-500 mr-2"></i>
+                <span>${school}</span>
+            </li>
+        `).join('');
+    }
+    
+    const centersList = document.querySelector('#experience .experience-card:nth-child(2) ul');
+    if (centersList) {
+        centersList.innerHTML = data.experience.centers.map(center => `
+            <li class="flex items-center">
+                <i class="fas fa-check text-green-500 mr-2"></i>
+                <span>${center}</span>
+            </li>
+        `).join('');
+    }
+    
+    const platformsList = document.querySelector('#experience .experience-card:nth-child(3) ul');
+    if (platformsList) {
+        platformsList.innerHTML = data.experience.onlinePlatforms.map(platform => `
+            <li class="flex items-center">
+                <i class="fas fa-check text-green-500 mr-2"></i>
+                <span>${platform}</span>
+            </li>
+        `).join('');
+    }
+    
+    // Update results chart
+    updateResultsChart(data.results.subjects);
+    
+    // Update contact form
+    document.querySelector('#register a.btn').href = data.contact.formUrl;
+}
+
+// Update results chart with new data
+function updateResultsChart(subjects) {
+    if (!window.resultsChart) return;
+    
+    window.resultsChart.data.labels = subjects.map(subject => subject.name);
+    window.resultsChart.data.datasets[0].data = subjects.map(subject => subject.score);
+    window.resultsChart.update();
+}
+
+// Initialize results chart
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('resultsChart');
+    if (!ctx) return;
+    
+    // Create chart
+    window.resultsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Mathematics', 'Physics', 'Chemistry', 'Biology'],
+            datasets: [{
+                label: 'Student Performance (%)',
+                data: [85, 78, 82, 75],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(239, 68, 68, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(245, 158, 11, 1)',
+                    'rgba(239, 68, 68, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.raw + '%';
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeOutQuart'
+            }
+        }
+    });
+});
+
+// Contact form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contactForm');
+    if (!contactForm) return;
+    
+    contactForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitBtn = contactForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="loading"></span> Sending...';
+        submitBtn.disabled = true;
+        
+        try {
+            // Simulate form submission (in a real app, send to a server)
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Show success message
+            contactForm.innerHTML = `
+                <div class="text-center p-8">
+                    <i class="fas fa-check-circle text-green-500 text-5xl mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Message Sent!</h3>
+                    <p class="text-gray-600">Thank you for your message. I'll get back to you shortly.</p>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Form submission error:', error);
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+            
+            // Show error message
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'text-red-500 mt-4';
+            errorMsg.textContent = 'There was an error sending your message. Please try again.';
+            contactForm.appendChild(errorMsg);
+        }
+    });
+});
+
+// Scroll reveal animations
+document.addEventListener('DOMContentLoaded', function() {
+    const revealElements = document.querySelectorAll('.reveal');
+    
+    const revealSection = function() {
+        revealElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const elementVisible = 150;
+            
+            if (elementTop < window.innerHeight - elementVisible) {
+                element.classList.add('active');
+            }
+        });
+    };
+    
+    window.addEventListener('scroll', revealSection);
+    revealSection();
+});
