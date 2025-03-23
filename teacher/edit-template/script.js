@@ -393,8 +393,26 @@ if (adminLoginForm) adminLoginForm.addEventListener('submit', handleAdminLogin);
 if (saveChangesBtn) saveChangesBtn.addEventListener('click', saveAdminChanges);
 if (addResultBtn) addResultBtn.addEventListener('click', addNewResult);
 
+// Add logout functionality
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) logoutBtn.addEventListener('click', adminLogout);
+
+// Check for localStorage login flag on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('adminLoggedIn') === 'true') {
+        console.log('Auto-login from localStorage flag');
+        isLoggedIn = true;
+    }
+});
+
 // Show admin login modal
 function showAdminLogin() {
+    if (isLoggedIn) {
+        // If already logged in, just open the admin panel
+        openAdminPanel();
+        return;
+    }
+    
     if (adminLoginModal) {
         adminLoginModal.classList.remove('hidden');
         const passwordInput = document.getElementById('adminPassword');
@@ -430,6 +448,8 @@ async function handleAdminLogin(event) {
     if (password === 'admin123') {
         console.log('Using direct password check');
         isLoggedIn = true;
+        // Save login state to localStorage
+        localStorage.setItem('adminLoggedIn', 'true');
         hideAdminLogin();
         openAdminPanel(); 
         submitBtn.disabled = false;
@@ -440,37 +460,50 @@ async function handleAdminLogin(event) {
     try {
         console.log('Attempting login with password:', password);
         
-        const response = await fetch('api.php?action=login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ password })
-        });
+        // First try the API
+        let loginSuccessful = false;
         
-        console.log('API Response status:', response.status);
-        
-        // Check if the response is valid JSON
-        let data;
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            data = await response.json();
-            console.log('API Response data:', data);
-        } else {
-            // If not JSON, get the text and log it
-            const text = await response.text();
-            console.log('API Response text:', text);
-            throw new Error('API returned non-JSON response');
+        try {
+            const response = await fetch('api.php?action=login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ password })
+            });
+            
+            console.log('API Response status:', response.status);
+            
+            // Check if the response is valid JSON
+            let data;
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                data = await response.json();
+                console.log('API Response data:', data);
+                loginSuccessful = data && data.success;
+            } else {
+                // If not JSON, get the text and log it
+                const text = await response.text();
+                console.log('API Response text:', text);
+                throw new Error('API returned non-JSON response');
+            }
+        } catch (apiError) {
+            console.error('API login error:', apiError);
+            // API failed - show an error but continue with the fallback check
+            showAdminAlert('API login failed. Checking fallback method...', true);
         }
         
-        if (data && data.success) {
+        // If the API login was successful or our direct check passed
+        if (loginSuccessful || password === 'admin123') {
             console.log('Login successful');
             isLoggedIn = true;
+            // Save login state to localStorage
+            localStorage.setItem('adminLoggedIn', 'true');
             hideAdminLogin();
             openAdminPanel();
         } else {
-            console.log('Login failed:', data ? data.message : 'Unknown error');
-            showAdminAlert(data && data.message ? data.message : 'Invalid password. Please try again.', true);
+            console.log('Login failed');
+            showAdminAlert('Invalid password. Please try again.', true);
         }
     } catch (error) {
         console.error('Login error:', error);
@@ -484,32 +517,65 @@ async function handleAdminLogin(event) {
 
 // Show admin alert
 function showAdminAlert(message, isError = false) {
-    // Remove any existing alerts
-    const existingAlerts = document.querySelectorAll('.admin-alert');
-    existingAlerts.forEach(alert => alert.remove());
+    // Find the alert container
+    const alertContainer = document.getElementById('adminAlertContainer');
     
-    // Create new alert
+    // If no container found, create one where needed
+    let container = alertContainer;
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'tempAlertContainer';
+        container.className = 'mb-4';
+        
+        if (adminPanel && !adminPanel.classList.contains('hidden')) {
+            // Add to admin panel
+            const panelHeader = document.querySelector('#adminPanel .container > div:first-child');
+            if (panelHeader) panelHeader.parentNode.insertBefore(container, panelHeader.nextSibling);
+        } else {
+            // Add to login modal
+            const form = document.getElementById('adminLoginForm');
+            if (form) form.parentNode.insertBefore(container, form);
+        }
+    }
+    
+    // Create alert element
     const alertDiv = document.createElement('div');
-    alertDiv.className = `admin-alert ${isError ? 'error' : ''}`;
+    alertDiv.className = `alert ${isError ? 'bg-red-100 border-red-400 text-red-700' : 'bg-green-100 border-green-400 text-green-700'} px-4 py-3 rounded relative mb-4 border`;
     alertDiv.innerHTML = `
-        <i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
-        <span>${message}</span>
+        <span class="block sm:inline">${message}</span>
+        <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+            <svg class="fill-current h-6 w-6" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <title>Close</title>
+                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+            </svg>
+        </span>
     `;
     
-    // Add alert to modal or panel
-    if (adminPanel && adminPanel.classList.contains('hidden')) {
-        // Add to login modal
-        const form = document.getElementById('adminLoginForm');
-        if (form) form.parentNode.insertBefore(alertDiv, form);
-    } else {
-        // Add to admin panel
-        const panelHeader = document.querySelector('#adminPanel .container > div:first-child');
-        if (panelHeader) panelHeader.insertAdjacentElement('afterend', alertDiv);
+    // Add close button functionality
+    const closeBtn = alertDiv.querySelector('svg');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => alertDiv.remove());
     }
+    
+    // Add to container
+    container.appendChild(alertDiv);
     
     // Auto-remove after 5 seconds
     setTimeout(() => {
-        alertDiv.remove();
+        if (document.body.contains(alertDiv)) {
+            alertDiv.style.opacity = '0';
+            alertDiv.style.transition = 'opacity 0.5s';
+            setTimeout(() => {
+                if (document.body.contains(alertDiv)) {
+                    alertDiv.remove();
+                }
+                
+                // Also remove temp container if it's empty
+                if (container.id === 'tempAlertContainer' && container.children.length === 0) {
+                    container.remove();
+                }
+            }, 500);
+        }
     }, 5000);
 }
 
@@ -518,13 +584,36 @@ async function openAdminPanel() {
     if (!isLoggedIn) return;
     
     try {
-        // Try to fetch site data from API
+        // Try to fetch site data
+        let dataFetched = false;
+        
+        // First check localStorage
         try {
-            const response = await fetch('api.php?action=getData');
-            siteData = await response.json();
-        } catch (error) {
-            console.error('Error fetching from API, using default data:', error);
-            // Fall back to default data if API fails
+            const storedData = localStorage.getItem('siteData');
+            if (storedData) {
+                siteData = JSON.parse(storedData);
+                console.log('Data loaded from localStorage');
+                dataFetched = true;
+            }
+        } catch (localStorageError) {
+            console.error('Error reading from localStorage:', localStorageError);
+        }
+        
+        // If no data in localStorage, try the API
+        if (!dataFetched) {
+            try {
+                const response = await fetch('api.php?action=getData');
+                siteData = await response.json();
+                console.log('Data loaded from API');
+                dataFetched = true;
+            } catch (apiError) {
+                console.error('Error fetching from API:', apiError);
+            }
+        }
+        
+        // If all else fails, use default data
+        if (!dataFetched) {
+            console.log('Using default data');
             siteData = {
                 personalInfo: {
                     name: 'Dr. Ahmed Mahmoud',
@@ -660,6 +749,14 @@ function closeAdminPanel() {
         adminPanel.classList.add('hidden');
         body.classList.remove('overflow-hidden');
     }
+}
+
+// Logout function
+function adminLogout() {
+    isLoggedIn = false;
+    localStorage.removeItem('adminLoggedIn');
+    closeAdminPanel();
+    showAdminAlert('You have been logged out successfully.');
 }
 
 // Save admin changes
