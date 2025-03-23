@@ -16,57 +16,48 @@ Follow these steps to set up Supabase for your teacher profile website:
 4. Choose the region closest to your users
 5. Click "Create new project"
 
-## 3. Create a Table for Site Data
+## 3. Set Up the Database Using SQL
 
-1. Go to the "Table Editor" in the left sidebar
-2. Click "New Table"
-3. Set table name to `site_data`
-4. Add the following columns:
-   - `id` (type: int8, primary key)
-   - `data` (type: jsonb)
-   - `created_at` (type: timestamptz, default: now())
-5. Click "Save"
+1. Go to the "SQL Editor" in the left sidebar
+2. Click "New Query"
+3. Copy and paste the SQL code from `supabase-setup.sql` into the editor
+4. Click "Run" to execute the SQL commands
+5. This will:
+   - Create the `site_data` table
+   - Set up the necessary row-level security policies
+   - Insert a default row with sample data
 
-## 4. Configure Row Level Security (RLS)
+## 4. Your Supabase Credentials
 
-1. Go to "Authentication" > "Policies" in the left sidebar
-2. Find your `site_data` table
-3. Enable RLS by turning on the toggle
-4. Add a policy that allows anyone to read but only authenticated users to write:
-   - Click "New Policy"
-   - Choose "Select for all users" template
-   - Save that policy
-   - Click "New Policy" again
-   - Choose "Insert, Update, Delete for authenticated users only" template
-   - Save that policy
+Your Supabase URL and anon key have already been configured in the application:
 
-## 5. Get Your Supabase URL and Key
+- **URL**: `https://jckwvrzcjuggnfcbogrr.supabase.co`
+- **Anon Key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impja3d2cnpjanVnZ25mY2JvZ3JyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA2OTIwMTYsImV4cCI6MjA1NjI2ODAxNn0.p2a0om1X40AJVhldUdtaU-at0SSPz6hLbrAg-ELHcnY`
 
-1. Go to "Project Settings" > "API" in the left sidebar
-2. You'll find your:
-   - API URL (copy the URL in "Project URL" section)
-   - Anon/Public Key (under "Project API Keys")
-
-## 6. Update Your Website Configuration
-
-1. Open `script.js`
-2. Replace the placeholder values with your actual Supabase URL and public key:
-
-```javascript
-const SUPABASE_URL = 'your-project-url';
-const SUPABASE_KEY = 'your-anon-key';
-```
+These credentials are already set in:
+- `script.js` for the main application
+- `test-supabase.html` for testing the connection
 
 ## Testing Your Setup
 
-1. Open your website and log in to the admin panel
-2. Make some changes and save them
-3. Refresh the page - your changes should persist
-4. Check the Supabase Table Editor - you should see your data stored in the `site_data` table
+1. Open `test-supabase.html` in your browser
+2. Click "Test Connection" to verify your Supabase connection works
+3. If successful, you can use the buttons to:
+   - Get Data: Retrieve the current data from Supabase
+   - Save Sample Data: Insert or update test data
+   - Delete Data: Remove the data
+
+## Using the Admin Panel
+
+1. Open your website and click the Admin button
+2. Login using the password: `admin123`
+3. Make changes in the admin panel
+4. Click "Save Changes"
+5. The data will be saved to both Supabase and localStorage
 
 ## Troubleshooting
 
 - If changes aren't saving, check the browser console for error messages
-- Verify your Supabase URL and key are correct
-- Make sure your RLS policies are properly configured
-- Check that your table structure matches the expected format 
+- Verify the SQL script ran successfully by checking if the `site_data` table exists
+- Make sure you've run the SQL setup script from `supabase-setup.sql`
+- Check that your RLS policies are properly configured by reviewing them in the Supabase dashboard 

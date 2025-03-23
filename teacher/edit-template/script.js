@@ -33,8 +33,8 @@ let siteData = null;
 let isLoggedIn = false;
 
 // Supabase setup
-const SUPABASE_URL = 'https://your-supabase-url.supabase.co';
-const SUPABASE_KEY = 'your-supabase-anon-key';
+const SUPABASE_URL = 'https://jckwvrzcjuggnfcbogrr.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impja3d2cnpjanVnZ25mY2JvZ3JyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA2OTIwMTYsImV4cCI6MjA1NjI2ODAxNn0.p2a0om1X40AJVhldUdtaU-at0SSPz6hLbrAg-ELHcnY';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Load saved data from localStorage on page load
