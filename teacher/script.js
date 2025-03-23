@@ -201,9 +201,8 @@ window.addEventListener('scroll', () => {
 const year = new Date().getFullYear();
 document.querySelector('.footer-bottom').innerHTML = `&copy; ${year} Sportscout. All rights reserved.`;
 
-// Initialize Chart.js for student results
+// Update Chart with real data
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Chart.js with improved styling
     const ctx = document.getElementById('resultsChart').getContext('2d');
     new Chart(ctx, {
         type: 'bar',
@@ -214,30 +213,50 @@ document.addEventListener('DOMContentLoaded', function() {
                 data: [45, 38, 42, 35],
                 backgroundColor: 'rgba(59, 130, 246, 0.8)',
                 borderColor: 'rgb(59, 130, 246)',
-                borderWidth: 1
+                borderWidth: 1,
+                borderRadius: 5
             }, {
                 label: 'A Grades',
                 data: [65, 58, 62, 55],
                 backgroundColor: 'rgba(16, 185, 129, 0.8)',
                 borderColor: 'rgb(16, 185, 129)',
-                borderWidth: 1
+                borderWidth: 1,
+                borderRadius: 5
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            },
             scales: {
                 y: {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Number of Students'
+                        text: 'Number of Students',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
                     }
                 },
                 x: {
                     title: {
                         display: true,
-                        text: 'Subjects'
+                        text: 'Subjects',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    grid: {
+                        display: false
                     }
                 }
             },
@@ -246,104 +265,54 @@ document.addEventListener('DOMContentLoaded', function() {
                     display: true,
                     text: 'Student Performance Distribution (A* and A Grades)',
                     font: {
-                        size: 16
+                        size: 16,
+                        weight: 'bold'
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 30
                     }
                 },
                 legend: {
-                    position: 'top'
+                    position: 'top',
+                    labels: {
+                        padding: 20,
+                        font: {
+                            size: 12
+                        }
+                    }
                 }
             }
         }
     });
-
-    // Handle contact form submission
-    const contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form data
-            const formData = new FormData(contactForm);
-            const data = Object.fromEntries(formData.entries());
-            
-            // Here you would typically send the data to your server
-            console.log('Form submitted:', data);
-            
-            // Show success message
-            const successMessage = document.createElement('div');
-            successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-500 translate-y-0 opacity-100';
-            successMessage.textContent = 'Message sent successfully!';
-            document.body.appendChild(successMessage);
-            
-            // Remove success message after 3 seconds
-            setTimeout(() => {
-                successMessage.style.transform = 'translateY(-100%)';
-                successMessage.style.opacity = '0';
-                setTimeout(() => {
-                    successMessage.remove();
-                }, 500);
-            }, 3000);
-            
-            // Reset form
-            contactForm.reset();
-        });
-    }
-
-    // Smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-
-    // Add active class to navigation links based on scroll position
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('nav a[href^="#"]');
-
-    function setActiveLink() {
-        const scrollPosition = window.scrollY + 100;
-
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.offsetHeight;
-
-            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-                const id = section.getAttribute('id');
-                navLinks.forEach(link => {
-                    link.classList.remove('text-blue-600', 'font-bold');
-                    if (link.getAttribute('href') === `#${id}`) {
-                        link.classList.add('text-blue-600', 'font-bold');
-                    }
-                });
-            }
-        });
-    }
-
-    window.addEventListener('scroll', setActiveLink);
-    setActiveLink(); // Set initial active link
-
-    // Add scroll reveal animations
-    const revealElements = document.querySelectorAll('.reveal');
-    
-    function reveal() {
-        revealElements.forEach(element => {
-            const windowHeight = window.innerHeight;
-            const elementTop = element.getBoundingClientRect().top;
-            const elementVisible = 150;
-
-            if (elementTop < windowHeight - elementVisible) {
-                element.classList.add('active');
-            }
-        });
-    }
-
-    window.addEventListener('scroll', reveal);
-    reveal(); // Initial reveal check
 });
+
+// Add hover animations to cards
+document.querySelectorAll('.bg-white.rounded-lg').forEach(card => {
+    card.addEventListener('mouseenter', () => {
+        card.classList.add('transform', 'scale-105', 'transition-all', 'duration-300');
+    });
+    
+    card.addEventListener('mouseleave', () => {
+        card.classList.remove('transform', 'scale-105', 'transition-all', 'duration-300');
+    });
+});
+
+// Add smooth reveal animation to sections
+document.querySelectorAll('section').forEach(section => {
+    section.classList.add('opacity-0', 'transform', 'translate-y-10', 'transition-all', 'duration-700');
+});
+
+function revealSection() {
+    document.querySelectorAll('section').forEach(section => {
+        const sectionTop = section.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+        
+        if (sectionTop < windowHeight * 0.75) {
+            section.classList.remove('opacity-0', 'translate-y-10');
+        }
+    });
+}
+
+window.addEventListener('scroll', revealSection);
+revealSection(); // Initial check
