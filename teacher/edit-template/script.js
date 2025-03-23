@@ -507,6 +507,17 @@ function clearAllData() {
                 }
             });
         
+        // Reset chart if it exists
+        if (window.resultsChart) {
+            try {
+                window.resultsChart.destroy();
+                window.resultsChart = null;
+                console.log('✅ Chart destroyed successfully');
+            } catch (chartError) {
+                console.error('Error destroying chart:', chartError);
+            }
+        }
+        
         // Show alert
         showAdminAlert('All saved data has been cleared. Reload the page to see default values.');
         
@@ -942,8 +953,13 @@ async function saveAdminChanges() {
         // Update the global data variable
         siteData = updatedData;
         
-        // Update the site content with the new data
-        updateSiteContent(updatedData);
+        // Safely update the site content including the chart
+        try {
+            updateSiteContent(updatedData);
+        } catch (updateError) {
+            console.error('Error updating site content:', updateError);
+            // Don't fail the whole save operation because of the UI update
+        }
         
         // Show success message
         showAdminAlert('Changes saved successfully!');
@@ -1026,28 +1042,96 @@ function updateSiteContent(data) {
         `).join('');
     }
     
-    // Update results chart
-    updateResultsChart(data.results.subjects);
+    // Update results chart - wrap in try/catch to prevent errors from breaking everything
+    try {
+        if (data.results && data.results.subjects) {
+            updateResultsChart(data.results.subjects);
+        }
+    } catch (chartError) {
+        console.error('Error updating chart:', chartError);
+    }
     
     // Update contact form
-    document.querySelector('#register a.btn').href = data.contact.formUrl;
+    const registerBtn = document.querySelector('#register a.btn');
+    if (registerBtn && data.contact && data.contact.formUrl) {
+        registerBtn.href = data.contact.formUrl;
+    }
 }
 
 // Update results chart with new data
 function updateResultsChart(subjects) {
-    if (!window.resultsChart) return;
+    // Get the chart canvas
+    const ctx = document.getElementById('resultsChart');
+    if (!ctx) return; // Exit if chart canvas doesn't exist
     
-    window.resultsChart.data.labels = subjects.map(subject => subject.name);
-    window.resultsChart.data.datasets[0].data = subjects.map(subject => subject.score);
-    window.resultsChart.update();
+    if (window.resultsChart) {
+        // Update existing chart
+        window.resultsChart.data.labels = subjects.map(subject => subject.name);
+        window.resultsChart.data.datasets[0].data = subjects.map(subject => subject.score);
+        window.resultsChart.update();
+    } else {
+        // Chart doesn't exist yet, create it
+        console.log('Creating new results chart');
+        window.resultsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: subjects.map(subject => subject.name),
+                datasets: [{
+                    label: 'Student Performance (%)',
+                    data: subjects.map(subject => subject.score),
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(239, 68, 68, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(16, 185, 129, 1)',
+                        'rgba(245, 158, 11, 1)',
+                        'rgba(239, 68, 68, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw + '%';
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+    }
 }
 
 // Initialize results chart
 document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('resultsChart');
-    if (!ctx) return;
-    
-    // Get subjects data from localStorage if available
+    // Initial chart data
     let subjectsData = [
         {name: 'Mathematics', score: 85},
         {name: 'Physics', score: 78},
@@ -1067,61 +1151,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Error loading chart data:', error);
     }
     
-    // Create chart
-    window.resultsChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: subjectsData.map(subject => subject.name),
-            datasets: [{
-                label: 'Student Performance (%)',
-                data: subjectsData.map(subject => subject.score),
-                backgroundColor: [
-                    'rgba(59, 130, 246, 0.8)',
-                    'rgba(16, 185, 129, 0.8)',
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(239, 68, 68, 0.8)'
-                ],
-                borderColor: [
-                    'rgba(59, 130, 246, 1)',
-                    'rgba(16, 185, 129, 1)',
-                    'rgba(245, 158, 11, 1)',
-                    'rgba(239, 68, 68, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        }
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.raw + '%';
-                        }
-                    }
-                }
-            },
-            animation: {
-                duration: 2000,
-                easing: 'easeOutQuart'
-            }
-        }
-    });
+    // Initialize the chart with data
+    updateResultsChart(subjectsData);
 });
 
 // Contact form submission
