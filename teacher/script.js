@@ -9,44 +9,45 @@ window.addEventListener('load', () => {
     }, 600);
 });
 
-// Mobile Menu Toggle
+// Mobile Menu Functionality
 const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
 const mobileMenu = document.querySelector('.mobile-menu');
-const mobileNavLinks = document.querySelectorAll('.mobile-nav-links a');
-const closeBtn = document.querySelector('.mobile-menu .close-btn');
+const closeMenuBtn = document.querySelector('.mobile-menu button');
+const mobileMenuLinks = document.querySelectorAll('.mobile-menu a');
 
-function closeMenu() {
-    mobileMenu.classList.remove('active');
-    mobileMenuBtn.classList.remove('active');
+function openMobileMenu() {
+    mobileMenu.classList.add('active');
+    document.body.classList.add('menu-open');
+    document.body.style.overflow = 'hidden';
 }
 
-mobileMenuBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    mobileMenu.classList.toggle('active');
-    mobileMenuBtn.classList.toggle('active');
-});
+function closeMobileMenu() {
+    mobileMenu.classList.remove('active');
+    document.body.classList.remove('menu-open');
+    document.body.style.overflow = '';
+}
 
-// Close menu when clicking close button
-closeBtn.addEventListener('click', closeMenu);
+mobileMenuBtn.addEventListener('click', openMobileMenu);
+closeMenuBtn.addEventListener('click', closeMobileMenu);
 
-// Close mobile menu when clicking outside
+// Close menu when clicking outside
 document.addEventListener('click', (e) => {
-    if (!mobileMenu.contains(e.target) && 
-        !mobileMenuBtn.contains(e.target) && 
-        mobileMenu.classList.contains('active')) {
-        closeMenu();
+    if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+        closeMobileMenu();
     }
 });
 
-// Close menu when clicking a link
-mobileNavLinks.forEach(link => {
-    link.addEventListener('click', closeMenu);
+// Close menu when clicking links
+mobileMenuLinks.forEach(link => {
+    link.addEventListener('click', closeMobileMenu);
 });
 
-// Prevent menu from closing when clicking inside it
-mobileMenu.addEventListener('click', (e) => {
-    e.stopPropagation();
-});
+// Prevent touchmove when menu is open
+document.addEventListener('touchmove', (e) => {
+    if (document.body.classList.contains('menu-open')) {
+        e.preventDefault();
+    }
+}, { passive: false });
 
 // Smooth Scrolling
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
