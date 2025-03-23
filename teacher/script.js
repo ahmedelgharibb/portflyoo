@@ -9,37 +9,39 @@ window.addEventListener('load', () => {
     }, 600);
 });
 
+// DOM Elements
+const menuBtn = document.getElementById('menuBtn');
+const closeMenuBtn = document.getElementById('closeMenuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+const mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
+const body = document.body;
+
 // Mobile Menu Functionality
-const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-const mobileMenu = document.querySelector('.mobile-menu');
-const closeMenuBtn = document.querySelector('.mobile-menu button');
-const mobileMenuLinks = document.querySelectorAll('.mobile-menu a');
-
-function openMobileMenu() {
-    mobileMenu.classList.add('active');
-    document.body.classList.add('menu-open');
-    document.body.style.overflow = 'hidden';
+function toggleMenu() {
+    mobileMenu.classList.toggle('active');
+    body.classList.toggle('menu-open');
 }
 
-function closeMobileMenu() {
+function closeMenu() {
     mobileMenu.classList.remove('active');
-    document.body.classList.remove('menu-open');
-    document.body.style.overflow = '';
+    body.classList.remove('menu-open');
 }
 
-mobileMenuBtn.addEventListener('click', openMobileMenu);
-closeMenuBtn.addEventListener('click', closeMobileMenu);
+menuBtn.addEventListener('click', toggleMenu);
+closeMenuBtn.addEventListener('click', closeMenu);
 
 // Close menu when clicking outside
 document.addEventListener('click', (e) => {
-    if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-        closeMobileMenu();
+    if (mobileMenu.classList.contains('active') && 
+        !mobileMenu.contains(e.target) && 
+        !menuBtn.contains(e.target)) {
+        closeMenu();
     }
 });
 
-// Close menu when clicking links
+// Close menu when clicking on mobile menu links
 mobileMenuLinks.forEach(link => {
-    link.addEventListener('click', closeMobileMenu);
+    link.addEventListener('click', closeMenu);
 });
 
 // Prevent touchmove when menu is open
@@ -49,13 +51,17 @@ document.addEventListener('touchmove', (e) => {
     }
 }, { passive: false });
 
-// Smooth Scrolling
+// Smooth Scroll for Navigation Links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
-            behavior: 'smooth'
-        });
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
     });
 });
 
@@ -161,131 +167,116 @@ function nextTestimonial() {
 
 setInterval(nextTestimonial, 5000); // Change testimonial every 5 seconds
 
-// Contact Form Submission
+// Contact Form Handling
 const contactForm = document.getElementById('contactForm');
 
-contactForm.addEventListener('submit', (e) => {
+contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
     const formData = new FormData(contactForm);
-    const name = formData.get('name');
-    const email = formData.get('email');
-    const message = formData.get('message');
-
-    // Simulate form submission
-    setTimeout(() => {
-        alert(`Thank you, ${name}! Your message has been sent.`);
-        contactForm.reset();
-    }, 1000);
-});
-
-// Scroll Reveal Animations
-const scrollReveal = ScrollReveal({
-    origin: 'bottom',
-    distance: '60px',
-    duration: 1000,
-    delay: 200,
-    reset: true
-});
-
-scrollReveal.reveal('.hero-content, .about-grid, .stats-grid, .gallery-grid, .timeline, .testimonial-slider, .contact-grid', {
-    interval: 200
-});
-
-// Parallax Effect for Hero Section
-window.addEventListener('scroll', () => {
-    const hero = document.querySelector('.hero');
-    const scrollPosition = window.scrollY;
-    hero.style.backgroundPositionY = `${scrollPosition * 0.5}px`;
-});
-
-// Dynamic Year in Footer
-const year = new Date().getFullYear();
-document.querySelector('.footer-bottom').innerHTML = `&copy; ${year} Sportscout. All rights reserved.`;
-
-// Update Chart with real data
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('resultsChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Mathematics', 'Physics', 'Chemistry', 'Biology'],
-            datasets: [{
-                label: 'A* Grades',
-                data: [45, 38, 42, 35],
-                backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                borderColor: 'rgb(59, 130, 246)',
-                borderWidth: 1,
-                borderRadius: 5
-            }, {
-                label: 'A Grades',
-                data: [65, 58, 62, 55],
-                backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                borderColor: 'rgb(16, 185, 129)',
-                borderWidth: 1,
-                borderRadius: 5
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: {
-                duration: 2000,
-                easing: 'easeInOutQuart'
+    const data = Object.fromEntries(formData);
+    
+    try {
+        // Replace with your actual form submission endpoint
+        const response = await fetch('https://api.example.com/contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Students',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Subjects',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
-                    },
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Student Performance Distribution (A* and A Grades)',
-                    font: {
-                        size: 16,
-                        weight: 'bold'
-                    },
-                    padding: {
-                        top: 10,
-                        bottom: 30
-                    }
-                },
-                legend: {
-                    position: 'top',
-                    labels: {
-                        padding: 20,
-                        font: {
-                            size: 12
-                        }
-                    }
-                }
-            }
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            alert('Message sent successfully!');
+            contactForm.reset();
+        } else {
+            throw new Error('Failed to send message');
+        }
+    } catch (error) {
+        alert('Error sending message. Please try again later.');
+        console.error('Form submission error:', error);
+    }
+});
+
+// Scroll Reveal Animation
+const revealElements = document.querySelectorAll('.reveal');
+
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('active');
         }
     });
+}, {
+    threshold: 0.1
+});
+
+revealElements.forEach(element => {
+    revealObserver.observe(element);
+});
+
+// Results Chart
+const ctx = document.getElementById('resultsChart').getContext('2d');
+
+const resultsChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Mathematics', 'Physics', 'Chemistry', 'Biology'],
+        datasets: [
+            {
+                label: 'A* Grades',
+                data: [85, 78, 72, 68],
+                backgroundColor: '#3b82f6',
+                borderRadius: 6,
+            },
+            {
+                label: 'A Grades',
+                data: [92, 85, 80, 75],
+                backgroundColor: '#60a5fa',
+                borderRadius: 6,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    padding: 20,
+                    font: {
+                        size: 14
+                    }
+                }
+            },
+            title: {
+                display: true,
+                text: 'Student Performance by Subject',
+                padding: {
+                    top: 10,
+                    bottom: 30
+                },
+                font: {
+                    size: 16,
+                    weight: 'bold'
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: value => value + '%'
+                }
+            }
+        },
+        animation: {
+            duration: 2000,
+            easing: 'easeInOutQuart'
+        }
+    }
 });
 
 // Add hover animations to cards
@@ -317,3 +308,7 @@ function revealSection() {
 
 window.addEventListener('scroll', revealSection);
 revealSection(); // Initial check
+
+// Dynamic Year in Footer
+const year = new Date().getFullYear();
+document.querySelector('.footer-bottom').innerHTML = `&copy; ${year} Sportscout. All rights reserved.`;

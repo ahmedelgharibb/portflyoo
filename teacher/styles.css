@@ -4,11 +4,16 @@
 
    :root {
     /* Main color scheme - customized */
-    --primary: #974fff;
-    --secondary: #000000;
-    --accent: #ffffff;
-    --light: #ffffff;
-    --dark: #000000;
+    --primary: #3b82f6;
+    --primary-dark: #2563eb;
+    --secondary: #1e293b;
+    --accent: #fbbf24;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
     
     /* Typography */
     --heading-font: 'Montserrat', sans-serif;
@@ -24,11 +29,16 @@
     box-sizing: border-box;
   }
   
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+  
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #333;
-    background-color: var(--light);
-    line-height: 1.6;
+    font-family: 'Inter', sans-serif;
+    color: var(--gray-700);
+    background-color: var(--gray-50);
+    line-height: 1.5;
     overflow-x: hidden;
   }
   
@@ -37,11 +47,12 @@
      =============================================== */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--heading-font);
-    font-weight: 800;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: -0.5px;
     margin-bottom: 1rem;
     position: relative;
+    color: var(--gray-800);
   }
   
   h1 {
@@ -108,13 +119,15 @@
   
   nav a {
     text-decoration: none;
-    color: #2c3e50;
+    color: var(--gray-700);
     font-weight: 500;
-    transition: color 0.3s ease;
+    transition: color 0.2s;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
   }
   
   nav a:hover {
-    color: #3498db;
+    color: var(--primary);
   }
   
   /* ===============================================
@@ -122,7 +135,7 @@
      =============================================== */
   .hero {
     height: 100vh;
-    background-color: var(--dark);
+    background-color: var(--gray-800);
     overflow: hidden;
     position: relative;
     display: flex;
@@ -142,7 +155,7 @@
   .hero-content {
     position: relative;
     z-index: 2;
-    color: var(--light);
+    color: var(--gray-50);
     width: 50%;
     animation: fadeIn 1s ease-out;
   }
@@ -207,7 +220,7 @@
   .cta-btn {
     display: inline-block;
     background-color: var(--primary);
-    color: var(--light);
+    color: var(--gray-50);
     text-decoration: none;
     font-weight: 700;
     padding: 15px 30px;
@@ -278,7 +291,7 @@
      =============================================== */
   .stats-section {
     background-color: var(--secondary);
-    color: var(--light);
+    color: var(--gray-50);
     padding: 80px 0;
   }
   
@@ -320,7 +333,7 @@
      INFORMATIONS SECTION
      =============================================== */
   .informations-section {
-    background-color: var(--light);
+    background-color: var(--gray-50);
     padding: 80px 0;
     position: relative;
   }
@@ -351,7 +364,7 @@
     font-size: 1.1rem;
     font-weight: 700;
     text-transform: uppercase;
-    color: var(--secondary);
+    color: var(--gray-800);
     margin-bottom: 10px;
     letter-spacing: 1px;
   }
@@ -402,7 +415,7 @@
     left: 0;
     width: 100%;
     height: 30%;
-    background: linear-gradient(to top, var(--dark), transparent);
+    background: linear-gradient(to top, var(--gray-800), transparent);
   }
   
   .section-title {
@@ -422,7 +435,7 @@
   }
   
   .about-text h3 {
-    color: #2c3e50;
+    color: var(--gray-800);
     margin-bottom: 1rem;
   }
   
@@ -439,7 +452,7 @@
   
   .about-text li::before {
     content: "•";
-    color: #3498db;
+    color: var(--primary);
     position: absolute;
     left: 0;
   }
@@ -448,7 +461,7 @@
      GALLERY/ACHIEVEMENTS SECTION
      =============================================== */
   .gallery-section {
-    background-color: var(--light);
+    background-color: var(--gray-50);
     position: relative;
   }
   
@@ -497,7 +510,7 @@
   }
   
   .gallery-title {
-    color: var(--light);
+    color: var(--gray-50);
     font-size: 1.5rem;
     margin-bottom: 10px;
     text-align: center;
@@ -514,7 +527,7 @@
      =============================================== */
   .timeline-section {
     padding: 120px 0;
-    background-color: var(--light);
+    background-color: var(--gray-50);
   }
   
   .timeline {
@@ -527,7 +540,7 @@
     content: '';
     position: absolute;
     width: 4px;
-    background-color: var(--secondary);
+    background-color: var(--gray-800);
     top: 0;
     bottom: 0;
     left: 50%;
@@ -597,8 +610,8 @@
      TESTIMONIALS/SPONSORS SECTION
      =============================================== */
   .testimonials-section {
-    background-color: var(--secondary);
-    color: var(--light);
+    background-color: var(--gray-800);
+    color: var(--gray-50);
     padding: 120px 0;
   }
   
@@ -678,8 +691,8 @@
    CONTACT SECTION
    =============================================== */
   .contact-section {
-    background-color: var(--dark);
-    color: var(--light);
+    background-color: var(--gray-800);
+    color: var(--gray-50);
     position: relative;
     overflow: hidden;
     padding: 80px 0;
@@ -741,7 +754,7 @@
     background-color: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 5px;
-    color: var(--light);
+    color: var(--gray-50);
     font-family: var(--body-font);
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -766,7 +779,7 @@
   
   .submit-btn {
     background-color: var(--primary);
-    color: var(--light);
+    color: var(--gray-50);
     border: none;
     padding: 15px 30px;
     border-radius: 5px;
@@ -780,7 +793,7 @@
   
   .submit-btn:hover {
     background-color: var(--accent);
-    color: var(--dark);
+    color: var(--gray-800);
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
   }
@@ -789,8 +802,8 @@
      FOOTER
      =============================================== */
   footer {
-    background: #2c3e50;
-    color: #fff;
+    background: var(--gray-800);
+    color: var(--gray-50);
     padding: 2rem 0;
     text-align: center;
   }
@@ -829,7 +842,7 @@
   }
   
   .footer-links a {
-    color: var(--light);
+    color: var(--gray-50);
     text-decoration: none;
     transition: all 0.3s ease;
     display: inline-block;
@@ -877,7 +890,7 @@
   .join-btn {
     display: inline-block;
     background: linear-gradient(45deg, var(--primary), #8a2be2);
-    color: var(--light);
+    color: var(--gray-50);
     text-decoration: none;
     padding: 15px 40px;
     border-radius: 30px;
@@ -914,13 +927,13 @@
      TRAINING SECTION
      =============================================== */
   .training-section {
-    background-color: var(--light);
+    background-color: var(--gray-50);
     position: relative;
   }
   
   .training-tabs {
     display: flex;
-    border-bottom: 3px solid var(--secondary);
+    border-bottom: 3px solid var(--gray-800);
     margin-bottom: 40px;
   }
   
@@ -928,7 +941,7 @@
     padding: 15px 30px;
     background-color: transparent;
     border: none;
-    color: var(--secondary);
+    color: var(--gray-800);
     font-weight: 700;
     font-size: 1.1rem;
     cursor: pointer;
@@ -979,8 +992,8 @@
   }
   
   .training-icon {
-    background-color: var(--secondary);
-    color: var(--light);
+    background-color: var(--gray-800);
+    color: var(--gray-50);
     width: 80px;
     height: 80px;
     border-radius: 50%;
@@ -1237,7 +1250,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: var(--dark);
+    background-color: var(--gray-800);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1557,7 +1570,7 @@
     }
     
     body {
-        color: #000;
+        color: black;
     }
     
     a {
