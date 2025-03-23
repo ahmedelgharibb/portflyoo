@@ -41,19 +41,20 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Document ready, initializing...');
     
-    // Define elements
+    // Define elements (with null checks)
     body = document.body;
     adminPanel = document.getElementById('adminPanel');
     adminBtn = document.getElementById('adminBtn');
     closeAdminBtn = document.getElementById('closeAdminBtn');
     saveChangesBtn = document.getElementById('saveChangesBtn');
     adminAlert = document.getElementById('adminAlert');
-    adminResultsContainer = document.getElementById('admin-results');
+    adminResultsContainer = document.getElementById('admin-results-container');
     
     // Check if user is logged in (using sessionStorage for session-only login)
     isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
     console.log('Login status:', isLoggedIn ? 'Logged in' : 'Not logged in');
     
+    // Set up the admin button functionality based on login status
     if (adminBtn) {
         if (isLoggedIn) {
             adminBtn.textContent = 'Open Admin Panel';
@@ -61,6 +62,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         } else {
             adminBtn.textContent = 'Admin Login';
             adminBtn.addEventListener('click', showLoginForm);
+        }
+    }
+    
+    // Mobile admin button functionality
+    if (adminBtnMobile) {
+        if (isLoggedIn) {
+            adminBtnMobile.addEventListener('click', openAdminPanel);
+        } else {
+            adminBtnMobile.addEventListener('click', showLoginForm);
         }
     }
     
@@ -90,10 +100,17 @@ document.addEventListener('DOMContentLoaded', async function() {
         initializeWithDefaultData();
     }
     
-    // Set up admin panel event listeners if logged in
+    // Setup admin panel event listeners if present and user is logged in
     if (isLoggedIn) {
         if (closeAdminBtn) closeAdminBtn.addEventListener('click', closeAdminPanel);
         if (saveChangesBtn) saveChangesBtn.addEventListener('click', saveAdminChanges);
+        
+        // Add result button
+        if (addResultBtn) addResultBtn.addEventListener('click', addNewResult);
+        
+        // Logout button
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) logoutBtn.addEventListener('click', adminLogout);
     }
     
     // Set up danger zone functionality
@@ -520,17 +537,20 @@ function toggleDangerZone() {
 }
 
 // Show admin login modal
-function showAdminLogin() {
+function showLoginForm() {
     if (isLoggedIn) {
         // If already logged in, just open the admin panel
         openAdminPanel();
         return;
     }
     
+    const adminLoginModal = document.getElementById('adminLoginModal');
     if (adminLoginModal) {
         adminLoginModal.classList.remove('hidden');
         const passwordInput = document.getElementById('adminPassword');
         if (passwordInput) passwordInput.focus();
+    } else {
+        console.error('Admin login modal not found');
     }
 }
 
@@ -703,23 +723,30 @@ async function openAdminPanel() {
 
 // Populate admin form with data
 function populateAdminForm(data) {
-    // Personal Info
-    document.getElementById('admin-name').value = data.personalInfo.name || '';
-    document.getElementById('admin-title').value = data.personalInfo.title || '';
-    document.getElementById('admin-experience').value = data.personalInfo.experience || '';
-    document.getElementById('admin-qualifications').value = (data.personalInfo.qualifications || []).join('\n');
-    
-    // Experience
-    document.getElementById('admin-schools').value = (data.experience.schools || []).join('\n');
-    document.getElementById('admin-centers').value = (data.experience.centers || []).join('\n');
-    document.getElementById('admin-platforms').value = (data.experience.onlinePlatforms || []).join('\n');
-    
-    // Results
-    populateResultsForm(data.results.subjects || []);
-    
-    // Contact
-    document.getElementById('admin-email').value = data.contact.email || '';
-    document.getElementById('admin-form-url').value = data.contact.formUrl || '';
+    try {
+        // Personal Info
+        document.getElementById('admin-name').value = data.personalInfo.name || '';
+        document.getElementById('admin-title').value = data.personalInfo.title || '';
+        document.getElementById('admin-experience').value = data.personalInfo.experience || '';
+        document.getElementById('admin-qualifications').value = (data.personalInfo.qualifications || []).join('\n');
+        
+        // Experience
+        document.getElementById('admin-schools').value = (data.experience.schools || []).join('\n');
+        document.getElementById('admin-centers').value = (data.experience.centers || []).join('\n');
+        document.getElementById('admin-platforms').value = (data.experience.onlinePlatforms || []).join('\n');
+        
+        // Results
+        populateResultsForm(data.results.subjects || []);
+        
+        // Contact
+        document.getElementById('admin-email').value = data.contact.email || '';
+        document.getElementById('admin-form-url').value = data.contact.formUrl || '';
+        
+        console.log('✅ Admin form populated successfully');
+    } catch (error) {
+        console.error('Error populating admin form:', error);
+        showAdminAlert('There was an error loading some form fields. Please check your data.', true);
+    }
 }
 
 // Populate results form
@@ -812,28 +839,30 @@ async function saveAdminChanges() {
                 name: document.getElementById('admin-name').value,
                 title: document.getElementById('admin-title').value,
                 experience: document.getElementById('admin-experience').value,
-                qualifications: Array.from(document.querySelectorAll('#admin-qualifications-list li'))
-                    .map(li => li.textContent.trim())
-                    .filter(text => text !== '')
+                qualifications: document.getElementById('admin-qualifications').value
+                    .split('\n')
+                    .filter(line => line.trim() !== '')
             },
             experience: {
-                schools: Array.from(document.querySelectorAll('#admin-schools-list li'))
-                    .map(li => li.textContent.trim())
-                    .filter(text => text !== ''),
-                centers: Array.from(document.querySelectorAll('#admin-centers-list li'))
-                    .map(li => li.textContent.trim())
-                    .filter(text => text !== ''),
-                onlinePlatforms: Array.from(document.querySelectorAll('#admin-platforms-list li'))
-                    .map(li => li.textContent.trim())
-                    .filter(text => text !== '')
+                schools: document.getElementById('admin-schools').value
+                    .split('\n')
+                    .filter(line => line.trim() !== ''),
+                centers: document.getElementById('admin-centers').value
+                    .split('\n')
+                    .filter(line => line.trim() !== ''),
+                onlinePlatforms: document.getElementById('admin-platforms').value
+                    .split('\n')
+                    .filter(line => line.trim() !== '')
             },
             results: {
-                subjects: Array.from(document.querySelectorAll('#admin-results-list .result-item')).map(item => {
-                    return {
-                        name: item.querySelector('.subject-name').textContent.trim(),
-                        score: parseInt(item.querySelector('.subject-score').textContent.trim())
-                    };
-                })
+                subjects: Array.from(document.querySelectorAll('.admin-result-item'))
+                    .map(item => {
+                        const name = item.querySelector('.subject-name').value.trim();
+                        const score = parseInt(item.querySelector('.subject-score').value) || 0;
+                        if (name === '') return null;
+                        return { name, score };
+                    })
+                    .filter(item => item !== null)
             },
             contact: {
                 email: document.getElementById('admin-email').value,
@@ -959,14 +988,10 @@ function updateSiteContent(data) {
 
 // Update results chart with new data
 function updateResultsChart(subjects) {
-    // First destroy any existing chart to prevent memory leaks and conflicts
-    if (window.resultsChart) {
-        try {
-            window.resultsChart.destroy();
-            window.resultsChart = null;
-        } catch (e) {
-            console.error('Error destroying existing chart:', e);
-        }
+    // Ensure we have data to work with
+    if (!subjects || !Array.isArray(subjects) || subjects.length === 0) {
+        console.log('No chart data provided or invalid data format');
+        return;
     }
     
     // Get the chart canvas
@@ -977,6 +1002,17 @@ function updateResultsChart(subjects) {
     }
     
     try {
+        // First destroy any existing chart to prevent memory leaks and conflicts
+        if (window.resultsChart) {
+            try {
+                window.resultsChart.destroy();
+                window.resultsChart = null;
+            } catch (e) {
+                console.error('Error destroying existing chart:', e);
+                // Continue anyway
+            }
+        }
+        
         // Always create a fresh chart
         window.resultsChart = new Chart(ctx, {
             type: 'bar',
@@ -1034,7 +1070,8 @@ function updateResultsChart(subjects) {
         });
         console.log('✅ Chart created/updated successfully');
     } catch (error) {
-        console.error('Failed to create chart:', error);
+        console.error('Failed to create/update chart:', error);
+        // Don't throw error, just log it, to prevent breaking the save process
     }
 }
 
@@ -1123,42 +1160,61 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Clear all data
-function clearAllData() {
+async function clearAllData() {
     if (confirm('Are you sure you want to clear all saved data? This action cannot be undone.')) {
-        // Clear localStorage data
-        localStorage.removeItem('siteData');
-        
-        // Clear Supabase data
-        supabaseClient
-            .from('site_data')
-            .delete()
-            .eq('id', 1)
-            .then(({ data, error }) => {
-                if (error) {
-                    console.error('Error clearing Supabase data:', error);
-                } else {
-                    console.log('✅ Supabase data cleared successfully');
-                }
-            });
-        
-        // Reset chart if it exists
-        if (window.resultsChart) {
-            try {
-                window.resultsChart.destroy();
-                window.resultsChart = null;
-                console.log('✅ Chart destroyed successfully');
-            } catch (chartError) {
-                console.error('Error destroying chart:', chartError);
+        try {
+            // Show loading state
+            const clearDataBtn = document.getElementById('clearDataBtn');
+            if (clearDataBtn) {
+                clearDataBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Clearing...';
+                clearDataBtn.disabled = true;
             }
-        }
-        
-        // Show alert
-        showAdminAlert('All saved data has been cleared. Reload the page to see default values.');
-        
-        // Disable the save button until page reload
-        if (saveChangesBtn) {
-            saveChangesBtn.disabled = true;
-            saveChangesBtn.innerHTML = '<i class="fas fa-sync mr-2"></i> Reload Page Required';
+            
+            // Clear localStorage data
+            localStorage.removeItem('siteData');
+            
+            // Clear Supabase data
+            const { data, error } = await supabaseClient
+                .from('site_data')
+                .delete()
+                .eq('id', 1);
+                
+            if (error) {
+                console.error('Error clearing Supabase data:', error);
+                throw new Error(`Failed to clear data from Supabase: ${error.message}`);
+            }
+            
+            console.log('✅ Supabase data cleared successfully');
+            
+            // Reset chart if it exists
+            if (window.resultsChart) {
+                try {
+                    window.resultsChart.destroy();
+                    window.resultsChart = null;
+                    console.log('✅ Chart destroyed successfully');
+                } catch (chartError) {
+                    console.error('Error destroying chart:', chartError);
+                }
+            }
+            
+            // Show alert
+            showAdminAlert('All saved data has been cleared. Reload the page to see default values.');
+            
+            // Disable the save button until page reload
+            if (saveChangesBtn) {
+                saveChangesBtn.disabled = true;
+                saveChangesBtn.innerHTML = '<i class="fas fa-sync mr-2"></i> Reload Page Required';
+            }
+        } catch (error) {
+            console.error('Error in clearAllData:', error);
+            showAdminAlert('Failed to clear all data. Please try again.', true);
+        } finally {
+            // Reset button state
+            const clearDataBtn = document.getElementById('clearDataBtn');
+            if (clearDataBtn) {
+                clearDataBtn.innerHTML = '<i class="fas fa-trash-alt mr-2"></i> Clear All Data';
+                clearDataBtn.disabled = false;
+            }
         }
     }
 }
