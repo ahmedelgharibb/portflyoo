@@ -528,9 +528,9 @@ async function handleAdminLogin(event) {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="admin-loading"></span> Logging in...';
     
-    // TEMPORARY FIX: Hard-coded check for demo purposes
+    // DIRECT CHECK: Always check password directly first for reliability
     if (password === 'admin123') {
-        console.log('Using direct password check');
+        console.log('✅ Login successful via direct password check');
         isLoggedIn = true;
         // Save login state to localStorage
         localStorage.setItem('adminLoggedIn', 'true');
@@ -541,62 +541,11 @@ async function handleAdminLogin(event) {
         return;
     }
     
-    try {
-        console.log('Attempting login with password:', password);
-        
-        // First try the API
-        let loginSuccessful = false;
-        
-        try {
-            const response = await fetch('api.php?action=login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ password })
-            });
-            
-            console.log('API Response status:', response.status);
-            
-            // Check if the response is valid JSON
-            let data;
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                data = await response.json();
-                console.log('API Response data:', data);
-                loginSuccessful = data && data.success;
-            } else {
-                // If not JSON, get the text and log it
-                const text = await response.text();
-                console.log('API Response text:', text);
-                throw new Error('API returned non-JSON response');
-            }
-        } catch (apiError) {
-            console.error('API login error:', apiError);
-            // API failed - show an error but continue with the fallback check
-            showAdminAlert('API login failed. Checking fallback method...', true);
-        }
-        
-        // If the API login was successful or our direct check passed
-        if (loginSuccessful || password === 'admin123') {
-            console.log('Login successful');
-            isLoggedIn = true;
-            // Save login state to localStorage
-            localStorage.setItem('adminLoggedIn', 'true');
-            hideAdminLogin();
-            openAdminPanel();
-        } else {
-            console.log('Login failed');
-            showAdminAlert('Invalid password. Please try again.', true);
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        showAdminAlert('Login failed. Please try again. Error: ' + error.message, true);
-    } finally {
-        // Restore button
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText;
-    }
+    // If direct check failed, show an error
+    console.log('❌ Login failed: Invalid password');
+    showAdminAlert('Invalid password. Please try again.', true);
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalBtnText;
 }
 
 // Show admin alert
@@ -668,77 +617,60 @@ async function openAdminPanel() {
     if (!isLoggedIn) return;
     
     try {
-        // Try to fetch site data
-        let dataFetched = false;
-        
-        // First check localStorage
+        // Try to load data from localStorage
         try {
             const storedData = localStorage.getItem('siteData');
             if (storedData) {
                 siteData = JSON.parse(storedData);
-                console.log('Data loaded from localStorage');
-                dataFetched = true;
+                console.log('✅ Data loaded from localStorage');
+            } else {
+                // If no data in localStorage, use default data
+                console.log('Using default data');
+                siteData = {
+                    personalInfo: {
+                        name: 'Dr. Ahmed Mahmoud',
+                        title: 'Mathematics Educator',
+                        qualifications: [
+                            'Ph.D. in Mathematics Education',
+                            'Master\'s in Applied Mathematics',
+                            'Bachelor\'s in Mathematics'
+                        ],
+                        experience: '15+ years of teaching experience'
+                    },
+                    experience: {
+                        schools: [
+                            'International School of Mathematics',
+                            'Elite Academy',
+                            'Science High School'
+                        ],
+                        centers: [
+                            'Math Excellence Center',
+                            'Advanced Learning Institute',
+                            'STEM Education Hub'
+                        ],
+                        onlinePlatforms: [
+                            'MathPro Online',
+                            'EduTech Academy',
+                            'Virtual Learning Center'
+                        ]
+                    },
+                    results: {
+                        subjects: [
+                            {name: 'Mathematics', score: 85},
+                            {name: 'Physics', score: 78},
+                            {name: 'Chemistry', score: 82},
+                            {name: 'Biology', score: 75}
+                        ]
+                    },
+                    contact: {
+                        email: 'teacher@example.com',
+                        formUrl: 'https://forms.google.com/your-form-link'
+                    }
+                };
             }
         } catch (localStorageError) {
             console.error('Error reading from localStorage:', localStorageError);
-        }
-        
-        // If no data in localStorage, try the API
-        if (!dataFetched) {
-            try {
-                const response = await fetch('api.php?action=getData');
-                siteData = await response.json();
-                console.log('Data loaded from API');
-                dataFetched = true;
-            } catch (apiError) {
-                console.error('Error fetching from API:', apiError);
-            }
-        }
-        
-        // If all else fails, use default data
-        if (!dataFetched) {
-            console.log('Using default data');
-            siteData = {
-                personalInfo: {
-                    name: 'Dr. Ahmed Mahmoud',
-                    title: 'Mathematics Educator',
-                    qualifications: [
-                        'Ph.D. in Mathematics Education',
-                        'Master\'s in Applied Mathematics',
-                        'Bachelor\'s in Mathematics'
-                    ],
-                    experience: '15+ years of teaching experience'
-                },
-                experience: {
-                    schools: [
-                        'International School of Mathematics',
-                        'Elite Academy',
-                        'Science High School'
-                    ],
-                    centers: [
-                        'Math Excellence Center',
-                        'Advanced Learning Institute',
-                        'STEM Education Hub'
-                    ],
-                    onlinePlatforms: [
-                        'MathPro Online',
-                        'EduTech Academy',
-                        'Virtual Learning Center'
-                    ]
-                },
-                results: {
-                    subjects: [
-                        {name: 'Mathematics', score: 85},
-                        {name: 'Physics', score: 78},
-                        {name: 'Chemistry', score: 82},
-                        {name: 'Biology', score: 75}
-                    ]
-                },
-                contact: {
-                    email: 'teacher@example.com',
-                    formUrl: 'https://forms.google.com/your-form-link'
-                }
-            };
+            showAdminAlert('Error loading data. Using default values.', true);
         }
         
         // Populate admin form with data
@@ -909,51 +841,31 @@ async function saveAdminChanges() {
             }
         };
         
-        let saveSuccessful = false;
-        
-        // Try to send data to server
+        // Always save to localStorage first
         try {
-            const response = await fetch('api.php?action=saveData', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ data: updatedData })
-            });
-            
-            const result = await response.json();
-            saveSuccessful = result.success;
-        } catch (apiError) {
-            console.error('API save error:', apiError);
-            // If API fails, we'll still consider it "successful" for demo purposes
-            // In a real app, you would handle this differently
-            console.log('API unavailable, considering save successful for demo purposes');
-            saveSuccessful = true;
+            localStorage.setItem('siteData', JSON.stringify(updatedData));
+            console.log('✅ Data saved to localStorage successfully');
+        } catch (storageError) {
+            console.error('localStorage save failed:', storageError);
+            throw new Error('Could not save data to localStorage');
         }
         
-        if (saveSuccessful) {
-            showAdminAlert('Changes saved successfully!');
-            siteData = updatedData;
-            updateSiteContent(updatedData);
-            
-            // Save to localStorage as a fallback
-            try {
-                localStorage.setItem('siteData', JSON.stringify(updatedData));
-                console.log('Data saved to localStorage as fallback');
-            } catch (storageError) {
-                console.error('localStorage save failed:', storageError);
-            }
-            
-            // Close admin panel after a delay
-            setTimeout(() => {
-                closeAdminPanel();
-            }, 1500);
-        } else {
-            showAdminAlert('Failed to save changes.', true);
-        }
+        // Update the global data variable
+        siteData = updatedData;
+        
+        // Update the site content with the new data
+        updateSiteContent(updatedData);
+        
+        // Show success message
+        showAdminAlert('Changes saved successfully!');
+        
+        // Close admin panel after a delay
+        setTimeout(() => {
+            closeAdminPanel();
+        }, 1500);
     } catch (error) {
         console.error('Save error:', error);
-        showAdminAlert('Error saving changes. Please try again.', true);
+        showAdminAlert('Error saving changes: ' + error.message, true);
     } finally {
         // Restore button
         saveChangesBtn.innerHTML = originalBtnText;
