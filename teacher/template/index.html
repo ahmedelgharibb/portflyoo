@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Ahmed Mahmoud - Mathematics Educator</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="font-[Inter] bg-gray-50">
+    <!-- Header -->
+    <header class="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50">
+        <nav class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="#" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                    Dr. Ahmed Mahmoud
+                </a>
+                
+                <!-- Desktop Navigation -->
+                <ul class="hidden md:flex space-x-8">
+                    <li><a href="#about" class="nav-link">About</a></li>
+                    <li><a href="#experience" class="nav-link">Experience</a></li>
+                    <li><a href="#results" class="nav-link">Results</a></li>
+                    <li><a href="#subjects" class="nav-link">Subjects</a></li>
+                    <li><a href="#register" class="nav-link">Register</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+                
+                <!-- Mobile Menu Button -->
+                <button id="menuBtn" class="md:hidden bg-white p-2 rounded-lg shadow-md hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-bars text-xl text-gray-700"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out z-40">
+        <div class="flex flex-col h-full">
+            <div class="flex justify-end p-4">
+                <button id="closeMenuBtn" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <i class="fas fa-times text-xl text-gray-700"></i>
+                </button>
+            </div>
+            <nav class="flex flex-col px-4 py-4">
+                <a href="#about" class="mobile-nav-link">About</a>
+                <a href="#experience" class="mobile-nav-link">Experience</a>
+                <a href="#results" class="mobile-nav-link">Results</a>
+                <a href="#subjects" class="mobile-nav-link">Subjects</a>
+                <a href="#register" class="mobile-nav-link">Register</a>
+                <a href="#contact" class="mobile-nav-link">Contact</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center pt-16">
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
+                 alt="Teaching Background" 
+                 class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-blue-600/80"></div>
+        </div>
+        
+        <div class="container mx-auto px-4 relative z-10 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                Inspiring Minds Through 
+                <span class="text-yellow-400">Mathematics</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
+                Dedicated mathematics educator with over 15 years of experience in shaping young minds and fostering a love for learning.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#about" class="btn btn-primary">
+                    <span>Learn More</span>
+                </a>
+                <a href="#contact" class="btn btn-secondary">
+                    <span>Contact Me</span>
+                </a>
+            </div>
+        </div>
+        
+        <a href="#about" class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white animate-bounce">
+            <i class="fas fa-chevron-down text-2xl"></i>
+        </a>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">About Me</h2>
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" 
+                         alt="Dr. Ahmed Mahmoud" 
+                         class="rounded-lg shadow-xl w-full">
+                    <div class="absolute -bottom-6 -right-6 bg-blue-600 text-white p-4 rounded-lg">
+                        <p class="text-2xl font-bold">15+</p>
+                        <p class="text-sm">Years Experience</p>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Qualifications</h3>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
+                            <span>Ph.D. in Mathematics Education</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
+                            <span>Master's in Applied Mathematics</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
+                            <span>Bachelor's in Mathematics</span>
+                        </li>
+                    </ul>
+                    
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Teaching Philosophy</h3>
+                    <p class="text-gray-600 mb-8">
+                        I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subjects Section -->
+    <section id="subjects" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">Subjects Taught</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div class="subject-card">
+                    <i class="fas fa-square-root-variable text-blue-600 mb-2"></i>
+                    <h3>Advanced Mathematics</h3>
+                </div>
+                <div class="subject-card">
+                    <i class="fas fa-atom text-blue-600 mb-2"></i>
+                    <h3>Physics</h3>
+                </div>
+                <div class="subject-card">
+                    <i class="fas fa-flask text-blue-600 mb-2"></i>
+                    <h3>Chemistry</h3>
+                </div>
+                <div class="subject-card">
+                    <i class="fas fa-dna text-blue-600 mb-2"></i>
+                    <h3>Biology</h3>
+                </div>
+                <div class="subject-card">
+                    <i class="fas fa-calculator text-blue-600 mb-2"></i>
+                    <h3>Statistics</h3>
+                </div>
+                <div class="subject-card">
+                    <i class="fas fa-laptop-code text-blue-600 mb-2"></i>
+                    <h3>Computer Science</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">Student Performance</h2>
+            <div class="bg-white rounded-lg shadow-lg p-4 md:p-8">
+                <div class="w-full" style="height: 400px;">
+                    <canvas id="resultsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">Teaching Experience</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="experience-card">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-school text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Schools</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>International School of Mathematics</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Elite Academy</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Science High School</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="experience-card">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-chalkboard-teacher text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Centers</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Math Excellence Center</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Advanced Learning Institute</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>STEM Education Hub</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="experience-card">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-laptop text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Online Platforms</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>MathPro Online</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>EduTech Academy</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Virtual Learning Center</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration Section -->
+    <section id="register" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">Register for Classes</h2>
+            <div class="max-w-2xl mx-auto">
+                <div class="text-center mb-8">
+                    <i class="fas fa-user-plus text-5xl text-blue-600 mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Join Our Learning Community</h3>
+                    <p class="text-gray-600 mb-6">
+                        Take the first step towards academic excellence. Register for our classes and get personalized attention from experienced educators.
+                    </p>
+                    <a href="https://forms.gle/your-form-id" target="_blank" class="btn btn-primary">
+                        <span>Register Now</span>
+                    </a>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6 mt-12">
+                    <div class="feature-card">
+                        <h4 class="text-xl font-bold text-gray-800 mb-3">What You'll Get</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span>Personalized Learning Plan</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span>Regular Progress Reports</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span>24/7 Support</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4 class="text-xl font-bold text-gray-800 mb-3">Class Schedule</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-center">
+                                <i class="fas fa-clock text-blue-600 mr-2"></i>
+                                <span>Flexible Timing</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-video text-blue-600 mr-2"></i>
+                                <span>Online & Offline Options</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-users text-blue-600 mr-2"></i>
+                                <span>Small Group Sessions</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">Contact Me</h2>
+            <div class="max-w-2xl mx-auto">
+                <form id="contactForm" class="space-y-6">
+                    <div>
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" id="name" name="name" required class="form-input">
+                    </div>
+                    <div>
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" id="email" name="email" required class="form-input">
+                    </div>
+                    <div>
+                        <label for="message" class="form-label">Message</label>
+                        <textarea id="message" name="message" required rows="4" class="form-input"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full">
+                        <span>Send Message</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="text-center footer-bottom">
+                <p>&copy; <span id="current-year">2024</span> Dr. Ahmed Mahmoud. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
