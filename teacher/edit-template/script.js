@@ -32,6 +32,30 @@ const adminResultsContainer = document.getElementById('admin-results-container')
 let siteData = null;
 let isLoggedIn = false;
 
+// Load saved data from localStorage on page load
+document.addEventListener('DOMContentLoaded', async () => {
+    // Check if we have saved data
+    try {
+        const storedData = localStorage.getItem('siteData');
+        if (storedData) {
+            console.log('Loading saved data from localStorage');
+            const data = JSON.parse(storedData);
+            siteData = data;
+            
+            // Apply the saved data to the page
+            updateSiteContent(data);
+        }
+    } catch (error) {
+        console.error('Error loading saved data:', error);
+    }
+    
+    // Check login status
+    if (localStorage.getItem('adminLoggedIn') === 'true') {
+        console.log('Auto-login from localStorage flag');
+        isLoggedIn = true;
+    }
+});
+
 // Mobile Menu Functionality
 function toggleMenu() {
     if (mobileMenu) {
@@ -381,7 +405,22 @@ revealSection(); // Initial check
 const footerBottom = document.querySelector('.footer-bottom');
 if (footerBottom) {
     const year = new Date().getFullYear();
-    footerBottom.innerHTML = `&copy; ${year} Sportscout. All rights reserved.`;
+    
+    // Try to get name from localStorage if available
+    let name = 'Dr. Ahmed Mahmoud';
+    try {
+        const storedData = localStorage.getItem('siteData');
+        if (storedData) {
+            const data = JSON.parse(storedData);
+            if (data.personalInfo && data.personalInfo.name) {
+                name = data.personalInfo.name;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading name for footer:', error);
+    }
+    
+    footerBottom.innerHTML = `&copy; ${year} <span>${name}</span>. All rights reserved.`;
 }
 
 // Admin Functionality
@@ -397,13 +436,58 @@ if (addResultBtn) addResultBtn.addEventListener('click', addNewResult);
 const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) logoutBtn.addEventListener('click', adminLogout);
 
-// Check for localStorage login flag on page load
-document.addEventListener('DOMContentLoaded', function() {
-    if (localStorage.getItem('adminLoggedIn') === 'true') {
-        console.log('Auto-login from localStorage flag');
-        isLoggedIn = true;
+// Add danger zone functionality
+const dangerZone = document.getElementById('dangerZone');
+const showDangerBtn = document.getElementById('showDangerBtn');
+const toggleDangerBtn = document.getElementById('toggleDangerBtn');
+const clearDataBtn = document.getElementById('clearDataBtn');
+
+function toggleDangerZone() {
+    if (dangerZone) {
+        if (dangerZone.classList.contains('hidden')) {
+            dangerZone.classList.remove('hidden');
+            showDangerBtn.classList.add('hidden');
+        } else {
+            dangerZone.classList.add('hidden');
+            showDangerBtn.classList.remove('hidden');
+        }
     }
-});
+}
+
+function clearAllData() {
+    if (confirm('Are you sure you want to clear all saved data? This action cannot be undone.')) {
+        // Clear localStorage data
+        localStorage.removeItem('siteData');
+        
+        // Show alert
+        showAdminAlert('All saved data has been cleared. Reload the page to see default values.');
+        
+        // Disable the save button until page reload
+        if (saveChangesBtn) {
+            saveChangesBtn.disabled = true;
+            saveChangesBtn.innerHTML = '<i class="fas fa-sync mr-2"></i> Reload Page Required';
+        }
+    }
+}
+
+// Set up danger zone event listeners
+if (showDangerBtn) {
+    showDangerBtn.addEventListener('click', toggleDangerZone);
+    
+    // Show the danger button when admin panel is open
+    document.addEventListener('adminPanelOpened', function() {
+        showDangerBtn.classList.remove('hidden');
+    });
+    
+    // Hide the danger button when admin panel is closed
+    document.addEventListener('adminPanelClosed', function() {
+        showDangerBtn.classList.add('hidden');
+        if (dangerZone) dangerZone.classList.add('hidden');
+    });
+}
+
+if (toggleDangerBtn) toggleDangerBtn.addEventListener('click', toggleDangerZone);
+if (clearDataBtn) clearDataBtn.addEventListener('click', clearAllData);
 
 // Show admin login modal
 function showAdminLogin() {
@@ -664,6 +748,14 @@ async function openAdminPanel() {
         if (adminPanel) {
             adminPanel.classList.remove('hidden');
             body.classList.add('overflow-hidden');
+            
+            // Also show the danger zone button
+            if (showDangerBtn) {
+                showDangerBtn.classList.remove('hidden');
+            }
+            
+            // Dispatch admin panel opened event
+            document.dispatchEvent(new CustomEvent('adminPanelOpened'));
         }
     } catch (error) {
         console.error('Error loading data:', error);
@@ -748,6 +840,17 @@ function closeAdminPanel() {
     if (adminPanel) {
         adminPanel.classList.add('hidden');
         body.classList.remove('overflow-hidden');
+        
+        // Also hide danger zone components
+        if (showDangerBtn) {
+            showDangerBtn.classList.add('hidden');
+        }
+        if (dangerZone) {
+            dangerZone.classList.add('hidden');
+        }
+        
+        // Dispatch admin panel closed event
+        document.dispatchEvent(new CustomEvent('adminPanelClosed'));
     }
 }
 
@@ -943,14 +1046,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('resultsChart');
     if (!ctx) return;
     
+    // Get subjects data from localStorage if available
+    let subjectsData = [
+        {name: 'Mathematics', score: 85},
+        {name: 'Physics', score: 78},
+        {name: 'Chemistry', score: 82},
+        {name: 'Biology', score: 75}
+    ];
+    
+    try {
+        const storedData = localStorage.getItem('siteData');
+        if (storedData) {
+            const data = JSON.parse(storedData);
+            if (data.results && data.results.subjects && data.results.subjects.length > 0) {
+                subjectsData = data.results.subjects;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading chart data:', error);
+    }
+    
     // Create chart
     window.resultsChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Mathematics', 'Physics', 'Chemistry', 'Biology'],
+            labels: subjectsData.map(subject => subject.name),
             datasets: [{
                 label: 'Student Performance (%)',
-                data: [85, 78, 82, 75],
+                data: subjectsData.map(subject => subject.score),
                 backgroundColor: [
                     'rgba(59, 130, 246, 0.8)',
                     'rgba(16, 185, 129, 0.8)',
