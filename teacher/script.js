@@ -210,53 +210,47 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: ['Mathematics', 'Physics', 'Chemistry', 'Biology'],
             datasets: [{
-                label: 'Average Score (%)',
-                data: [85, 78, 82, 75],
-                backgroundColor: [
-                    'rgba(59, 130, 246, 0.8)',  // blue-500
-                    'rgba(59, 130, 246, 0.8)',
-                    'rgba(59, 130, 246, 0.8)',
-                    'rgba(59, 130, 246, 0.8)'
-                ],
-                borderColor: [
-                    'rgb(59, 130, 246)',  // blue-500
-                    'rgb(59, 130, 246)',
-                    'rgb(59, 130, 246)',
-                    'rgb(59, 130, 246)'
-                ],
+                label: 'A* Grades',
+                data: [45, 38, 42, 35],
+                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                borderColor: 'rgb(59, 130, 246)',
+                borderWidth: 1
+            }, {
+                label: 'A Grades',
+                data: [65, 58, 62, 55],
+                backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                borderColor: 'rgb(16, 185, 129)',
                 borderWidth: 1
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 100,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
-                    },
-                    ticks: {
-                        font: {
-                            size: 14
-                        }
+                    title: {
+                        display: true,
+                        text: 'Number of Students'
                     }
                 },
                 x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        font: {
-                            size: 14
-                        }
+                    title: {
+                        display: true,
+                        text: 'Subjects'
                     }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Student Performance Distribution (A* and A Grades)',
+                    font: {
+                        size: 16
+                    }
+                },
+                legend: {
+                    position: 'top'
                 }
             }
         }
