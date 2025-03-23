@@ -32,9 +32,34 @@ const adminResultsContainer = document.getElementById('admin-results-container')
 let siteData = null;
 let isLoggedIn = false;
 
+// Supabase setup
+const SUPABASE_URL = 'https://your-supabase-url.supabase.co';
+const SUPABASE_KEY = 'your-supabase-anon-key';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 // Load saved data from localStorage on page load
 document.addEventListener('DOMContentLoaded', async () => {
-    // Check if we have saved data
+    // First check if we have data in Supabase
+    try {
+        const { data, error } = await supabaseClient
+            .from('site_data')
+            .select('data')
+            .eq('id', 1)
+            .single();
+        
+        if (!error && data && data.data) {
+            console.log('Loading saved data from Supabase');
+            siteData = data.data;
+            
+            // Apply the saved data to the page
+            updateSiteContent(siteData);
+            return; // No need to check localStorage if Supabase worked
+        }
+    } catch (supabaseError) {
+        console.error('Error loading from Supabase:', supabaseError);
+    }
+    
+    // If Supabase failed, check if we have saved data in localStorage
     try {
         const storedData = localStorage.getItem('siteData');
         if (storedData) {
@@ -44,6 +69,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             // Apply the saved data to the page
             updateSiteContent(data);
+            
+            // Also push this data to Supabase for future use
+            try {
+                await supabaseClient
+                    .from('site_data')
+                    .upsert({ id: 1, data: siteData }, { onConflict: 'id' });
+                console.log('✅ Synchronized localStorage data to Supabase');
+            } catch (syncError) {
+                console.error('Failed to sync localStorage data to Supabase:', syncError);
+            }
         }
     } catch (error) {
         console.error('Error loading saved data:', error);
@@ -459,6 +494,19 @@ function clearAllData() {
         // Clear localStorage data
         localStorage.removeItem('siteData');
         
+        // Clear Supabase data
+        supabaseClient
+            .from('site_data')
+            .delete()
+            .eq('id', 1)
+            .then(({ data, error }) => {
+                if (error) {
+                    console.error('Error clearing Supabase data:', error);
+                } else {
+                    console.log('✅ Supabase data cleared successfully');
+                }
+            });
+        
         // Show alert
         showAdminAlert('All saved data has been cleared. Reload the page to see default values.');
         
@@ -617,60 +665,85 @@ async function openAdminPanel() {
     if (!isLoggedIn) return;
     
     try {
-        // Try to load data from localStorage
+        let dataLoaded = false;
+        
+        // First try to load from Supabase
         try {
-            const storedData = localStorage.getItem('siteData');
-            if (storedData) {
-                siteData = JSON.parse(storedData);
-                console.log('✅ Data loaded from localStorage');
-            } else {
-                // If no data in localStorage, use default data
-                console.log('Using default data');
-                siteData = {
-                    personalInfo: {
-                        name: 'Dr. Ahmed Mahmoud',
-                        title: 'Mathematics Educator',
-                        qualifications: [
-                            'Ph.D. in Mathematics Education',
-                            'Master\'s in Applied Mathematics',
-                            'Bachelor\'s in Mathematics'
-                        ],
-                        experience: '15+ years of teaching experience'
-                    },
-                    experience: {
-                        schools: [
-                            'International School of Mathematics',
-                            'Elite Academy',
-                            'Science High School'
-                        ],
-                        centers: [
-                            'Math Excellence Center',
-                            'Advanced Learning Institute',
-                            'STEM Education Hub'
-                        ],
-                        onlinePlatforms: [
-                            'MathPro Online',
-                            'EduTech Academy',
-                            'Virtual Learning Center'
-                        ]
-                    },
-                    results: {
-                        subjects: [
-                            {name: 'Mathematics', score: 85},
-                            {name: 'Physics', score: 78},
-                            {name: 'Chemistry', score: 82},
-                            {name: 'Biology', score: 75}
-                        ]
-                    },
-                    contact: {
-                        email: 'teacher@example.com',
-                        formUrl: 'https://forms.google.com/your-form-link'
-                    }
-                };
+            const { data, error } = await supabaseClient
+                .from('site_data')
+                .select('data')
+                .eq('id', 1)
+                .single();
+            
+            if (error) throw error;
+            
+            if (data && data.data) {
+                siteData = data.data;
+                console.log('✅ Data loaded from Supabase successfully');
+                dataLoaded = true;
             }
-        } catch (localStorageError) {
-            console.error('Error reading from localStorage:', localStorageError);
-            showAdminAlert('Error loading data. Using default values.', true);
+        } catch (supabaseError) {
+            console.error('Error loading from Supabase:', supabaseError);
+        }
+        
+        // If Supabase failed, try localStorage as fallback
+        if (!dataLoaded) {
+            try {
+                const storedData = localStorage.getItem('siteData');
+                if (storedData) {
+                    siteData = JSON.parse(storedData);
+                    console.log('✅ Data loaded from localStorage');
+                    dataLoaded = true;
+                }
+            } catch (localStorageError) {
+                console.error('Error reading from localStorage:', localStorageError);
+            }
+        }
+        
+        // If all else fails, use default data
+        if (!dataLoaded) {
+            console.log('Using default data');
+            siteData = {
+                personalInfo: {
+                    name: 'Dr. Ahmed Mahmoud',
+                    title: 'Mathematics Educator',
+                    qualifications: [
+                        'Ph.D. in Mathematics Education',
+                        'Master\'s in Applied Mathematics',
+                        'Bachelor\'s in Mathematics'
+                    ],
+                    experience: '15+ years of teaching experience'
+                },
+                experience: {
+                    schools: [
+                        'International School of Mathematics',
+                        'Elite Academy',
+                        'Science High School'
+                    ],
+                    centers: [
+                        'Math Excellence Center',
+                        'Advanced Learning Institute',
+                        'STEM Education Hub'
+                    ],
+                    onlinePlatforms: [
+                        'MathPro Online',
+                        'EduTech Academy',
+                        'Virtual Learning Center'
+                    ]
+                },
+                results: {
+                    subjects: [
+                        {name: 'Mathematics', score: 85},
+                        {name: 'Physics', score: 78},
+                        {name: 'Chemistry', score: 82},
+                        {name: 'Biology', score: 75}
+                    ]
+                },
+                contact: {
+                    email: 'teacher@example.com',
+                    formUrl: 'https://forms.google.com/your-form-link'
+                }
+            };
         }
         
         // Populate admin form with data
@@ -841,13 +914,29 @@ async function saveAdminChanges() {
             }
         };
         
-        // Always save to localStorage first
+        // Always save to localStorage as a backup
         try {
             localStorage.setItem('siteData', JSON.stringify(updatedData));
             console.log('✅ Data saved to localStorage successfully');
         } catch (storageError) {
             console.error('localStorage save failed:', storageError);
-            throw new Error('Could not save data to localStorage');
+        }
+        
+        // Save to Supabase
+        try {
+            // We use a fixed ID (1) since we only have one set of site data
+            const { data, error } = await supabaseClient
+                .from('site_data')
+                .upsert({ id: 1, data: updatedData }, { onConflict: 'id' });
+            
+            if (error) throw error;
+            console.log('✅ Data saved to Supabase successfully', data);
+        } catch (supabaseError) {
+            console.error('Supabase save failed:', supabaseError);
+            // Still consider it a success if localStorage worked
+            if (!localStorage.getItem('siteData')) {
+                throw new Error('Failed to save data to both Supabase and localStorage');
+            }
         }
         
         // Update the global data variable
