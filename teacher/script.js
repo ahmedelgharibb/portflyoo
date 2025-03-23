@@ -203,7 +203,7 @@ document.querySelector('.footer-bottom').innerHTML = `&copy; ${year} Sportscout.
 
 // Initialize Chart.js for student results
 document.addEventListener('DOMContentLoaded', function() {
-    // Create the results chart
+    // Initialize Chart.js with improved styling
     const ctx = document.getElementById('resultsChart').getContext('2d');
     new Chart(ctx, {
         type: 'bar',
@@ -213,26 +213,50 @@ document.addEventListener('DOMContentLoaded', function() {
                 label: 'Average Score (%)',
                 data: [85, 78, 82, 75],
                 backgroundColor: [
-                    'rgba(52, 152, 219, 0.8)',
-                    'rgba(52, 152, 219, 0.8)',
-                    'rgba(52, 152, 219, 0.8)',
-                    'rgba(52, 152, 219, 0.8)'
+                    'rgba(59, 130, 246, 0.8)',  // blue-500
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(59, 130, 246, 0.8)'
                 ],
                 borderColor: [
-                    'rgba(52, 152, 219, 1)',
-                    'rgba(52, 152, 219, 1)',
-                    'rgba(52, 152, 219, 1)',
-                    'rgba(52, 152, 219, 1)'
+                    'rgb(59, 130, 246)',  // blue-500
+                    'rgb(59, 130, 246)',
+                    'rgb(59, 130, 246)',
+                    'rgb(59, 130, 246)'
                 ],
                 borderWidth: 1
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 100
+                    max: 100,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    ticks: {
+                        font: {
+                            size: 14
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 14
+                        }
+                    }
                 }
             }
         }
@@ -246,22 +270,34 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Get form data
             const formData = new FormData(contactForm);
-            const data = {
-                name: formData.get('name'),
-                email: formData.get('email'),
-                message: formData.get('message')
-            };
-
-            // Here you would typically send the data to a server
-            // For now, we'll just show a success message
-            alert('Thank you for your message! I will get back to you soon.');
+            const data = Object.fromEntries(formData.entries());
+            
+            // Here you would typically send the data to your server
+            console.log('Form submitted:', data);
+            
+            // Show success message
+            const successMessage = document.createElement('div');
+            successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-500 translate-y-0 opacity-100';
+            successMessage.textContent = 'Message sent successfully!';
+            document.body.appendChild(successMessage);
+            
+            // Remove success message after 3 seconds
+            setTimeout(() => {
+                successMessage.style.transform = 'translateY(-100%)';
+                successMessage.style.opacity = '0';
+                setTimeout(() => {
+                    successMessage.remove();
+                }, 500);
+            }, 3000);
+            
+            // Reset form
             contactForm.reset();
         });
     }
 
-    // Smooth scrolling for navigation links
+    // Smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
+        anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
             if (target) {
@@ -273,26 +309,47 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Add active class to navigation links on scroll
-    const sections = document.querySelectorAll('section');
-    const navLinks = document.querySelectorAll('nav a');
+    // Add active class to navigation links based on scroll position
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('nav a[href^="#"]');
 
-    window.addEventListener('scroll', () => {
-        let current = '';
-        
+    function setActiveLink() {
+        const scrollPosition = window.scrollY + 100;
+
         sections.forEach(section => {
             const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (pageYOffset >= sectionTop - 60) {
-                current = section.getAttribute('id');
-            }
-        });
+            const sectionHeight = section.offsetHeight;
 
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href').slice(1) === current) {
-                link.classList.add('active');
+            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                const id = section.getAttribute('id');
+                navLinks.forEach(link => {
+                    link.classList.remove('text-blue-600', 'font-bold');
+                    if (link.getAttribute('href') === `#${id}`) {
+                        link.classList.add('text-blue-600', 'font-bold');
+                    }
+                });
             }
         });
-    });
+    }
+
+    window.addEventListener('scroll', setActiveLink);
+    setActiveLink(); // Set initial active link
+
+    // Add scroll reveal animations
+    const revealElements = document.querySelectorAll('.reveal');
+    
+    function reveal() {
+        revealElements.forEach(element => {
+            const windowHeight = window.innerHeight;
+            const elementTop = element.getBoundingClientRect().top;
+            const elementVisible = 150;
+
+            if (elementTop < windowHeight - elementVisible) {
+                element.classList.add('active');
+            }
+        });
+    }
+
+    window.addEventListener('scroll', reveal);
+    reveal(); // Initial reveal check
 });
