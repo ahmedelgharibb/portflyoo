@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Test API Connection</h1>
+    <div id="result" style="margin: 20px; padding: 20px; border: 1px solid #ccc;"></div>
+    <button id="testLogin" style="padding: 10px; margin: 10px;">Test Login API</button>
+
+    <script>
+        document.getElementById('testLogin').addEventListener('click', async function() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing API connection...';
+            
+            try {
+                const response = await fetch('api.php?action=login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password: 'admin123' })
+                });
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `<pre>API Response: ${JSON.stringify(data, null, 2)}</pre>`;
+                
+                console.log('API Response:', data);
+            } catch (error) {
+                resultDiv.innerHTML = `Error: ${error.message}`;
+                console.error('API Error:', error);
+            }
+        });
+    </script>
+</body>
+</html> 

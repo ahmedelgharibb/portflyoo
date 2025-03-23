@@ -420,7 +420,15 @@ async function handleAdminLogin(event) {
     const password = passwordInput.value;
     if (!password) return;
     
+    // Show a loading message
+    const submitBtn = adminLoginForm.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="admin-loading"></span> Logging in...';
+    
     try {
+        console.log('Attempting login with password:', password);
+        
         const response = await fetch('api.php?action=login', {
             method: 'POST',
             headers: {
@@ -429,18 +437,37 @@ async function handleAdminLogin(event) {
             body: JSON.stringify({ password })
         });
         
-        const data = await response.json();
+        console.log('API Response status:', response.status);
         
-        if (data.success) {
+        // Check if the response is valid JSON
+        let data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+            console.log('API Response data:', data);
+        } else {
+            // If not JSON, get the text and log it
+            const text = await response.text();
+            console.log('API Response text:', text);
+            throw new Error('API returned non-JSON response');
+        }
+        
+        if (data && data.success) {
+            console.log('Login successful');
             isLoggedIn = true;
             hideAdminLogin();
             openAdminPanel();
         } else {
-            showAdminAlert('Invalid password. Please try again.', true);
+            console.log('Login failed:', data ? data.message : 'Unknown error');
+            showAdminAlert(data && data.message ? data.message : 'Invalid password. Please try again.', true);
         }
     } catch (error) {
         console.error('Login error:', error);
-        showAdminAlert('Login failed. Please try again.', true);
+        showAdminAlert('Login failed. Please try again. Error: ' + error.message, true);
+    } finally {
+        // Restore button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
     }
 }
 

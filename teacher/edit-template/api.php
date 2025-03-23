@@ -1,34 +1,64 @@
 <?php
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+// Set appropriate headers for API
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Ensure we're processing JSON
-$_POST = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+// Get request method and log it
+$method = $_SERVER['REQUEST_METHOD'];
+error_log("API Request Method: $method");
+
+// Parse JSON input for POST requests
+$rawInput = file_get_contents('php://input');
+error_log("Raw input: $rawInput");
+
+// Ensure we're processing JSON input correctly
+if ($method === 'POST') {
+    $_POST = json_decode($rawInput, true) ?? $_POST;
+    error_log("Parsed POST data: " . print_r($_POST, true));
+}
 
 // Define the data file path
 $dataFile = 'siteData.json';
 
 // Function to verify admin password
 function verifyPassword($password) {
+    error_log("Verifying password: $password");
     // In a real app, use a secure hashing mechanism
     return $password === 'admin123';
 }
 
 // Route API requests
 $action = $_GET['action'] ?? '';
+error_log("API Action: $action");
 
 switch ($action) {
     case 'login':
         // Admin login
         $password = $_POST['password'] ?? '';
-        $success = verifyPassword($password);
+        error_log("Login attempt with password: $password");
         
-        echo json_encode([
+        $success = verifyPassword($password);
+        error_log("Login success: " . ($success ? 'true' : 'false'));
+        
+        $response = [
             'success' => $success,
             'message' => $success ? 'Login successful' : 'Invalid password'
-        ]);
+        ];
+        
+        echo json_encode($response);
+        error_log("Login response: " . json_encode($response));
         break;
 
     case 'getData':
@@ -37,7 +67,7 @@ switch ($action) {
             echo file_get_contents($dataFile);
         } else {
             // Default site data if file doesn't exist
-            echo json_encode([
+            $defaultData = [
                 'personalInfo' => [
                     'name' => 'Dr. Ahmed Mahmoud',
                     'title' => 'Mathematics Educator',
@@ -77,7 +107,12 @@ switch ($action) {
                     'email' => 'teacher@example.com',
                     'formUrl' => 'https://forms.google.com/your-form-link'
                 ]
-            ]);
+            ];
+            
+            echo json_encode($defaultData);
+            
+            // Also save the default data to the file for future use
+            file_put_contents($dataFile, json_encode($defaultData, JSON_PRETTY_PRINT));
         }
         break;
 
@@ -102,6 +137,6 @@ switch ($action) {
     default:
         echo json_encode([
             'success' => false,
-            'message' => 'Unknown action'
+            'message' => 'Unknown action: ' . $action
         ]);
 } 
