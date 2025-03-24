@@ -767,47 +767,121 @@ function handleAdminLogin(e) {
 }
 
 // Show admin alert
-function showAdminAlert(type, message, inLoginModal = false) {
-    // Determine which alert container to use
-    const alertContainerId = inLoginModal ? 'loginAlertContainer' : 'adminAlertContainer';
-    const alertContainer = document.getElementById(alertContainerId);
+function showAdminAlert(type, message, inLoginModal = false, autoHideDelay = 0) {
+    console.log(`Showing ${type} alert: ${message}`);
     
+    const alertContainer = inLoginModal ? 
+        document.getElementById('loginAlertContainer') : 
+        document.getElementById('adminAlertContainer');
+        
     if (!alertContainer) {
-        console.error(`Alert container ${alertContainerId} not found`);
-        // Fallback to JavaScript alert if container not found
-        alert(message);
+        console.error('Alert container not found');
         return;
     }
-    
-    const alertClass = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700';
-    
-    const alertElement = document.createElement('div');
-    alertElement.className = `${alertClass} px-4 py-3 rounded relative mb-4 border`;
-    alertElement.innerHTML = `
-        <span class="block sm:inline">${message}</span>
-        <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
-            <i class="fas fa-times cursor-pointer"></i>
-        </span>
-    `;
-    
-    // Add click event to close button
-    const closeBtn = alertElement.querySelector('i');
-    closeBtn.addEventListener('click', () => {
-        alertElement.remove();
-    });
     
     // Clear any existing alerts
     alertContainer.innerHTML = '';
     
-    // Add the new alert
-    alertContainer.appendChild(alertElement);
+    // Create alert element
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'rounded-lg p-4 mb-4 flex items-center justify-between alert-animate-in';
     
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-        if (alertElement.parentNode === alertContainer) {
-            alertElement.remove();
+    // Set colors based on alert type
+    switch (type) {
+        case 'success':
+            alertDiv.className += ' bg-green-100 text-green-800 border border-green-200';
+            break;
+        case 'error':
+            alertDiv.className += ' bg-red-100 text-red-800 border border-red-200';
+            break;
+        case 'info':
+            alertDiv.className += ' bg-blue-100 text-blue-800 border border-blue-200';
+            break;
+        case 'warning':
+            alertDiv.className += ' bg-yellow-100 text-yellow-800 border border-yellow-200';
+            break;
+        default:
+            alertDiv.className += ' bg-gray-100 text-gray-800 border border-gray-200';
+    }
+    
+    // Set icon based on alert type
+    let icon;
+    switch (type) {
+        case 'success':
+            icon = '<i class="fas fa-check-circle mr-2 text-green-600"></i>';
+            break;
+        case 'error':
+            icon = '<i class="fas fa-exclamation-circle mr-2 text-red-600"></i>';
+            break;
+        case 'info':
+            icon = '<i class="fas fa-info-circle mr-2 text-blue-600"></i>';
+            break;
+        case 'warning':
+            icon = '<i class="fas fa-exclamation-triangle mr-2 text-yellow-600"></i>';
+            break;
+        default:
+            icon = '<i class="fas fa-bell mr-2 text-gray-600"></i>';
+    }
+    
+    // Create alert content
+    const alertContent = document.createElement('div');
+    alertContent.className = 'flex items-center';
+    alertContent.innerHTML = `${icon} <span>${message}</span>`;
+    
+    // Create close button
+    const closeButton = document.createElement('button');
+    closeButton.className = 'text-gray-500 hover:text-gray-700 ml-2';
+    closeButton.innerHTML = '<i class="fas fa-times"></i>';
+    closeButton.onclick = function() {
+        alertDiv.classList.add('alert-animate-out');
+        setTimeout(() => {
+            alertContainer.removeChild(alertDiv);
+        }, 300);
+    };
+    
+    // Add content and close button to alert
+    alertDiv.appendChild(alertContent);
+    alertDiv.appendChild(closeButton);
+    
+    // Add animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .alert-animate-in {
+            animation: alertSlideIn 0.3s ease-out forwards;
         }
-    }, 5000);
+        
+        .alert-animate-out {
+            animation: alertSlideOut 0.3s ease-in forwards;
+        }
+        
+        @keyframes alertSlideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes alertSlideOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Add alert to container
+    alertContainer.appendChild(alertDiv);
+    
+    // Auto-hide alert if delay is specified
+    if (autoHideDelay > 0) {
+        setTimeout(() => {
+            if (alertDiv.parentNode === alertContainer) {
+                alertDiv.classList.add('alert-animate-out');
+                setTimeout(() => {
+                    if (alertDiv.parentNode === alertContainer) {
+                        alertContainer.removeChild(alertDiv);
+                    }
+                }, 300);
+            }
+        }, autoHideDelay);
+    }
 }
 
 // Open admin panel and load data
@@ -1864,11 +1938,36 @@ function previewSelectedTheme() {
     
     console.log(`Previewing theme: ${selectedColor} color, ${selectedMode} mode`);
     
-    // Apply the theme temporarily
-    applyTheme(selectedColor, selectedMode);
+    // Get preview button for animation
+    const previewBtn = document.getElementById('previewThemeBtn');
+    if (previewBtn) {
+        previewBtn.innerHTML = '<div class="admin-loading"></div> Applying Theme...';
+        previewBtn.disabled = true;
+    }
     
-    // Show alert to inform user this is a preview
-    showAdminAlert('info', 'Theme preview applied. Save changes to make it permanent.');
+    // Add transition animation to body
+    document.body.classList.add('theme-transition');
+    
+    // Apply the theme with a slight delay for better visual effect
+    setTimeout(() => {
+        applyTheme(selectedColor, selectedMode);
+        
+        // Reset button after animation
+        if (previewBtn) {
+            setTimeout(() => {
+                previewBtn.innerHTML = '<i class="fas fa-eye mr-2"></i> Preview Theme';
+                previewBtn.disabled = false;
+                
+                // Show alert to inform user this is a preview
+                showAdminAlert('info', 'Theme preview applied. Save changes to make it permanent.', false, 3000);
+            }, 600);
+        }
+        
+        // Remove animation class after it completes
+        setTimeout(() => {
+            document.body.classList.remove('theme-transition');
+        }, 500);
+    }, 100);
 }
 
 // Apply theme to the website
@@ -1878,11 +1977,50 @@ function applyTheme(color, mode) {
     // Store the theme values for later use
     currentTheme = { color, mode };
     
+    // Add theme transition class for animation
+    document.body.classList.add('theme-transition');
+    
     // Apply color theme
     applyColorTheme(color);
     
     // Apply mode (light/dark)
     applyModeTheme(mode);
+    
+    // Remove transition class after animation completes
+    setTimeout(() => {
+        document.body.classList.remove('theme-transition');
+    }, 500);
+    
+    // Add 3D effect to sections
+    addSectionDepthEffect(mode);
+}
+
+// Add subtle 3D depth effect to sections based on theme
+function addSectionDepthEffect(mode) {
+    const sections = document.querySelectorAll('section');
+    
+    sections.forEach((section, index) => {
+        // Alternate depth effect for visual interest
+        const isEven = index % 2 === 0;
+        const depthClass = isEven ? 'section-depth-even' : 'section-depth-odd';
+        
+        // Remove any existing depth classes
+        section.classList.remove('section-depth-even', 'section-depth-odd');
+        
+        // Add new depth class
+        section.classList.add(depthClass);
+        
+        // Apply different shadow based on mode
+        if (mode === 'dark') {
+            section.style.boxShadow = isEven ? 
+                'inset 0 10px 20px rgba(0, 0, 0, 0.2), inset 0 -5px 10px rgba(0, 0, 0, 0.1)' : 
+                'inset 0 -10px 20px rgba(0, 0, 0, 0.2), inset 0 5px 10px rgba(0, 0, 0, 0.1)';
+        } else {
+            section.style.boxShadow = isEven ? 
+                'inset 0 10px 20px rgba(0, 0, 0, 0.05), inset 0 -5px 10px rgba(0, 0, 0, 0.03)' : 
+                'inset 0 -10px 20px rgba(0, 0, 0, 0.05), inset 0 5px 10px rgba(0, 0, 0, 0.03)';
+        }
+    });
 }
 
 // Apply color theme
@@ -1895,49 +2033,104 @@ function applyColorTheme(color) {
     // Add new theme class
     document.body.classList.add(`theme-${color}`);
     
-    // Update CSS variables for the color theme
+    // Update CSS variables for the color theme based on color selection
     const root = document.documentElement;
+    
+    // Define gradient values for each color theme
+    let gradientFrom, gradientTo;
     
     switch (color) {
         case 'blue':
             root.style.setProperty('--primary-color', '#3b82f6');
             root.style.setProperty('--primary-dark', '#2563eb');
             root.style.setProperty('--primary-light', '#60a5fa');
+            gradientFrom = 'rgba(30, 58, 138, 0.9)';
+            gradientTo = 'rgba(37, 99, 235, 0.8)';
             break;
         case 'green':
             root.style.setProperty('--primary-color', '#10b981');
             root.style.setProperty('--primary-dark', '#059669');
             root.style.setProperty('--primary-light', '#34d399');
+            gradientFrom = 'rgba(6, 78, 59, 0.9)';
+            gradientTo = 'rgba(5, 150, 105, 0.8)';
             break;
         case 'purple':
             root.style.setProperty('--primary-color', '#8b5cf6');
             root.style.setProperty('--primary-dark', '#7c3aed');
             root.style.setProperty('--primary-light', '#a78bfa');
+            gradientFrom = 'rgba(76, 29, 149, 0.9)';
+            gradientTo = 'rgba(124, 58, 237, 0.8)';
             break;
         case 'red':
             root.style.setProperty('--primary-color', '#ef4444');
             root.style.setProperty('--primary-dark', '#dc2626');
             root.style.setProperty('--primary-light', '#f87171');
+            gradientFrom = 'rgba(153, 27, 27, 0.9)';
+            gradientTo = 'rgba(220, 38, 38, 0.8)';
             break;
         case 'gray':
             root.style.setProperty('--primary-color', '#6b7280');
             root.style.setProperty('--primary-dark', '#4b5563');
             root.style.setProperty('--primary-light', '#9ca3af');
+            gradientFrom = 'rgba(55, 65, 81, 0.9)';
+            gradientTo = 'rgba(75, 85, 99, 0.8)';
             break;
         default:
             root.style.setProperty('--primary-color', '#3b82f6');
             root.style.setProperty('--primary-dark', '#2563eb');
             root.style.setProperty('--primary-light', '#60a5fa');
+            gradientFrom = 'rgba(30, 58, 138, 0.9)';
+            gradientTo = 'rgba(37, 99, 235, 0.8)';
     }
     
-    // Update all elements with tailwind classes (this would ideally be done with a plugin in a production environment)
-    // This is a simplified approach for the demo
-    const blueElements = document.querySelectorAll('.text-blue-600, .bg-blue-600, .hover\\:text-blue-700, .hover\\:bg-blue-700');
-    blueElements.forEach(el => {
-        // Replace blue with the selected color
-        el.className = el.className.replace(/blue-\d+/g, `${color}-600`);
-        el.className = el.className.replace(/hover:.*?blue-\d+/g, `hover:${color}-700`);
+    // Apply gradient overlay to hero section
+    root.style.setProperty('--gradient-from', gradientFrom);
+    root.style.setProperty('--gradient-to', gradientTo);
+    
+    // Update the gradient overlay dynamically
+    const heroGradient = document.querySelector('#hero .absolute.inset-0 div');
+    if (heroGradient) {
+        heroGradient.style.backgroundImage = `linear-gradient(to right, ${gradientFrom}, ${gradientTo})`;
+    }
+    
+    // Update section title bars (::after pseudo-elements can't be targeted directly with JS)
+    document.querySelectorAll('.section-title').forEach(title => {
+        title.style.borderColor = `var(--primary-color)`;
     });
+    
+    // Update all icons with the theme color
+    document.querySelectorAll('.fa-graduation-cap, .fa-check, .fa-star, .fa-money-bill-wave, .fa-calendar-alt, .fa-clock, .fa-video, .fa-users').forEach(icon => {
+        icon.style.color = `var(--primary-color)`;
+    });
+    
+    // Update experience card icons
+    document.querySelectorAll('.experience-card i').forEach(icon => {
+        icon.style.color = `var(--primary-color)`;
+    });
+    
+    // Update buttons with the theme color
+    document.querySelectorAll('.btn-primary').forEach(btn => {
+        btn.style.backgroundColor = `var(--primary-color)`;
+        btn.style.borderColor = `var(--primary-dark)`;
+    });
+    
+    // Update nav links hover effect
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'dynamic-theme-styles';
+    document.head.appendChild(styleSheet);
+    
+    // Remove any previous dynamic styles
+    const oldStyle = document.getElementById('dynamic-theme-styles');
+    if (oldStyle && oldStyle !== styleSheet) {
+        oldStyle.remove();
+    }
+    
+    // Add new dynamic styles
+    styleSheet.textContent = `
+        .nav-link:hover { color: var(--primary-color) !important; }
+        .section-title::after { background-color: var(--primary-color) !important; }
+        .btn-primary:hover { background-color: var(--primary-dark) !important; }
+    `;
 }
 
 // Apply mode theme (light/dark)
@@ -1954,23 +2147,89 @@ function applyModeTheme(mode) {
     
     if (mode === 'dark') {
         // Apply dark mode colors
-        root.style.setProperty('--bg-color', '#1f2937');
+        root.style.setProperty('--bg-color', '#111827');
         root.style.setProperty('--text-color', '#f9fafb');
-        root.style.setProperty('--card-bg', '#374151');
-        root.style.setProperty('--border-color', '#4b5563');
+        root.style.setProperty('--text-light', '#d1d5db');
+        root.style.setProperty('--card-bg', '#1f2937');
+        root.style.setProperty('--card-shadow', 'rgba(0, 0, 0, 0.25)');
+        root.style.setProperty('--border-color', '#374151');
+        root.style.setProperty('--nav-bg', 'rgba(17, 24, 39, 0.95)');
+        root.style.setProperty('--btn-text', '#f9fafb');
+        root.style.setProperty('--footer-bg', '#030712');
+        root.style.setProperty('--footer-text', '#f9fafb');
         
         // Add dark class for Tailwind dark mode
         document.documentElement.classList.add('dark');
+        
+        // Make header more visible in dark mode
+        const header = document.querySelector('header');
+        if (header) {
+            header.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.3)';
+        }
+        
+        // Make cards stand out more in dark mode
+        document.querySelectorAll('.experience-card, .subject-card, .feature-card').forEach(card => {
+            card.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.3)';
+            card.style.border = '1px solid var(--border-color)';
+        });
+        
+        // Update form inputs for better visibility
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.style.backgroundColor = 'rgba(31, 41, 55, 0.8)';
+            input.style.borderColor = 'var(--border-color)';
+        });
+        
     } else {
         // Apply light mode colors
         root.style.setProperty('--bg-color', '#f9fafb');
         root.style.setProperty('--text-color', '#1f2937');
+        root.style.setProperty('--text-light', '#6b7280');
         root.style.setProperty('--card-bg', '#ffffff');
+        root.style.setProperty('--card-shadow', 'rgba(0, 0, 0, 0.1)');
         root.style.setProperty('--border-color', '#e5e7eb');
+        root.style.setProperty('--nav-bg', 'rgba(255, 255, 255, 0.9)');
+        root.style.setProperty('--btn-text', '#ffffff');
+        root.style.setProperty('--footer-bg', '#1f2937');
+        root.style.setProperty('--footer-text', '#f9fafb');
         
         // Remove dark class
         document.documentElement.classList.remove('dark');
+        
+        // Reset header shadow in light mode
+        const header = document.querySelector('header');
+        if (header) {
+            header.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+        }
+        
+        // Reset card styles in light mode
+        document.querySelectorAll('.experience-card, .subject-card, .feature-card').forEach(card => {
+            card.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+            card.style.border = 'none';
+        });
+        
+        // Reset form inputs in light mode
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.style.backgroundColor = 'var(--card-bg)';
+            input.style.borderColor = 'var(--border-color)';
+        });
     }
+    
+    // Apply complementary styling to buttons based on mode
+    document.querySelectorAll('.btn-primary').forEach(btn => {
+        btn.style.color = 'var(--btn-text)';
+    });
+    
+    // Update text elements with the correct contrast
+    document.querySelectorAll('p.text-gray-600').forEach(p => {
+        p.style.color = 'var(--text-light)';
+    });
+    
+    // Add transition effect for smoother theme changes
+    document.querySelectorAll('*').forEach(el => {
+        if (!el.style.transition) {
+            el.style.transition = 'background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease';
+        }
+    });
 }
 
 // Load and apply saved theme

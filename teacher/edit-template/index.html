@@ -25,12 +25,20 @@
             --primary-color: #3b82f6;
             --primary-dark: #2563eb;
             --primary-light: #60a5fa;
+            --gradient-from: rgba(30, 58, 138, 0.9);
+            --gradient-to: rgba(37, 99, 235, 0.8);
             
             /* Default light mode colors */
             --bg-color: #f9fafb;
             --text-color: #1f2937;
+            --text-light: #6b7280;
             --card-bg: #ffffff;
+            --card-shadow: rgba(0, 0, 0, 0.1);
             --border-color: #e5e7eb;
+            --nav-bg: rgba(255, 255, 255, 0.9);
+            --btn-text: #ffffff;
+            --footer-bg: #1f2937;
+            --footer-text: #f9fafb;
         }
         
         /* Theme color modifiers */
@@ -38,64 +46,223 @@
             --primary-color: #3b82f6;
             --primary-dark: #2563eb;
             --primary-light: #60a5fa;
+            --gradient-from: rgba(30, 58, 138, 0.9);
+            --gradient-to: rgba(37, 99, 235, 0.8);
         }
         
         .theme-green {
             --primary-color: #10b981;
             --primary-dark: #059669;
             --primary-light: #34d399;
+            --gradient-from: rgba(6, 78, 59, 0.9);
+            --gradient-to: rgba(5, 150, 105, 0.8);
         }
         
         .theme-purple {
             --primary-color: #8b5cf6;
             --primary-dark: #7c3aed;
             --primary-light: #a78bfa;
+            --gradient-from: rgba(76, 29, 149, 0.9);
+            --gradient-to: rgba(124, 58, 237, 0.8);
         }
         
         .theme-red {
             --primary-color: #ef4444;
             --primary-dark: #dc2626;
             --primary-light: #f87171;
+            --gradient-from: rgba(153, 27, 27, 0.9);
+            --gradient-to: rgba(220, 38, 38, 0.8);
         }
         
         .theme-gray {
             --primary-color: #6b7280;
             --primary-dark: #4b5563;
             --primary-light: #9ca3af;
+            --gradient-from: rgba(55, 65, 81, 0.9);
+            --gradient-to: rgba(75, 85, 99, 0.8);
         }
         
         /* Theme mode modifiers */
         .dark-mode {
-            --bg-color: #1f2937;
+            --bg-color: #111827;
             --text-color: #f9fafb;
-            --card-bg: #374151;
-            --border-color: #4b5563;
+            --text-light: #d1d5db;
+            --card-bg: #1f2937;
+            --card-shadow: rgba(0, 0, 0, 0.25);
+            --border-color: #374151;
+            --nav-bg: rgba(17, 24, 39, 0.95);
+            --btn-text: #f9fafb;
+            --footer-bg: #030712;
+            --footer-text: #f9fafb;
         }
         
         /* Apply theme to elements */
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         
-        .bg-white {
+        /* Navigation theming */
+        header {
+            background-color: var(--nav-bg);
+        }
+        
+        .nav-link, .mobile-nav-link {
+            color: var(--text-color);
+        }
+        
+        /* Card theming */
+        .bg-white, .experience-card, .subject-card, .feature-card {
             background-color: var(--card-bg);
+            box-shadow: 0 4px 6px var(--card-shadow);
         }
         
+        /* Text theming */
         .text-gray-600, .text-gray-700, .text-gray-800 {
             color: var(--text-color);
         }
         
-        .bg-blue-600, .btn-primary {
-            background-color: var(--primary-color);
+        p.text-gray-600 {
+            color: var(--text-light);
         }
         
-        .text-blue-600 {
+        /* Hero section gradient overlay */
+        .bg-gradient-to-r {
+            background-image: linear-gradient(to right, var(--gradient-from), var(--gradient-to));
+        }
+        
+        /* Primary color elements */
+        .bg-blue-600, .btn-primary, .text-blue-600 .experience-card i {
+            background-color: var(--primary-color);
+            color: var(--btn-text);
+        }
+        
+        .text-blue-600, .nav-link:hover {
             color: var(--primary-color);
         }
         
         .btn-primary:hover {
             background-color: var(--primary-dark);
+        }
+        
+        /* Footer theming */
+        footer.bg-gray-900 {
+            background-color: var(--footer-bg);
+            color: var(--footer-text);
+        }
+        
+        /* Form inputs theming */
+        .form-input {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+        
+        /* Icon theming */
+        .fa-graduation-cap, .fa-check, .section-title::after,
+        .fa-star, .fa-money-bill-wave, .fa-calendar-alt, 
+        .fa-clock, .fa-video, .fa-users {
+            color: var(--primary-color);
+        }
+        
+        /* Theme change animation */
+        @keyframes theme-fade {
+            0% { opacity: 0.8; filter: blur(2px); }
+            100% { opacity: 1; filter: blur(0); }
+        }
+        
+        .theme-transition {
+            animation: theme-fade 0.5s ease-in-out;
+        }
+        
+        /* Loading spinner for admin actions */
+        .admin-loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: admin-spin 0.8s linear infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes admin-spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Theme option selectors enhanced styling */
+        .theme-color-option:checked + label,
+        .theme-mode-option:checked + label {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px var(--primary-color);
+            transition: all 0.2s ease;
+        }
+        
+        #previewThemeBtn {
+            background-size: 200% auto;
+            transition: all 0.3s ease;
+        }
+        
+        #previewThemeBtn:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        #previewThemeBtn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Section depth effect classes */
+        .section-depth-even {
+            position: relative;
+            z-index: 1;
+            transition: all 0.5s ease;
+        }
+        
+        .section-depth-odd {
+            position: relative;
+            z-index: 1;
+            transition: all 0.5s ease;
+        }
+        
+        /* Theme preview button animation */
+        #previewThemeBtn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: all 0.6s ease;
+        }
+        
+        #previewThemeBtn:hover::before {
+            left: 100%;
+        }
+        
+        /* Enhanced theme option selectors */
+        .theme-color-option label,
+        .theme-mode-option label {
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+        
+        .theme-color-option input:checked + label,
+        .theme-mode-option input:checked + label {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
         }
         
         /* Custom styles for admin components */
@@ -119,21 +286,6 @@
         #dangerZone {
             box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
-        }
-        
-        .admin-loading {
-            display: inline-block;
-            width: 1em;
-            height: 1em;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 0.5rem;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
     </style>
     
