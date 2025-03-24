@@ -612,16 +612,10 @@ function updateFooter() {
 // Setup danger zone functionality
 function setupDangerZone() {
     const dangerZone = document.getElementById('dangerZone');
-    const showDangerBtn = document.getElementById('showDangerBtn');
     const toggleDangerBtn = document.getElementById('toggleDangerBtn');
     
     // Only set up these listeners if user is logged in
     if (!isLoggedIn) return;
-    
-    // Set up toggle danger zone listener
-    if (showDangerBtn) {
-        showDangerBtn.addEventListener('click', toggleDangerZone);
-    }
     
     // Set up hide danger zone listener
     if (toggleDangerBtn) {
@@ -629,28 +623,21 @@ function setupDangerZone() {
     }
     
     // Set up admin panel event listeners
-    document.addEventListener('adminPanelOpened', function() {
-        if (showDangerBtn) showDangerBtn.classList.remove('hidden');
-    });
-    
     document.addEventListener('adminPanelClosed', function() {
-        if (showDangerBtn) showDangerBtn.classList.add('hidden');
         if (dangerZone) dangerZone.classList.add('hidden');
     });
 }
 
 // Toggle danger zone visibility
 function toggleDangerZone() {
+    console.log('Toggle danger zone called');
     const dangerZone = document.getElementById('dangerZone');
-    const showDangerBtn = document.getElementById('showDangerBtn');
     
     if (dangerZone) {
         if (dangerZone.classList.contains('hidden')) {
             dangerZone.classList.remove('hidden');
-            showDangerBtn.classList.add('hidden');
         } else {
             dangerZone.classList.add('hidden');
-            showDangerBtn.classList.remove('hidden');
         }
     }
 }
@@ -932,8 +919,8 @@ async function openAdminPanel() {
             body.classList.add('overflow-hidden');
             
             // Also show the danger zone button
-            if (showDangerBtn) {
-                showDangerBtn.classList.remove('hidden');
+            if (toggleDangerBtn) {
+                toggleDangerBtn.classList.remove('hidden');
             }
             
             // Dispatch admin panel opened event
@@ -1724,10 +1711,10 @@ function closeAdminPanel() {
         
         // Also hide the danger zone and its button
         const dangerZone = document.getElementById('dangerZone');
-        const showDangerBtn = document.getElementById('showDangerBtn');
+        const toggleDangerBtn = document.getElementById('toggleDangerBtn');
         
         if (dangerZone) dangerZone.classList.add('hidden');
-        if (showDangerBtn) showDangerBtn.classList.add('hidden');
+        if (toggleDangerBtn) toggleDangerBtn.classList.add('hidden');
         
         // Dispatch admin panel closed event
         document.dispatchEvent(new CustomEvent('adminPanelClosed'));
