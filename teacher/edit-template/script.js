@@ -11,22 +11,23 @@ window.addEventListener('load', () => {
     }
 });
 
-// DOM Elements
-const menuBtn = document.getElementById('menuBtn');
-const closeMenuBtn = document.getElementById('closeMenuBtn');
-const mobileMenu = document.getElementById('mobileMenu');
-const mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
-const body = document.body;
-const adminBtn = document.getElementById('adminBtn');
-const adminBtnMobile = document.getElementById('adminBtnMobile');
-const adminLoginModal = document.getElementById('adminLoginModal');
-const adminLoginForm = document.getElementById('adminLoginForm');
-const cancelLoginBtn = document.getElementById('cancelLogin');
-const adminPanel = document.getElementById('adminPanel');
-const closeAdminPanelBtn = document.getElementById('closeAdminPanel');
-const saveChangesBtn = document.getElementById('saveChangesBtn');
-const addResultBtn = document.getElementById('addResultBtn');
-const adminResultsContainer = document.getElementById('admin-results-container');
+// DOM Elements - using let for all variables so they can be reassigned in DOMContentLoaded
+let menuBtn;
+let closeMenuBtn;
+let mobileMenu;
+let mobileMenuLinks;
+let body;
+let adminBtn;
+let adminBtnMobile;
+let adminLoginModal;
+let adminLoginForm;
+let cancelLoginBtn;
+let adminPanel;
+let closeAdminPanelBtn;
+let saveChangesBtn;
+let addResultBtn;
+let adminResultsContainer;
+let adminAlert;
 
 // Global state
 let siteData = null;
@@ -41,22 +42,8 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Document ready, initializing...');
     
-    // Define elements (with null checks)
-    body = document.body;
-    adminPanel = document.getElementById('adminPanel');
-    adminBtn = document.getElementById('adminBtn');
-    adminBtnMobile = document.getElementById('adminBtnMobile');
-    closeAdminBtn = document.getElementById('closeAdminBtn');
-    saveChangesBtn = document.getElementById('saveChangesBtn');
-    adminAlert = document.getElementById('adminAlert');
-    adminResultsContainer = document.getElementById('admin-results-container');
-    
-    console.log('Admin elements found:', {
-        adminBtn: !!adminBtn,
-        adminBtnMobile: !!adminBtnMobile,
-        adminPanel: !!adminPanel,
-        adminLoginModal: !!document.getElementById('adminLoginModal')
-    });
+    // Initialize DOM elements
+    initDOMElements();
     
     // Check if user is logged in (using sessionStorage for session-only login)
     isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
@@ -819,447 +806,41 @@ function addResultItem(name = '', score = '') {
     const resultItem = document.createElement('div');
     resultItem.className = 'admin-result-item';
     resultItem.innerHTML = `
-        <input type="text" class="form-input subject-name" placeholder="Subject name" value="${name}">
-        <input type="number" class="form-input subject-score" placeholder="Score" min="0" max="100" value="${score}">
-        <button type="button" class="remove-btn">
-            <i class="fas fa-trash-alt"></i>
-        </button>
+        <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-900">${name}</span>
+            <span class="text-sm font-medium text-gray-500">${score}</span>
+        </div>
     `;
-    
-    // Add remove functionality
-    const removeBtn = resultItem.querySelector('.remove-btn');
-    if (removeBtn) {
-        removeBtn.addEventListener('click', () => {
-            // Only remove if there's more than one result item
-            if (adminResultsContainer.children.length > 1) {
-                resultItem.remove();
-            }
-        });
-    }
     
     adminResultsContainer.appendChild(resultItem);
 }
 
-// Add a new empty result
-function addNewResult() {
-    addResultItem();
-}
-
-// Close admin panel
-function closeAdminPanel() {
-    if (adminPanel) {
-        adminPanel.classList.add('hidden');
-        body.classList.remove('overflow-hidden');
-        
-        // Also hide danger zone components
-        if (showDangerBtn) {
-            showDangerBtn.classList.add('hidden');
-        }
-        if (dangerZone) {
-            dangerZone.classList.add('hidden');
-        }
-        
-        // Dispatch admin panel closed event
-        document.dispatchEvent(new CustomEvent('adminPanelClosed'));
-    }
-}
-
-// Logout function
-function adminLogout() {
-    isLoggedIn = false;
-    sessionStorage.removeItem('adminLoggedIn');
-    closeAdminPanel();
-    showAdminAlert('You have been logged out successfully.');
-}
-
-// Save admin changes
-async function saveAdminChanges() {
-    saveChangesBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
-    saveChangesBtn.disabled = true;
+// Initialize DOM elements
+function initDOMElements() {
+    menuBtn = document.getElementById('menuBtn');
+    closeMenuBtn = document.getElementById('closeMenuBtn');
+    mobileMenu = document.getElementById('mobileMenu');
+    mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
+    body = document.body;
+    adminBtn = document.getElementById('adminBtn');
+    adminBtnMobile = document.getElementById('adminBtnMobile');
+    adminLoginModal = document.getElementById('adminLoginModal');
+    adminLoginForm = document.getElementById('adminLoginForm');
+    cancelLoginBtn = document.getElementById('cancelLogin');
+    adminPanel = document.getElementById('adminPanel');
+    closeAdminPanelBtn = document.getElementById('closeAdminPanel');
+    saveChangesBtn = document.getElementById('saveChangesBtn');
+    addResultBtn = document.getElementById('addResultBtn');
+    adminResultsContainer = document.getElementById('admin-results-container');
+    adminAlert = document.getElementById('adminAlertContainer');
     
-    try {
-        // Collect data from form
-        const updatedData = {
-            personalInfo: {
-                name: document.getElementById('admin-name').value,
-                title: document.getElementById('admin-title').value,
-                experience: document.getElementById('admin-experience').value,
-                qualifications: document.getElementById('admin-qualifications').value
-                    .split('\n')
-                    .filter(line => line.trim() !== '')
-            },
-            experience: {
-                schools: document.getElementById('admin-schools').value
-                    .split('\n')
-                    .filter(line => line.trim() !== ''),
-                centers: document.getElementById('admin-centers').value
-                    .split('\n')
-                    .filter(line => line.trim() !== ''),
-                onlinePlatforms: document.getElementById('admin-platforms').value
-                    .split('\n')
-                    .filter(line => line.trim() !== '')
-            },
-            results: {
-                subjects: Array.from(document.querySelectorAll('.admin-result-item'))
-                    .map(item => {
-                        const name = item.querySelector('.subject-name').value.trim();
-                        const score = parseInt(item.querySelector('.subject-score').value) || 0;
-                        if (name === '') return null;
-                        return { name, score };
-                    })
-                    .filter(item => item !== null)
-            },
-            contact: {
-                email: document.getElementById('admin-email').value,
-                formUrl: document.getElementById('admin-form-url').value
-            }
-        };
-
-        // Update the chart with new data (if needed)
-        updateResultsChart(updatedData.results.subjects);
-        
-        // Save to Supabase
-        const { data, error } = await supabaseClient
-            .from('site_data')
-            .upsert({ 
-                id: 1, 
-                data: updatedData,
-                updated_at: new Date()
-            })
-            .select();
-            
-        if (error) {
-            console.error('Error saving to Supabase:', error);
-            throw new Error(`Failed to save to Supabase: ${error.message}`);
-        }
-        
-        // Update local data reference
-        siteData = updatedData;
-        
-        // Update website content with the new data
-        updateSiteContent(siteData);
-        
-        showAdminAlert('Changes saved successfully! Data updated in Supabase.');
-        console.log('✅ Changes saved to Supabase');
-        
-    } catch (error) {
-        console.error('Error saving changes:', error);
-        showAdminAlert('Failed to save changes. Please try again.', true);
-    } finally {
-        saveChangesBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
-        saveChangesBtn.disabled = false;
-    }
-}
-
-// Update site content with new data
-function updateSiteContent(data) {
-    // Update page title
-    document.title = `${data.personalInfo.name} - ${data.personalInfo.title}`;
+    console.log('DOM elements initialized');
     
-    // Update name in navigation
-    const navName = document.querySelector('header nav a.text-2xl');
-    if (navName) navName.textContent = data.personalInfo.name;
-    
-    // Update hero section
-    const heroTitle = document.querySelector('#hero h1');
-    if (heroTitle) {
-        const spanElement = heroTitle.querySelector('span');
-        const spanHTML = spanElement ? spanElement.outerHTML : '<span class="text-yellow-400">Mathematics</span>';
-        heroTitle.innerHTML = `Inspiring Minds Through ${spanHTML}`;
-    }
-    
-    const heroDesc = document.querySelector('#hero p.text-lg');
-    if (heroDesc) {
-        heroDesc.textContent = data.personalInfo.experience;
-    }
-    
-    // Update about section
-    const qualsList = document.querySelector('#about ul');
-    if (qualsList) {
-        qualsList.innerHTML = data.personalInfo.qualifications.map(qual => `
-            <li class="flex items-center">
-                <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
-                <span>${qual}</span>
-            </li>
-        `).join('');
-    }
-    
-    // Update experience section
-    const schoolsList = document.querySelector('#experience .experience-card:nth-child(1) ul');
-    if (schoolsList) {
-        schoolsList.innerHTML = data.experience.schools.map(school => `
-            <li class="flex items-center">
-                <i class="fas fa-check text-green-500 mr-2"></i>
-                <span>${school}</span>
-            </li>
-        `).join('');
-    }
-    
-    const centersList = document.querySelector('#experience .experience-card:nth-child(2) ul');
-    if (centersList) {
-        centersList.innerHTML = data.experience.centers.map(center => `
-            <li class="flex items-center">
-                <i class="fas fa-check text-green-500 mr-2"></i>
-                <span>${center}</span>
-            </li>
-        `).join('');
-    }
-    
-    const platformsList = document.querySelector('#experience .experience-card:nth-child(3) ul');
-    if (platformsList) {
-        platformsList.innerHTML = data.experience.onlinePlatforms.map(platform => `
-            <li class="flex items-center">
-                <i class="fas fa-check text-green-500 mr-2"></i>
-                <span>${platform}</span>
-            </li>
-        `).join('');
-    }
-    
-    // Update results chart - wrap in try/catch to prevent errors from breaking everything
-    try {
-        if (data.results && data.results.subjects) {
-            updateResultsChart(data.results.subjects);
-        }
-    } catch (chartError) {
-        console.error('Error updating chart:', chartError);
-    }
-    
-    // Update contact form
-    const registerBtn = document.querySelector('#register a.btn');
-    if (registerBtn && data.contact && data.contact.formUrl) {
-        registerBtn.href = data.contact.formUrl;
-    }
-}
-
-// Update results chart with new data
-function updateResultsChart(subjects) {
-    // Ensure we have data to work with
-    if (!subjects || !Array.isArray(subjects) || subjects.length === 0) {
-        console.log('No chart data provided or invalid data format');
-        return;
-    }
-    
-    // Get the chart canvas
-    const ctx = document.getElementById('resultsChart');
-    if (!ctx) {
-        console.error('Chart canvas element not found');
-        return;
-    }
-    
-    try {
-        // First destroy any existing chart to prevent memory leaks and conflicts
-        if (window.resultsChart) {
-            try {
-                window.resultsChart.destroy();
-                window.resultsChart = null;
-            } catch (e) {
-                console.error('Error destroying existing chart:', e);
-                // Continue anyway
-            }
-        }
-        
-        // Always create a fresh chart
-        window.resultsChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: subjects.map(subject => subject.name),
-                datasets: [{
-                    label: 'Student Performance (%)',
-                    data: subjects.map(subject => subject.score),
-                    backgroundColor: [
-                        'rgba(59, 130, 246, 0.8)',
-                        'rgba(16, 185, 129, 0.8)',
-                        'rgba(245, 158, 11, 0.8)',
-                        'rgba(239, 68, 68, 0.8)'
-                    ],
-                    borderColor: [
-                        'rgba(59, 130, 246, 1)',
-                        'rgba(16, 185, 129, 1)',
-                        'rgba(245, 158, 11, 1)',
-                        'rgba(239, 68, 68, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: function(value) {
-                                return value + '%';
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.raw + '%';
-                            }
-                        }
-                    }
-                },
-                animation: {
-                    duration: 1000,
-                    easing: 'easeOutQuart'
-                }
-            }
-        });
-        console.log('✅ Chart created/updated successfully');
-    } catch (error) {
-        console.error('Failed to create/update chart:', error);
-        // Don't throw error, just log it, to prevent breaking the save process
-    }
-}
-
-// Initialize results chart
-document.addEventListener('DOMContentLoaded', function() {
-    // Initial chart data
-    let subjectsData = [
-        {name: 'Mathematics', score: 85},
-        {name: 'Physics', score: 78},
-        {name: 'Chemistry', score: 82},
-        {name: 'Biology', score: 75}
-    ];
-    
-    try {
-        const storedData = localStorage.getItem('siteData');
-        if (storedData) {
-            const data = JSON.parse(storedData);
-            if (data.results && data.results.subjects && data.results.subjects.length > 0) {
-                subjectsData = data.results.subjects;
-            }
-        }
-    } catch (error) {
-        console.error('Error loading chart data:', error);
-    }
-    
-    // Initialize the chart with data
-    updateResultsChart(subjectsData);
-});
-
-// Contact form submission
-document.addEventListener('DOMContentLoaded', function() {
-    const contactForm = document.getElementById('contactForm');
-    if (!contactForm) return;
-    
-    contactForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const submitBtn = contactForm.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<span class="loading"></span> Sending...';
-        submitBtn.disabled = true;
-        
-        try {
-            // Simulate form submission (in a real app, send to a server)
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            // Show success message
-            contactForm.innerHTML = `
-                <div class="text-center p-8">
-                    <i class="fas fa-check-circle text-green-500 text-5xl mb-4"></i>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Message Sent!</h3>
-                    <p class="text-gray-600">Thank you for your message. I'll get back to you shortly.</p>
-                </div>
-            `;
-        } catch (error) {
-            console.error('Form submission error:', error);
-            submitBtn.innerHTML = originalBtnText;
-            submitBtn.disabled = false;
-            
-            // Show error message
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'text-red-500 mt-4';
-            errorMsg.textContent = 'There was an error sending your message. Please try again.';
-            contactForm.appendChild(errorMsg);
-        }
+    // Log which admin elements were found
+    console.log('Admin elements found:', {
+        adminBtn: !!adminBtn,
+        adminBtnMobile: !!adminBtnMobile,
+        adminPanel: !!adminPanel,
+        adminLoginModal: !!adminLoginModal
     });
-});
-
-// Scroll reveal animations
-document.addEventListener('DOMContentLoaded', function() {
-    const revealElements = document.querySelectorAll('.reveal');
-    
-    const revealSection = function() {
-        revealElements.forEach(element => {
-            const elementTop = element.getBoundingClientRect().top;
-            const elementVisible = 150;
-            
-            if (elementTop < window.innerHeight - elementVisible) {
-                element.classList.add('active');
-            }
-        });
-    };
-    
-    window.addEventListener('scroll', revealSection);
-    revealSection();
-});
-
-// Clear all data
-async function clearAllData() {
-    if (confirm('Are you sure you want to clear all saved data? This action cannot be undone.')) {
-        try {
-            // Show loading state
-            const clearDataBtn = document.getElementById('clearDataBtn');
-            if (clearDataBtn) {
-                clearDataBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Clearing...';
-                clearDataBtn.disabled = true;
-            }
-            
-            // Clear localStorage data
-            localStorage.removeItem('siteData');
-            
-            // Clear Supabase data
-            const { data, error } = await supabaseClient
-                .from('site_data')
-                .delete()
-                .eq('id', 1);
-                
-            if (error) {
-                console.error('Error clearing Supabase data:', error);
-                throw new Error(`Failed to clear data from Supabase: ${error.message}`);
-            }
-            
-            console.log('✅ Supabase data cleared successfully');
-            
-            // Reset chart if it exists
-            if (window.resultsChart) {
-                try {
-                    window.resultsChart.destroy();
-                    window.resultsChart = null;
-                    console.log('✅ Chart destroyed successfully');
-                } catch (chartError) {
-                    console.error('Error destroying chart:', chartError);
-                }
-            }
-            
-            // Show alert
-            showAdminAlert('All saved data has been cleared. Reload the page to see default values.');
-            
-            // Disable the save button until page reload
-            if (saveChangesBtn) {
-                saveChangesBtn.disabled = true;
-                saveChangesBtn.innerHTML = '<i class="fas fa-sync mr-2"></i> Reload Page Required';
-            }
-        } catch (error) {
-            console.error('Error in clearAllData:', error);
-            showAdminAlert('Failed to clear all data. Please try again.', true);
-        } finally {
-            // Reset button state
-            const clearDataBtn = document.getElementById('clearDataBtn');
-            if (clearDataBtn) {
-                clearDataBtn.innerHTML = '<i class="fas fa-trash-alt mr-2"></i> Clear All Data';
-                clearDataBtn.disabled = false;
-            }
-        }
-    }
 }
