@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (adminBtn) {
         console.log('Setting up admin button click handler');
         if (isLoggedIn) {
-            adminBtn.textContent = 'Open Admin Panel';
+            adminBtn.innerHTML = '<i class="fas fa-lock"></i>';
             adminBtn.addEventListener('click', function(e) {
                 console.log('Admin button clicked (logged in) - opening panel');
                 e.preventDefault();
