@@ -130,19 +130,21 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             if (error) {
                 console.error('Error loading initial data from Supabase:', error);
-                // Try to initialize with default data
-                initializeWithDefaultData();
+                // Data doesn't exist or there was an error, restore it
+                console.log('Attempting to restore data to Supabase...');
+                await restoreDataToSupabase();
             } else if (data && data.data) {
                 siteData = data.data;
                 console.log('✅ Initial data loaded from Supabase successfully');
                 updateSiteContent(siteData);
             } else {
                 console.log('No initial data found in Supabase');
-                initializeWithDefaultData();
+                console.log('Attempting to restore data to Supabase...');
+                await restoreDataToSupabase();
             }
         } catch (error) {
             console.error('Error during initialization:', error);
-            initializeWithDefaultData();
+            await restoreDataToSupabase();
         }
     } catch (error) {
         console.error('Error during initialization:', error);
@@ -165,6 +167,35 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Set up danger zone functionality
     setupDangerZone();
 });
+
+// Function to restore data to Supabase when it's missing
+async function restoreDataToSupabase() {
+    console.log('Restoring default data to Supabase');
+    
+    // First initialize with default data for the site
+    initializeWithDefaultData();
+    
+    // Then save this data to Supabase
+    try {
+        const { data, error } = await supabase
+            .from('site_data')
+            .upsert({ 
+                id: 1, 
+                data: siteData 
+            }, { onConflict: 'id' });
+        
+        if (error) {
+            console.error('Failed to restore data to Supabase:', error);
+            alert('There was an issue restoring data to the database. Using local data for now.');
+        } else {
+            console.log('✅ Data successfully restored to Supabase!');
+            alert('Data has been restored to the database successfully!');
+        }
+    } catch (restoreError) {
+        console.error('Exception during data restoration:', restoreError);
+        alert('There was an error restoring data: ' + restoreError.message);
+    }
+}
 
 // Initialize with default data
 function initializeWithDefaultData() {
