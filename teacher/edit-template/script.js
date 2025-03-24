@@ -275,7 +275,10 @@ function initializeWithDefaultData() {
         ],
         contact: {
             email: 'ahmed.mahmoud@mathseducator.com',
-            formUrl: 'https://forms.google.com/your-form-link'
+            formUrl: 'https://forms.google.com/your-form-link',
+            assistantFormUrl: 'https://forms.google.com/assistant-form-link',
+            phone: '+1 123-456-7890',
+            contactMessage: 'Thank you for your interest in my teaching services. I will get back to you as soon as possible.'
         }
     };
     
@@ -965,6 +968,9 @@ function validateFormPopulation(data) {
     const platformsInput = document.getElementById('admin-platforms');
     const emailInput = document.getElementById('admin-email');
     const formUrlInput = document.getElementById('admin-form-url');
+    const assistantFormUrlInput = document.getElementById('admin-assistant-form-url');
+    const phoneInput = document.getElementById('admin-phone');
+    const contactMessageInput = document.getElementById('admin-contact-message');
     
     // Get the actual values in the form fields
     const formValues = {
@@ -976,22 +982,56 @@ function validateFormPopulation(data) {
         centers: centersInput ? centersInput.value : 'element not found',
         platforms: platformsInput ? platformsInput.value : 'element not found',
         email: emailInput ? emailInput.value : 'element not found',
-        formUrl: formUrlInput ? formUrlInput.value : 'element not found'
+        formUrl: formUrlInput ? formUrlInput.value : 'element not found',
+        assistantFormUrl: assistantFormUrlInput ? assistantFormUrlInput.value : '',
+        phone: phoneInput ? phoneInput.value : '',
+        contactMessage: contactMessageInput ? contactMessageInput.value : ''
     };
     
     console.log('FORM VALIDATION - Current form values:', formValues);
     
-    // Check if all form fields have values
+    // Provide default values for missing fields
+    const defaultValues = {
+        schools: ['International School of Mathematics', 'Elite Academy', 'Science High School'],
+        centers: ['Math Excellence Center', 'Advanced Learning Institute', 'STEM Education Hub'],
+        platforms: ['MathPro Online', 'EduTech Academy', 'Virtual Learning Center'],
+        email: 'ahmed.mahmoud@mathseducator.com',
+        formUrl: 'https://forms.google.com/your-form-link',
+        assistantFormUrl: 'https://forms.google.com/assistant-form-link',
+        phone: '+1 123-456-7890',
+        contactMessage: 'Thank you for your interest in my teaching services. I will get back to you as soon as possible.'
+    };
+
+    // Check for empty required fields, only treat actual form fields as required
     const emptyFields = Object.entries(formValues)
-        .filter(([key, value]) => value === '' || value === 'element not found')
+        .filter(([key, value]) => 
+            // Only consider fields that have corresponding DOM elements and are required
+            (key === 'schools' || key === 'centers' || key === 'platforms' || 
+             key === 'email' || key === 'formUrl') && 
+            value === 'element not found' || value === ''
+        )
         .map(([key]) => key);
-    
+
     if (emptyFields.length > 0) {
         console.warn('⚠️ Empty form fields detected:', emptyFields);
-        showAdminAlert('error', `Some fields are empty or missing: ${emptyFields.join(', ')}. Please check the console for details.`);
-    } else {
-        console.log('✅ All form fields are populated with values');
+        
+        // More user-friendly message
+        if (emptyFields.some(field => formValues[field] === 'element not found')) {
+            showAdminAlert('warning', `Some required input fields could not be found in the form. Default values will be used.`);
+            
+            // Apply default values for missing fields
+            emptyFields.forEach(field => {
+                if (formValues[field] === 'element not found' || formValues[field] === '') {
+                    formValues[field] = defaultValues[field];
+                }
+            });
+        } else {
+            showAdminAlert('warning', `Please fill in all required fields: ${emptyFields.join(', ')}.`);
+            return;
+        }
     }
+    
+    console.log('✅ All form fields are populated with values');
 }
 
 // Populate admin form with data
@@ -1118,11 +1158,17 @@ function populateAdminForm(data) {
         // Get contact form elements
         const emailInput = document.getElementById('admin-email');
         const formUrlInput = document.getElementById('admin-form-url');
+        const assistantFormUrlInput = document.getElementById('admin-assistant-form-url');
+        const phoneInput = document.getElementById('admin-phone');
+        const contactMessageInput = document.getElementById('admin-contact-message');
         
         // Log which elements were found
         console.log('Contact form elements found:', {
             emailInput: !!emailInput,
-            formUrlInput: !!formUrlInput
+            formUrlInput: !!formUrlInput,
+            assistantFormUrlInput: !!assistantFormUrlInput,
+            phoneInput: !!phoneInput,
+            contactMessageInput: !!contactMessageInput
         });
         
         // Set values with detailed logging
@@ -1138,6 +1184,27 @@ function populateAdminForm(data) {
             console.log(`Set form URL input to "${contactData.formUrl || ''}"`);
         } else {
             console.error('admin-form-url input not found in DOM');
+        }
+        
+        if (assistantFormUrlInput) {
+            assistantFormUrlInput.value = contactData.assistantFormUrl || '';
+            console.log(`Set assistant form URL input to "${contactData.assistantFormUrl || ''}"`);
+        } else {
+            console.error('admin-assistant-form-url input not found in DOM');
+        }
+        
+        if (phoneInput) {
+            phoneInput.value = contactData.phone || '';
+            console.log(`Set phone input to "${contactData.phone || ''}"`);
+        } else {
+            console.error('admin-phone input not found in DOM');
+        }
+        
+        if (contactMessageInput) {
+            contactMessageInput.value = contactData.contactMessage || '';
+            console.log(`Set contact message input to "${contactData.contactMessage || ''}"`);
+        } else {
+            console.error('admin-contact-message input not found in DOM');
         }
         
         console.log('✅ Admin form population completed');
@@ -1351,6 +1418,15 @@ function updateSiteContent(data) {
         
         // Update contact form
         const contactData = data.contact || {};
+        
+        // Ensure all contact fields have default values if missing
+        contactData.email = contactData.email || 'ahmed.mahmoud@mathseducator.com';
+        contactData.formUrl = contactData.formUrl || 'https://forms.google.com/your-form-link';
+        contactData.assistantFormUrl = contactData.assistantFormUrl || 'https://forms.google.com/assistant-form-link';
+        contactData.phone = contactData.phone || '+1 123-456-7890';
+        contactData.contactMessage = contactData.contactMessage || 'Thank you for your interest in my teaching services.';
+        
+        // Update register button with form URL
         const registerBtn = document.querySelector('#register a.btn');
         if (registerBtn && contactData && contactData.formUrl) {
             registerBtn.href = contactData.formUrl;
@@ -1465,23 +1541,40 @@ async function saveAdminChanges() {
     saveBtn.disabled = true;
 
     try {
+        // Get form elements or use defaults if not found
+        const nameInput = document.getElementById('admin-name') || { value: 'Dr. Ahmed Mahmoud' };
+        const titleInput = document.getElementById('admin-title') || { value: 'Mathematics Educator' };
+        const experienceInput = document.getElementById('admin-experience') || { value: '15+ years of teaching experience' };
+        const qualificationsInput = document.getElementById('admin-qualifications') || { value: '' };
+        const schoolsInput = document.getElementById('admin-schools') || { value: '' };
+        const centersInput = document.getElementById('admin-centers') || { value: '' };
+        const platformsInput = document.getElementById('admin-platforms') || { value: '' };
+        const emailInput = document.getElementById('admin-email') || { value: 'ahmed.mahmoud@mathseducator.com' };
+        const formUrlInput = document.getElementById('admin-form-url') || { value: 'https://forms.google.com/your-form-link' };
+        const assistantFormUrlInput = document.getElementById('admin-assistant-form-url') || { value: 'https://forms.google.com/assistant-form-link' };
+        const phoneInput = document.getElementById('admin-phone') || { value: '+1 123-456-7890' };
+        const contactMessageInput = document.getElementById('admin-contact-message') || { value: 'Thank you for your interest in my teaching services.' };
+
         // Collect data from form fields
         const newData = {
             personal: {
-                name: document.getElementById('admin-name').value,
-                title: document.getElementById('admin-title').value,
-                experience: document.getElementById('admin-experience').value,
-                qualifications: document.getElementById('admin-qualifications').value.split('\n').filter(item => item.trim() !== '')
+                name: nameInput.value,
+                title: titleInput.value,
+                experience: experienceInput.value,
+                qualifications: qualificationsInput.value.split('\n').filter(item => item.trim() !== '')
             },
             experience: {
-                schools: document.getElementById('admin-schools').value.split('\n').filter(item => item.trim() !== ''),
-                centers: document.getElementById('admin-centers').value.split('\n').filter(item => item.trim() !== ''),
-                platforms: document.getElementById('admin-platforms').value.split('\n').filter(item => item.trim() !== '')
+                schools: schoolsInput.value.split('\n').filter(item => item.trim() !== ''),
+                centers: centersInput.value.split('\n').filter(item => item.trim() !== ''),
+                platforms: platformsInput.value.split('\n').filter(item => item.trim() !== '')
             },
             results: collectResultsData(),
             contact: {
-                email: document.getElementById('admin-email').value,
-                formUrl: document.getElementById('admin-form-url').value
+                email: emailInput.value,
+                formUrl: formUrlInput.value,
+                assistantFormUrl: assistantFormUrlInput.value,
+                phone: phoneInput.value,
+                contactMessage: contactMessageInput.value
             }
         };
 
