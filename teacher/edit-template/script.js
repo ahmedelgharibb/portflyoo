@@ -22,6 +22,7 @@ let adminBtnMobile;
 let adminLoginModal;
 let adminLoginForm;
 let cancelLoginBtn;
+let exitLoginBtn;
 let adminPanel;
 let closeAdminPanelBtn;
 let saveChangesBtn;
@@ -103,6 +104,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (cancelLoginBtn) {
         console.log('Setting up cancel login button click handler');
         cancelLoginBtn.addEventListener('click', hideAdminLogin);
+    }
+    
+    // Set up exit login button
+    if (exitLoginBtn) {
+        console.log('Setting up exit login button click handler');
+        exitLoginBtn.addEventListener('click', hideAdminLogin);
     }
     
     // Set up close admin panel button
@@ -652,45 +659,36 @@ function handleAdminLogin(e) {
         return;
     }
     
-    // Direct password check for demo purposes
+    // Direct password check for demo purposes - we do this immediately
     // In production, this should be a secure authentication process
-    setTimeout(() => {
-        if (password === 'admin123') {
-            console.log('Admin login successful');
-            
-            // Save login state
-            sessionStorage.setItem('adminLoggedIn', 'true');
-            
-            // Show success message
-            showAdminAlert('success', 'Login successful', true);
-            
-            // Close login modal and open admin panel after a short delay
-            setTimeout(() => {
-                closeModal('adminLoginModal');
-                openAdminPanel();
-                
-                // Reset form
-                document.getElementById('adminLoginForm').reset();
-                
-                // Reset button
-                if (loginBtn) {
-                    loginBtn.disabled = false;
-                    loginBtn.innerHTML = 'Login';
-                }
-            }, 1000);
-        } else {
-            console.log('Admin login failed: Invalid password');
-            
-            // Show error message
-            showAdminAlert('error', 'Invalid password. Please try again.', true);
-            
-            // Reset button
-            if (loginBtn) {
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = 'Login';
-            }
+    if (password === 'admin123') {
+        console.log('Admin login successful');
+        
+        // Save login state
+        sessionStorage.setItem('adminLoggedIn', 'true');
+        isLoggedIn = true;
+        
+        // Show success message
+        showAdminAlert('success', 'Login successful!', true);
+        
+        // Close login modal and open admin panel immediately
+        hideAdminLogin();
+        openAdminPanel();
+        
+        // Reset form
+        document.getElementById('adminLoginForm').reset();
+    } else {
+        console.log('Admin login failed: Invalid password');
+        
+        // Show error message
+        showAdminAlert('error', 'Invalid password. Please try again.', true);
+        
+        // Reset button
+        if (loginBtn) {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = 'Login';
         }
-    }, 500); // Small delay to simulate authentication process
+    }
 }
 
 // Show admin alert
@@ -739,11 +737,28 @@ function showAdminAlert(type, message, inLoginModal = false) {
 
 // Open admin panel and load data
 async function openAdminPanel() {
-    if (!isLoggedIn) return;
+    console.log('Opening admin panel, login status:', isLoggedIn);
+    
+    // Double-check login status
+    if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+        isLoggedIn = true;
+    }
+    
+    if (!isLoggedIn) {
+        console.warn('Attempt to open admin panel while not logged in');
+        showLoginForm();
+        return;
+    }
     
     try {
+        // Show a loading message
+        showAdminAlert('success', 'Loading admin panel...');
+        
+        let dataLoaded = false;
+        
         // Try to load from Supabase
         try {
+            console.log('Attempting to load data from Supabase');
             const { data, error } = await supabase
                 .from('site_data')
                 .select('data')
@@ -752,26 +767,39 @@ async function openAdminPanel() {
             
             if (error) {
                 console.error('Error loading from Supabase:', error);
-                // If no data is loaded yet, use defaults
-                if (!siteData) {
-                    initializeWithDefaultData();
-                }
+                showAdminAlert('error', 'Failed to load data from database. Using local data instead.');
             } else if (data && data.data) {
                 siteData = data.data;
+                dataLoaded = true;
                 console.log('✅ Data loaded for admin panel from Supabase successfully');
+                showAdminAlert('success', 'Data loaded successfully!');
             } else {
                 console.log('No data found in Supabase for admin panel');
-                // If no data is loaded yet, use defaults
-                if (!siteData) {
-                    initializeWithDefaultData();
-                }
+                showAdminAlert('error', 'No data found in database. Using default values.');
             }
         } catch (error) {
-            console.error('Error in admin data loading:', error);
-            // Use current data or defaults
-            if (!siteData) {
-                initializeWithDefaultData();
+            console.error('Error in admin data loading from Supabase:', error);
+            showAdminAlert('error', `Database error: ${error.message}. Using local data instead.`);
+        }
+        
+        // If Supabase failed, try localStorage
+        if (!dataLoaded) {
+            try {
+                const localData = localStorage.getItem('siteData');
+                if (localData) {
+                    siteData = JSON.parse(localData);
+                    dataLoaded = true;
+                    console.log('✅ Data loaded from localStorage successfully');
+                }
+            } catch (localError) {
+                console.error('Error loading from localStorage:', localError);
             }
+        }
+        
+        // If neither worked, use default data
+        if (!dataLoaded || !siteData) {
+            console.log('No data found in any storage, using defaults');
+            initializeWithDefaultData();
         }
         
         // Populate admin form with data
@@ -789,10 +817,13 @@ async function openAdminPanel() {
             
             // Dispatch admin panel opened event
             document.dispatchEvent(new CustomEvent('adminPanelOpened'));
+        } else {
+            console.error('Admin panel element not found');
+            alert('Error: Admin panel not found. Please refresh the page and try again.');
         }
     } catch (error) {
         console.error('Error opening admin panel:', error);
-        showAdminAlert('error', 'Failed to open admin panel. Please try again.');
+        showAdminAlert('error', `Failed to open admin panel: ${error.message}. Please try again.`);
     }
 }
 
@@ -801,28 +832,52 @@ function populateAdminForm(data) {
     try {
         console.log('Populating admin form with data:', data);
         
+        if (!data) {
+            console.error('No data provided to populateAdminForm');
+            showAdminAlert('error', 'No data available to load. Using default values.');
+            initializeWithDefaultData();
+            data = siteData;
+        }
+        
         // Personal Info
-        document.getElementById('admin-name').value = data.personal.name || '';
-        document.getElementById('admin-title').value = data.personal.title || '';
-        document.getElementById('admin-experience').value = data.personal.experience || '';
-        document.getElementById('admin-qualifications').value = (data.personal.qualifications || []).join('\n');
+        if (data.personal) {
+            document.getElementById('admin-name').value = data.personal.name || '';
+            document.getElementById('admin-title').value = data.personal.title || '';
+            document.getElementById('admin-experience').value = data.personal.experience || '';
+            document.getElementById('admin-qualifications').value = (data.personal.qualifications || []).join('\n');
+        } else {
+            console.warn('No personal data found');
+        }
         
         // Experience
-        document.getElementById('admin-schools').value = (data.experience.schools || []).join('\n');
-        document.getElementById('admin-centers').value = (data.experience.centers || []).join('\n');
-        document.getElementById('admin-platforms').value = (data.experience.platforms || []).join('\n');
+        if (data.experience) {
+            document.getElementById('admin-schools').value = (data.experience.schools || []).join('\n');
+            document.getElementById('admin-centers').value = (data.experience.centers || []).join('\n');
+            document.getElementById('admin-platforms').value = (data.experience.platforms || []).join('\n');
+        } else {
+            console.warn('No experience data found');
+        }
         
         // Results
-        populateResultsForm(data.results || []);
+        if (data.results) {
+            populateResultsForm(data.results);
+        } else {
+            console.warn('No results data found');
+            populateResultsForm([]);
+        }
         
         // Contact
-        document.getElementById('admin-email').value = data.contact.email || '';
-        document.getElementById('admin-form-url').value = data.contact.formUrl || '';
+        if (data.contact) {
+            document.getElementById('admin-email').value = data.contact.email || '';
+            document.getElementById('admin-form-url').value = data.contact.formUrl || '';
+        } else {
+            console.warn('No contact data found');
+        }
         
         console.log('✅ Admin form populated successfully');
     } catch (error) {
         console.error('Error populating admin form:', error);
-        showAdminAlert('error', `There was an error loading some form fields: ${error.message}`);
+        showAdminAlert('error', `There was an error loading form fields: ${error.message}`);
     }
 }
 
@@ -889,6 +944,7 @@ function initDOMElements() {
     adminLoginModal = document.getElementById('adminLoginModal');
     adminLoginForm = document.getElementById('adminLoginForm');
     cancelLoginBtn = document.getElementById('cancelLogin');
+    exitLoginBtn = document.getElementById('exitLoginBtn');
     adminPanel = document.getElementById('adminPanel');
     closeAdminPanelBtn = document.getElementById('closeAdminPanel');
     saveChangesBtn = document.getElementById('saveChangesBtn');
@@ -903,7 +959,8 @@ function initDOMElements() {
         adminBtn: !!adminBtn,
         adminBtnMobile: !!adminBtnMobile,
         adminPanel: !!adminPanel,
-        adminLoginModal: !!adminLoginModal
+        adminLoginModal: !!adminLoginModal,
+        exitLoginBtn: !!exitLoginBtn
     });
 }
 
