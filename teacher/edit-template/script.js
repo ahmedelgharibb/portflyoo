@@ -260,9 +260,11 @@ function initializeWithDefaultData() {
                 'STEM Education Hub'
             ],
             platforms: [
-                'MathPro Online',
-                'EduTech Academy',
-                'Virtual Learning Center'
+                'Khan Academy',
+                'Coursera - Mathematics for Machine Learning',
+                'Udemy - Advanced Calculus',
+                'edX - Linear Algebra',
+                'YouTube Math Channel'
             ]
         },
         results: [
@@ -272,7 +274,7 @@ function initializeWithDefaultData() {
             {name: 'Biology', score: 75}
         ],
         contact: {
-            email: 'teacher@example.com',
+            email: 'ahmed.mahmoud@mathseducator.com',
             formUrl: 'https://forms.google.com/your-form-link'
         }
     };
