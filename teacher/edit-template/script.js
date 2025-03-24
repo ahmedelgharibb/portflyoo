@@ -169,6 +169,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 // Initialize with default data
 function initializeWithDefaultData() {
     console.log('Using default data');
+    
+    // Create a consistent data structure
     siteData = {
         personal: {
             name: 'Dr. Ahmed Mahmoud',
@@ -209,8 +211,18 @@ function initializeWithDefaultData() {
         }
     };
     
+    console.log('Default data initialized:', JSON.stringify(siteData, null, 2));
+    
     // Apply default data to the page
     updateSiteContent(siteData);
+    
+    // Save default data to localStorage for future use
+    try {
+        localStorage.setItem('siteData', JSON.stringify(siteData));
+        console.log('Default data saved to localStorage');
+    } catch (error) {
+        console.error('Failed to save default data to localStorage:', error);
+    }
 }
 
 // Mobile Menu Functionality
@@ -769,6 +781,7 @@ async function openAdminPanel() {
                 console.error('Error loading from Supabase:', error);
                 showAdminAlert('error', 'Failed to load data from database. Using local data instead.');
             } else if (data && data.data) {
+                console.log('Raw data from Supabase:', JSON.stringify(data.data, null, 2));
                 siteData = data.data;
                 dataLoaded = true;
                 console.log('✅ Data loaded for admin panel from Supabase successfully');
@@ -787,6 +800,7 @@ async function openAdminPanel() {
             try {
                 const localData = localStorage.getItem('siteData');
                 if (localData) {
+                    console.log('Found data in localStorage');
                     siteData = JSON.parse(localData);
                     dataLoaded = true;
                     console.log('✅ Data loaded from localStorage successfully');
@@ -801,6 +815,8 @@ async function openAdminPanel() {
             console.log('No data found in any storage, using defaults');
             initializeWithDefaultData();
         }
+        
+        console.log('Final data used for form population:', JSON.stringify(siteData, null, 2));
         
         // Populate admin form with data
         populateAdminForm(siteData);
@@ -830,7 +846,7 @@ async function openAdminPanel() {
 // Populate admin form with data
 function populateAdminForm(data) {
     try {
-        console.log('Populating admin form with data:', data);
+        console.log('Populating admin form with data:', JSON.stringify(data, null, 2));
         
         if (!data) {
             console.error('No data provided to populateAdminForm');
@@ -839,37 +855,79 @@ function populateAdminForm(data) {
             data = siteData;
         }
         
-        // Personal Info
-        if (data.personal) {
-            document.getElementById('admin-name').value = data.personal.name || '';
-            document.getElementById('admin-title').value = data.personal.title || '';
-            document.getElementById('admin-experience').value = data.personal.experience || '';
-            document.getElementById('admin-qualifications').value = (data.personal.qualifications || []).join('\n');
+        // Personal Info - Check for both 'personal' and 'personalInfo'
+        const personalData = data.personal || data.personalInfo || {};
+        if (personalData) {
+            const nameInput = document.getElementById('admin-name');
+            const titleInput = document.getElementById('admin-title');
+            const experienceInput = document.getElementById('admin-experience');
+            const qualificationsInput = document.getElementById('admin-qualifications');
+            
+            if (nameInput) nameInput.value = personalData.name || '';
+            if (titleInput) titleInput.value = personalData.title || '';
+            if (experienceInput) experienceInput.value = personalData.experience || '';
+            if (qualificationsInput) {
+                const qualifications = personalData.qualifications || [];
+                qualificationsInput.value = Array.isArray(qualifications) ? qualifications.join('\n') : '';
+            }
+            
+            console.log('Personal data populated:', {
+                name: personalData.name,
+                title: personalData.title,
+                experience: personalData.experience,
+                qualifications: personalData.qualifications
+            });
         } else {
             console.warn('No personal data found');
         }
         
-        // Experience
-        if (data.experience) {
-            document.getElementById('admin-schools').value = (data.experience.schools || []).join('\n');
-            document.getElementById('admin-centers').value = (data.experience.centers || []).join('\n');
-            document.getElementById('admin-platforms').value = (data.experience.platforms || []).join('\n');
+        // Experience data
+        const experienceData = data.experience || {};
+        if (experienceData) {
+            const schoolsInput = document.getElementById('admin-schools');
+            const centersInput = document.getElementById('admin-centers');
+            const platformsInput = document.getElementById('admin-platforms');
+            
+            if (schoolsInput) {
+                const schools = experienceData.schools || [];
+                schoolsInput.value = Array.isArray(schools) ? schools.join('\n') : '';
+            }
+            
+            if (centersInput) {
+                const centers = experienceData.centers || [];
+                centersInput.value = Array.isArray(centers) ? centers.join('\n') : '';
+            }
+            
+            if (platformsInput) {
+                const platforms = experienceData.platforms || [];
+                platformsInput.value = Array.isArray(platforms) ? platforms.join('\n') : '';
+            }
+            
+            console.log('Experience data populated');
         } else {
             console.warn('No experience data found');
         }
         
-        // Results
-        if (data.results) {
-            populateResultsForm(data.results);
+        // Results data
+        const resultsData = data.results || [];
+        if (Array.isArray(resultsData) && resultsData.length > 0) {
+            populateResultsForm(resultsData);
+            console.log('Results data populated with', resultsData.length, 'items');
         } else {
-            console.warn('No results data found');
+            console.warn('No results data found or empty array');
             populateResultsForm([]);
         }
         
-        // Contact
-        if (data.contact) {
-            document.getElementById('admin-email').value = data.contact.email || '';
-            document.getElementById('admin-form-url').value = data.contact.formUrl || '';
+        // Contact data
+        const contactData = data.contact || {};
+        if (contactData) {
+            const emailInput = document.getElementById('admin-email');
+            const formUrlInput = document.getElementById('admin-form-url');
+            
+            if (emailInput) emailInput.value = contactData.email || '';
+            if (formUrlInput) formUrlInput.value = contactData.formUrl || '';
+            
+            console.log('Contact data populated');
         } else {
             console.warn('No contact data found');
         }
@@ -969,12 +1027,24 @@ function updateSiteContent(data) {
     try {
         console.log('Updating site content with new data');
         
+        if (!data) {
+            console.error('No data provided to updateSiteContent');
+            return;
+        }
+        
+        // For compatibility, check both personal and personalInfo
+        const personalData = data.personal || data.personalInfo || {};
+        
         // Update page title
-        document.title = `${data.personal.name} - ${data.personal.title}`;
+        if (personalData.name && personalData.title) {
+            document.title = `${personalData.name} - ${personalData.title}`;
+        }
         
         // Update name in navigation
         const navName = document.querySelector('header nav a.text-2xl');
-        if (navName) navName.textContent = data.personal.name;
+        if (navName && personalData.name) {
+            navName.textContent = personalData.name;
+        }
         
         // Update hero section
         const heroTitle = document.querySelector('#hero h1');
@@ -985,14 +1055,14 @@ function updateSiteContent(data) {
         }
         
         const heroDesc = document.querySelector('#hero p.text-lg');
-        if (heroDesc) {
-            heroDesc.textContent = data.personal.experience;
+        if (heroDesc && personalData.experience) {
+            heroDesc.textContent = personalData.experience;
         }
         
         // Update about section
         const qualsList = document.querySelector('#about ul');
-        if (qualsList) {
-            qualsList.innerHTML = data.personal.qualifications.map(qual => `
+        if (qualsList && Array.isArray(personalData.qualifications)) {
+            qualsList.innerHTML = personalData.qualifications.map(qual => `
                 <li class="flex items-center">
                     <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
                     <span>${qual}</span>
@@ -1001,9 +1071,11 @@ function updateSiteContent(data) {
         }
         
         // Update experience section
+        const experienceData = data.experience || {};
+        
         const schoolsList = document.querySelector('#experience .experience-card:nth-child(1) ul');
-        if (schoolsList) {
-            schoolsList.innerHTML = data.experience.schools.map(school => `
+        if (schoolsList && Array.isArray(experienceData.schools)) {
+            schoolsList.innerHTML = experienceData.schools.map(school => `
                 <li class="flex items-center">
                     <i class="fas fa-check text-green-500 mr-2"></i>
                     <span>${school}</span>
@@ -1012,8 +1084,8 @@ function updateSiteContent(data) {
         }
         
         const centersList = document.querySelector('#experience .experience-card:nth-child(2) ul');
-        if (centersList) {
-            centersList.innerHTML = data.experience.centers.map(center => `
+        if (centersList && Array.isArray(experienceData.centers)) {
+            centersList.innerHTML = experienceData.centers.map(center => `
                 <li class="flex items-center">
                     <i class="fas fa-check text-green-500 mr-2"></i>
                     <span>${center}</span>
@@ -1022,8 +1094,8 @@ function updateSiteContent(data) {
         }
         
         const platformsList = document.querySelector('#experience .experience-card:nth-child(3) ul');
-        if (platformsList) {
-            platformsList.innerHTML = data.experience.platforms.map(platform => `
+        if (platformsList && Array.isArray(experienceData.platforms)) {
+            platformsList.innerHTML = experienceData.platforms.map(platform => `
                 <li class="flex items-center">
                     <i class="fas fa-check text-green-500 mr-2"></i>
                     <span>${platform}</span>
@@ -1033,17 +1105,19 @@ function updateSiteContent(data) {
         
         // Update results chart - wrap in try/catch to prevent errors from breaking everything
         try {
-            if (data.results) {
-                updateResultsChart(data.results);
+            const resultsData = data.results || [];
+            if (Array.isArray(resultsData) && resultsData.length > 0) {
+                updateResultsChart(resultsData);
             }
         } catch (chartError) {
             console.error('Error updating chart:', chartError);
         }
         
         // Update contact form
+        const contactData = data.contact || {};
         const registerBtn = document.querySelector('#register a.btn');
-        if (registerBtn && data.contact && data.contact.formUrl) {
-            registerBtn.href = data.contact.formUrl;
+        if (registerBtn && contactData && contactData.formUrl) {
+            registerBtn.href = contactData.formUrl;
         }
         
         console.log('✅ Site content updated successfully');
@@ -1156,7 +1230,7 @@ async function saveAdminChanges() {
 
     try {
         // Collect data from form fields
-        const siteData = {
+        const newData = {
             personal: {
                 name: document.getElementById('admin-name').value,
                 title: document.getElementById('admin-title').value,
@@ -1175,14 +1249,17 @@ async function saveAdminChanges() {
             }
         };
 
-        console.log('Saving data:', siteData);
+        console.log('Saving data:', JSON.stringify(newData, null, 2));
+        
+        // Update our global state
+        siteData = newData;
 
         // Save to Supabase
         let supabaseSaveSuccess = false;
         try {
             const { error } = await supabase
                 .from('site_data')
-                .upsert({ id: 1, data: siteData }, { onConflict: 'id' });
+                .upsert({ id: 1, data: newData }, { onConflict: 'id' });
 
             if (error) {
                 throw new Error(`Supabase error: ${error.message}`);
@@ -1196,7 +1273,7 @@ async function saveAdminChanges() {
 
         // Save to localStorage as backup
         try {
-            localStorage.setItem('siteData', JSON.stringify(siteData));
+            localStorage.setItem('siteData', JSON.stringify(newData));
             console.log('✅ Data saved to localStorage successfully');
         } catch (localStorageError) {
             console.error('Failed to save to localStorage:', localStorageError);
@@ -1208,7 +1285,7 @@ async function saveAdminChanges() {
         }
 
         // Update site content with new data
-        updateSiteContent(siteData);
+        updateSiteContent(newData);
         
         // Show success message
         showAdminAlert('success', 'Changes saved successfully!');
