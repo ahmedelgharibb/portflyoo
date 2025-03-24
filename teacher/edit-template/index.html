@@ -19,6 +19,85 @@
     <link rel="stylesheet" href="styles.css">
     
     <style>
+        /* Theme CSS Variables */
+        :root {
+            /* Default theme colors - Blue */
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #60a5fa;
+            
+            /* Default light mode colors */
+            --bg-color: #f9fafb;
+            --text-color: #1f2937;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+        }
+        
+        /* Theme color modifiers */
+        .theme-blue {
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #60a5fa;
+        }
+        
+        .theme-green {
+            --primary-color: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #34d399;
+        }
+        
+        .theme-purple {
+            --primary-color: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --primary-light: #a78bfa;
+        }
+        
+        .theme-red {
+            --primary-color: #ef4444;
+            --primary-dark: #dc2626;
+            --primary-light: #f87171;
+        }
+        
+        .theme-gray {
+            --primary-color: #6b7280;
+            --primary-dark: #4b5563;
+            --primary-light: #9ca3af;
+        }
+        
+        /* Theme mode modifiers */
+        .dark-mode {
+            --bg-color: #1f2937;
+            --text-color: #f9fafb;
+            --card-bg: #374151;
+            --border-color: #4b5563;
+        }
+        
+        /* Apply theme to elements */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .bg-white {
+            background-color: var(--card-bg);
+        }
+        
+        .text-gray-600, .text-gray-700, .text-gray-800 {
+            color: var(--text-color);
+        }
+        
+        .bg-blue-600, .btn-primary {
+            background-color: var(--primary-color);
+        }
+        
+        .text-blue-600 {
+            color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
         /* Custom styles for admin components */
         #showDangerBtn {
             width: 50px;
@@ -573,6 +652,72 @@
                 <div class="mt-4">
                     <label class="form-label">Contact Message</label>
                     <textarea id="admin-contact-message" class="form-input" rows="3"></textarea>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Theme Settings</h3>
+                
+                <div class="mb-6">
+                    <label class="form-label">Primary Color Theme</label>
+                    <div class="grid grid-cols-5 gap-3 mt-2">
+                        <div class="theme-color-option">
+                            <input type="radio" name="theme-color" id="theme-blue" value="blue" checked class="sr-only">
+                            <label for="theme-blue" class="flex items-center justify-center h-12 bg-blue-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all">
+                                <span>Blue</span>
+                            </label>
+                        </div>
+                        <div class="theme-color-option">
+                            <input type="radio" name="theme-color" id="theme-green" value="green" class="sr-only">
+                            <label for="theme-green" class="flex items-center justify-center h-12 bg-green-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-green-500 transition-all">
+                                <span>Green</span>
+                            </label>
+                        </div>
+                        <div class="theme-color-option">
+                            <input type="radio" name="theme-color" id="theme-purple" value="purple" class="sr-only">
+                            <label for="theme-purple" class="flex items-center justify-center h-12 bg-purple-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all">
+                                <span>Purple</span>
+                            </label>
+                        </div>
+                        <div class="theme-color-option">
+                            <input type="radio" name="theme-color" id="theme-red" value="red" class="sr-only">
+                            <label for="theme-red" class="flex items-center justify-center h-12 bg-red-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-red-500 transition-all">
+                                <span>Red</span>
+                            </label>
+                        </div>
+                        <div class="theme-color-option">
+                            <input type="radio" name="theme-color" id="theme-gray" value="gray" class="sr-only">
+                            <label for="theme-gray" class="flex items-center justify-center h-12 bg-gray-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-gray-500 transition-all">
+                                <span>Gray</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="form-label">Display Mode</label>
+                    <div class="grid grid-cols-2 gap-3 mt-2">
+                        <div class="theme-mode-option">
+                            <input type="radio" name="theme-mode" id="mode-light" value="light" checked class="sr-only">
+                            <label for="mode-light" class="flex items-center justify-center h-12 bg-white text-gray-800 border border-gray-200 rounded-lg cursor-pointer hover:ring-2 hover:ring-gray-300 transition-all">
+                                <i class="fas fa-sun mr-2"></i>
+                                <span>Light Mode</span>
+                            </label>
+                        </div>
+                        <div class="theme-mode-option">
+                            <input type="radio" name="theme-mode" id="mode-dark" value="dark" class="sr-only">
+                            <label for="mode-dark" class="flex items-center justify-center h-12 bg-gray-800 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-gray-600 transition-all">
+                                <i class="fas fa-moon mr-2"></i>
+                                <span>Dark Mode</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <button id="previewThemeBtn" class="btn btn-secondary">
+                        <i class="fas fa-eye mr-2"></i> Preview Theme
+                    </button>
                 </div>
             </div>
             

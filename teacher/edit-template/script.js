@@ -33,6 +33,7 @@ let adminAlert;
 // Global state
 let siteData = null;
 let isLoggedIn = false;
+let currentTheme = { color: 'blue', mode: 'light' };
 
 // Supabase setup
 const SUPABASE_URL = 'https://jckwvrzcjuggnfcbogrr.supabase.co';
@@ -151,6 +152,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         initializeWithDefaultData();
     }
     
+    // Apply the saved theme
+    loadSavedTheme();
+    
     // Setup admin panel event listeners if present and user is logged in
     if (isLoggedIn) {
         if (closeAdminPanelBtn) closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
@@ -166,6 +170,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Set up danger zone functionality
     setupDangerZone();
+    
+    // Setup theme toggle functionality (placeholder for future dark mode implementation)
+    setupThemeToggle();
 });
 
 // Function to restore data to Supabase when it's missing
@@ -279,6 +286,10 @@ function initializeWithDefaultData() {
             assistantFormUrl: 'https://forms.google.com/assistant-form-link',
             phone: '+1 123-456-7890',
             contactMessage: 'Thank you for your interest in my teaching services. I will get back to you as soon as possible.'
+        },
+        theme: {
+            color: 'blue',
+            mode: 'light'
         }
     };
     
@@ -1188,6 +1199,37 @@ function populateAdminForm(data) {
             console.error('admin-contact-message input not found in DOM');
         }
         
+        // Theme data
+        const themeData = data.theme || { color: 'blue', mode: 'light' };
+        console.log('Theme data to populate:', themeData);
+        
+        // Set theme radio buttons based on saved theme data
+        const { color = 'blue', mode = 'light' } = themeData;
+        
+        // Set color theme selection
+        const colorInput = document.getElementById(`theme-${color}`);
+        if (colorInput) {
+            colorInput.checked = true;
+            console.log(`Set theme color to ${color}`);
+        } else {
+            console.warn(`Theme color input for ${color} not found`);
+            // Set default color
+            const defaultColorInput = document.getElementById('theme-blue');
+            if (defaultColorInput) defaultColorInput.checked = true;
+        }
+        
+        // Set mode theme selection
+        const modeInput = document.getElementById(`mode-${mode}`);
+        if (modeInput) {
+            modeInput.checked = true;
+            console.log(`Set theme mode to ${mode}`);
+        } else {
+            console.warn(`Theme mode input for ${mode} not found`);
+            // Set default mode
+            const defaultModeInput = document.getElementById('mode-light');
+            if (defaultModeInput) defaultModeInput.checked = true;
+        }
+        
         console.log('✅ Admin form population completed');
     } catch (error) {
         console.error('Error populating admin form:', error);
@@ -1430,6 +1472,15 @@ function updateSiteContent(data) {
             contactMessageEl.textContent = contactData.contactMessage;
         }
         
+        // Apply theme if it exists
+        if (data.theme) {
+            const { color = 'blue', mode = 'light' } = data.theme;
+            console.log(`Applying theme from content update: ${color} color, ${mode} mode`);
+            applyTheme(color, mode);
+        } else {
+            console.log('No theme data found in content, using default theme');
+        }
+        
         console.log('✅ Site content updated successfully');
     } catch (error) {
         console.error('Error updating site content:', error);
@@ -1553,6 +1604,10 @@ async function saveAdminChanges() {
         const phoneInput = document.getElementById('admin-phone') || { value: '+1 123-456-7890' };
         const contactMessageInput = document.getElementById('admin-contact-message') || { value: 'Thank you for your interest in my teaching services.' };
 
+        // Get theme settings
+        const selectedColor = document.querySelector('input[name="theme-color"]:checked')?.value || 'blue';
+        const selectedMode = document.querySelector('input[name="theme-mode"]:checked')?.value || 'light';
+
         // Collect data from form fields
         const newData = {
             personal: {
@@ -1573,14 +1628,20 @@ async function saveAdminChanges() {
                 assistantFormUrl: assistantFormUrlInput.value,
                 phone: phoneInput.value,
                 contactMessage: contactMessageInput.value
+            },
+            theme: {
+                color: selectedColor,
+                mode: selectedMode
             }
         };
 
         console.log('Saving data:', JSON.stringify(newData, null, 2));
-        console.log('Results data specifically:', JSON.stringify(newData.results, null, 2));
         
         // Update our global state
         siteData = newData;
+        
+        // Also update current theme
+        currentTheme = { color: selectedColor, mode: selectedMode };
 
         // Save to Supabase with verification
         let supabaseSaveSuccess = false;
@@ -1764,4 +1825,171 @@ function adminLogout() {
     
     // Show logout success message
     showAdminAlert('success', 'You have been logged out.');
+}
+
+// Setup theme toggle functionality (placeholder for future dark mode implementation)
+function setupThemeToggle() {
+    console.log('Setting up theme toggle functionality');
+    
+    // Get theme elements
+    const themeColorInputs = document.querySelectorAll('input[name="theme-color"]');
+    const themeModeInputs = document.querySelectorAll('input[name="theme-mode"]');
+    const previewThemeBtn = document.getElementById('previewThemeBtn');
+    
+    // Set initial values based on current theme
+    if (currentTheme) {
+        // Set color selection
+        const colorInput = document.getElementById(`theme-${currentTheme.color}`);
+        if (colorInput) {
+            colorInput.checked = true;
+        }
+        
+        // Set mode selection
+        const modeInput = document.getElementById(`mode-${currentTheme.mode}`);
+        if (modeInput) {
+            modeInput.checked = true;
+        }
+    }
+    
+    // Add preview button click handler
+    if (previewThemeBtn) {
+        previewThemeBtn.addEventListener('click', previewSelectedTheme);
+    }
+}
+
+// Preview the selected theme without saving
+function previewSelectedTheme() {
+    const selectedColor = document.querySelector('input[name="theme-color"]:checked').value;
+    const selectedMode = document.querySelector('input[name="theme-mode"]:checked').value;
+    
+    console.log(`Previewing theme: ${selectedColor} color, ${selectedMode} mode`);
+    
+    // Apply the theme temporarily
+    applyTheme(selectedColor, selectedMode);
+    
+    // Show alert to inform user this is a preview
+    showAdminAlert('info', 'Theme preview applied. Save changes to make it permanent.');
+}
+
+// Apply theme to the website
+function applyTheme(color, mode) {
+    console.log(`Applying theme: ${color} color, ${mode} mode`);
+    
+    // Store the theme values for later use
+    currentTheme = { color, mode };
+    
+    // Apply color theme
+    applyColorTheme(color);
+    
+    // Apply mode (light/dark)
+    applyModeTheme(mode);
+}
+
+// Apply color theme
+function applyColorTheme(color) {
+    console.log(`Applying color theme: ${color}`);
+    
+    // Remove all theme classes first
+    document.body.classList.remove('theme-blue', 'theme-green', 'theme-purple', 'theme-red', 'theme-gray');
+    
+    // Add new theme class
+    document.body.classList.add(`theme-${color}`);
+    
+    // Update CSS variables for the color theme
+    const root = document.documentElement;
+    
+    switch (color) {
+        case 'blue':
+            root.style.setProperty('--primary-color', '#3b82f6');
+            root.style.setProperty('--primary-dark', '#2563eb');
+            root.style.setProperty('--primary-light', '#60a5fa');
+            break;
+        case 'green':
+            root.style.setProperty('--primary-color', '#10b981');
+            root.style.setProperty('--primary-dark', '#059669');
+            root.style.setProperty('--primary-light', '#34d399');
+            break;
+        case 'purple':
+            root.style.setProperty('--primary-color', '#8b5cf6');
+            root.style.setProperty('--primary-dark', '#7c3aed');
+            root.style.setProperty('--primary-light', '#a78bfa');
+            break;
+        case 'red':
+            root.style.setProperty('--primary-color', '#ef4444');
+            root.style.setProperty('--primary-dark', '#dc2626');
+            root.style.setProperty('--primary-light', '#f87171');
+            break;
+        case 'gray':
+            root.style.setProperty('--primary-color', '#6b7280');
+            root.style.setProperty('--primary-dark', '#4b5563');
+            root.style.setProperty('--primary-light', '#9ca3af');
+            break;
+        default:
+            root.style.setProperty('--primary-color', '#3b82f6');
+            root.style.setProperty('--primary-dark', '#2563eb');
+            root.style.setProperty('--primary-light', '#60a5fa');
+    }
+    
+    // Update all elements with tailwind classes (this would ideally be done with a plugin in a production environment)
+    // This is a simplified approach for the demo
+    const blueElements = document.querySelectorAll('.text-blue-600, .bg-blue-600, .hover\\:text-blue-700, .hover\\:bg-blue-700');
+    blueElements.forEach(el => {
+        // Replace blue with the selected color
+        el.className = el.className.replace(/blue-\d+/g, `${color}-600`);
+        el.className = el.className.replace(/hover:.*?blue-\d+/g, `hover:${color}-700`);
+    });
+}
+
+// Apply mode theme (light/dark)
+function applyModeTheme(mode) {
+    console.log(`Applying mode theme: ${mode}`);
+    
+    const root = document.documentElement;
+    
+    // Remove current mode class
+    document.body.classList.remove('dark-mode', 'light-mode');
+    
+    // Add new mode class
+    document.body.classList.add(`${mode}-mode`);
+    
+    if (mode === 'dark') {
+        // Apply dark mode colors
+        root.style.setProperty('--bg-color', '#1f2937');
+        root.style.setProperty('--text-color', '#f9fafb');
+        root.style.setProperty('--card-bg', '#374151');
+        root.style.setProperty('--border-color', '#4b5563');
+        
+        // Add dark class for Tailwind dark mode
+        document.documentElement.classList.add('dark');
+    } else {
+        // Apply light mode colors
+        root.style.setProperty('--bg-color', '#f9fafb');
+        root.style.setProperty('--text-color', '#1f2937');
+        root.style.setProperty('--card-bg', '#ffffff');
+        root.style.setProperty('--border-color', '#e5e7eb');
+        
+        // Remove dark class
+        document.documentElement.classList.remove('dark');
+    }
+}
+
+// Load and apply saved theme
+function loadSavedTheme() {
+    try {
+        console.log('Loading saved theme');
+        
+        if (siteData && siteData.theme) {
+            const { color = 'blue', mode = 'light' } = siteData.theme;
+            console.log(`Found saved theme: ${color} color, ${mode} mode`);
+            
+            // Apply the saved theme
+            applyTheme(color, mode);
+        } else {
+            console.log('No saved theme found, using default');
+            applyTheme('blue', 'light');
+        }
+    } catch (error) {
+        console.error('Error loading saved theme:', error);
+        applyTheme('blue', 'light');
+    }
 }
