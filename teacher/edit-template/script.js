@@ -175,25 +175,60 @@ async function restoreDataToSupabase() {
     // First initialize with default data for the site
     initializeWithDefaultData();
     
-    // Then save this data to Supabase
+    // Log what we're about to save
+    console.log('About to save this data to Supabase:', JSON.stringify(siteData, null, 2));
+    
+    // Then save this data to Supabase with proper error handling
     try {
+        // Use upsert with onConflict to handle existing records
         const { data, error } = await supabase
             .from('site_data')
             .upsert({ 
                 id: 1, 
                 data: siteData 
-            }, { onConflict: 'id' });
+            }, { 
+                onConflict: 'id',
+                returning: 'minimal'
+            });
         
         if (error) {
-            console.error('Failed to restore data to Supabase:', error);
-            alert('There was an issue restoring data to the database. Using local data for now.');
-        } else {
-            console.log('✅ Data successfully restored to Supabase!');
-            alert('Data has been restored to the database successfully!');
+            console.error('Supabase upsert error:', error);
+            throw new Error(`Supabase error: ${error.message}`);
         }
+        
+        // Verify the data was saved by fetching it back
+        const { data: verifyData, error: verifyError } = await supabase
+            .from('site_data')
+            .select('data')
+            .eq('id', 1)
+            .single();
+            
+        if (verifyError) {
+            console.error('Failed to verify data was saved:', verifyError);
+            throw new Error(`Verification error: ${verifyError.message}`);
+        }
+        
+        if (!verifyData || !verifyData.data) {
+            console.error('Data verification failed: No data found after save');
+            throw new Error('Data verification failed: No data found after save');
+        }
+        
+        console.log('✅ Data verification successful:', verifyData);
+        console.log('✅ Data successfully restored to Supabase!');
+        alert('Data has been restored to the database successfully!');
     } catch (restoreError) {
         console.error('Exception during data restoration:', restoreError);
-        alert('There was an error restoring data: ' + restoreError.message);
+        alert('Error restoring data to Supabase: ' + restoreError.message);
+        
+        // Fall back to localStorage only
+        try {
+            localStorage.setItem('siteData', JSON.stringify(siteData));
+            console.log('✅ Fallback: Data saved to localStorage successfully');
+            alert('Data has been saved to local storage as a fallback.');
+        } catch (localError) {
+            console.error('Failed to save to localStorage as fallback:', localError);
+            alert('Warning: Could not save data to any storage location. Your changes may be lost.');
+        }
     }
 }
 
