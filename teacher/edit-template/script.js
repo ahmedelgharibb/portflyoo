@@ -45,10 +45,18 @@ document.addEventListener('DOMContentLoaded', async function() {
     body = document.body;
     adminPanel = document.getElementById('adminPanel');
     adminBtn = document.getElementById('adminBtn');
+    adminBtnMobile = document.getElementById('adminBtnMobile');
     closeAdminBtn = document.getElementById('closeAdminBtn');
     saveChangesBtn = document.getElementById('saveChangesBtn');
     adminAlert = document.getElementById('adminAlert');
     adminResultsContainer = document.getElementById('admin-results-container');
+    
+    console.log('Admin elements found:', {
+        adminBtn: !!adminBtn,
+        adminBtnMobile: !!adminBtnMobile,
+        adminPanel: !!adminPanel,
+        adminLoginModal: !!document.getElementById('adminLoginModal')
+    });
     
     // Check if user is logged in (using sessionStorage for session-only login)
     isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
@@ -56,22 +64,44 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Set up the admin button functionality based on login status
     if (adminBtn) {
+        console.log('Setting up admin button click handler');
         if (isLoggedIn) {
             adminBtn.textContent = 'Open Admin Panel';
-            adminBtn.addEventListener('click', openAdminPanel);
+            adminBtn.addEventListener('click', function(e) {
+                console.log('Admin button clicked (logged in) - opening panel');
+                e.preventDefault();
+                openAdminPanel();
+            });
         } else {
             adminBtn.textContent = 'Admin Login';
-            adminBtn.addEventListener('click', showLoginForm);
+            adminBtn.addEventListener('click', function(e) {
+                console.log('Admin button clicked (not logged in) - showing login form');
+                e.preventDefault();
+                showLoginForm();
+            });
         }
+    } else {
+        console.warn('Admin button not found in the DOM');
     }
     
     // Mobile admin button functionality
     if (adminBtnMobile) {
+        console.log('Setting up mobile admin button click handler');
         if (isLoggedIn) {
-            adminBtnMobile.addEventListener('click', openAdminPanel);
+            adminBtnMobile.addEventListener('click', function(e) {
+                console.log('Mobile admin button clicked (logged in) - opening panel');
+                e.preventDefault();
+                openAdminPanel();
+            });
         } else {
-            adminBtnMobile.addEventListener('click', showLoginForm);
+            adminBtnMobile.addEventListener('click', function(e) {
+                console.log('Mobile admin button clicked (not logged in) - showing login form');
+                e.preventDefault();
+                showLoginForm();
+            });
         }
+    } else {
+        console.warn('Mobile admin button not found in the DOM');
     }
     
     // Initialize Supabase client
@@ -472,17 +502,9 @@ if (footerBottom) {
 }
 
 // Admin Functionality
-if (adminBtn) adminBtn.addEventListener('click', showAdminLogin);
-if (adminBtnMobile) adminBtnMobile.addEventListener('click', showAdminLogin);
 if (cancelLoginBtn) cancelLoginBtn.addEventListener('click', hideAdminLogin);
 if (closeAdminPanelBtn) closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
 if (adminLoginForm) adminLoginForm.addEventListener('submit', handleAdminLogin);
-if (saveChangesBtn) saveChangesBtn.addEventListener('click', saveAdminChanges);
-if (addResultBtn) addResultBtn.addEventListener('click', addNewResult);
-
-// Add logout functionality
-const logoutBtn = document.getElementById('logoutBtn');
-if (logoutBtn) logoutBtn.addEventListener('click', adminLogout);
 
 // Setup danger zone functionality
 function setupDangerZone() {
@@ -538,27 +560,50 @@ function toggleDangerZone() {
 
 // Show admin login modal
 function showLoginForm() {
+    console.log('showLoginForm called');
+    
     if (isLoggedIn) {
         // If already logged in, just open the admin panel
+        console.log('User already logged in, opening admin panel instead');
         openAdminPanel();
         return;
     }
     
     const adminLoginModal = document.getElementById('adminLoginModal');
     if (adminLoginModal) {
+        console.log('Showing admin login modal');
         adminLoginModal.classList.remove('hidden');
         const passwordInput = document.getElementById('adminPassword');
-        if (passwordInput) passwordInput.focus();
+        if (passwordInput) {
+            passwordInput.value = ''; // Clear any previous input
+            passwordInput.focus();
+        } else {
+            console.error('Password input not found in login modal');
+        }
     } else {
-        console.error('Admin login modal not found');
+        console.error('Admin login modal not found in the DOM');
+        alert('Error: Login form not found. Please refresh the page and try again.');
     }
 }
 
 // Hide admin login modal
 function hideAdminLogin() {
+    console.log('hideAdminLogin called');
+    
+    const adminLoginModal = document.getElementById('adminLoginModal');
     if (adminLoginModal) {
+        console.log('Hiding admin login modal');
         adminLoginModal.classList.add('hidden');
-        if (adminLoginForm) adminLoginForm.reset();
+        
+        // Reset the form if it exists
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        if (adminLoginForm) {
+            adminLoginForm.reset();
+        } else {
+            console.warn('Admin login form not found when hiding modal');
+        }
+    } else {
+        console.error('Admin login modal not found when trying to hide it');
     }
 }
 
