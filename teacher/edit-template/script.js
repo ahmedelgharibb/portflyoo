@@ -78,17 +78,37 @@ document.addEventListener('DOMContentLoaded', async function() {
             adminBtnMobile.addEventListener('click', function(e) {
                 console.log('Mobile admin button clicked (logged in) - opening panel');
                 e.preventDefault();
+                closeMenu();
                 openAdminPanel();
             });
         } else {
             adminBtnMobile.addEventListener('click', function(e) {
                 console.log('Mobile admin button clicked (not logged in) - showing login form');
                 e.preventDefault();
+                closeMenu();
                 showLoginForm();
             });
         }
     } else {
         console.warn('Mobile admin button not found in the DOM');
+    }
+    
+    // Set up admin login form event listener
+    if (adminLoginForm) {
+        console.log('Setting up admin login form submit handler');
+        adminLoginForm.addEventListener('submit', handleAdminLogin);
+    }
+    
+    // Set up cancel login button
+    if (cancelLoginBtn) {
+        console.log('Setting up cancel login button click handler');
+        cancelLoginBtn.addEventListener('click', hideAdminLogin);
+    }
+    
+    // Set up close admin panel button
+    if (closeAdminPanelBtn) {
+        console.log('Setting up close admin panel button click handler');
+        closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
     }
     
     // Initialize Supabase client
@@ -471,12 +491,18 @@ function revealSection() {
 window.addEventListener('scroll', revealSection);
 revealSection(); // Initial check
 
-// Dynamic Year in Footer
-const footerBottom = document.querySelector('.footer-bottom');
-if (footerBottom) {
+function updateFooter() {
+    console.log('Updating footer');
+    const footerBottom = document.querySelector('.footer-bottom p');
+    if (!footerBottom) {
+        console.warn('Footer bottom element not found');
+        return;
+    }
+    
+    // Get current year
     const year = new Date().getFullYear();
     
-    // Try to get name from localStorage if available
+    // Get name from local storage if available
     let name = 'Dr. Ahmed Mahmoud';
     try {
         const storedData = localStorage.getItem('siteData');
@@ -492,11 +518,6 @@ if (footerBottom) {
     
     footerBottom.innerHTML = `&copy; ${year} <span>${name}</span>. All rights reserved.`;
 }
-
-// Admin Functionality
-if (cancelLoginBtn) cancelLoginBtn.addEventListener('click', hideAdminLogin);
-if (closeAdminPanelBtn) closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
-if (adminLoginForm) adminLoginForm.addEventListener('submit', handleAdminLogin);
 
 // Setup danger zone functionality
 function setupDangerZone() {
@@ -600,44 +621,91 @@ function hideAdminLogin() {
 }
 
 // Handle admin login
-async function handleAdminLogin(event) {
-    event.preventDefault();
+function handleAdminLogin(e) {
+    e.preventDefault(); // Prevent form submission
+    console.log('Admin login attempt');
     
     const passwordInput = document.getElementById('adminPassword');
-    if (!passwordInput) return;
-    
-    const password = passwordInput.value;
-    if (!password) return;
-    
-    // Show a loading message
-    const submitBtn = adminLoginForm.querySelector('button[type="submit"]');
-    const originalBtnText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="admin-loading"></span> Logging in...';
-    
-    // DIRECT CHECK: Always check password directly for reliability
-    if (password === 'admin123') {
-        console.log('✅ Login successful via direct password check');
-        isLoggedIn = true;
-        // Save login state to sessionStorage (cleared when browser is closed)
-        sessionStorage.setItem('adminLoggedIn', 'true');
-        hideAdminLogin();
-        openAdminPanel(); 
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText;
+    if (!passwordInput) {
+        console.error('Password input not found');
         return;
     }
     
-    // If direct check failed, show an error
-    console.log('❌ Login failed: Invalid password');
-    showAdminAlert('error', 'Invalid password. Please try again.');
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = originalBtnText;
+    const loginBtn = document.querySelector('#adminLoginForm button[type="submit"]');
+    if (loginBtn) {
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Logging in...';
+    }
+    
+    const password = passwordInput.value.trim();
+    
+    // Check if password is empty
+    if (!password) {
+        console.log('No password entered');
+        showAdminAlert('error', 'Please enter a password', true);
+        
+        // Reset button
+        if (loginBtn) {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = 'Login';
+        }
+        return;
+    }
+    
+    // Direct password check for demo purposes
+    // In production, this should be a secure authentication process
+    setTimeout(() => {
+        if (password === 'admin123') {
+            console.log('Admin login successful');
+            
+            // Save login state
+            sessionStorage.setItem('adminLoggedIn', 'true');
+            
+            // Show success message
+            showAdminAlert('success', 'Login successful', true);
+            
+            // Close login modal and open admin panel after a short delay
+            setTimeout(() => {
+                closeModal('adminLoginModal');
+                openAdminPanel();
+                
+                // Reset form
+                document.getElementById('adminLoginForm').reset();
+                
+                // Reset button
+                if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Login';
+                }
+            }, 1000);
+        } else {
+            console.log('Admin login failed: Invalid password');
+            
+            // Show error message
+            showAdminAlert('error', 'Invalid password. Please try again.', true);
+            
+            // Reset button
+            if (loginBtn) {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'Login';
+            }
+        }
+    }, 500); // Small delay to simulate authentication process
 }
 
 // Show admin alert
-function showAdminAlert(type, message) {
-    const alertContainer = document.getElementById('adminAlertContainer');
+function showAdminAlert(type, message, inLoginModal = false) {
+    // Determine which alert container to use
+    const alertContainerId = inLoginModal ? 'loginAlertContainer' : 'adminAlertContainer';
+    const alertContainer = document.getElementById(alertContainerId);
+    
+    if (!alertContainer) {
+        console.error(`Alert container ${alertContainerId} not found`);
+        // Fallback to JavaScript alert if container not found
+        alert(message);
+        return;
+    }
+    
     const alertClass = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700';
     
     const alertElement = document.createElement('div');
@@ -655,8 +723,13 @@ function showAdminAlert(type, message) {
         alertElement.remove();
     });
     
-    // Auto-remove after 5 seconds
+    // Clear any existing alerts
+    alertContainer.innerHTML = '';
+    
+    // Add the new alert
     alertContainer.appendChild(alertElement);
+    
+    // Auto-remove after 5 seconds
     setTimeout(() => {
         if (alertElement.parentNode === alertContainer) {
             alertElement.remove();
