@@ -36,7 +36,7 @@ let isLoggedIn = false;
 // Supabase setup
 const SUPABASE_URL = 'https://jckwvrzcjuggnfcbogrr.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impja3d2cnpjanVnZ25mY2JvZ3JyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA2OTIwMTYsImV4cCI6MjA1NjI2ODAxNn0.p2a0om1X40AJVhldUdtaU-at0SSPz6hLbrAg-ELHcnY';
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Once the document is ready
 document.addEventListener('DOMContentLoaded', async function() {
@@ -216,9 +216,9 @@ document.addEventListener('click', (e) => {
 
 // Close menu when clicking on mobile menu links
 if (mobileMenuLinks && mobileMenuLinks.length > 0) {
-    mobileMenuLinks.forEach(link => {
-        link.addEventListener('click', closeMenu);
-    });
+mobileMenuLinks.forEach(link => {
+    link.addEventListener('click', closeMenu);
+});
 }
 
 // Prevent touchmove when menu is open
@@ -930,6 +930,12 @@ function updateResultsChart(subjects) {
         return;
     }
     
+    // Make sure Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js is not loaded or available');
+        return;
+    }
+    
     // Get the chart canvas
     const ctx = document.getElementById('resultsChart');
     if (!ctx) {
@@ -939,13 +945,12 @@ function updateResultsChart(subjects) {
     
     try {
         // First destroy any existing chart to prevent memory leaks and conflicts
-        if (window.resultsChart) {
+        if (window.resultsChart && typeof window.resultsChart.destroy === 'function') {
             try {
                 window.resultsChart.destroy();
                 window.resultsChart = null;
             } catch (e) {
-                console.error('Error destroying existing chart:', e);
-                // Continue anyway
+                console.error('Error destroying chart during data reset:', e);
             }
         }
         
@@ -1230,9 +1235,13 @@ async function clearAllData() {
         populateAdminForm(siteData);
         
         // Reset chart
-        if (window.resultsChart) {
-            window.resultsChart.destroy();
-            window.resultsChart = null;
+        if (window.resultsChart && typeof window.resultsChart.destroy === 'function') {
+            try {
+                window.resultsChart.destroy();
+                window.resultsChart = null;
+            } catch (e) {
+                console.error('Error destroying chart during data reset:', e);
+            }
         }
         
         // Show success message
