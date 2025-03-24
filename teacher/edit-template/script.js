@@ -1432,6 +1432,23 @@ function updateSiteContent(data) {
             registerBtn.href = contactData.formUrl;
         }
         
+        // Update assistant application button with form URL if it exists
+        const assistantBtn = document.querySelector('#assistant a.btn');
+        if (assistantBtn && contactData && contactData.assistantFormUrl) {
+            assistantBtn.href = contactData.assistantFormUrl;
+        }
+        
+        // Update contact information if it exists
+        const contactPhoneEl = document.querySelector('.contact-phone');
+        if (contactPhoneEl && contactData && contactData.phone) {
+            contactPhoneEl.textContent = contactData.phone;
+        }
+        
+        const contactMessageEl = document.querySelector('.contact-message');
+        if (contactMessageEl && contactData && contactData.contactMessage) {
+            contactMessageEl.textContent = contactData.contactMessage;
+        }
+        
         console.log('✅ Site content updated successfully');
     } catch (error) {
         console.error('Error updating site content:', error);
