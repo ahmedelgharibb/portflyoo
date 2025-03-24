@@ -93,23 +93,28 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Initialize Supabase client
     try {
-        // Load initial data
-        const { data, error } = await supabaseClient
-            .from('site_data')
-            .select('data')
-            .eq('id', 1)
-            .single();
-        
-        if (error) {
-            console.error('Error loading initial data from Supabase:', error);
-            // Try to initialize with default data
-            initializeWithDefaultData();
-        } else if (data && data.data) {
-            siteData = data.data;
-            console.log('✅ Initial data loaded from Supabase successfully');
-            updateSiteContent(siteData);
-        } else {
-            console.log('No initial data found in Supabase');
+        // Try to load from Supabase
+        try {
+            const { data, error } = await supabase
+                .from('site_data')
+                .select('data')
+                .eq('id', 1)
+                .single();
+            
+            if (error) {
+                console.error('Error loading initial data from Supabase:', error);
+                // Try to initialize with default data
+                initializeWithDefaultData();
+            } else if (data && data.data) {
+                siteData = data.data;
+                console.log('✅ Initial data loaded from Supabase successfully');
+                updateSiteContent(siteData);
+            } else {
+                console.log('No initial data found in Supabase');
+                initializeWithDefaultData();
+            }
+        } catch (error) {
+            console.error('Error during initialization:', error);
             initializeWithDefaultData();
         }
     } catch (error) {
@@ -119,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Setup admin panel event listeners if present and user is logged in
     if (isLoggedIn) {
-        if (closeAdminBtn) closeAdminBtn.addEventListener('click', closeAdminPanel);
+        if (closeAdminPanelBtn) closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
         if (saveChangesBtn) saveChangesBtn.addEventListener('click', saveAdminChanges);
         
         // Add result button
@@ -138,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 function initializeWithDefaultData() {
     console.log('Using default data');
     siteData = {
-        personalInfo: {
+        personal: {
             name: 'Dr. Ahmed Mahmoud',
             title: 'Mathematics Educator',
             qualifications: [
@@ -165,14 +170,12 @@ function initializeWithDefaultData() {
                 'Virtual Learning Center'
             ]
         },
-        results: {
-            subjects: [
-                {name: 'Mathematics', score: 85},
-                {name: 'Physics', score: 78},
-                {name: 'Chemistry', score: 82},
-                {name: 'Biology', score: 75}
-            ]
-        },
+        results: [
+            {name: 'Mathematics', score: 85},
+            {name: 'Physics', score: 78},
+            {name: 'Chemistry', score: 82},
+            {name: 'Biology', score: 75}
+        ],
         contact: {
             email: 'teacher@example.com',
             formUrl: 'https://forms.google.com/your-form-link'
@@ -627,71 +630,36 @@ async function handleAdminLogin(event) {
     
     // If direct check failed, show an error
     console.log('❌ Login failed: Invalid password');
-    showAdminAlert('Invalid password. Please try again.', true);
+    showAdminAlert('error', 'Invalid password. Please try again.');
     submitBtn.disabled = false;
     submitBtn.innerHTML = originalBtnText;
 }
 
 // Show admin alert
-function showAdminAlert(message, isError = false) {
-    // Find the alert container
+function showAdminAlert(type, message) {
     const alertContainer = document.getElementById('adminAlertContainer');
+    const alertClass = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700';
     
-    // If no container found, create one where needed
-    let container = alertContainer;
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'tempAlertContainer';
-        container.className = 'mb-4';
-        
-        if (adminPanel && !adminPanel.classList.contains('hidden')) {
-            // Add to admin panel
-            const panelHeader = document.querySelector('#adminPanel .container > div:first-child');
-            if (panelHeader) panelHeader.parentNode.insertBefore(container, panelHeader.nextSibling);
-        } else {
-            // Add to login modal
-            const form = document.getElementById('adminLoginForm');
-            if (form) form.parentNode.insertBefore(container, form);
-        }
-    }
-    
-    // Create alert element
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert ${isError ? 'bg-red-100 border-red-400 text-red-700' : 'bg-green-100 border-green-400 text-green-700'} px-4 py-3 rounded relative mb-4 border`;
-    alertDiv.innerHTML = `
+    const alertElement = document.createElement('div');
+    alertElement.className = `${alertClass} px-4 py-3 rounded relative mb-4 border`;
+    alertElement.innerHTML = `
         <span class="block sm:inline">${message}</span>
         <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
-            <svg class="fill-current h-6 w-6" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <title>Close</title>
-                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
-            </svg>
+            <i class="fas fa-times cursor-pointer"></i>
         </span>
     `;
     
-    // Add close button functionality
-    const closeBtn = alertDiv.querySelector('svg');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => alertDiv.remove());
-    }
-    
-    // Add to container
-    container.appendChild(alertDiv);
+    // Add click event to close button
+    const closeBtn = alertElement.querySelector('i');
+    closeBtn.addEventListener('click', () => {
+        alertElement.remove();
+    });
     
     // Auto-remove after 5 seconds
+    alertContainer.appendChild(alertElement);
     setTimeout(() => {
-        if (document.body.contains(alertDiv)) {
-            alertDiv.style.opacity = '0';
-            alertDiv.style.transition = 'opacity 0.5s';
-            setTimeout(() => {
-                if (document.body.contains(alertDiv)) {
-                    alertDiv.remove();
-                }
-                
-                // Also remove temp container if it's empty
-                if (container.id === 'tempAlertContainer' && container.children.length === 0) {
-                    container.remove();
-                }
-            }, 500);
+        if (alertElement.parentNode === alertContainer) {
+            alertElement.remove();
         }
     }, 5000);
 }
@@ -703,7 +671,7 @@ async function openAdminPanel() {
     try {
         // Try to load from Supabase
         try {
-            const { data, error } = await supabaseClient
+            const { data, error } = await supabase
                 .from('site_data')
                 .select('data')
                 .eq('id', 1)
@@ -751,18 +719,20 @@ async function openAdminPanel() {
         }
     } catch (error) {
         console.error('Error opening admin panel:', error);
-        showAdminAlert('Failed to open admin panel. Please try again.', true);
+        showAdminAlert('error', 'Failed to open admin panel. Please try again.');
     }
 }
 
 // Populate admin form with data
 function populateAdminForm(data) {
     try {
+        console.log('Populating admin form with data:', data);
+        
         // Personal Info
-        document.getElementById('admin-name').value = data.personalInfo.name || '';
-        document.getElementById('admin-title').value = data.personalInfo.title || '';
-        document.getElementById('admin-experience').value = data.personalInfo.experience || '';
-        document.getElementById('admin-qualifications').value = (data.personalInfo.qualifications || []).join('\n');
+        document.getElementById('admin-name').value = data.personal.name || '';
+        document.getElementById('admin-title').value = data.personal.title || '';
+        document.getElementById('admin-experience').value = data.personal.experience || '';
+        document.getElementById('admin-qualifications').value = (data.personal.qualifications || []).join('\n');
         
         // Experience
         document.getElementById('admin-schools').value = (data.experience.schools || []).join('\n');
@@ -770,7 +740,7 @@ function populateAdminForm(data) {
         document.getElementById('admin-platforms').value = (data.experience.platforms || []).join('\n');
         
         // Results
-        populateResultsForm(data.results.subjects || []);
+        populateResultsForm(data.results || []);
         
         // Contact
         document.getElementById('admin-email').value = data.contact.email || '';
@@ -779,7 +749,7 @@ function populateAdminForm(data) {
         console.log('✅ Admin form populated successfully');
     } catch (error) {
         console.error('Error populating admin form:', error);
-        showAdminAlert('There was an error loading some form fields. Please check your data.', true);
+        showAdminAlert('error', `There was an error loading some form fields: ${error.message}`);
     }
 }
 
@@ -806,13 +776,30 @@ function addResultItem(name = '', score = '') {
     if (!adminResultsContainer) return;
     
     const resultItem = document.createElement('div');
-    resultItem.className = 'admin-result-item';
+    resultItem.className = 'admin-result-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-lg';
     resultItem.innerHTML = `
-        <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-gray-900">${name}</span>
-            <span class="text-sm font-medium text-gray-500">${score}</span>
+        <div class="flex-grow">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Subject Name</label>
+            <input type="text" class="subject-name form-input w-full" value="${name}" placeholder="e.g. Mathematics">
+        </div>
+        <div class="w-24">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Score (%)</label>
+            <input type="number" class="subject-score form-input w-full" value="${score}" min="0" max="100" placeholder="0-100">
+        </div>
+        <div>
+            <button type="button" class="remove-result-btn mt-6 p-2 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
     `;
+    
+    // Add event listener to remove button
+    const removeBtn = resultItem.querySelector('.remove-result-btn');
+    if (removeBtn) {
+        removeBtn.addEventListener('click', () => {
+            resultItem.remove();
+        });
+    }
     
     adminResultsContainer.appendChild(resultItem);
 }
@@ -1124,31 +1111,141 @@ function collectResultsData() {
     return results;
 }
 
-// Helper function to show alerts in admin panel
-function showAdminAlert(type, message) {
-    const alertContainer = document.getElementById('adminAlertContainer');
-    const alertClass = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700';
+// Add new result when clicking the Add Subject button
+function addNewResult() {
+    addResultItem('', '');
+}
+
+// Close admin panel
+function closeAdminPanel() {
+    console.log('Closing admin panel');
     
-    const alertElement = document.createElement('div');
-    alertElement.className = `${alertClass} px-4 py-3 rounded relative mb-4 border`;
-    alertElement.innerHTML = `
-        <span class="block sm:inline">${message}</span>
-        <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
-            <i class="fas fa-times cursor-pointer"></i>
-        </span>
-    `;
+    if (adminPanel) {
+        adminPanel.classList.add('hidden');
+        body.classList.remove('overflow-hidden');
+        
+        // Also hide the danger zone and its button
+        const dangerZone = document.getElementById('dangerZone');
+        const showDangerBtn = document.getElementById('showDangerBtn');
+        
+        if (dangerZone) dangerZone.classList.add('hidden');
+        if (showDangerBtn) showDangerBtn.classList.add('hidden');
+        
+        // Dispatch admin panel closed event
+        document.dispatchEvent(new CustomEvent('adminPanelClosed'));
+    }
+}
+
+// Admin logout
+function adminLogout() {
+    console.log('Logging out admin');
     
-    // Add click event to close button
-    const closeBtn = alertElement.querySelector('i');
-    closeBtn.addEventListener('click', () => {
-        alertElement.remove();
-    });
+    // Clear login state
+    isLoggedIn = false;
+    sessionStorage.removeItem('adminLoggedIn');
     
-    // Auto-remove after 5 seconds
-    alertContainer.appendChild(alertElement);
-    setTimeout(() => {
-        if (alertElement.parentNode === alertContainer) {
-            alertElement.remove();
+    // Close admin panel
+    closeAdminPanel();
+    
+    // Update admin button text
+    if (adminBtn) {
+        adminBtn.textContent = 'Admin Login';
+        
+        // Remove all existing event listeners
+        const newAdminBtn = adminBtn.cloneNode(true);
+        adminBtn.parentNode.replaceChild(newAdminBtn, adminBtn);
+        adminBtn = newAdminBtn;
+        
+        // Add new login event listener
+        adminBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            showLoginForm();
+        });
+    }
+    
+    // Update mobile admin button
+    if (adminBtnMobile) {
+        // Remove all existing event listeners
+        const newAdminBtnMobile = adminBtnMobile.cloneNode(true);
+        adminBtnMobile.parentNode.replaceChild(newAdminBtnMobile, adminBtnMobile);
+        adminBtnMobile = newAdminBtnMobile;
+        
+        // Add new login event listener
+        adminBtnMobile.addEventListener('click', function(e) {
+            e.preventDefault();
+            showLoginForm();
+        });
+    }
+    
+    // Show logout success message
+    showAdminAlert('success', 'You have been logged out.');
+}
+
+// Clear all data
+async function clearAllData() {
+    if (!confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+        return;
+    }
+    
+    try {
+        // Show loading state on button
+        const clearBtn = document.getElementById('clearDataBtn');
+        const originalBtnText = clearBtn.innerHTML;
+        clearBtn.innerHTML = '<div class="admin-loading"></div> Clearing...';
+        clearBtn.disabled = true;
+        
+        // Clear from Supabase
+        let supabaseClearSuccess = false;
+        try {
+            const { error } = await supabase
+                .from('site_data')
+                .delete()
+                .eq('id', 1);
+                
+            if (error) {
+                throw new Error(`Supabase error: ${error.message}`);
+            }
+            supabaseClearSuccess = true;
+            console.log('✅ Data cleared from Supabase successfully');
+        } catch (supabaseError) {
+            console.error('Failed to clear data from Supabase:', supabaseError);
         }
-    }, 5000);
+        
+        // Clear from localStorage
+        try {
+            localStorage.removeItem('siteData');
+            console.log('✅ Data cleared from localStorage successfully');
+        } catch (localStorageError) {
+            console.error('Failed to clear data from localStorage:', localStorageError);
+            
+            if (!supabaseClearSuccess) {
+                throw new Error('Failed to clear data from both Supabase and localStorage');
+            }
+        }
+        
+        // Reset to default data
+        initializeWithDefaultData();
+        
+        // Repopulate admin form with default data
+        populateAdminForm(siteData);
+        
+        // Reset chart
+        if (window.resultsChart) {
+            window.resultsChart.destroy();
+            window.resultsChart = null;
+        }
+        
+        // Show success message
+        showAdminAlert('success', 'All data has been cleared and reset to defaults.');
+    } catch (error) {
+        console.error('Error clearing data:', error);
+        showAdminAlert('error', `Failed to clear data: ${error.message}`);
+    } finally {
+        // Restore button state
+        const clearBtn = document.getElementById('clearDataBtn');
+        if (clearBtn) {
+            clearBtn.innerHTML = '<i class="fas fa-trash-alt mr-2"></i> Clear All Data';
+            clearBtn.disabled = false;
+        }
+    }
 }
