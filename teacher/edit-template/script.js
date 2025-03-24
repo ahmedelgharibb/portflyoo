@@ -614,7 +614,6 @@ function setupDangerZone() {
     const dangerZone = document.getElementById('dangerZone');
     const showDangerBtn = document.getElementById('showDangerBtn');
     const toggleDangerBtn = document.getElementById('toggleDangerBtn');
-    const clearDataBtn = document.getElementById('clearDataBtn');
     
     // Only set up these listeners if user is logged in
     if (!isLoggedIn) return;
@@ -627,11 +626,6 @@ function setupDangerZone() {
     // Set up hide danger zone listener
     if (toggleDangerBtn) {
         toggleDangerBtn.addEventListener('click', toggleDangerZone);
-    }
-    
-    // Set up clear data listener
-    if (clearDataBtn) {
-        clearDataBtn.addEventListener('click', clearAllData);
     }
     
     // Set up admin panel event listeners
@@ -1783,77 +1777,4 @@ function adminLogout() {
     
     // Show logout success message
     showAdminAlert('success', 'You have been logged out.');
-}
-
-// Clear all data
-async function clearAllData() {
-    if (!confirm('Are you sure you want to clear all data? This cannot be undone.')) {
-        return;
-    }
-    
-    try {
-        // Show loading state on button
-        const clearBtn = document.getElementById('clearDataBtn');
-        const originalBtnText = clearBtn.innerHTML;
-        clearBtn.innerHTML = '<div class="admin-loading"></div> Clearing...';
-        clearBtn.disabled = true;
-        
-        // Clear from Supabase
-        let supabaseClearSuccess = false;
-        try {
-            const { error } = await supabase
-                .from('site_data')
-                .delete()
-                .eq('id', 1);
-                
-            if (error) {
-                throw new Error(`Supabase error: ${error.message}`);
-            }
-            supabaseClearSuccess = true;
-            console.log('✅ Data cleared from Supabase successfully');
-        } catch (supabaseError) {
-            console.error('Failed to clear data from Supabase:', supabaseError);
-        }
-        
-        // Clear from localStorage
-        try {
-            localStorage.removeItem('siteData');
-            console.log('✅ Data cleared from localStorage successfully');
-        } catch (localStorageError) {
-            console.error('Failed to clear data from localStorage:', localStorageError);
-            
-            if (!supabaseClearSuccess) {
-                throw new Error('Failed to clear data from both Supabase and localStorage');
-            }
-        }
-        
-        // Reset to default data
-        initializeWithDefaultData();
-        
-        // Repopulate admin form with default data
-        populateAdminForm(siteData);
-        
-        // Reset chart
-        if (window.resultsChart && typeof window.resultsChart.destroy === 'function') {
-            try {
-                window.resultsChart.destroy();
-                window.resultsChart = null;
-            } catch (e) {
-                console.error('Error destroying chart during data reset:', e);
-            }
-        }
-        
-        // Show success message
-        showAdminAlert('success', 'All data has been cleared and reset to defaults.');
-    } catch (error) {
-        console.error('Error clearing data:', error);
-        showAdminAlert('error', `Failed to clear data: ${error.message}`);
-    } finally {
-        // Restore button state
-        const clearBtn = document.getElementById('clearDataBtn');
-        if (clearBtn) {
-            clearBtn.innerHTML = '<i class="fas fa-trash-alt mr-2"></i> Clear All Data';
-            clearBtn.disabled = false;
-        }
-    }
 }
