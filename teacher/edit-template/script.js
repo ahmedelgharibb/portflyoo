@@ -2038,59 +2038,95 @@ function applyColorTheme(color) {
     
     // Define gradient values for each color theme
     let gradientFrom, gradientTo;
+    let primaryColorRgb;
+    
+    // Check current mode
+    const isDarkMode = document.body.classList.contains('dark-mode');
     
     switch (color) {
         case 'blue':
             root.style.setProperty('--primary-color', '#3b82f6');
             root.style.setProperty('--primary-dark', '#2563eb');
             root.style.setProperty('--primary-light', '#60a5fa');
-            gradientFrom = 'rgba(30, 58, 138, 0.9)';
-            gradientTo = 'rgba(37, 99, 235, 0.8)';
+            primaryColorRgb = '59, 130, 246';
+            gradientFrom = isDarkMode ? 'rgba(25, 50, 120, 0.95)' : 'rgba(30, 58, 138, 0.9)';
+            gradientTo = isDarkMode ? 'rgba(37, 99, 235, 0.9)' : 'rgba(37, 99, 235, 0.8)';
             break;
         case 'green':
             root.style.setProperty('--primary-color', '#10b981');
             root.style.setProperty('--primary-dark', '#059669');
             root.style.setProperty('--primary-light', '#34d399');
-            gradientFrom = 'rgba(6, 78, 59, 0.9)';
-            gradientTo = 'rgba(5, 150, 105, 0.8)';
+            primaryColorRgb = '16, 185, 129';
+            gradientFrom = isDarkMode ? 'rgba(5, 75, 55, 0.95)' : 'rgba(6, 78, 59, 0.9)';
+            gradientTo = isDarkMode ? 'rgba(5, 150, 105, 0.9)' : 'rgba(5, 150, 105, 0.8)';
             break;
         case 'purple':
             root.style.setProperty('--primary-color', '#8b5cf6');
             root.style.setProperty('--primary-dark', '#7c3aed');
             root.style.setProperty('--primary-light', '#a78bfa');
-            gradientFrom = 'rgba(76, 29, 149, 0.9)';
-            gradientTo = 'rgba(124, 58, 237, 0.8)';
+            primaryColorRgb = '139, 92, 246';
+            gradientFrom = isDarkMode ? 'rgba(70, 25, 140, 0.95)' : 'rgba(76, 29, 149, 0.9)';
+            gradientTo = isDarkMode ? 'rgba(124, 58, 237, 0.9)' : 'rgba(124, 58, 237, 0.8)';
             break;
         case 'red':
             root.style.setProperty('--primary-color', '#ef4444');
             root.style.setProperty('--primary-dark', '#dc2626');
             root.style.setProperty('--primary-light', '#f87171');
-            gradientFrom = 'rgba(153, 27, 27, 0.9)';
-            gradientTo = 'rgba(220, 38, 38, 0.8)';
+            primaryColorRgb = '239, 68, 68';
+            gradientFrom = isDarkMode ? 'rgba(140, 25, 25, 0.95)' : 'rgba(153, 27, 27, 0.9)';
+            gradientTo = isDarkMode ? 'rgba(220, 38, 38, 0.9)' : 'rgba(220, 38, 38, 0.8)';
             break;
         case 'gray':
             root.style.setProperty('--primary-color', '#6b7280');
             root.style.setProperty('--primary-dark', '#4b5563');
             root.style.setProperty('--primary-light', '#9ca3af');
-            gradientFrom = 'rgba(55, 65, 81, 0.9)';
-            gradientTo = 'rgba(75, 85, 99, 0.8)';
+            primaryColorRgb = '107, 114, 128';
+            gradientFrom = isDarkMode ? 'rgba(45, 55, 70, 0.95)' : 'rgba(55, 65, 81, 0.9)';
+            gradientTo = isDarkMode ? 'rgba(75, 85, 99, 0.9)' : 'rgba(75, 85, 99, 0.8)';
             break;
         default:
             root.style.setProperty('--primary-color', '#3b82f6');
             root.style.setProperty('--primary-dark', '#2563eb');
             root.style.setProperty('--primary-light', '#60a5fa');
-            gradientFrom = 'rgba(30, 58, 138, 0.9)';
-            gradientTo = 'rgba(37, 99, 235, 0.8)';
+            primaryColorRgb = '59, 130, 246';
+            gradientFrom = isDarkMode ? 'rgba(25, 50, 120, 0.95)' : 'rgba(30, 58, 138, 0.9)';
+            gradientTo = isDarkMode ? 'rgba(37, 99, 235, 0.9)' : 'rgba(37, 99, 235, 0.8)';
     }
+    
+    // Set primary color RGB for glow effects
+    root.style.setProperty('--primary-color-rgb', primaryColorRgb);
     
     // Apply gradient overlay to hero section
     root.style.setProperty('--gradient-from', gradientFrom);
     root.style.setProperty('--gradient-to', gradientTo);
     
+    // Update the hero title glow color in dark mode
+    if (isDarkMode) {
+        const keyframes = `
+            @keyframes glow {
+                from {
+                    text-shadow: 0 0 10px rgba(${primaryColorRgb}, 0.5);
+                }
+                to {
+                    text-shadow: 0 0 20px rgba(${primaryColorRgb}, 0.8), 0 0 30px rgba(${primaryColorRgb}, 0.6);
+                }
+            }
+        `;
+        
+        // Add or update the keyframes
+        let styleElement = document.getElementById('glow-keyframes');
+        if (!styleElement) {
+            styleElement = document.createElement('style');
+            styleElement.id = 'glow-keyframes';
+            document.head.appendChild(styleElement);
+        }
+        styleElement.textContent = keyframes;
+    }
+    
     // Update the gradient overlay dynamically
-    const heroGradient = document.querySelector('#hero .absolute.inset-0 div');
-    if (heroGradient) {
-        heroGradient.style.backgroundImage = `linear-gradient(to right, ${gradientFrom}, ${gradientTo})`;
+    const heroOverlay = document.querySelector('#hero .absolute.inset-0.bg-gradient-to-r');
+    if (heroOverlay) {
+        heroOverlay.style.backgroundImage = `linear-gradient(to right, ${gradientFrom}, ${gradientTo})`;
     }
     
     // Update section title bars (::after pseudo-elements can't be targeted directly with JS)
@@ -2112,6 +2148,11 @@ function applyColorTheme(color) {
     document.querySelectorAll('.btn-primary').forEach(btn => {
         btn.style.backgroundColor = `var(--primary-color)`;
         btn.style.borderColor = `var(--primary-dark)`;
+        
+        // Enhanced button style in dark mode
+        if (isDarkMode) {
+            btn.style.boxShadow = `0 0 15px rgba(${primaryColorRgb}, 0.3)`;
+        }
     });
     
     // Update nav links hover effect
@@ -2130,6 +2171,8 @@ function applyColorTheme(color) {
         .nav-link:hover { color: var(--primary-color) !important; }
         .section-title::after { background-color: var(--primary-color) !important; }
         .btn-primary:hover { background-color: var(--primary-dark) !important; }
+        ${isDarkMode ? '.dark-mode .section-title::after { box-shadow: 0 0 8px var(--primary-color); }' : ''}
+        ${isDarkMode ? '.dark-mode .nav-link:hover { text-shadow: 0 0 8px var(--primary-color); }' : ''}
     `;
 }
 
@@ -2147,13 +2190,13 @@ function applyModeTheme(mode) {
     
     if (mode === 'dark') {
         // Apply dark mode colors
-        root.style.setProperty('--bg-color', '#111827');
-        root.style.setProperty('--text-color', '#f9fafb');
+        root.style.setProperty('--bg-color', '#0f172a'); // Deep blue-black like Burger House
+        root.style.setProperty('--text-color', '#f3f4f6');
         root.style.setProperty('--text-light', '#d1d5db');
-        root.style.setProperty('--card-bg', '#1f2937');
+        root.style.setProperty('--card-bg', '#1e293b');
         root.style.setProperty('--card-shadow', 'rgba(0, 0, 0, 0.25)');
-        root.style.setProperty('--border-color', '#374151');
-        root.style.setProperty('--nav-bg', 'rgba(17, 24, 39, 0.95)');
+        root.style.setProperty('--border-color', '#334155');
+        root.style.setProperty('--nav-bg', 'rgba(15, 23, 42, 0.95)');
         root.style.setProperty('--btn-text', '#f9fafb');
         root.style.setProperty('--footer-bg', '#030712');
         root.style.setProperty('--footer-text', '#f9fafb');
@@ -2161,22 +2204,90 @@ function applyModeTheme(mode) {
         // Add dark class for Tailwind dark mode
         document.documentElement.classList.add('dark');
         
+        // Update mobile menu for dark mode
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenu) {
+            mobileMenu.style.backgroundColor = 'var(--card-bg)';
+            mobileMenu.style.borderLeft = '1px solid var(--border-color)';
+        }
+        
+        // Update mobile navigation links
+        document.querySelectorAll('.mobile-nav-link').forEach(link => {
+            link.style.color = 'var(--text-color)';
+        });
+        
+        // Make hero overlay more vibrant in dark mode
+        const heroOverlay = document.querySelector('#hero .absolute.inset-0.bg-gradient-to-r');
+        if (heroOverlay) {
+            heroOverlay.style.opacity = '0.9';
+            heroOverlay.style.mixBlendMode = 'multiply';
+        }
+        
         // Make header more visible in dark mode
         const header = document.querySelector('header');
         if (header) {
-            header.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.3)';
+            header.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.3)';
+            header.style.backdropFilter = 'blur(8px)';
         }
         
         // Make cards stand out more in dark mode
         document.querySelectorAll('.experience-card, .subject-card, .feature-card').forEach(card => {
             card.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.3)';
             card.style.border = '1px solid var(--border-color)';
+            card.style.backgroundColor = 'var(--card-bg)';
+            
+            // Add hover effect
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.4)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.3)';
+            });
         });
         
         // Update form inputs for better visibility
         document.querySelectorAll('.form-input').forEach(input => {
             input.style.backgroundColor = 'rgba(31, 41, 55, 0.8)';
             input.style.borderColor = 'var(--border-color)';
+            input.style.color = 'var(--text-color)';
+        });
+        
+        // Add glow to buttons
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            btn.style.boxShadow = '0 0 15px rgba(var(--primary-color-rgb, 59, 130, 246), 0.3)';
+        });
+        
+        // Add glow to icons
+        document.querySelectorAll('.fas').forEach(icon => {
+            icon.style.filter = 'drop-shadow(0 0 2px currentColor)';
+        });
+        
+        // Update admin panel
+        const adminPanel = document.getElementById('adminPanel');
+        if (adminPanel) {
+            adminPanel.style.backgroundColor = 'var(--bg-color)';
+        }
+        
+        // Update admin login modal
+        const adminLoginModal = document.getElementById('adminLoginModal');
+        if (adminLoginModal) {
+            const modalContent = adminLoginModal.querySelector('.bg-white');
+            if (modalContent) {
+                modalContent.style.backgroundColor = 'var(--card-bg)';
+                modalContent.style.borderColor = 'var(--border-color)';
+            }
+        }
+        
+        // Apply dark mode to sections
+        document.querySelectorAll('section').forEach(section => {
+            if (section.classList.contains('bg-white')) {
+                section.style.backgroundColor = 'var(--card-bg)';
+            } else if (section.classList.contains('bg-gray-50')) {
+                section.style.backgroundColor = 'var(--bg-color)';
+            }
         });
         
     } else {
@@ -2195,22 +2306,80 @@ function applyModeTheme(mode) {
         // Remove dark class
         document.documentElement.classList.remove('dark');
         
+        // Update mobile menu for light mode
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenu) {
+            mobileMenu.style.backgroundColor = '';
+            mobileMenu.style.borderLeft = '';
+        }
+        
+        // Reset mobile navigation links
+        document.querySelectorAll('.mobile-nav-link').forEach(link => {
+            link.style.color = '';
+        });
+        
+        // Reset hero overlay blend mode
+        const heroOverlay = document.querySelector('#hero .absolute.inset-0.bg-gradient-to-r');
+        if (heroOverlay) {
+            heroOverlay.style.opacity = '';
+            heroOverlay.style.mixBlendMode = '';
+        }
+        
         // Reset header shadow in light mode
         const header = document.querySelector('header');
         if (header) {
             header.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+            header.style.backdropFilter = 'blur(4px)';
         }
         
         // Reset card styles in light mode
         document.querySelectorAll('.experience-card, .subject-card, .feature-card').forEach(card => {
             card.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
             card.style.border = 'none';
+            card.style.backgroundColor = '';
+            card.style.transform = '';
+            
+            // Remove event listeners
+            card.removeEventListener('mouseenter', function() {});
+            card.removeEventListener('mouseleave', function() {});
         });
         
         // Reset form inputs in light mode
         document.querySelectorAll('.form-input').forEach(input => {
             input.style.backgroundColor = 'var(--card-bg)';
             input.style.borderColor = 'var(--border-color)';
+            input.style.color = '';
+        });
+        
+        // Reset button shadow
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            btn.style.boxShadow = '';
+        });
+        
+        // Reset icon filter
+        document.querySelectorAll('.fas').forEach(icon => {
+            icon.style.filter = '';
+        });
+        
+        // Reset admin panel
+        const adminPanel = document.getElementById('adminPanel');
+        if (adminPanel) {
+            adminPanel.style.backgroundColor = '';
+        }
+        
+        // Reset admin login modal
+        const adminLoginModal = document.getElementById('adminLoginModal');
+        if (adminLoginModal) {
+            const modalContent = adminLoginModal.querySelector('.bg-white');
+            if (modalContent) {
+                modalContent.style.backgroundColor = '';
+                modalContent.style.borderColor = '';
+            }
+        }
+        
+        // Reset sections
+        document.querySelectorAll('section').forEach(section => {
+            section.style.backgroundColor = '';
         });
     }
     
@@ -2227,7 +2396,7 @@ function applyModeTheme(mode) {
     // Add transition effect for smoother theme changes
     document.querySelectorAll('*').forEach(el => {
         if (!el.style.transition) {
-            el.style.transition = 'background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease';
+            el.style.transition = 'background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease';
         }
     });
 }

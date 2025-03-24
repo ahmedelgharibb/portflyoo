@@ -41,6 +41,97 @@
             --footer-text: #f9fafb;
         }
         
+        /* Dark mode color modifiers */
+        .dark-mode {
+            --bg-color: #0f172a; /* Deep blue-black like Burger House example */
+            --text-color: #f3f4f6;
+            --text-light: #d1d5db;
+            --card-bg: #1e293b;
+            --card-shadow: rgba(0, 0, 0, 0.25);
+            --border-color: #334155;
+            --nav-bg: rgba(15, 23, 42, 0.95);
+            --btn-text: #ffffff;
+            --footer-bg: #030712;
+            --footer-text: #f9fafb;
+        }
+        
+        /* Dark mode enhanced styling */
+        .dark-mode body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .dark-mode .bg-white {
+            background-color: var(--card-bg) !important;
+        }
+        
+        .dark-mode .bg-gray-50 {
+            background-color: var(--bg-color) !important;
+        }
+        
+        .dark-mode .text-gray-600, 
+        .dark-mode .text-gray-700, 
+        .dark-mode .text-gray-800 {
+            color: var(--text-light) !important;
+        }
+        
+        .dark-mode header {
+            background-color: var(--nav-bg);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dark-mode .btn-primary {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .dark-mode .nav-link {
+            color: var(--text-color);
+        }
+        
+        .dark-mode .nav-link:hover {
+            text-shadow: 0 0 8px var(--primary-color);
+        }
+        
+        .dark-mode .experience-card,
+        .dark-mode .subject-card,
+        .dark-mode .feature-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dark-mode .form-input {
+            background-color: rgba(31, 41, 55, 0.8);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+        
+        .dark-mode .form-input:focus {
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+        
+        .dark-mode .section-title::after {
+            background-color: var(--primary-color);
+            box-shadow: 0 0 8px var(--primary-color);
+        }
+        
+        .dark-mode #hero .absolute.inset-0.bg-gradient-to-r {
+            opacity: 0.9;
+        }
+        
+        .dark-mode #adminPanel {
+            background-color: var(--bg-color);
+        }
+        
+        .dark-mode #adminLoginModal .bg-white {
+            background-color: var(--card-bg);
+        }
+        
+        /* Icon glow effect in dark mode */
+        .dark-mode .fas {
+            filter: drop-shadow(0 0 2px currentColor);
+        }
+        
         /* Theme color modifiers */
         .theme-blue {
             --primary-color: #3b82f6;
@@ -287,6 +378,59 @@
             box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
+        
+        .dark-mode .hero-title {
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6);
+            }
+        }
+        
+        .dark-mode .text-yellow-400 {
+            color: #fcd34d;
+            text-shadow: 0 0 10px rgba(252, 211, 77, 0.6);
+        }
+        
+        .dark-mode #hero .absolute.inset-0.bg-gradient-to-r {
+            opacity: 0.9;
+        }
+        
+        /* Mobile menu dark mode enhancements */
+        .dark-mode #mobileMenu {
+            background-color: var(--card-bg);
+            border-left: 1px solid var(--border-color);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dark-mode .mobile-nav-link {
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .dark-mode .mobile-nav-link:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .dark-mode #closeMenuBtn,
+        .dark-mode #menuBtn,
+        .dark-mode #adminBtnMobile {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dark-mode #adminBtnMobileNav {
+            color: var(--primary-color);
+            border-top: 1px solid var(--border-color);
+        }
     </style>
     
     <!-- Chart.js -->
@@ -357,7 +501,7 @@
         </div>
         
         <div class="container mx-auto px-4 relative z-10 text-center">
-            <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight hero-title">
                 Inspiring Minds Through 
                 <span class="text-yellow-400">Mathematics</span>
             </h1>
