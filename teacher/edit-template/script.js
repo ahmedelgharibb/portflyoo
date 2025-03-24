@@ -767,6 +767,7 @@ async function openAdminPanel() {
         showAdminAlert('success', 'Loading admin panel...');
         
         let dataLoaded = false;
+        let dataSource = 'default';
         
         // Try to load from Supabase
         try {
@@ -777,18 +778,22 @@ async function openAdminPanel() {
                 .eq('id', 1)
                 .single();
             
+            console.log('Supabase query response:', data, error);
+            
             if (error) {
                 console.error('Error loading from Supabase:', error);
                 showAdminAlert('error', 'Failed to load data from database. Using local data instead.');
             } else if (data && data.data) {
-                console.log('Raw data from Supabase:', JSON.stringify(data.data, null, 2));
+                console.log('✅ Raw data from Supabase:', data);
+                console.log('✅ Parsed data structure:', JSON.stringify(data.data, null, 2));
                 siteData = data.data;
                 dataLoaded = true;
+                dataSource = 'supabase';
                 console.log('✅ Data loaded for admin panel from Supabase successfully');
-                showAdminAlert('success', 'Data loaded successfully!');
+                showAdminAlert('success', 'Data loaded successfully from Supabase!');
             } else {
                 console.log('No data found in Supabase for admin panel');
-                showAdminAlert('error', 'No data found in database. Using default values.');
+                showAdminAlert('error', 'No data found in database. Using local storage or default values.');
             }
         } catch (error) {
             console.error('Error in admin data loading from Supabase:', error);
@@ -801,12 +806,22 @@ async function openAdminPanel() {
                 const localData = localStorage.getItem('siteData');
                 if (localData) {
                     console.log('Found data in localStorage');
-                    siteData = JSON.parse(localData);
-                    dataLoaded = true;
-                    console.log('✅ Data loaded from localStorage successfully');
+                    try {
+                        siteData = JSON.parse(localData);
+                        console.log('✅ Parsed localStorage data:', JSON.stringify(siteData, null, 2));
+                        dataLoaded = true;
+                        dataSource = 'localStorage';
+                        console.log('✅ Data loaded from localStorage successfully');
+                        showAdminAlert('success', 'Data loaded successfully from local storage!');
+                    } catch (parseError) {
+                        console.error('Error parsing localStorage data:', parseError);
+                        showAdminAlert('error', `Error parsing local data: ${parseError.message}. Using defaults.`);
+                    }
+                } else {
+                    console.log('No data found in localStorage');
                 }
             } catch (localError) {
-                console.error('Error loading from localStorage:', localError);
+                console.error('Error accessing localStorage:', localError);
             }
         }
         
@@ -814,12 +829,37 @@ async function openAdminPanel() {
         if (!dataLoaded || !siteData) {
             console.log('No data found in any storage, using defaults');
             initializeWithDefaultData();
+            dataSource = 'default';
+            showAdminAlert('success', 'Using default data as no saved data was found.');
         }
         
-        console.log('Final data used for form population:', JSON.stringify(siteData, null, 2));
+        console.log(`FINAL DATA LOAD [source: ${dataSource}]:`, JSON.stringify(siteData, null, 2));
+        
+        // Check data structure before form population
+        if (!siteData) {
+            console.error('CRITICAL ERROR: siteData is null or undefined after all attempts to load');
+            showAdminAlert('error', 'Failed to load any data. Please refresh and try again.');
+            return;
+        }
+        
+        // Validate data structure
+        const hasPersonalData = siteData.personal || siteData.personalInfo;
+        const hasExperienceData = siteData.experience;
+        const hasResults = Array.isArray(siteData.results);
+        const hasContactData = siteData.contact;
+        
+        console.log('Data validation before form population:', {
+            hasPersonalData,
+            hasExperienceData,
+            hasResults,
+            hasContactData
+        });
         
         // Populate admin form with data
         populateAdminForm(siteData);
+        
+        // Verify form population after completion
+        validateFormPopulation(siteData);
         
         // Show admin panel
         if (adminPanel) {
@@ -843,6 +883,49 @@ async function openAdminPanel() {
     }
 }
 
+// Validate that form was properly populated
+function validateFormPopulation(data) {
+    console.log('Validating form population with data:', JSON.stringify(data, null, 2));
+    
+    // Get form element values
+    const nameInput = document.getElementById('admin-name');
+    const titleInput = document.getElementById('admin-title');
+    const experienceInput = document.getElementById('admin-experience');
+    const qualificationsInput = document.getElementById('admin-qualifications');
+    const schoolsInput = document.getElementById('admin-schools');
+    const centersInput = document.getElementById('admin-centers');
+    const platformsInput = document.getElementById('admin-platforms');
+    const emailInput = document.getElementById('admin-email');
+    const formUrlInput = document.getElementById('admin-form-url');
+    
+    // Get the actual values in the form fields
+    const formValues = {
+        name: nameInput ? nameInput.value : 'element not found',
+        title: titleInput ? titleInput.value : 'element not found',
+        experience: experienceInput ? experienceInput.value : 'element not found',
+        qualifications: qualificationsInput ? qualificationsInput.value : 'element not found',
+        schools: schoolsInput ? schoolsInput.value : 'element not found',
+        centers: centersInput ? centersInput.value : 'element not found',
+        platforms: platformsInput ? platformsInput.value : 'element not found',
+        email: emailInput ? emailInput.value : 'element not found',
+        formUrl: formUrlInput ? formUrlInput.value : 'element not found'
+    };
+    
+    console.log('FORM VALIDATION - Current form values:', formValues);
+    
+    // Check if all form fields have values
+    const emptyFields = Object.entries(formValues)
+        .filter(([key, value]) => value === '' || value === 'element not found')
+        .map(([key]) => key);
+    
+    if (emptyFields.length > 0) {
+        console.warn('⚠️ Empty form fields detected:', emptyFields);
+        showAdminAlert('error', `Some fields are empty or missing: ${emptyFields.join(', ')}. Please check the console for details.`);
+    } else {
+        console.log('✅ All form fields are populated with values');
+    }
+}
+
 // Populate admin form with data
 function populateAdminForm(data) {
     try {
@@ -857,82 +940,139 @@ function populateAdminForm(data) {
         
         // Personal Info - Check for both 'personal' and 'personalInfo'
         const personalData = data.personal || data.personalInfo || {};
-        if (personalData) {
-            const nameInput = document.getElementById('admin-name');
-            const titleInput = document.getElementById('admin-title');
-            const experienceInput = document.getElementById('admin-experience');
-            const qualificationsInput = document.getElementById('admin-qualifications');
-            
-            if (nameInput) nameInput.value = personalData.name || '';
-            if (titleInput) titleInput.value = personalData.title || '';
-            if (experienceInput) experienceInput.value = personalData.experience || '';
-            if (qualificationsInput) {
-                const qualifications = personalData.qualifications || [];
-                qualificationsInput.value = Array.isArray(qualifications) ? qualifications.join('\n') : '';
-            }
-            
-            console.log('Personal data populated:', {
-                name: personalData.name,
-                title: personalData.title,
-                experience: personalData.experience,
-                qualifications: personalData.qualifications
-            });
+        console.log('Personal data to populate:', personalData);
+        
+        // Get form elements
+        const nameInput = document.getElementById('admin-name');
+        const titleInput = document.getElementById('admin-title');
+        const experienceInput = document.getElementById('admin-experience');
+        const qualificationsInput = document.getElementById('admin-qualifications');
+        
+        // Log which elements were found
+        console.log('Form elements found:', {
+            nameInput: !!nameInput,
+            titleInput: !!titleInput,
+            experienceInput: !!experienceInput,
+            qualificationsInput: !!qualificationsInput
+        });
+        
+        // Set values with detailed logging
+        if (nameInput) {
+            nameInput.value = personalData.name || '';
+            console.log(`Set name input to "${personalData.name || ''}"`);
         } else {
-            console.warn('No personal data found');
+            console.error('admin-name input not found in DOM');
+        }
+        
+        if (titleInput) {
+            titleInput.value = personalData.title || '';
+            console.log(`Set title input to "${personalData.title || ''}"`);
+        } else {
+            console.error('admin-title input not found in DOM');
+        }
+        
+        if (experienceInput) {
+            experienceInput.value = personalData.experience || '';
+            console.log(`Set experience input to "${personalData.experience || ''}"`);
+        } else {
+            console.error('admin-experience input not found in DOM');
+        }
+        
+        if (qualificationsInput) {
+            const qualifications = personalData.qualifications || [];
+            const qualText = Array.isArray(qualifications) ? qualifications.join('\n') : '';
+            qualificationsInput.value = qualText;
+            console.log(`Set qualifications input to "${qualText}"`);
+        } else {
+            console.error('admin-qualifications input not found in DOM');
         }
         
         // Experience data
         const experienceData = data.experience || {};
-        if (experienceData) {
-            const schoolsInput = document.getElementById('admin-schools');
-            const centersInput = document.getElementById('admin-centers');
-            const platformsInput = document.getElementById('admin-platforms');
-            
-            if (schoolsInput) {
-                const schools = experienceData.schools || [];
-                schoolsInput.value = Array.isArray(schools) ? schools.join('\n') : '';
-            }
-            
-            if (centersInput) {
-                const centers = experienceData.centers || [];
-                centersInput.value = Array.isArray(centers) ? centers.join('\n') : '';
-            }
-            
-            if (platformsInput) {
-                const platforms = experienceData.platforms || [];
-                platformsInput.value = Array.isArray(platforms) ? platforms.join('\n') : '';
-            }
-            
-            console.log('Experience data populated');
+        console.log('Experience data to populate:', experienceData);
+        
+        // Get experience form elements
+        const schoolsInput = document.getElementById('admin-schools');
+        const centersInput = document.getElementById('admin-centers');
+        const platformsInput = document.getElementById('admin-platforms');
+        
+        // Log which elements were found
+        console.log('Experience form elements found:', {
+            schoolsInput: !!schoolsInput,
+            centersInput: !!centersInput,
+            platformsInput: !!platformsInput
+        });
+        
+        // Set values with detailed logging
+        if (schoolsInput) {
+            const schools = experienceData.schools || [];
+            const schoolsText = Array.isArray(schools) ? schools.join('\n') : '';
+            schoolsInput.value = schoolsText;
+            console.log(`Set schools input to "${schoolsText}"`);
         } else {
-            console.warn('No experience data found');
+            console.error('admin-schools input not found in DOM');
+        }
+        
+        if (centersInput) {
+            const centers = experienceData.centers || [];
+            const centersText = Array.isArray(centers) ? centers.join('\n') : '';
+            centersInput.value = centersText;
+            console.log(`Set centers input to "${centersText}"`);
+        } else {
+            console.error('admin-centers input not found in DOM');
+        }
+        
+        if (platformsInput) {
+            const platforms = experienceData.platforms || [];
+            const platformsText = Array.isArray(platforms) ? platforms.join('\n') : '';
+            platformsInput.value = platformsText;
+            console.log(`Set platforms input to "${platformsText}"`);
+        } else {
+            console.error('admin-platforms input not found in DOM');
         }
         
         // Results data
         const resultsData = data.results || [];
-        if (Array.isArray(resultsData) && resultsData.length > 0) {
+        console.log('Results data to populate:', resultsData);
+        
+        if (Array.isArray(resultsData)) {
             populateResultsForm(resultsData);
-            console.log('Results data populated with', resultsData.length, 'items');
+            console.log(`Results container populated with ${resultsData.length} items`);
         } else {
-            console.warn('No results data found or empty array');
+            console.warn('Results data is not an array:', resultsData);
             populateResultsForm([]);
         }
         
         // Contact data
         const contactData = data.contact || {};
-        if (contactData) {
-            const emailInput = document.getElementById('admin-email');
-            const formUrlInput = document.getElementById('admin-form-url');
-            
-            if (emailInput) emailInput.value = contactData.email || '';
-            if (formUrlInput) formUrlInput.value = contactData.formUrl || '';
-            
-            console.log('Contact data populated');
+        console.log('Contact data to populate:', contactData);
+        
+        // Get contact form elements
+        const emailInput = document.getElementById('admin-email');
+        const formUrlInput = document.getElementById('admin-form-url');
+        
+        // Log which elements were found
+        console.log('Contact form elements found:', {
+            emailInput: !!emailInput,
+            formUrlInput: !!formUrlInput
+        });
+        
+        // Set values with detailed logging
+        if (emailInput) {
+            emailInput.value = contactData.email || '';
+            console.log(`Set email input to "${contactData.email || ''}"`);
         } else {
-            console.warn('No contact data found');
+            console.error('admin-email input not found in DOM');
         }
         
-        console.log('✅ Admin form populated successfully');
+        if (formUrlInput) {
+            formUrlInput.value = contactData.formUrl || '';
+            console.log(`Set form URL input to "${contactData.formUrl || ''}"`);
+        } else {
+            console.error('admin-form-url input not found in DOM');
+        }
+        
+        console.log('✅ Admin form population completed');
     } catch (error) {
         console.error('Error populating admin form:', error);
         showAdminAlert('error', `There was an error loading form fields: ${error.message}`);
