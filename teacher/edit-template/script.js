@@ -159,7 +159,7 @@ function initializeWithDefaultData() {
                 'Advanced Learning Institute',
                 'STEM Education Hub'
             ],
-            onlinePlatforms: [
+            platforms: [
                 'MathPro Online',
                 'EduTech Academy',
                 'Virtual Learning Center'
@@ -212,9 +212,11 @@ document.addEventListener('click', (e) => {
 });
 
 // Close menu when clicking on mobile menu links
-mobileMenuLinks.forEach(link => {
-    link.addEventListener('click', closeMenu);
-});
+if (mobileMenuLinks && mobileMenuLinks.length > 0) {
+    mobileMenuLinks.forEach(link => {
+        link.addEventListener('click', closeMenu);
+    });
+}
 
 // Prevent touchmove when menu is open
 document.addEventListener('touchmove', (e) => {
@@ -765,7 +767,7 @@ function populateAdminForm(data) {
         // Experience
         document.getElementById('admin-schools').value = (data.experience.schools || []).join('\n');
         document.getElementById('admin-centers').value = (data.experience.centers || []).join('\n');
-        document.getElementById('admin-platforms').value = (data.experience.onlinePlatforms || []).join('\n');
+        document.getElementById('admin-platforms').value = (data.experience.platforms || []).join('\n');
         
         // Results
         populateResultsForm(data.results.subjects || []);
@@ -843,4 +845,310 @@ function initDOMElements() {
         adminPanel: !!adminPanel,
         adminLoginModal: !!adminLoginModal
     });
+}
+
+// Update site content with new data
+function updateSiteContent(data) {
+    try {
+        console.log('Updating site content with new data');
+        
+        // Update page title
+        document.title = `${data.personal.name} - ${data.personal.title}`;
+        
+        // Update name in navigation
+        const navName = document.querySelector('header nav a.text-2xl');
+        if (navName) navName.textContent = data.personal.name;
+        
+        // Update hero section
+        const heroTitle = document.querySelector('#hero h1');
+        if (heroTitle) {
+            const spanElement = heroTitle.querySelector('span');
+            const spanHTML = spanElement ? spanElement.outerHTML : '<span class="text-yellow-400">Mathematics</span>';
+            heroTitle.innerHTML = `Inspiring Minds Through ${spanHTML}`;
+        }
+        
+        const heroDesc = document.querySelector('#hero p.text-lg');
+        if (heroDesc) {
+            heroDesc.textContent = data.personal.experience;
+        }
+        
+        // Update about section
+        const qualsList = document.querySelector('#about ul');
+        if (qualsList) {
+            qualsList.innerHTML = data.personal.qualifications.map(qual => `
+                <li class="flex items-center">
+                    <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
+                    <span>${qual}</span>
+                </li>
+            `).join('');
+        }
+        
+        // Update experience section
+        const schoolsList = document.querySelector('#experience .experience-card:nth-child(1) ul');
+        if (schoolsList) {
+            schoolsList.innerHTML = data.experience.schools.map(school => `
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    <span>${school}</span>
+                </li>
+            `).join('');
+        }
+        
+        const centersList = document.querySelector('#experience .experience-card:nth-child(2) ul');
+        if (centersList) {
+            centersList.innerHTML = data.experience.centers.map(center => `
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    <span>${center}</span>
+                </li>
+            `).join('');
+        }
+        
+        const platformsList = document.querySelector('#experience .experience-card:nth-child(3) ul');
+        if (platformsList) {
+            platformsList.innerHTML = data.experience.platforms.map(platform => `
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    <span>${platform}</span>
+                </li>
+            `).join('');
+        }
+        
+        // Update results chart - wrap in try/catch to prevent errors from breaking everything
+        try {
+            if (data.results) {
+                updateResultsChart(data.results);
+            }
+        } catch (chartError) {
+            console.error('Error updating chart:', chartError);
+        }
+        
+        // Update contact form
+        const registerBtn = document.querySelector('#register a.btn');
+        if (registerBtn && data.contact && data.contact.formUrl) {
+            registerBtn.href = data.contact.formUrl;
+        }
+        
+        console.log('✅ Site content updated successfully');
+    } catch (error) {
+        console.error('Error updating site content:', error);
+    }
+}
+
+// Update results chart with new data
+function updateResultsChart(subjects) {
+    // Ensure we have data to work with
+    if (!subjects || !Array.isArray(subjects) || subjects.length === 0) {
+        console.log('No chart data provided or invalid data format');
+        return;
+    }
+    
+    // Get the chart canvas
+    const ctx = document.getElementById('resultsChart');
+    if (!ctx) {
+        console.error('Chart canvas element not found');
+        return;
+    }
+    
+    try {
+        // First destroy any existing chart to prevent memory leaks and conflicts
+        if (window.resultsChart) {
+            try {
+                window.resultsChart.destroy();
+                window.resultsChart = null;
+            } catch (e) {
+                console.error('Error destroying existing chart:', e);
+                // Continue anyway
+            }
+        }
+        
+        // Always create a fresh chart
+        window.resultsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: subjects.map(subject => subject.name),
+                datasets: [{
+                    label: 'Student Performance (%)',
+                    data: subjects.map(subject => subject.score),
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(239, 68, 68, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(16, 185, 129, 1)',
+                        'rgba(245, 158, 11, 1)',
+                        'rgba(239, 68, 68, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw + '%';
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+        console.log('✅ Chart created/updated successfully');
+    } catch (error) {
+        console.error('Failed to create/update chart:', error);
+        // Don't throw error, just log it, to prevent breaking the save process
+    }
+}
+
+// Save admin changes to Supabase and localStorage
+async function saveAdminChanges() {
+    // Show loading state on button
+    const saveBtn = document.getElementById('saveChangesBtn');
+    const originalBtnText = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<div class="admin-loading"></div> Saving...';
+    saveBtn.disabled = true;
+
+    try {
+        // Collect data from form fields
+        const siteData = {
+            personal: {
+                name: document.getElementById('admin-name').value,
+                title: document.getElementById('admin-title').value,
+                experience: document.getElementById('admin-experience').value,
+                qualifications: document.getElementById('admin-qualifications').value.split('\n').filter(item => item.trim() !== '')
+            },
+            experience: {
+                schools: document.getElementById('admin-schools').value.split('\n').filter(item => item.trim() !== ''),
+                centers: document.getElementById('admin-centers').value.split('\n').filter(item => item.trim() !== ''),
+                platforms: document.getElementById('admin-platforms').value.split('\n').filter(item => item.trim() !== '')
+            },
+            results: collectResultsData(),
+            contact: {
+                email: document.getElementById('admin-email').value,
+                formUrl: document.getElementById('admin-form-url').value
+            }
+        };
+
+        console.log('Saving data:', siteData);
+
+        // Save to Supabase
+        let supabaseSaveSuccess = false;
+        try {
+            const { error } = await supabase
+                .from('site_data')
+                .upsert({ id: 1, data: siteData }, { onConflict: 'id' });
+
+            if (error) {
+                throw new Error(`Supabase error: ${error.message}`);
+            }
+            supabaseSaveSuccess = true;
+            console.log('✅ Data saved to Supabase successfully');
+        } catch (supabaseError) {
+            console.error('Failed to save to Supabase:', supabaseError);
+            // We'll continue and try localStorage as backup
+        }
+
+        // Save to localStorage as backup
+        try {
+            localStorage.setItem('siteData', JSON.stringify(siteData));
+            console.log('✅ Data saved to localStorage successfully');
+        } catch (localStorageError) {
+            console.error('Failed to save to localStorage:', localStorageError);
+            
+            // If both Supabase and localStorage failed, throw error
+            if (!supabaseSaveSuccess) {
+                throw new Error('Failed to save data to both Supabase and localStorage');
+            }
+        }
+
+        // Update site content with new data
+        updateSiteContent(siteData);
+        
+        // Show success message
+        showAdminAlert('success', 'Changes saved successfully!');
+    } catch (error) {
+        console.error('Error saving changes:', error);
+        showAdminAlert('error', `Failed to save changes: ${error.message}`);
+    } finally {
+        // Restore button state
+        saveBtn.innerHTML = originalBtnText;
+        saveBtn.disabled = false;
+    }
+}
+
+// Helper function to collect results data from form
+function collectResultsData() {
+    const resultsContainer = document.getElementById('admin-results-container');
+    const resultRows = resultsContainer.querySelectorAll('.admin-result-row');
+    const results = [];
+
+    resultRows.forEach(row => {
+        const nameInput = row.querySelector('.subject-name');
+        const scoreInput = row.querySelector('.subject-score');
+        
+        if (nameInput && scoreInput) {
+            const name = nameInput.value.trim();
+            const scoreVal = parseInt(scoreInput.value);
+            const score = isNaN(scoreVal) ? 0 : Math.min(Math.max(scoreVal, 0), 100);
+            
+            if (name) {
+                results.push({ name, score });
+            }
+        }
+    });
+
+    return results;
+}
+
+// Helper function to show alerts in admin panel
+function showAdminAlert(type, message) {
+    const alertContainer = document.getElementById('adminAlertContainer');
+    const alertClass = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700';
+    
+    const alertElement = document.createElement('div');
+    alertElement.className = `${alertClass} px-4 py-3 rounded relative mb-4 border`;
+    alertElement.innerHTML = `
+        <span class="block sm:inline">${message}</span>
+        <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+            <i class="fas fa-times cursor-pointer"></i>
+        </span>
+    `;
+    
+    // Add click event to close button
+    const closeBtn = alertElement.querySelector('i');
+    closeBtn.addEventListener('click', () => {
+        alertElement.remove();
+    });
+    
+    // Auto-remove after 5 seconds
+    alertContainer.appendChild(alertElement);
+    setTimeout(() => {
+        if (alertElement.parentNode === alertContainer) {
+            alertElement.remove();
+        }
+    }, 5000);
 }
