@@ -1314,9 +1314,37 @@ function updateSiteContent(data) {
         // Update results chart - wrap in try/catch to prevent errors from breaking everything
         try {
             const resultsData = data.results || [];
-            if (Array.isArray(resultsData) && resultsData.length > 0) {
-                updateResultsChart(resultsData);
+            console.log('Results data for chart update:', JSON.stringify(resultsData, null, 2));
+            
+            if (!Array.isArray(resultsData)) {
+                console.error('Results data is not an array:', typeof resultsData);
+                return;
             }
+            
+            if (resultsData.length === 0) {
+                console.warn('Results data array is empty, skipping chart update');
+                return;
+            }
+            
+            // Validate the structure of results data
+            const validResults = resultsData.every(item => 
+                item && typeof item === 'object' && 'name' in item && 'score' in item);
+                
+            if (!validResults) {
+                console.error('Invalid results data structure:', resultsData);
+                // Try to fix the data if possible
+                const fixedResults = resultsData.filter(item => 
+                    item && typeof item === 'object' && 'name' in item && 'score' in item);
+                    
+                if (fixedResults.length > 0) {
+                    console.log('Using fixed results data:', fixedResults);
+                    updateResultsChart(fixedResults);
+                }
+                return;
+            }
+            
+            console.log('Updating chart with valid results data');
+            updateResultsChart(resultsData);
         } catch (chartError) {
             console.error('Error updating chart:', chartError);
         }
@@ -1458,20 +1486,47 @@ async function saveAdminChanges() {
         };
 
         console.log('Saving data:', JSON.stringify(newData, null, 2));
+        console.log('Results data specifically:', JSON.stringify(newData.results, null, 2));
         
         // Update our global state
         siteData = newData;
 
-        // Save to Supabase
+        // Save to Supabase with verification
         let supabaseSaveSuccess = false;
         try {
+            console.log('Attempting to save to Supabase...');
             const { error } = await supabase
                 .from('site_data')
                 .upsert({ id: 1, data: newData }, { onConflict: 'id' });
 
             if (error) {
+                console.error('Supabase upsert error:', error);
                 throw new Error(`Supabase error: ${error.message}`);
             }
+            
+            // Verify the data was saved correctly
+            console.log('Verifying Supabase data after save...');
+            const { data: verifyData, error: verifyError } = await supabase
+                .from('site_data')
+                .select('data')
+                .eq('id', 1)
+                .single();
+                
+            if (verifyError) {
+                console.error('Failed to verify data was saved:', verifyError);
+                throw new Error(`Verification error: ${verifyError.message}`);
+            }
+            
+            if (!verifyData || !verifyData.data) {
+                console.error('Data verification failed: No data found after save');
+                throw new Error('Data verification failed: No data found after save');
+            }
+            
+            // Log the verification results
+            console.log('✅ Supabase data verification successful');
+            console.log('Saved data structure:', JSON.stringify(verifyData.data, null, 2));
+            console.log('Saved results specifically:', JSON.stringify(verifyData.data.results, null, 2));
+            
             supabaseSaveSuccess = true;
             console.log('✅ Data saved to Supabase successfully');
         } catch (supabaseError) {
@@ -1483,6 +1538,14 @@ async function saveAdminChanges() {
         try {
             localStorage.setItem('siteData', JSON.stringify(newData));
             console.log('✅ Data saved to localStorage successfully');
+            
+            // Verify localStorage save
+            const storedData = localStorage.getItem('siteData');
+            if (storedData) {
+                const parsedData = JSON.parse(storedData);
+                console.log('localStorage verification:', parsedData);
+                console.log('localStorage results:', parsedData.results);
+            }
         } catch (localStorageError) {
             console.error('Failed to save to localStorage:', localStorageError);
             
@@ -1493,7 +1556,18 @@ async function saveAdminChanges() {
         }
 
         // Update site content with new data
+        console.log('Updating site content with new data...');
         updateSiteContent(newData);
+        
+        // Force update of results chart
+        if (Array.isArray(newData.results) && newData.results.length > 0) {
+            console.log('Force updating results chart with:', newData.results);
+            try {
+                updateResultsChart(newData.results);
+            } catch (chartError) {
+                console.error('Error updating chart after save:', chartError);
+            }
+        }
         
         // Show success message
         showAdminAlert('success', 'Changes saved successfully!');
