@@ -2023,7 +2023,7 @@ function addSectionDepthEffect(mode) {
     });
 }
 
-// Apply color theme
+// Apply color theme to the website
 function applyColorTheme(color) {
     console.log(`Applying color theme: ${color}`);
     
@@ -2043,51 +2043,80 @@ function applyColorTheme(color) {
     // Check current mode
     const isDarkMode = document.body.classList.contains('dark-mode');
     
+    // Define color mappings for Tailwind colors
+    const tailwindColorMap = {
+        blue: {
+            50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 
+            400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 
+            800: '#1e40af', 900: '#1e3a8a'
+        },
+        green: {
+            50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 
+            400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 
+            800: '#065f46', 900: '#064e3b'
+        },
+        purple: {
+            50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c4b5fd', 
+            400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 
+            800: '#5b21b6', 900: '#4c1d95'
+        },
+        red: {
+            50: '#fef2f2', 100: '#fee2e2', 200: '#fecaca', 300: '#fca5a5', 
+            400: '#f87171', 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c', 
+            800: '#991b1b', 900: '#7f1d1d'
+        },
+        gray: {
+            50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 
+            400: '#9ca3af', 500: '#6b7280', 600: '#4b5563', 700: '#374151', 
+            800: '#1f2937', 900: '#111827'
+        }
+    };
+    
     switch (color) {
         case 'blue':
-            root.style.setProperty('--primary-color', '#3b82f6');
-            root.style.setProperty('--primary-dark', '#2563eb');
-            root.style.setProperty('--primary-light', '#60a5fa');
+            root.style.setProperty('--primary-color', tailwindColorMap.blue[500]);
+            root.style.setProperty('--primary-dark', tailwindColorMap.blue[600]);
+            root.style.setProperty('--primary-light', tailwindColorMap.blue[400]);
             primaryColorRgb = '59, 130, 246';
             gradientFrom = isDarkMode ? 'rgba(25, 50, 120, 0.95)' : 'rgba(30, 58, 138, 0.9)';
             gradientTo = isDarkMode ? 'rgba(37, 99, 235, 0.9)' : 'rgba(37, 99, 235, 0.8)';
             break;
         case 'green':
-            root.style.setProperty('--primary-color', '#10b981');
-            root.style.setProperty('--primary-dark', '#059669');
-            root.style.setProperty('--primary-light', '#34d399');
+            root.style.setProperty('--primary-color', tailwindColorMap.green[500]);
+            root.style.setProperty('--primary-dark', tailwindColorMap.green[600]);
+            root.style.setProperty('--primary-light', tailwindColorMap.green[400]);
             primaryColorRgb = '16, 185, 129';
             gradientFrom = isDarkMode ? 'rgba(5, 75, 55, 0.95)' : 'rgba(6, 78, 59, 0.9)';
             gradientTo = isDarkMode ? 'rgba(5, 150, 105, 0.9)' : 'rgba(5, 150, 105, 0.8)';
             break;
         case 'purple':
-            root.style.setProperty('--primary-color', '#8b5cf6');
-            root.style.setProperty('--primary-dark', '#7c3aed');
-            root.style.setProperty('--primary-light', '#a78bfa');
+            root.style.setProperty('--primary-color', tailwindColorMap.purple[500]);
+            root.style.setProperty('--primary-dark', tailwindColorMap.purple[600]);
+            root.style.setProperty('--primary-light', tailwindColorMap.purple[400]);
             primaryColorRgb = '139, 92, 246';
             gradientFrom = isDarkMode ? 'rgba(70, 25, 140, 0.95)' : 'rgba(76, 29, 149, 0.9)';
             gradientTo = isDarkMode ? 'rgba(124, 58, 237, 0.9)' : 'rgba(124, 58, 237, 0.8)';
             break;
         case 'red':
-            root.style.setProperty('--primary-color', '#ef4444');
-            root.style.setProperty('--primary-dark', '#dc2626');
-            root.style.setProperty('--primary-light', '#f87171');
+            root.style.setProperty('--primary-color', tailwindColorMap.red[500]);
+            root.style.setProperty('--primary-dark', tailwindColorMap.red[600]);
+            root.style.setProperty('--primary-light', tailwindColorMap.red[400]);
             primaryColorRgb = '239, 68, 68';
             gradientFrom = isDarkMode ? 'rgba(140, 25, 25, 0.95)' : 'rgba(153, 27, 27, 0.9)';
             gradientTo = isDarkMode ? 'rgba(220, 38, 38, 0.9)' : 'rgba(220, 38, 38, 0.8)';
             break;
         case 'gray':
-            root.style.setProperty('--primary-color', '#6b7280');
-            root.style.setProperty('--primary-dark', '#4b5563');
-            root.style.setProperty('--primary-light', '#9ca3af');
+            root.style.setProperty('--primary-color', tailwindColorMap.gray[500]);
+            root.style.setProperty('--primary-dark', tailwindColorMap.gray[600]);
+            root.style.setProperty('--primary-light', tailwindColorMap.gray[400]);
             primaryColorRgb = '107, 114, 128';
             gradientFrom = isDarkMode ? 'rgba(45, 55, 70, 0.95)' : 'rgba(55, 65, 81, 0.9)';
             gradientTo = isDarkMode ? 'rgba(75, 85, 99, 0.9)' : 'rgba(75, 85, 99, 0.8)';
             break;
         default:
-            root.style.setProperty('--primary-color', '#3b82f6');
-            root.style.setProperty('--primary-dark', '#2563eb');
-            root.style.setProperty('--primary-light', '#60a5fa');
+            root.style.setProperty('--primary-color', tailwindColorMap.blue[500]);
+            root.style.setProperty('--primary-dark', tailwindColorMap.blue[600]);
+            root.style.setProperty('--primary-light', tailwindColorMap.blue[400]);
             primaryColorRgb = '59, 130, 246';
             gradientFrom = isDarkMode ? 'rgba(25, 50, 120, 0.95)' : 'rgba(30, 58, 138, 0.9)';
             gradientTo = isDarkMode ? 'rgba(37, 99, 235, 0.9)' : 'rgba(37, 99, 235, 0.8)';
@@ -2129,23 +2158,69 @@ function applyColorTheme(color) {
         heroOverlay.style.backgroundImage = `linear-gradient(to right, ${gradientFrom}, ${gradientTo})`;
     }
     
-    // Update section title bars (::after pseudo-elements can't be targeted directly with JS)
+    // Update website logo
+    const logo = document.querySelector('a.text-2xl.font-bold');
+    if (logo) {
+        // Remove all existing color classes
+        logo.className = logo.className.replace(/text-\w+-\d+/g, '');
+        // Add the new theme color
+        logo.classList.add(`text-${color}-600`);
+        logo.classList.add(`hover:text-${color}-700`);
+    }
+    
+    // Update all icons with the theme color
+    const iconSelectors = [
+        '.fas.fa-graduation-cap', '.fas.fa-check', '.fas.fa-star', 
+        '.fas.fa-money-bill-wave', '.fas.fa-calendar-alt', '.fas.fa-clock', 
+        '.fas.fa-video', '.fas.fa-users', '.fas.fa-square-root-variable',
+        '.fas.fa-atom', '.fas.fa-flask', '.fas.fa-dna', '.fas.fa-calculator',
+        '.fas.fa-laptop-code', '.fas.fa-user-plus', '.fas.fa-user-graduate',
+        '.fas.fa-info-circle', '.fas.fa-check-circle', '.fas.fa-exclamation-circle',
+        '.fas.fa-exclamation-triangle', '.fas.fa-bell'
+    ];
+    
+    // Update all text-blue-600 elements to use the current theme color
+    document.querySelectorAll('[class*="text-blue-"]').forEach(element => {
+        // Skip elements that might have custom coloring
+        if (element.classList.contains('text-blue-900') && element.closest('.theme-blue')) {
+            return;
+        }
+        
+        const classes = Array.from(element.classList);
+        const colorClass = classes.find(cls => cls.match(/text-blue-\d+/));
+        
+        if (colorClass) {
+            const colorValue = colorClass.split('-')[2]; // Get the shade number (e.g., 600)
+            element.classList.remove(colorClass);
+            element.classList.add(`text-${color}-${colorValue}`);
+        }
+    });
+    
+    // Update icons that use the text-blue-600 class
+    document.querySelectorAll('.text-blue-600').forEach(element => {
+        element.classList.remove('text-blue-600');
+        element.classList.add(`text-${color}-600`);
+    });
+    
+    // Update all section title underlines
     document.querySelectorAll('.section-title').forEach(title => {
         title.style.borderColor = `var(--primary-color)`;
     });
     
-    // Update all icons with the theme color
-    document.querySelectorAll('.fa-graduation-cap, .fa-check, .fa-star, .fa-money-bill-wave, .fa-calendar-alt, .fa-clock, .fa-video, .fa-users').forEach(icon => {
-        icon.style.color = `var(--primary-color)`;
-    });
-    
     // Update experience card icons
     document.querySelectorAll('.experience-card i').forEach(icon => {
-        icon.style.color = `var(--primary-color)`;
+        // Remove all text color classes
+        icon.className = icon.className.replace(/text-\w+-\d+/g, '');
+        // Add the new theme color
+        icon.classList.add(`text-${color}-600`);
     });
     
     // Update buttons with the theme color
     document.querySelectorAll('.btn-primary').forEach(btn => {
+        // Remove any existing background color classes
+        btn.className = btn.className.replace(/bg-\w+-\d+/g, '');
+        // Add the new theme background color
+        btn.classList.add(`bg-${color}-600`);
         btn.style.backgroundColor = `var(--primary-color)`;
         btn.style.borderColor = `var(--primary-dark)`;
         
@@ -2155,7 +2230,17 @@ function applyColorTheme(color) {
         }
     });
     
-    // Update nav links hover effect
+    // Update theme option labels
+    document.querySelectorAll('.theme-color-option input:checked + label').forEach(label => {
+        label.style.boxShadow = `0 0 0 2px var(--primary-color)`;
+    });
+    
+    // Update theme mode labels when checked
+    document.querySelectorAll('.theme-mode-option input:checked + label').forEach(label => {
+        label.style.boxShadow = `0 0 0 2px var(--primary-color)`;
+    });
+    
+    // Update hover effects for all interactive elements
     const styleSheet = document.createElement('style');
     styleSheet.id = 'dynamic-theme-styles';
     document.head.appendChild(styleSheet);
@@ -2169,11 +2254,56 @@ function applyColorTheme(color) {
     // Add new dynamic styles
     styleSheet.textContent = `
         .nav-link:hover { color: var(--primary-color) !important; }
+        .mobile-nav-link:hover { color: var(--primary-color) !important; }
         .section-title::after { background-color: var(--primary-color) !important; }
         .btn-primary:hover { background-color: var(--primary-dark) !important; }
+        
+        /* Add hover styles for admin buttons */
+        #adminBtnMobile:hover i,
+        .admin-btn:hover { color: var(--primary-color) !important; }
+        
+        /* Dynamic theme colors for all theme-specific elements */
+        .text-${color}-50 { color: ${tailwindColorMap[color][50]} !important; }
+        .text-${color}-100 { color: ${tailwindColorMap[color][100]} !important; }
+        .text-${color}-200 { color: ${tailwindColorMap[color][200]} !important; }
+        .text-${color}-300 { color: ${tailwindColorMap[color][300]} !important; }
+        .text-${color}-400 { color: ${tailwindColorMap[color][400]} !important; }
+        .text-${color}-500 { color: ${tailwindColorMap[color][500]} !important; }
+        .text-${color}-600 { color: ${tailwindColorMap[color][600]} !important; }
+        .text-${color}-700 { color: ${tailwindColorMap[color][700]} !important; }
+        .text-${color}-800 { color: ${tailwindColorMap[color][800]} !important; }
+        .text-${color}-900 { color: ${tailwindColorMap[color][900]} !important; }
+        
+        .bg-${color}-50 { background-color: ${tailwindColorMap[color][50]} !important; }
+        .bg-${color}-100 { background-color: ${tailwindColorMap[color][100]} !important; }
+        .bg-${color}-200 { background-color: ${tailwindColorMap[color][200]} !important; }
+        .bg-${color}-300 { background-color: ${tailwindColorMap[color][300]} !important; }
+        .bg-${color}-400 { background-color: ${tailwindColorMap[color][400]} !important; }
+        .bg-${color}-500 { background-color: ${tailwindColorMap[color][500]} !important; }
+        .bg-${color}-600 { background-color: ${tailwindColorMap[color][600]} !important; }
+        .bg-${color}-700 { background-color: ${tailwindColorMap[color][700]} !important; }
+        .bg-${color}-800 { background-color: ${tailwindColorMap[color][800]} !important; }
+        .bg-${color}-900 { background-color: ${tailwindColorMap[color][900]} !important; }
+        
+        .hover\\:text-${color}-700:hover { color: ${tailwindColorMap[color][700]} !important; }
+        .hover\\:bg-${color}-700:hover { background-color: ${tailwindColorMap[color][700]} !important; }
+        
+        .border-${color}-500 { border-color: ${tailwindColorMap[color][500]} !important; }
+        .hover\\:border-${color}-700:hover { border-color: ${tailwindColorMap[color][700]} !important; }
+        
         ${isDarkMode ? '.dark-mode .section-title::after { box-shadow: 0 0 8px var(--primary-color); }' : ''}
         ${isDarkMode ? '.dark-mode .nav-link:hover { text-shadow: 0 0 8px var(--primary-color); }' : ''}
     `;
+    
+    // Update admin panel themed elements
+    const adminElementsSelector = '#adminPanel .text-blue-600, #adminLoginModal .text-blue-600';
+    document.querySelectorAll(adminElementsSelector).forEach(element => {
+        element.classList.remove('text-blue-600');
+        element.classList.add(`text-${color}-600`);
+    });
+    
+    // Update alert styles based on theme
+    updateAlertStyles(color, primaryColorRgb);
 }
 
 // Apply mode theme (light/dark)
@@ -2420,4 +2550,51 @@ function loadSavedTheme() {
         console.error('Error loading saved theme:', error);
         applyTheme('blue', 'light');
     }
+}
+
+// Update alert styles based on theme color
+function updateAlertStyles(color, primaryColorRgb) {
+    // Define color mappings for each alert type
+    const alertColors = {
+        success: color === 'green' ? 'green' : 'green',
+        error: color === 'red' ? 'red' : 'red',
+        info: color,
+        warning: 'yellow'
+    };
+    
+    // Create a style element for the alert styles
+    let alertStyleElement = document.getElementById('alert-theme-styles');
+    if (!alertStyleElement) {
+        alertStyleElement = document.createElement('style');
+        alertStyleElement.id = 'alert-theme-styles';
+        document.head.appendChild(alertStyleElement);
+    }
+    
+    // Define the styles
+    const alertStyles = `
+        /* Info alert styles - these will use the theme color */
+        .alert-info {
+            background-color: rgba(${primaryColorRgb}, 0.1);
+            border-color: rgba(${primaryColorRgb}, 0.3);
+            color: var(--primary-color);
+        }
+        
+        /* Update alert icons to match theme */
+        .fa-info-circle {
+            color: var(--primary-color) !important;
+        }
+        
+        /* Success button hover in admin */
+        .bg-green-500:hover {
+            background-color: #059669 !important;
+        }
+        
+        /* Error button hover in admin */
+        .bg-red-500:hover {
+            background-color: #dc2626 !important;
+        }
+    `;
+    
+    // Apply the styles
+    alertStyleElement.textContent = alertStyles;
 }
