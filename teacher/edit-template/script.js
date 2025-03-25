@@ -2256,6 +2256,30 @@ function applyColorTheme(color) {
         logo.classList.add(`hover:text-${color}-700`);
     }
     
+    // Update subject icons - explicitly target them to ensure they change color
+    document.querySelectorAll('.subject-card i').forEach(icon => {
+        // Remove any existing color classes
+        icon.className = icon.className.replace(/text-\w+-\d+/g, '');
+        // Add the new theme color
+        icon.classList.add(`text-${color}-600`);
+    });
+    
+    // Update experience section icons - ensure they use the theme color
+    document.querySelectorAll('.experience-card i.text-3xl').forEach(icon => {
+        // Remove any existing color classes
+        icon.className = icon.className.replace(/text-\w+-\d+/g, '');
+        // Add the new theme color
+        icon.classList.add(`text-${color}-600`);
+    });
+    
+    // Update qualification icons
+    document.querySelectorAll('.fa-graduation-cap').forEach(icon => {
+        // Remove any existing color classes
+        icon.className = icon.className.replace(/text-\w+-\d+/g, '');
+        // Add the new theme color
+        icon.classList.add(`text-${color}-600`);
+    });
+    
     // Update all icons with the theme color
     const iconSelectors = [
         '.fas.fa-graduation-cap', '.fas.fa-check', '.fas.fa-star', 
@@ -2282,6 +2306,25 @@ function applyColorTheme(color) {
             element.classList.remove(colorClass);
             element.classList.add(`text-${color}-${colorValue}`);
         }
+    });
+    
+    // Update elements that might be using other theme colors
+    // This helps fix elements that might be stuck with a specific color like purple
+    const themeColors = ['blue', 'green', 'purple', 'red', 'gray'];
+    themeColors.forEach(themeColor => {
+        if (themeColor === color) return; // Skip the current color
+        
+        document.querySelectorAll(`[class*="text-${themeColor}-"]`).forEach(element => {
+            // Find all color classes for this theme
+            const classes = Array.from(element.classList);
+            const colorClasses = classes.filter(cls => cls.match(new RegExp(`text-${themeColor}-\\d+`)));
+            
+            colorClasses.forEach(colorClass => {
+                const colorValue = colorClass.split('-')[2]; // Get the shade number
+                element.classList.remove(colorClass);
+                element.classList.add(`text-${color}-${colorValue}`);
+            });
+        });
     });
     
     // Update icons that use the text-blue-600 class
@@ -2466,7 +2509,16 @@ function applyModeTheme(mode) {
             });
         });
         
-        // Update form inputs for better visibility
+        // Ensure all section titles and headings are white in dark mode
+        document.querySelectorAll('.section-title, h2, h3, h4, h5, h6').forEach(heading => {
+            heading.style.color = 'var(--text-color)';
+        });
+        
+        // Update form labels and inputs for better visibility
+        document.querySelectorAll('.form-label, .form-input, label').forEach(element => {
+            element.style.color = 'var(--text-color)';
+        });
+        
         document.querySelectorAll('.form-input').forEach(input => {
             input.style.backgroundColor = 'rgba(31, 41, 55, 0.8)';
             input.style.borderColor = 'var(--border-color)';
@@ -2482,6 +2534,31 @@ function applyModeTheme(mode) {
         document.querySelectorAll('.fas').forEach(icon => {
             icon.style.filter = 'drop-shadow(0 0 2px currentColor)';
         });
+        
+        // Ensure text elements in contact section are white
+        document.querySelectorAll('#contact .form-label, #contact h2').forEach(element => {
+            element.style.color = 'var(--text-color)';
+        });
+        
+        // Ensure subject headings are white
+        document.querySelectorAll('.subject-card h3').forEach(heading => {
+            heading.style.color = 'var(--text-color)';
+        });
+        
+        // Handle Chart.js elements - make chart text white in dark mode
+        if (window.Chart) {
+            Chart.defaults.color = '#f3f4f6'; // Light gray/white text
+            Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)'; // Lighter grid lines
+            
+            // If we have a chart instance, update it
+            if (window.resultsChart) {
+                window.resultsChart.options.scales.x.ticks.color = '#f3f4f6';
+                window.resultsChart.options.scales.y.ticks.color = '#f3f4f6';
+                window.resultsChart.options.plugins.legend.labels.color = '#f3f4f6';
+                window.resultsChart.options.plugins.title.color = '#f3f4f6';
+                window.resultsChart.update();
+            }
+        }
         
         // Update admin panel
         const adminPanel = document.getElementById('adminPanel');
@@ -2499,15 +2576,37 @@ function applyModeTheme(mode) {
             }
         }
         
-        // Apply dark mode to sections
-document.querySelectorAll('section').forEach(section => {
-            if (section.classList.contains('bg-white')) {
-                section.style.backgroundColor = 'var(--card-bg)';
-            } else if (section.classList.contains('bg-gray-50')) {
-                section.style.backgroundColor = 'var(--bg-color)';
+        // Add dark mode specific CSS
+        const darkModeStyle = document.getElementById('dark-mode-styles') || document.createElement('style');
+        darkModeStyle.id = 'dark-mode-styles';
+        darkModeStyle.textContent = `
+            .dark-mode .text-gray-600, 
+            .dark-mode .text-gray-700, 
+            .dark-mode .text-gray-800,
+            .dark-mode .text-gray-900 {
+                color: var(--text-color) !important;
             }
-        });
+            
+            .dark-mode h2.section-title {
+                color: var(--text-color) !important;
+            }
+            
+            .dark-mode p {
+                color: var(--text-light) !important;
+            }
+            
+            .dark-mode .form-label {
+                color: var(--text-color) !important;
+            }
+            
+            .dark-mode #resultsChart {
+                filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
+            }
+        `;
         
+        if (!document.getElementById('dark-mode-styles')) {
+            document.head.appendChild(darkModeStyle);
+        }
     } else {
         // Apply light mode colors
         root.style.setProperty('--bg-color', '#f9fafb');
@@ -2521,10 +2620,10 @@ document.querySelectorAll('section').forEach(section => {
         root.style.setProperty('--footer-bg', '#1f2937');
         root.style.setProperty('--footer-text', '#f9fafb');
         
-        // Remove dark class
+        // Remove dark class for Tailwind dark mode
         document.documentElement.classList.remove('dark');
         
-        // Update mobile menu for light mode
+        // Reset mobile menu in light mode
         const mobileMenu = document.getElementById('mobileMenu');
         if (mobileMenu) {
             mobileMenu.style.backgroundColor = '';
@@ -2536,14 +2635,14 @@ document.querySelectorAll('section').forEach(section => {
             link.style.color = '';
         });
         
-        // Reset hero overlay blend mode
+        // Reset hero overlay in light mode
         const heroOverlay = document.querySelector('#hero .absolute.inset-0.bg-gradient-to-r');
         if (heroOverlay) {
             heroOverlay.style.opacity = '';
             heroOverlay.style.mixBlendMode = '';
         }
         
-        // Reset header shadow in light mode
+        // Reset header in light mode
         const header = document.querySelector('header');
         if (header) {
             header.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
@@ -2560,6 +2659,11 @@ document.querySelectorAll('section').forEach(section => {
             // Remove event listeners
             card.removeEventListener('mouseenter', function() {});
             card.removeEventListener('mouseleave', function() {});
+        });
+        
+        // Reset all headings and text in light mode
+        document.querySelectorAll('.section-title, h2, h3, h4, h5, h6, .form-label, .form-input, label').forEach(element => {
+            element.style.color = '';
         });
         
         // Reset form inputs in light mode
@@ -2579,6 +2683,21 @@ document.querySelectorAll('section').forEach(section => {
             icon.style.filter = '';
         });
         
+        // Reset Chart.js elements to default dark colors in light mode
+        if (window.Chart) {
+            Chart.defaults.color = '#666'; // Default chart text color
+            Chart.defaults.borderColor = 'rgba(0, 0, 0, 0.1)'; // Default grid lines
+            
+            // If we have a chart instance, update it
+            if (window.resultsChart) {
+                window.resultsChart.options.scales.x.ticks.color = '';
+                window.resultsChart.options.scales.y.ticks.color = '';
+                window.resultsChart.options.plugins.legend.labels.color = '';
+                window.resultsChart.options.plugins.title.color = '';
+                window.resultsChart.update();
+            }
+        }
+        
         // Reset admin panel
         const adminPanel = document.getElementById('adminPanel');
         if (adminPanel) {
@@ -2596,9 +2715,15 @@ document.querySelectorAll('section').forEach(section => {
         }
         
         // Reset sections
-    document.querySelectorAll('section').forEach(section => {
+        document.querySelectorAll('section').forEach(section => {
             section.style.backgroundColor = '';
         });
+        
+        // Remove dark mode specific styles
+        const darkModeStyle = document.getElementById('dark-mode-styles');
+        if (darkModeStyle) {
+            darkModeStyle.textContent = '';
+        }
     }
     
     // Apply complementary styling to buttons based on mode
@@ -2606,17 +2731,8 @@ document.querySelectorAll('section').forEach(section => {
         btn.style.color = 'var(--btn-text)';
     });
     
-    // Update text elements with the correct contrast
-    document.querySelectorAll('p.text-gray-600').forEach(p => {
-        p.style.color = 'var(--text-light)';
-    });
-    
-    // Add transition effect for smoother theme changes
-    document.querySelectorAll('*').forEach(el => {
-        if (!el.style.transition) {
-            el.style.transition = 'background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease';
-        }
-    });
+    // Apply section depth effects based on mode
+    addSectionDepthEffect(mode);
 }
 
 // Load and apply saved theme
