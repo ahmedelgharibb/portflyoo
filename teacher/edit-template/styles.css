@@ -134,12 +134,17 @@
      HERO SECTION
      =============================================== */
   .hero {
-    height: 100vh;
+    min-height: 100vh;
     background-color: var(--gray-800);
     overflow: hidden;
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
   
   .hero::before {
@@ -1080,6 +1085,40 @@
   }
   
   @media screen and (max-width: 768px) {
+    #hero {
+      min-height: 100vh;
+      height: auto;
+      padding-top: 80px; /* Account for fixed header */
+      padding-bottom: 40px;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    
+    #hero .container {
+      width: 100%;
+      max-width: 100%;
+      padding: 0 1rem;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    
+    #about {
+      padding-top: 4rem;
+      margin-top: 0;
+    }
+    
+    /* Ensure sections have proper spacing and no unexpected margins */
+    section {
+      margin: 0;
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
     .container {
         padding-left: 1rem;
         padding-right: 1rem;
@@ -1224,6 +1263,9 @@
     transition: transform 0.3s ease-in-out;
     box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
     z-index: 1000;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
   }
   
   .mobile-menu.active {
@@ -1232,6 +1274,8 @@
   
   .mobile-menu nav {
     margin-top: 2rem;
+    width: 100%;
+    max-width: 100%;
   }
   
   .mobile-menu a {
@@ -1241,12 +1285,30 @@
     text-decoration: none;
     transition: all 0.3s ease;
     border-radius: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .mobile-menu a:hover {
     background: rgba(59, 130, 246, 0.1);
     color: #2563eb;
     transform: translateX(5px);
+  }
+  
+  /* Prevent body scroll when menu is open */
+  body.menu-open {
+    overflow: hidden !important;
+  }
+  
+  /* Fix mobile menu button position */
+  .mobile-menu-btn {
+    position: relative;
+    z-index: 1001;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
   }
   
   /* ===============================================
@@ -1606,20 +1668,6 @@
     }
   }
   
-  /* Prevent body scroll when menu is open */
-  body.menu-open {
-    overflow: hidden;
-  }
-  
-  /* Improve mobile menu button visibility */
-  .mobile-menu-btn {
-    background: rgba(255, 255, 255, 0.9) !important;
-    backdrop-filter: blur(10px);
-    border-radius: 8px;
-    padding: 0.5rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
   /* Section Headings */
   h2.text-4xl {
     word-break: normal;
@@ -1968,5 +2016,92 @@
        padding-right: 1rem;
      }
    }
+  
+  /* ===============================================
+     MOBILE LAYOUT FIXES - IMPORTANT - DO NOT REMOVE
+     =============================================== */
+
+  /* These styles fix the unwanted right space and section spacing issues on mobile */
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+  }
+
+  section {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+  }
+
+  img, video, iframe {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .container {
+    width: 100% !important;
+    max-width: 1200px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+
+  /* Fix for mobile views */
+  @media screen and (max-width: 768px) {
+    html, body {
+      overflow-x: hidden !important;
+      width: 100% !important;
+      position: relative !important;
+    }
+    
+    section {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: hidden !important;
+      box-sizing: border-box !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    
+    .container {
+      padding-left: 15px !important;
+      padding-right: 15px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow: visible !important;
+    }
+    
+    /* Fix spacing between hero and about section */
+    #about {
+      padding-top: 4rem !important;
+      margin-top: 0 !important;
+    }
+    
+    #hero {
+      margin-bottom: 0 !important;
+      padding-bottom: 2rem !important;
+    }
+    
+    section + section {
+      margin-top: 0 !important;
+    }
+    
+    /* Fix potential table overflow */
+    table {
+      max-width: 100% !important;
+      display: block !important;
+      overflow-x: auto !important;
+    }
+  }
+
+  /* Ensure proper element sizing */
+  *, *::before, *::after {
+    box-sizing: border-box !important;
+  }
   
   

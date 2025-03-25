@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dr. Ahmed Mahmoud - Mathematics Educator</title>
     
     <!-- Favicon -->
@@ -39,6 +39,59 @@
             --btn-text: #ffffff;
             --footer-bg: #1f2937;
             --footer-text: #f9fafb;
+        }
+        
+        /* Fix for mobile layout issues */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            position: relative;
+        }
+        
+        .overflow-fix {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        section {
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        
+        /* Ensure images don't cause overflow */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Fix container widths */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+        }
+        
+        /* Prevent unwanted margins */
+        section + section {
+            margin-top: 0;
+        }
+        
+        /* Fix for iOS devices */
+        @supports (-webkit-touch-callout: none) {
+            body, html {
+                width: 100%;
+                overflow-x: hidden;
+            }
+            
+            section {
+                width: 100%;
+                max-width: 100%;
+                overflow: hidden;
+            }
         }
         
         /* Dark mode color modifiers */
@@ -662,7 +715,7 @@
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="font-[Inter] bg-gray-50">
+<body class="overflow-fix">
     <!-- Header -->
     <header class="fixed w-full z-50 transition-all duration-300">
         <nav class="container mx-auto px-4">
@@ -748,10 +801,11 @@
     </section>
 
     <!-- About Section -->
-    <section id="about" class="py-20 bg-white">
+    <section id="about" class="py-20 bg-white w-full overflow-hidden">
         <div class="container mx-auto px-4">
-            <h2 class="section-title">About Me</h2>
-            <div class="grid md:grid-cols-2 gap-12 items-center">
+            <h2 class="text-4xl font-bold text-center mb-12 section-title">About Me</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="relative">
                     <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" 
                          alt="Dr. Ahmed Mahmoud" 
