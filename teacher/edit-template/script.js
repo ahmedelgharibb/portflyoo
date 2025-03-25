@@ -1470,6 +1470,18 @@ function initDOMElements() {
     adminResultsContainer = document.getElementById('admin-results-container');
     adminAlert = document.getElementById('adminAlertContainer');
     
+    // Add new password change elements
+    const showChangePasswordBtn = document.getElementById('showChangePasswordBtn');
+    const changePasswordSection = document.getElementById('changePasswordSection');
+    const hidePasswordSection = document.getElementById('hidePasswordSection');
+    const changePasswordForm = document.getElementById('changePasswordForm');
+    
+    if (showChangePasswordBtn && changePasswordSection && hidePasswordSection && changePasswordForm) {
+        showChangePasswordBtn.addEventListener('click', showChangePasswordSection);
+        hidePasswordSection.addEventListener('click', hideChangePasswordSection);
+        changePasswordForm.addEventListener('submit', handlePasswordChange);
+    }
+    
     console.log('DOM elements initialized');
     
     // Log which admin elements were found
@@ -1478,8 +1490,65 @@ function initDOMElements() {
         adminBtnMobile: !!adminBtnMobile,
         adminPanel: !!adminPanel,
         adminLoginModal: !!adminLoginModal,
-        exitLoginBtn: !!exitLoginBtn
+        exitLoginBtn: !!exitLoginBtn,
+        showChangePasswordBtn: !!showChangePasswordBtn,
+        changePasswordSection: !!changePasswordSection
     });
+}
+
+// Show password change section
+function showChangePasswordSection() {
+    console.log('Showing password change section');
+    const changePasswordSection = document.getElementById('changePasswordSection');
+    if (changePasswordSection) {
+        changePasswordSection.classList.remove('hidden');
+        document.getElementById('currentPassword').focus();
+    }
+}
+
+// Hide password change section
+function hideChangePasswordSection() {
+    console.log('Hiding password change section');
+    const changePasswordSection = document.getElementById('changePasswordSection');
+    if (changePasswordSection) {
+        changePasswordSection.classList.add('hidden');
+        // Reset the form
+        document.getElementById('changePasswordForm').reset();
+    }
+}
+
+// Handle password change
+async function handlePasswordChange(e) {
+    e.preventDefault();
+    console.log('Handling password change');
+    
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    
+    // Validate inputs
+    if (!currentPassword || !newPassword) {
+        showAdminAlert('error', 'Please fill in all password fields.');
+        return;
+    }
+    
+    // Verify current password
+    if (currentPassword !== 'admin123') {
+        showAdminAlert('error', 'Current password is incorrect.');
+        return;
+    }
+    
+    try {
+        // In a real application, you would make an API call to update the password
+        // For this demo, we'll simulate the password change
+        showAdminAlert('success', 'Password changed successfully!');
+        hideChangePasswordSection();
+        
+        // Reset the form
+        document.getElementById('changePasswordForm').reset();
+    } catch (error) {
+        console.error('Error changing password:', error);
+        showAdminAlert('error', 'Failed to change password. Please try again.');
+    }
 }
 
 // Update site content with new data
@@ -2262,10 +2331,10 @@ function applyColorTheme(color) {
             // Don't modify the admin button which has special styling
             if (!link.classList.contains('admin-btn')) {
                 link.style.color = `var(--primary-color)`;
-            }
-        });
-    }
-    
+        }
+    });
+}
+
     // Update admin and lock icons to use theme color
     document.querySelectorAll('#adminBtn i, #adminBtnMobile i, .admin-btn i').forEach(icon => {
         // Remove any existing color classes
@@ -2389,7 +2458,7 @@ function applyColorTheme(color) {
         label.style.boxShadow = `0 0 0 2px var(--primary-color)`;
     });
     
-    // Add dynamic styles for all navigation elements
+        // Add dynamic styles for all navigation elements
     const styleSheet = document.createElement('style');
     styleSheet.id = 'dynamic-theme-styles';
     document.head.appendChild(styleSheet);
@@ -2822,7 +2891,7 @@ function applyModeTheme(mode) {
         }
         
         // Reset sections
-        document.querySelectorAll('section').forEach(section => {
+    document.querySelectorAll('section').forEach(section => {
             section.style.backgroundColor = '';
         });
         
