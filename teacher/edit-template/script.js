@@ -368,14 +368,102 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 // Navbar Scroll Effect
 window.addEventListener('scroll', () => {
-    const navbar = document.querySelector('.navbar');
-    if (navbar) {
+    const header = document.querySelector('header');
+    if (header) {
         if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
+            header.classList.add('scrolled');
+            header.style.backgroundColor = 'var(--nav-bg)';
+            header.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.3)';
         } else {
-            navbar.classList.remove('scrolled');
+            header.classList.remove('scrolled');
+            header.style.backgroundColor = 'var(--nav-bg)';
+            header.style.boxShadow = '0 1px 5px rgba(0, 0, 0, 0.2)';
         }
     }
+});
+
+// Set active nav link based on scroll position
+window.addEventListener('scroll', () => {
+    // Get current scroll position
+    const scrollPosition = window.scrollY + 100;
+    
+    // Get all sections
+    const sections = document.querySelectorAll('section[id]');
+    
+    // Loop through sections to find the one in view
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+        const sectionId = section.getAttribute('id');
+        
+        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+            // Remove active class from all links
+            document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Add active class to current section links
+            document.querySelectorAll(`.nav-link[href="#${sectionId}"], .mobile-nav-link[href="#${sectionId}"]`).forEach(link => {
+                link.classList.add('active');
+            });
+        }
+    });
+});
+
+// Smooth Scroll with active state handling
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        // Remove active from all links
+        document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        // Add active class to clicked link
+        this.classList.add('active');
+        
+        const target = document.querySelector(targetId);
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Add hover animation to nav items
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('mouseenter', () => {
+        link.style.transition = 'all 0.3s ease';
+    });
+    
+    link.addEventListener('mouseleave', () => {
+        link.style.transition = 'all 0.3s ease';
+    });
+});
+
+// Add touch ripple effect for mobile nav
+document.querySelectorAll('.mobile-nav-link').forEach(link => {
+    link.addEventListener('touchstart', function(e) {
+        const rect = this.getBoundingClientRect();
+        const x = e.touches[0].clientX - rect.left;
+        const y = e.touches[0].clientY - rect.top;
+        
+        const ripple = document.createElement('span');
+        ripple.className = 'touch-ripple';
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        
+        this.appendChild(ripple);
+        
+        setTimeout(() => {
+            ripple.remove();
+        }, 600);
+    });
 });
 
 // Hero Section Typing Effect
