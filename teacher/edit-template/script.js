@@ -1683,8 +1683,8 @@ function updateResultsChart(subjects) {
         
         // Always create a fresh chart
         window.resultsChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
+        type: 'bar',
+        data: {
                 labels: subjects.map(subject => subject.name),
                 datasets: [{
                     label: 'Student Performance (%)',
@@ -1703,10 +1703,10 @@ function updateResultsChart(subjects) {
                     ],
                     borderWidth: 1
                 }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -1718,8 +1718,8 @@ function updateResultsChart(subjects) {
                         }
                     }
                 },
-                plugins: {
-                    legend: {
+            plugins: {
+                legend: {
                         display: false
                     },
                     tooltip: {
@@ -2500,7 +2500,7 @@ function applyModeTheme(mode) {
         }
         
         // Apply dark mode to sections
-        document.querySelectorAll('section').forEach(section => {
+document.querySelectorAll('section').forEach(section => {
             if (section.classList.contains('bg-white')) {
                 section.style.backgroundColor = 'var(--card-bg)';
             } else if (section.classList.contains('bg-gray-50')) {
@@ -2596,7 +2596,7 @@ function applyModeTheme(mode) {
         }
         
         // Reset sections
-        document.querySelectorAll('section').forEach(section => {
+    document.querySelectorAll('section').forEach(section => {
             section.style.backgroundColor = '';
         });
     }
