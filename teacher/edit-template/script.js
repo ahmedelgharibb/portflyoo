@@ -2256,6 +2256,24 @@ function applyColorTheme(color) {
         logo.classList.add(`hover:text-${color}-700`);
     }
     
+    // Update navigation menu text color to use theme color in light mode
+    if (!isDarkMode) {
+        document.querySelectorAll('.nav-link').forEach(link => {
+            // Don't modify the admin button which has special styling
+            if (!link.classList.contains('admin-btn')) {
+                link.style.color = `var(--primary-color)`;
+            }
+        });
+    }
+    
+    // Update admin and lock icons to use theme color
+    document.querySelectorAll('#adminBtn i, #adminBtnMobile i, .admin-btn i').forEach(icon => {
+        // Remove any existing color classes
+        icon.className = icon.className.replace(/text-\w+-\d+/g, '');
+        // Add the new theme color directly using CSS variables
+        icon.style.color = 'var(--primary-color)';
+    });
+    
     // Update subject icons - explicitly target them to ensure they change color
     document.querySelectorAll('.subject-card i').forEach(icon => {
         // Remove any existing color classes
@@ -2371,7 +2389,7 @@ function applyColorTheme(color) {
         label.style.boxShadow = `0 0 0 2px var(--primary-color)`;
     });
     
-    // Update hover effects for all interactive elements
+    // Add dynamic styles for all navigation elements
     const styleSheet = document.createElement('style');
     styleSheet.id = 'dynamic-theme-styles';
     document.head.appendChild(styleSheet);
@@ -2392,6 +2410,25 @@ function applyColorTheme(color) {
         /* Add hover styles for admin buttons */
         #adminBtnMobile:hover i,
         .admin-btn:hover { color: var(--primary-color) !important; }
+        
+        /* Style for active navigation link */
+        .nav-link.active {
+            font-weight: 600;
+            color: var(--primary-color) !important;
+        }
+        
+        .nav-link.active::after {
+            width: 100% !important;
+            opacity: 1 !important;
+            background-color: var(--primary-color) !important;
+            box-shadow: 0 0 5px var(--primary-color);
+        }
+        
+        /* Lock icon styling */
+        #adminBtn i, #adminBtnMobile i {
+            color: var(--primary-color) !important;
+            transition: all 0.3s ease;
+        }
         
         /* Dynamic theme colors for all theme-specific elements */
         .text-${color}-50 { color: ${tailwindColorMap[color][50]} !important; }
@@ -2472,9 +2509,39 @@ function applyModeTheme(mode) {
             mobileMenu.style.borderLeft = '1px solid var(--border-color)';
         }
         
+        // Update desktop and mobile navigation links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (!link.classList.contains('admin-btn')) {
+                link.style.color = 'var(--text-color)';
+                
+                // Add hover state style for nav links
+                link.addEventListener('mouseenter', function() {
+                    this.style.color = 'var(--primary-color)';
+                });
+                
+                link.addEventListener('mouseleave', function() {
+                    this.style.color = 'var(--text-color)';
+                });
+            }
+        });
+        
         // Update mobile navigation links
         document.querySelectorAll('.mobile-nav-link').forEach(link => {
             link.style.color = 'var(--text-color)';
+            
+            // Add hover effect for mobile links
+            link.addEventListener('mouseenter', function() {
+                this.style.color = 'var(--primary-color)';
+            });
+            
+            link.addEventListener('mouseleave', function() {
+                this.style.color = 'var(--text-color)';
+            });
+        });
+        
+        // Update lock icons in dark mode
+        document.querySelectorAll('#adminBtn i, #adminBtnMobile i').forEach(icon => {
+            icon.style.color = 'var(--primary-color)';
         });
         
         // Make hero overlay more vibrant in dark mode
@@ -2632,7 +2699,47 @@ function applyModeTheme(mode) {
         
         // Reset mobile navigation links
         document.querySelectorAll('.mobile-nav-link').forEach(link => {
+            // Remove event listeners first
+            link.removeEventListener('mouseenter', function() {});
+            link.removeEventListener('mouseleave', function() {});
+            
+            // Apply light mode styling
             link.style.color = '';
+            
+            // Add new event listeners for light mode
+            link.addEventListener('mouseenter', function() {
+                this.style.color = 'var(--primary-color)';
+            });
+            
+            link.addEventListener('mouseleave', function() {
+                this.style.color = '';
+            });
+        });
+        
+        // Update desktop navigation links for light mode
+        document.querySelectorAll('.nav-link').forEach(link => {
+            // Remove event listeners first
+            link.removeEventListener('mouseenter', function() {});
+            link.removeEventListener('mouseleave', function() {});
+            
+            if (!link.classList.contains('admin-btn')) {
+                // Apply theme color to navigation in light mode
+                link.style.color = 'var(--primary-color)';
+                
+                // Add hover effect for light mode
+                link.addEventListener('mouseenter', function() {
+                    this.style.color = 'var(--primary-dark)';
+                });
+                
+                link.addEventListener('mouseleave', function() {
+                    this.style.color = 'var(--primary-color)';
+                });
+            }
+        });
+        
+        // Update lock icons in light mode
+        document.querySelectorAll('#adminBtn i, #adminBtnMobile i').forEach(icon => {
+            icon.style.color = 'var(--primary-color)';
         });
         
         // Reset hero overlay in light mode
