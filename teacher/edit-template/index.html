@@ -35,10 +35,199 @@
             --card-bg: #ffffff;
             --card-shadow: rgba(0, 0, 0, 0.1);
             --border-color: #e5e7eb;
-            --nav-bg: #0A1229; /* Dark navy background for navbar */
+            --nav-bg: #ffffff;
             --btn-text: #ffffff;
             --footer-bg: #1f2937;
             --footer-text: #f9fafb;
+        }
+        
+        /* Updated Navigation Styles */
+        header {
+            background-color: var(--nav-bg);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .nav-brand-name {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: var(--text-color);
+            line-height: 1.2;
+        }
+        
+        .nav-brand-subtitle {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        
+        .nav-link {
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.938rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+            opacity: 0;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+            opacity: 1;
+        }
+        
+        .admin-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            background-color: transparent;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        
+        .admin-btn:hover {
+            background-color: var(--bg-color);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        /* Mobile Menu Styles */
+        #mobileMenu {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--nav-bg);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 40;
+            padding: 1.5rem;
+        }
+        
+        #mobileMenu.active {
+            transform: translateX(0);
+        }
+        
+        .mobile-nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .mobile-nav-brand {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .mobile-nav-link {
+            display: block;
+            padding: 1rem 0;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-nav-link:hover {
+            color: var(--primary-color);
+            padding-left: 0.5rem;
+        }
+        
+        #menuBtn {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            #menuBtn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 2.5rem;
+                height: 2.5rem;
+                border-radius: 50%;
+                border: 1px solid var(--border-color);
+                background-color: transparent;
+                color: var(--text-color);
+                margin-left: 1rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+        
+        /* Dark mode navigation styles */
+        .dark-mode header {
+            background-color: var(--nav-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .dark-mode .nav-brand-name {
+            color: var(--text-color);
+        }
+        
+        .dark-mode .nav-brand-subtitle {
+            color: var(--text-light);
+        }
+        
+        .dark-mode .nav-link {
+            color: var(--text-color);
+        }
+        
+        .dark-mode .admin-btn {
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+        
+        .dark-mode #mobileMenu {
+            background-color: var(--nav-bg);
+        }
+        
+        .dark-mode .mobile-nav-link {
+            border-color: var(--border-color);
         }
         
         /* Modern Hero Section Styles */
@@ -867,29 +1056,29 @@
     <!-- Header -->
     <header class="fixed w-full z-50 transition-all duration-300">
         <nav class="container mx-auto px-4">
-            <div class="flex items-center justify-between">
-                <a href="#" class="text-2xl font-bold transition-colors">
-                    Dr. Ahmed Mahmoud
-                </a>
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand -->
+                <div class="nav-brand">
+                    <span class="nav-brand-name">Ahmed Mahmoud</span>
+                    <span class="nav-brand-subtitle">History Teacher</span>
+                </div>
                 
                 <!-- Desktop Navigation -->
-                <ul class="hidden md:flex items-center">
+                <ul class="nav-links">
+                    <li><a href="#home" class="nav-link">Home</a></li>
                     <li><a href="#about" class="nav-link">About</a></li>
-                    <li><a href="#experience" class="nav-link">Experience</a></li>
-                    <li><a href="#results" class="nav-link">Results</a></li>
-                    <li><a href="#subjects" class="nav-link">Subjects</a></li>
-                    <li><a href="#register" class="nav-link">Register</a></li>
+                    <li><a href="#expertise" class="nav-link">Expertise</a></li>
+                    <li><a href="#locations" class="nav-link">Locations</a></li>
                     <li><a href="#contact" class="nav-link">Contact</a></li>
-                    <li><button id="adminBtn" class="nav-link admin-btn"><i class="fas fa-lock mr-1"></i>Admin</button></li>
                 </ul>
                 
-                <!-- Mobile Menu Button -->
-                <div class="flex items-center gap-4 md:hidden">
-                    <button id="adminBtnMobile" class="p-2 rounded-lg shadow-md transition-all duration-300">
-                        <i class="fas fa-lock text-xl"></i>
+                <!-- Admin & Mobile Menu Buttons -->
+                <div class="flex items-center gap-4">
+                    <button id="adminBtn" class="admin-btn">
+                        <i class="fas fa-lock text-lg"></i>
                     </button>
-                    <button id="menuBtn" class="p-2 rounded-lg shadow-md transition-all duration-300">
-                        <i class="fas fa-bars text-xl"></i>
+                    <button id="menuBtn" class="md:hidden">
+                        <i class="fas fa-bars text-lg"></i>
                     </button>
                 </div>
             </div>
@@ -897,23 +1086,23 @@
     </header>
 
     <!-- Mobile Menu -->
-    <div id="mobileMenu" class="fixed inset-y-0 right-0 w-full max-w-sm shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out z-40">
-        <div class="flex flex-col h-full">
-            <div class="flex justify-between items-center p-4 mobile-menu-header">
-                <span class="logo">Dr. Ahmed</span>
-                <button id="closeMenuBtn" class="p-2 rounded-lg transition-all duration-300">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+    <div id="mobileMenu" class="md:hidden">
+        <div class="mobile-nav-header">
+            <div class="mobile-nav-brand">
+                <span class="nav-brand-name">Ahmed Mahmoud</span>
+                <span class="nav-brand-subtitle">History Teacher</span>
             </div>
-            <nav class="flex flex-col p-4 space-y-1">
-                <a href="#about" class="mobile-nav-link"><i class="fas fa-user-graduate mr-3 opacity-70"></i>About</a>
-                <a href="#experience" class="mobile-nav-link"><i class="fas fa-briefcase mr-3 opacity-70"></i>Experience</a>
-                <a href="#results" class="mobile-nav-link"><i class="fas fa-chart-line mr-3 opacity-70"></i>Results</a>
-                <a href="#subjects" class="mobile-nav-link"><i class="fas fa-book mr-3 opacity-70"></i>Subjects</a>
-                <a href="#register" class="mobile-nav-link"><i class="fas fa-user-plus mr-3 opacity-70"></i>Register</a>
-                <a href="#contact" class="mobile-nav-link"><i class="fas fa-envelope mr-3 opacity-70"></i>Contact</a>
-            </nav>
+            <button id="closeMenuBtn" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-xl"></i>
+            </button>
         </div>
+        <nav>
+            <a href="#home" class="mobile-nav-link">Home</a>
+            <a href="#about" class="mobile-nav-link">About</a>
+            <a href="#expertise" class="mobile-nav-link">Expertise</a>
+            <a href="#locations" class="mobile-nav-link">Locations</a>
+            <a href="#contact" class="mobile-nav-link">Contact</a>
+        </nav>
     </div>
 
     <!-- Hero Section -->
