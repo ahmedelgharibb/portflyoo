@@ -63,7 +63,7 @@
             font-family: 'Poppins', sans-serif;
             font-weight: 600;
             font-size: 1.25rem;
-            color: var(--text-color);
+            color: #333333;
             line-height: 1.2;
         }
         
@@ -71,13 +71,13 @@
             font-family: 'Inter', sans-serif;
             font-weight: 400;
             font-size: 0.875rem;
-            color: var(--text-light);
+            color: #6B7280;
         }
         
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 2rem;
+            gap: 2.5rem;
             margin: 0;
             padding: 0;
             list-style: none;
@@ -87,7 +87,7 @@
             font-family: 'Inter', sans-serif;
             font-weight: 500;
             font-size: 0.938rem;
-            color: var(--text-color);
+            color: #333333;
             text-decoration: none;
             transition: all 0.3s ease;
             position: relative;
@@ -100,8 +100,8 @@
             bottom: 0;
             left: 0;
             width: 0;
-            height: 2px;
-            background-color: var(--primary-color);
+            height: 1px;
+            background-color: #333333;
             transition: width 0.3s ease;
             opacity: 0;
         }
@@ -115,19 +115,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 2.5rem;
-            height: 2.5rem;
+            width: 2.25rem;
+            height: 2.25rem;
             border-radius: 50%;
-            border: 1px solid var(--border-color);
+            border: 1px solid #E5E7EB;
             background-color: transparent;
-            color: var(--text-color);
+            color: #6B7280;
             transition: all 0.3s ease;
+            margin-right: 2.5rem;
         }
         
         .admin-btn:hover {
-            background-color: var(--bg-color);
-            border-color: var(--primary-color);
-            color: var(--primary-color);
+            background-color: #F9FAFB;
+            border-color: #D1D5DB;
+            color: #4B5563;
         }
         
         /* Mobile Menu Styles */
@@ -153,6 +154,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #E5E7EB;
         }
         
         .mobile-nav-brand {
@@ -166,18 +169,48 @@
             font-family: 'Inter', sans-serif;
             font-weight: 500;
             font-size: 1rem;
-            color: var(--text-color);
-            border-bottom: 1px solid var(--border-color);
+            color: #333333;
+            border-bottom: 1px solid #E5E7EB;
             transition: all 0.3s ease;
         }
         
         .mobile-nav-link:hover {
-            color: var(--primary-color);
+            color: #4B5563;
             padding-left: 0.5rem;
         }
         
         #menuBtn {
             display: none;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            border: 1px solid #E5E7EB;
+            color: #6B7280;
+            transition: all 0.3s ease;
+        }
+        
+        #menuBtn:hover {
+            background-color: #F9FAFB;
+            border-color: #D1D5DB;
+            color: #4B5563;
+        }
+        
+        #closeMenuBtn {
+            width: 2.25rem;
+            height: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 1px solid #E5E7EB;
+            color: #6B7280;
+            transition: all 0.3s ease;
+        }
+        
+        #closeMenuBtn:hover {
+            background-color: #F9FAFB;
+            border-color: #D1D5DB;
+            color: #4B5563;
         }
         
         @media (max-width: 768px) {
@@ -185,17 +218,14 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 2.5rem;
-                height: 2.5rem;
-                border-radius: 50%;
-                border: 1px solid var(--border-color);
-                background-color: transparent;
-                color: var(--text-color);
-                margin-left: 1rem;
             }
             
             .nav-links {
                 display: none;
+            }
+            
+            .admin-btn {
+                margin-right: 0;
             }
         }
         
@@ -1063,21 +1093,23 @@
                     <span class="nav-brand-subtitle">History Teacher</span>
                 </div>
                 
-                <!-- Desktop Navigation -->
-                <ul class="nav-links">
-                    <li><a href="#home" class="nav-link">Home</a></li>
-                    <li><a href="#about" class="nav-link">About</a></li>
-                    <li><a href="#expertise" class="nav-link">Expertise</a></li>
-                    <li><a href="#locations" class="nav-link">Locations</a></li>
-                    <li><a href="#contact" class="nav-link">Contact</a></li>
-                </ul>
-                
-                <!-- Admin & Mobile Menu Buttons -->
-                <div class="flex items-center gap-4">
+                <div class="flex items-center">
+                    <!-- Lock Icon Button -->
                     <button id="adminBtn" class="admin-btn">
                         <i class="fas fa-lock text-lg"></i>
                     </button>
-                    <button id="menuBtn" class="md:hidden">
+                    
+                    <!-- Desktop Navigation -->
+                    <ul class="nav-links">
+                        <li><a href="#home" class="nav-link">Home</a></li>
+                        <li><a href="#about" class="nav-link">About</a></li>
+                        <li><a href="#expertise" class="nav-link">Expertise</a></li>
+                        <li><a href="#locations" class="nav-link">Locations</a></li>
+                        <li><a href="#contact" class="nav-link">Contact</a></li>
+                    </ul>
+                    
+                    <!-- Mobile Menu Button -->
+                    <button id="menuBtn" class="md:hidden ml-4">
                         <i class="fas fa-bars text-lg"></i>
                     </button>
                 </div>
