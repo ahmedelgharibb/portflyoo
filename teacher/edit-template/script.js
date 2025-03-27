@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             // Get current data
             const { data: currentData, error: fetchError } = await supabase
-                .from('website_data')
+                .from('site_data')
                 .select('*')
                 .order('created_at', { ascending: false })
                 .limit(1);
@@ -289,21 +289,28 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             // Upload to Supabase Storage
             const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('images')
+                .from('website-images')  // Changed from 'images' to 'website-images'
                 .upload(filename, file);
 
-            if (uploadError) throw uploadError;
+            if (uploadError) {
+                console.error('Upload error:', uploadError);
+                if (uploadError.message.includes('bucket')) {
+                    showAdminAlert('error', 'Storage bucket not configured. Please contact support.');
+                    return;
+                }
+                throw uploadError;
+            }
 
             // Get public URL
             const { data: { publicUrl } } = supabase.storage
-                .from('images')
+                .from('website-images')  // Changed from 'images' to 'website-images'
                 .getPublicUrl(filename);
 
             // Delete old image if exists
             if (websiteData[`${type}Image`]) {
                 const oldFilename = websiteData[`${type}Image`].split('/').pop();
                 await supabase.storage
-                    .from('images')
+                    .from('website-images')  // Changed from 'images' to 'website-images'
                     .remove([oldFilename]);
             }
 
@@ -312,7 +319,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             // Update the database
             const { error: updateError } = await supabase
-                .from('website_data')
+                .from('site_data')
                 .upsert([{ data: websiteData }]);
 
             if (updateError) throw updateError;
@@ -323,7 +330,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             updateSiteContent(websiteData);
         } catch (error) {
             console.error('Error uploading image:', error);
-            showAdminAlert('error', 'Failed to upload image');
+            showAdminAlert('error', error.message || 'Failed to upload image. Please try again.');
         }
     }
     
@@ -332,7 +339,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         try {
             // Get current data
             const { data: currentData, error: fetchError } = await supabase
-                .from('website_data')
+                .from('site_data')
                 .select('*')
                 .order('created_at', { ascending: false })
                 .limit(1);
@@ -345,7 +352,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (websiteData[`${type}Image`]) {
                 const filename = websiteData[`${type}Image`].split('/').pop();
                 await supabase.storage
-                    .from('images')
+                    .from('website-images')  // Changed from 'images' to 'website-images'
                     .remove([filename]);
             }
 
@@ -354,7 +361,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             // Update the database
             const { error: updateError } = await supabase
-                .from('website_data')
+                .from('site_data')
                 .upsert([{ data: websiteData }]);
 
             if (updateError) throw updateError;
@@ -372,7 +379,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             updateSiteContent(websiteData);
         } catch (error) {
             console.error('Error removing image:', error);
-            showAdminAlert('error', 'Failed to remove image');
+            showAdminAlert('error', error.message || 'Failed to remove image. Please try again.');
         }
     }
     
