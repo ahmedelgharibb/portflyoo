@@ -222,6 +222,16 @@ document.addEventListener('DOMContentLoaded', async function() {
                 throw new Error('Image size should be less than 5MB');
             }
     
+            // Get current image URL if exists
+            const preview = type === 'hero' ? heroPreview : aboutPreview;
+            const currentImageUrl = preview.querySelector('img').src;
+            let oldFileName = '';
+    
+            if (currentImageUrl) {
+                // Extract filename from URL
+                oldFileName = currentImageUrl.split('/').pop();
+            }
+    
             // Generate unique filename
             const fileExt = file.name.split('.').pop();
             const fileName = `${type}-${Date.now()}.${fileExt}`;
@@ -239,6 +249,17 @@ document.addEventListener('DOMContentLoaded', async function() {
                 .from('website-images')
                 .getPublicUrl(filePath);
     
+            // Delete old image from storage if exists
+            if (oldFileName) {
+                const { error: deleteError } = await supabase.storage
+                    .from('website-images')
+                    .remove([oldFileName]);
+    
+                if (deleteError) {
+                    console.error('Error deleting old image:', deleteError);
+                }
+            }
+    
             // Save to database
             const { error: dbError } = await supabase
                 .from('website_images')
@@ -250,9 +271,21 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (dbError) throw dbError;
     
             // Update preview
-            const preview = type === 'hero' ? heroPreview : aboutPreview;
             preview.querySelector('img').src = publicUrl;
             preview.classList.remove('hidden');
+    
+            // Update website content
+            if (type === 'hero') {
+                const heroImage = document.querySelector('#hero img');
+                if (heroImage) {
+                    heroImage.src = publicUrl;
+                }
+            } else if (type === 'about') {
+                const aboutImage = document.querySelector('#about img');
+                if (aboutImage) {
+                    aboutImage.src = publicUrl;
+                }
+            }
     
             showAlert('success', 'Image uploaded successfully');
         } catch (error) {
@@ -267,6 +300,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Get current image URL
             const preview = type === 'hero' ? heroPreview : aboutPreview;
             const imageUrl = preview.querySelector('img').src;
+    
+            if (!imageUrl) {
+                showAlert('error', 'No image to remove');
+                return;
+            }
     
             // Extract filename from URL
             const fileName = imageUrl.split('/').pop();
@@ -289,6 +327,19 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Hide preview
             preview.classList.add('hidden');
             preview.querySelector('img').src = '';
+    
+            // Update website content
+            if (type === 'hero') {
+                const heroImage = document.querySelector('#hero img');
+                if (heroImage) {
+                    heroImage.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80';
+                }
+            } else if (type === 'about') {
+                const aboutImage = document.querySelector('#about img');
+                if (aboutImage) {
+                    aboutImage.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80';
+                }
+            }
     
             showAlert('success', 'Image removed successfully');
         } catch (error) {
