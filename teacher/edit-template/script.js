@@ -183,6 +183,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     const aboutPreview = document.getElementById('aboutPreview');
     const removeHeroBtn = document.getElementById('removeHeroBtn');
     const removeAboutBtn = document.getElementById('removeAboutBtn');
+    const heroDropZone = document.getElementById('heroDropZone');
+    const aboutDropZone = document.getElementById('aboutDropZone');
     
     // Initialize image upload functionality
     async function initializeImageUpload() {
@@ -206,6 +208,44 @@ document.addEventListener('DOMContentLoaded', async function() {
             });
         } catch (error) {
             console.error('Error loading images:', error);
+        }
+    }
+    
+    // Setup drag and drop functionality
+    function setupDragAndDrop(dropZone, fileInput, type) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('border-blue-500', 'dark:border-blue-400');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('border-blue-500', 'dark:border-blue-400');
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                handleImageUpload(files[0], type);
+            }
         }
     }
     
@@ -366,6 +406,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     removeHeroBtn.addEventListener('click', () => handleImageRemove('hero'));
     removeAboutBtn.addEventListener('click', () => handleImageRemove('about'));
+    
+    // Setup drag and drop
+    setupDragAndDrop(heroDropZone, heroImageInput, 'hero');
+    setupDragAndDrop(aboutDropZone, aboutImageInput, 'about');
     
     // Initialize image upload when admin panel is loaded
     document.addEventListener('DOMContentLoaded', () => {
