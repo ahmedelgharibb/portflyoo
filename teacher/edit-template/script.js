@@ -281,7 +281,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             if (fetchError) throw fetchError;
 
-            let websiteData = currentData && currentData.length > 0 ? currentData[0].data : {};
+            let websiteData = currentData && currentData.length > 0 ? currentData[0].data : {
+                theme: { mode: 'light', color: 'red' },
+                contact: { email: '', phone: '', formUrl: '', contactMessage: '', assistantFormUrl: '' },
+                results: [],
+                personal: { name: '', title: '', experience: '', qualifications: [] },
+                experience: { centers: [], schools: [], platforms: [] }
+            };
             
             // Generate unique filename
             const timestamp = new Date().getTime();
@@ -431,9 +437,37 @@ document.addEventListener('DOMContentLoaded', async function() {
     setupDragAndDrop(aboutDropZone, aboutImageInput, 'about');
     
     // Initialize image upload when admin panel is loaded
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
         if (document.getElementById('adminPanel')) {
-            initializeImageUpload();
+            try {
+                const { data: currentData, error: fetchError } = await supabase
+                    .from('site_data')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (fetchError) throw fetchError;
+
+                if (currentData && currentData.length > 0) {
+                    const websiteData = currentData[0].data;
+                    
+                    // Initialize hero image
+                    if (websiteData.heroImage) {
+                        const heroImg = heroPreview.querySelector('img');
+                        heroImg.src = websiteData.heroImage;
+                        heroPreview.classList.remove('hidden');
+                    }
+
+                    // Initialize about image
+                    if (websiteData.aboutImage) {
+                        const aboutImg = aboutPreview.querySelector('img');
+                        aboutImg.src = websiteData.aboutImage;
+                        aboutPreview.classList.remove('hidden');
+                    }
+                }
+            } catch (error) {
+                console.error('Error initializing images:', error);
+            }
         }
     });
 });
