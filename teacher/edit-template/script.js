@@ -394,13 +394,31 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     heroImageInput.addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
-            handleImageUpload(e.target.files[0], 'hero');
+            // Show preview before upload
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                heroPreview.querySelector('img').src = e.target.result;
+                heroPreview.classList.remove('hidden');
+            }
+            reader.readAsDataURL(file);
+            // Then upload
+            handleImageUpload(file, 'hero');
         }
     });
     
     aboutImageInput.addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
-            handleImageUpload(e.target.files[0], 'about');
+            // Show preview before upload
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                aboutPreview.querySelector('img').src = e.target.result;
+                aboutPreview.classList.remove('hidden');
+            }
+            reader.readAsDataURL(file);
+            // Then upload
+            handleImageUpload(file, 'about');
         }
     });
     
@@ -3222,3 +3240,29 @@ function updateAlertStyles(color, primaryColorRgb) {
     // Apply the styles
     alertStyleElement.textContent = alertStyles;
 }
+
+// Update drag and drop handlers to show preview
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files.length > 0) {
+        const file = files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (e.target.dataset.type === 'hero') {
+                heroPreview.querySelector('img').src = e.target.result;
+                heroPreview.classList.remove('hidden');
+            } else {
+                aboutPreview.querySelector('img').src = e.target.result;
+                aboutPreview.classList.remove('hidden');
+            }
+        }
+        reader.dataset.type = e.target.dataset.type;
+        reader.readAsDataURL(file);
+        handleImageUpload(file, e.target.dataset.type);
+    }
+}
+
+// Update drop zones to include type
+heroDropZone.dataset.type = 'hero';
+aboutDropZone.dataset.type = 'about';
