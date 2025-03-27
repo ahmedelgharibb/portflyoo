@@ -1711,6 +1711,58 @@
                 </div>
             </div>
             
+            <!-- Security Settings -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Security Settings</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Admin Password</label>
+                        <div class="flex gap-2">
+                            <input type="password" id="adminPassword" class="form-input flex-1" placeholder="Enter new password">
+                            <button id="changePasswordBtn" class="btn-primary">Change Password</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Upload Section -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Website Images</h3>
+                <div class="space-y-6">
+                    <!-- Hero Image Upload -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hero Image</label>
+                        <div class="flex items-center gap-4">
+                            <div class="relative flex-1">
+                                <input type="file" id="heroImageInput" accept="image/*" class="hidden">
+                                <button id="heroUploadBtn" class="btn-primary w-full">Upload Hero Image</button>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Recommended size: 1200x800px</p>
+                            </div>
+                            <div id="heroPreview" class="hidden">
+                                <img src="" alt="Hero Preview" class="w-20 h-20 object-cover rounded-lg">
+                                <button id="removeHeroBtn" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm mt-1">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- About Image Upload -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">About Image</label>
+                        <div class="flex items-center gap-4">
+                            <div class="relative flex-1">
+                                <input type="file" id="aboutImageInput" accept="image/*" class="hidden">
+                                <button id="aboutUploadBtn" class="btn-primary w-full">Upload About Image</button>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Recommended size: 800x800px</p>
+                            </div>
+                            <div id="aboutPreview" class="hidden">
+                                <img src="" alt="About Preview" class="w-20 h-20 object-cover rounded-lg">
+                                <button id="removeAboutBtn" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm mt-1">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex justify-end">
                 <button id="saveChangesBtn" class="btn btn-primary">
                     <i class="fas fa-save mr-2"></i> Save Changes
