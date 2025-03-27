@@ -189,25 +189,33 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Initialize image upload functionality
     async function initializeImageUpload() {
         try {
-            // Load existing images
-            const { data: images, error } = await supabase
-                .from('website_images')
-                .select('*');
-    
+            const { data, error } = await supabase
+                .from('website_data')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(1);
+
             if (error) throw error;
-    
-            // Display existing images
-            images.forEach(image => {
-                if (image.type === 'hero') {
-                    heroPreview.querySelector('img').src = image.image_url;
+
+            if (data && data.length > 0) {
+                const websiteData = data[0].data;
+                
+                // Handle hero image
+                if (websiteData.heroImage) {
+                    const heroImg = heroPreview.querySelector('img');
+                    heroImg.src = websiteData.heroImage;
                     heroPreview.classList.remove('hidden');
-                } else if (image.type === 'about') {
-                    aboutPreview.querySelector('img').src = image.image_url;
+                }
+
+                // Handle about image
+                if (websiteData.aboutImage) {
+                    const aboutImg = aboutPreview.querySelector('img');
+                    aboutImg.src = websiteData.aboutImage;
                     aboutPreview.classList.remove('hidden');
                 }
-            });
+            }
         } catch (error) {
-            console.error('Error loading images:', error);
+            console.error('Error initializing image upload:', error);
         }
     }
     
@@ -254,137 +262,117 @@ document.addEventListener('DOMContentLoaded', async function() {
         try {
             // Validate file type
             if (!file.type.startsWith('image/')) {
-                throw new Error('Please select an image file');
+                showAdminAlert('error', 'Please upload an image file');
+                return;
             }
-    
-            // Validate file size (5MB limit)
+
+            // Validate file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
-                throw new Error('Image size should be less than 5MB');
+                showAdminAlert('error', 'Image size should be less than 5MB');
+                return;
             }
-    
-            // Get current image URL if exists
-            const preview = type === 'hero' ? heroPreview : aboutPreview;
-            const currentImageUrl = preview.querySelector('img').src;
-            let oldFileName = '';
-    
-            if (currentImageUrl) {
-                // Extract filename from URL
-                oldFileName = currentImageUrl.split('/').pop();
-            }
-    
+
+            // Get current data
+            const { data: currentData, error: fetchError } = await supabase
+                .from('website_data')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(1);
+
+            if (fetchError) throw fetchError;
+
+            let websiteData = currentData && currentData.length > 0 ? currentData[0].data : {};
+            
             // Generate unique filename
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${type}-${Date.now()}.${fileExt}`;
-            const filePath = `${fileName}`;
-    
+            const timestamp = new Date().getTime();
+            const filename = `${type}_${timestamp}_${file.name}`;
+            
             // Upload to Supabase Storage
-            const { data, error: uploadError } = await supabase.storage
-                .from('website-images')
-                .upload(filePath, file);
-    
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('images')
+                .upload(filename, file);
+
             if (uploadError) throw uploadError;
-    
+
             // Get public URL
             const { data: { publicUrl } } = supabase.storage
-                .from('website-images')
-                .getPublicUrl(filePath);
-    
-            // Delete old image from storage if exists
-            if (oldFileName) {
-                const { error: deleteError } = await supabase.storage
-                    .from('website-images')
-                    .remove([oldFileName]);
-    
-                if (deleteError) {
-                    console.error('Error deleting old image:', deleteError);
-                }
+                .from('images')
+                .getPublicUrl(filename);
+
+            // Delete old image if exists
+            if (websiteData[`${type}Image`]) {
+                const oldFilename = websiteData[`${type}Image`].split('/').pop();
+                await supabase.storage
+                    .from('images')
+                    .remove([oldFilename]);
             }
-    
-            // Save to database
-            const { error: dbError } = await supabase
-                .from('website_images')
-                .upsert({
-                    type: type,
-                    image_url: publicUrl
-                });
-    
-            if (dbError) throw dbError;
-    
-            // Update preview
-            preview.querySelector('img').src = publicUrl;
-            preview.classList.remove('hidden');
-    
-            // Update website content
-            if (type === 'hero') {
-                const heroImage = document.querySelector('#hero img');
-                if (heroImage) {
-                    heroImage.src = publicUrl;
-                }
-            } else if (type === 'about') {
-                const aboutImage = document.querySelector('#about img');
-                if (aboutImage) {
-                    aboutImage.src = publicUrl;
-                }
-            }
-    
-            showAlert('success', 'Image uploaded successfully');
+
+            // Update website data with new image URL
+            websiteData[`${type}Image`] = publicUrl;
+
+            // Update the database
+            const { error: updateError } = await supabase
+                .from('website_data')
+                .upsert([{ data: websiteData }]);
+
+            if (updateError) throw updateError;
+
+            showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image updated successfully`);
+            
+            // Update the website content
+            updateSiteContent(websiteData);
         } catch (error) {
             console.error('Error uploading image:', error);
-            showAlert('error', error.message || 'Error uploading image');
+            showAdminAlert('error', 'Failed to upload image');
         }
     }
     
     // Handle image removal
     async function handleImageRemove(type) {
         try {
-            // Get current image URL
-            const preview = type === 'hero' ? heroPreview : aboutPreview;
-            const imageUrl = preview.querySelector('img').src;
-    
-            if (!imageUrl) {
-                showAlert('error', 'No image to remove');
-                return;
+            // Get current data
+            const { data: currentData, error: fetchError } = await supabase
+                .from('website_data')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(1);
+
+            if (fetchError) throw fetchError;
+
+            let websiteData = currentData && currentData.length > 0 ? currentData[0].data : {};
+            
+            // Delete image from storage if exists
+            if (websiteData[`${type}Image`]) {
+                const filename = websiteData[`${type}Image`].split('/').pop();
+                await supabase.storage
+                    .from('images')
+                    .remove([filename]);
             }
-    
-            // Extract filename from URL
-            const fileName = imageUrl.split('/').pop();
-    
-            // Delete from storage
-            const { error: storageError } = await supabase.storage
-                .from('website-images')
-                .remove([fileName]);
-    
-            if (storageError) throw storageError;
-    
-            // Delete from database
-            const { error: dbError } = await supabase
-                .from('website_images')
-                .delete()
-                .eq('type', type);
-    
-            if (dbError) throw dbError;
-    
+
+            // Remove image URL from data
+            delete websiteData[`${type}Image`];
+
+            // Update the database
+            const { error: updateError } = await supabase
+                .from('website_data')
+                .upsert([{ data: websiteData }]);
+
+            if (updateError) throw updateError;
+
             // Hide preview
-            preview.classList.add('hidden');
-            preview.querySelector('img').src = '';
-    
-            // Update website content
             if (type === 'hero') {
-                const heroImage = document.querySelector('#hero img');
-                if (heroImage) {
-                    heroImage.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80';
-                }
-            } else if (type === 'about') {
-                const aboutImage = document.querySelector('#about img');
-                if (aboutImage) {
-                    aboutImage.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80';
-                }
+                heroPreview.classList.add('hidden');
+            } else {
+                aboutPreview.classList.add('hidden');
             }
-    
-            showAlert('success', 'Image removed successfully');
+
+            showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image removed successfully`);
+            
+            // Update the website content
+            updateSiteContent(websiteData);
         } catch (error) {
             console.error('Error removing image:', error);
-            showAlert('error', 'Error removing image');
+            showAdminAlert('error', 'Failed to remove image');
         }
     }
     
