@@ -289,13 +289,13 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             // Upload to Supabase Storage
             const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('website-images')  // Changed from 'images' to 'website-images'
+                .from('website-images')
                 .upload(filename, file);
 
             if (uploadError) {
                 console.error('Upload error:', uploadError);
                 if (uploadError.message.includes('bucket')) {
-                    showAdminAlert('error', 'Storage bucket not configured. Please contact support.');
+                    showAdminAlert('error', 'Storage bucket "website-images" not found. Please create it in your Supabase project: 1. Go to Storage in Supabase dashboard 2. Click "Create a new bucket" 3. Name it "website-images" 4. Set to Public 5. Click Create');
                     return;
                 }
                 throw uploadError;
@@ -303,14 +303,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             // Get public URL
             const { data: { publicUrl } } = supabase.storage
-                .from('website-images')  // Changed from 'images' to 'website-images'
+                .from('website-images')
                 .getPublicUrl(filename);
 
             // Delete old image if exists
             if (websiteData[`${type}Image`]) {
                 const oldFilename = websiteData[`${type}Image`].split('/').pop();
                 await supabase.storage
-                    .from('website-images')  // Changed from 'images' to 'website-images'
+                    .from('website-images')
                     .remove([oldFilename]);
             }
 
@@ -320,9 +320,15 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Update the database
             const { error: updateError } = await supabase
                 .from('site_data')
-                .upsert([{ data: websiteData }]);
+                .upsert([{ id: 1, data: websiteData }]);
 
             if (updateError) throw updateError;
+
+            // Update preview
+            const preview = type === 'hero' ? heroPreview : aboutPreview;
+            const previewImg = preview.querySelector('img');
+            previewImg.src = publicUrl;
+            preview.classList.remove('hidden');
 
             showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image updated successfully`);
             
@@ -352,7 +358,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (websiteData[`${type}Image`]) {
                 const filename = websiteData[`${type}Image`].split('/').pop();
                 await supabase.storage
-                    .from('website-images')  // Changed from 'images' to 'website-images'
+                    .from('website-images')
                     .remove([filename]);
             }
 
