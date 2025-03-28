@@ -100,34 +100,131 @@
   
   nav {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     padding: 1rem 2rem;
-  }
-  
-  .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #2c3e50;
-  }
-  
-  nav ul {
-    display: flex;
-    list-style: none;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
     gap: 2rem;
   }
   
-  nav a {
-    text-decoration: none;
-    color: var(--gray-700);
-    font-weight: 500;
-    transition: color 0.2s;
-    padding: 0.5rem;
-    border-radius: 0.375rem;
+  .nav-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem 0;
   }
   
-  nav a:hover {
+  .nav-brand-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #333333;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    text-align: center;
+  }
+  
+  .nav-brand-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 0.875rem;
+    color: #6B7280;
+    margin-top: 0.25rem;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    margin-left: 2rem;
+  }
+  
+  .nav-link {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 0.938rem;
+    color: #333333;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary);
+    transition: width 0.3s ease;
+    opacity: 0;
+  }
+  
+  .nav-link:hover {
     color: var(--primary);
+  }
+  
+  .nav-link:hover::after {
+    width: 100%;
+    opacity: 1;
+  }
+  
+  .admin-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 1.5px solid #E5E7EB;
+    background-color: transparent;
+    color: #6B7280;
+    transition: all 0.3s ease;
+    margin-left: auto;
+    padding: 0;
+  }
+  
+  .admin-btn:hover {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Mobile Menu Styles */
+  @media (max-width: 768px) {
+    nav {
+      padding: 0.75rem 1rem;
+      justify-content: space-between;
+    }
+    
+    .nav-links {
+      display: none;
+    }
+    
+    #menuBtn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .admin-btn {
+      display: none;
+    }
   }
   
   /* ===============================================
