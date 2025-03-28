@@ -276,12 +276,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             const { data: currentData, error: fetchError } = await supabase
                 .from('site_data')
                 .select('*')
-                .order('created_at', { ascending: false })
-                .limit(1);
+                .eq('id', 1)
+                .single();
 
             if (fetchError) throw fetchError;
 
-            let websiteData = currentData && currentData.length > 0 ? currentData[0].data : {
+            let websiteData = currentData?.data || {
                 theme: { mode: 'light', color: 'red' },
                 contact: { email: '', phone: '', formUrl: '', contactMessage: '', assistantFormUrl: '' },
                 results: [],
@@ -323,18 +323,31 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Update website data with new image URL
             websiteData[`${type}Image`] = publicUrl;
 
-            // Update the database
+            // Update the database with the new data
             const { error: updateError } = await supabase
                 .from('site_data')
-                .upsert([{ id: 1, data: websiteData }]);
+                .upsert({
+                    id: 1,
+                    data: websiteData,
+                    created_at: new Date().toISOString()
+                });
 
             if (updateError) throw updateError;
+
+            // Update global state
+            siteData = websiteData;
 
             // Update preview
             const preview = type === 'hero' ? heroPreview : aboutPreview;
             const previewImg = preview.querySelector('img');
             previewImg.src = publicUrl;
             preview.classList.remove('hidden');
+
+            // Update the actual images on the page
+            const mainImage = document.getElementById(`${type}Image`);
+            const mobileImage = document.getElementById(`${type}ImageMobile`);
+            if (mainImage) mainImage.src = publicUrl;
+            if (mobileImage) mobileImage.src = publicUrl;
 
             showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image updated successfully`);
             
