@@ -96,11 +96,12 @@
     width: 100%;
     top: 0;
     z-index: 1000;
+    border-bottom: 3px solid red; /* Test style to verify changes */
   }
   
   nav {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
     max-width: 1200px;
@@ -134,7 +135,6 @@
     color: #6B7280;
     margin-top: 0.25rem;
     text-align: center;
-    width: 100%;
   }
   
   .nav-links {
@@ -144,7 +144,6 @@
     margin: 0;
     padding: 0;
     list-style: none;
-    margin-left: 2rem;
   }
   
   .nav-link {
@@ -156,9 +155,6 @@
     transition: all 0.3s ease;
     position: relative;
     padding: 0.5rem 0;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
   }
   
   .nav-link::after {
