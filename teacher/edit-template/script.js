@@ -1858,6 +1858,29 @@ function updateSiteContent(data) {
             return;
         }
         
+        // Update hero images if they exist
+        if (data.heroImage) {
+            const heroImg = document.querySelector('#heroImage');
+            const heroImgMobile = document.querySelector('#heroImageMobile');
+            if (heroImg) {
+                heroImg.src = data.heroImage;
+                heroImg.classList.remove('hidden');
+            }
+            if (heroImgMobile) {
+                heroImgMobile.src = data.heroImage;
+                heroImgMobile.classList.remove('hidden');
+            }
+        }
+        
+        // Update about image if it exists
+        if (data.aboutImage) {
+            const aboutImg = document.querySelector('#aboutImage');
+            if (aboutImg) {
+                aboutImg.src = data.aboutImage;
+                aboutImg.classList.remove('hidden');
+            }
+        }
+        
         // For compatibility, check both personal and personalInfo
         const personalData = data.personal || data.personalInfo || {};
         
