@@ -281,6 +281,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             if (fetchError) throw fetchError;
 
+            // Start with current data to preserve all existing values
             let websiteData = currentData?.data || {
                 theme: { mode: 'light', color: 'red' },
                 contact: { email: '', phone: '', formUrl: '', contactMessage: '', assistantFormUrl: '' },
@@ -288,11 +289,11 @@ document.addEventListener('DOMContentLoaded', async function() {
                 personal: { name: '', title: '', experience: '', qualifications: [] },
                 experience: { centers: [], schools: [], platforms: [] }
             };
-            
+                
             // Generate unique filename
             const timestamp = new Date().getTime();
             const filename = `${type}_${timestamp}_${file.name}`;
-            
+                
             // Upload to Supabase Storage
             const { data: uploadData, error: uploadError } = await supabase.storage
                 .from('website-images')
@@ -321,15 +322,17 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
 
             // Update website data with new image URL
-            websiteData[`${type}Image`] = publicUrl;
+            websiteData = {
+                ...websiteData,
+                [`${type}Image`]: publicUrl
+            };
 
             // Update the database with the new data
             const { error: updateError } = await supabase
                 .from('site_data')
                 .upsert({
                     id: 1,
-                    data: websiteData,
-                    created_at: new Date().toISOString()
+                    data: websiteData
                 });
 
             if (updateError) throw updateError;
@@ -350,7 +353,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (mobileImage) mobileImage.src = publicUrl;
 
             showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image updated successfully`);
-            
+                
             // Update the website content
             updateSiteContent(websiteData);
         } catch (error) {
@@ -2150,30 +2153,22 @@ async function saveAdminChanges() {
     // Show loading state on button
     const saveBtn = document.getElementById('saveChangesBtn');
     const originalBtnText = saveBtn.innerHTML;
-    saveBtn.innerHTML = '<div class="admin-loading"></div> Saving...';
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
     saveBtn.disabled = true;
 
     try {
-        // Get form elements or use defaults if not found
-        const nameInput = document.getElementById('admin-name') || { value: 'Dr. Ahmed Mahmoud' };
-        const titleInput = document.getElementById('admin-title') || { value: 'Mathematics Educator' };
-        const experienceInput = document.getElementById('admin-experience') || { value: '15+ years of teaching experience' };
-        const qualificationsInput = document.getElementById('admin-qualifications') || { value: '' };
-        const schoolsInput = document.getElementById('admin-schools') || { value: '' };
-        const centersInput = document.getElementById('admin-centers') || { value: '' };
-        const platformsInput = document.getElementById('admin-platforms') || { value: '' };
-        const emailInput = document.getElementById('admin-email') || { value: 'ahmed.mahmoud@mathseducator.com' };
-        const formUrlInput = document.getElementById('admin-form-url') || { value: 'https://forms.google.com/your-form-link' };
-        const assistantFormUrlInput = document.getElementById('admin-assistant-form-url') || { value: 'https://forms.google.com/assistant-form-link' };
-        const phoneInput = document.getElementById('admin-phone') || { value: '+1 123-456-7890' };
-        const contactMessageInput = document.getElementById('admin-contact-message') || { value: 'Thank you for your interest in my teaching services.' };
+        // Get current data to preserve existing values
+        const { data: currentData, error: fetchError } = await supabase
+            .from('site_data')
+            .select('*')
+            .eq('id', 1)
+            .single();
 
-        // Get theme settings
-        const selectedColor = document.querySelector('input[name="theme-color"]:checked')?.value || 'blue';
-        const selectedMode = document.querySelector('input[name="theme-mode"]:checked')?.value || 'light';
+        if (fetchError) throw fetchError;
 
-        // Collect data from form fields
+        // Start with current data to preserve all existing values
         const newData = {
+            ...(currentData?.data || {}),
             personal: {
                 name: nameInput.value,
                 title: titleInput.value,
