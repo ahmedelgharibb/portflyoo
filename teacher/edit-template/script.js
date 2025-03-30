@@ -2045,7 +2045,15 @@ function updateSiteContent(data) {
             console.log(`Applying theme from content update: ${color} color, ${mode} mode`);
             applyTheme(color, mode);
         } else {
-            console.log('No theme data found in content, using default theme');
+            // If no theme data, try to get it from radio buttons
+            const colorRadio = document.querySelector('input[name="theme-color"]:checked');
+            const modeRadio = document.querySelector('input[name="theme-mode"]:checked');
+            
+            const currentColor = colorRadio ? colorRadio.value : 'blue';
+            const currentMode = modeRadio ? modeRadio.value : 'light';
+            
+            console.log(`No theme data found, using current radio button values: ${currentColor} color, ${currentMode} mode`);
+            applyTheme(currentColor, currentMode);
         }
         
         console.log('✅ Site content updated successfully');
