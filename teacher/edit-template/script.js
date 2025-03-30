@@ -2180,54 +2180,61 @@ async function saveAdminChanges() {
 
         console.log('Current data fetched successfully:', currentData);
 
-        // Get all input elements with proper error handling
-        const inputElements = {
-            nameInput: document.getElementById('nameInput'),
-            titleInput: document.getElementById('titleInput'),
-            experienceInput: document.getElementById('experienceInput'),
-            qualificationsInput: document.getElementById('qualificationsInput'),
-            schoolsInput: document.getElementById('schoolsInput'),
-            centersInput: document.getElementById('centersInput'),
-            platformsInput: document.getElementById('platformsInput'),
-            emailInput: document.getElementById('emailInput'),
-            formUrlInput: document.getElementById('formUrlInput'),
-            assistantFormUrlInput: document.getElementById('assistantFormUrlInput'),
-            phoneInput: document.getElementById('phoneInput'),
-            contactMessageInput: document.getElementById('contactMessageInput')
-        };
+        // Initialize all input elements with correct IDs
+        const nameInput = document.getElementById('admin-name');
+        const titleInput = document.getElementById('admin-title');
+        const experienceInput = document.getElementById('admin-experience');
+        const qualificationsInput = document.getElementById('admin-qualifications');
+        const schoolsInput = document.getElementById('admin-schools');
+        const centersInput = document.getElementById('admin-centers');
+        const platformsInput = document.getElementById('admin-platforms');
+        const emailInput = document.getElementById('admin-email');
+        const formUrlInput = document.getElementById('admin-form-url');
+        const assistantFormUrlInput = document.getElementById('admin-assistant-form-url');
+        const phoneInput = document.getElementById('admin-phone');
+        const contactMessageInput = document.getElementById('admin-contact-message');
 
         // Log which elements were found
-        console.log('Input elements found:', Object.entries(inputElements)
-            .reduce((acc, [key, value]) => {
-                acc[key] = value ? 'found' : 'not found';
-                return acc;
-            }, {}));
+        console.log('Input elements found:', {
+            nameInput: nameInput ? 'found' : 'not found',
+            titleInput: titleInput ? 'found' : 'not found',
+            experienceInput: experienceInput ? 'found' : 'not found',
+            qualificationsInput: qualificationsInput ? 'found' : 'not found',
+            schoolsInput: schoolsInput ? 'found' : 'not found',
+            centersInput: centersInput ? 'found' : 'not found',
+            platformsInput: platformsInput ? 'found' : 'not found',
+            emailInput: emailInput ? 'found' : 'not found',
+            formUrlInput: formUrlInput ? 'found' : 'not found',
+            assistantFormUrlInput: assistantFormUrlInput ? 'found' : 'not found',
+            phoneInput: phoneInput ? 'found' : 'not found',
+            contactMessageInput: contactMessageInput ? 'found' : 'not found'
+        });
 
         // Start with current data to preserve all existing values
         const newData = {
             ...(currentData?.data || {}),
             personal: {
-                name: inputElements.nameInput?.value || currentData?.data?.personal?.name || '',
-                title: inputElements.titleInput?.value || currentData?.data?.personal?.title || '',
-                experience: inputElements.experienceInput?.value || currentData?.data?.personal?.experience || '',
-                qualifications: inputElements.qualificationsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
+                name: nameInput?.value || currentData?.data?.personal?.name || '',
+                title: titleInput?.value || currentData?.data?.personal?.title || '',
+                experience: experienceInput?.value || currentData?.data?.personal?.experience || '',
+                qualifications: qualificationsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
                              currentData?.data?.personal?.qualifications || []
             },
             experience: {
-                schools: inputElements.schoolsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
+                schools: schoolsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
                         currentData?.data?.experience?.schools || [],
-                centers: inputElements.centersInput?.value?.split('\n').filter(item => item.trim() !== '') || 
+                centers: centersInput?.value?.split('\n').filter(item => item.trim() !== '') || 
                         currentData?.data?.experience?.centers || [],
-                platforms: inputElements.platformsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
+                platforms: platformsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
                           currentData?.data?.experience?.platforms || []
             },
             results: collectResultsData(),
             contact: {
-                email: inputElements.emailInput?.value || currentData?.data?.contact?.email || '',
-                formUrl: inputElements.formUrlInput?.value || currentData?.data?.contact?.formUrl || '',
-                assistantFormUrl: inputElements.assistantFormUrlInput?.value || currentData?.data?.contact?.assistantFormUrl || '',
-                phone: inputElements.phoneInput?.value || currentData?.data?.contact?.phone || '',
-                contactMessage: inputElements.contactMessageInput?.value || currentData?.data?.contact?.contactMessage || ''
+                email: emailInput?.value || currentData?.data?.contact?.email || '',
+                formUrl: formUrlInput?.value || currentData?.data?.contact?.formUrl || '',
+                assistantFormUrl: assistantFormUrlInput?.value || currentData?.data?.contact?.assistantFormUrl || '',
+                phone: phoneInput?.value || currentData?.data?.contact?.phone || '',
+                contactMessage: contactMessageInput?.value || currentData?.data?.contact?.contactMessage || ''
             },
             theme: {
                 color: selectedColor || currentData?.data?.theme?.color || 'blue',
