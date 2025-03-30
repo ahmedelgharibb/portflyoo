@@ -1428,7 +1428,10 @@ function validateFormPopulation(data) {
     // Get form element values
     const nameInput = document.getElementById('admin-name');
     const titleInput = document.getElementById('admin-title');
+    const subtitleInput = document.getElementById('admin-subtitle');
+    const heroHeadingInput = document.getElementById('admin-hero-heading');
     const experienceInput = document.getElementById('admin-experience');
+    const philosophyInput = document.getElementById('admin-philosophy');
     const qualificationsInput = document.getElementById('admin-qualifications');
     const schoolsInput = document.getElementById('admin-schools');
     const centersInput = document.getElementById('admin-centers');
@@ -1443,7 +1446,10 @@ function validateFormPopulation(data) {
     const formValues = {
         name: nameInput ? nameInput.value : 'element not found',
         title: titleInput ? titleInput.value : 'element not found',
+        subtitle: subtitleInput ? subtitleInput.value : 'element not found',
+        heroHeading: heroHeadingInput ? heroHeadingInput.value : 'element not found',
         experience: experienceInput ? experienceInput.value : 'element not found',
+        philosophy: philosophyInput ? philosophyInput.value : 'element not found',
         qualifications: qualificationsInput ? qualificationsInput.value : 'element not found',
         schools: schoolsInput ? schoolsInput.value : 'element not found',
         centers: centersInput ? centersInput.value : 'element not found',
@@ -1520,14 +1526,20 @@ function populateAdminForm(data) {
         // Get form elements
         const nameInput = document.getElementById('admin-name');
         const titleInput = document.getElementById('admin-title');
+        const subtitleInput = document.getElementById('admin-subtitle');
+        const heroHeadingInput = document.getElementById('admin-hero-heading');
         const experienceInput = document.getElementById('admin-experience');
+        const philosophyInput = document.getElementById('admin-philosophy');
         const qualificationsInput = document.getElementById('admin-qualifications');
         
         // Log which elements were found
         console.log('Form elements found:', {
             nameInput: !!nameInput,
             titleInput: !!titleInput,
+            subtitleInput: !!subtitleInput,
+            heroHeadingInput: !!heroHeadingInput,
             experienceInput: !!experienceInput,
+            philosophyInput: !!philosophyInput,
             qualificationsInput: !!qualificationsInput
         });
         
@@ -1546,11 +1558,32 @@ function populateAdminForm(data) {
             console.error('admin-title input not found in DOM');
         }
         
+        if (subtitleInput) {
+            subtitleInput.value = personalData.subtitle || 'History Teacher';
+            console.log(`Set subtitle input to "${personalData.subtitle || 'History Teacher'}"`);
+        } else {
+            console.error('admin-subtitle input not found in DOM');
+        }
+        
+        if (heroHeadingInput) {
+            heroHeadingInput.value = personalData.heroHeading || 'Inspiring Minds Through Mathematics';
+            console.log(`Set hero heading input to "${personalData.heroHeading || 'Inspiring Minds Through Mathematics'}"`);
+        } else {
+            console.error('admin-hero-heading input not found in DOM');
+        }
+        
         if (experienceInput) {
             experienceInput.value = personalData.experience || '';
             console.log(`Set experience input to "${personalData.experience || ''}"`);
         } else {
             console.error('admin-experience input not found in DOM');
+        }
+        
+        if (philosophyInput) {
+            philosophyInput.value = personalData.philosophy || 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.';
+            console.log(`Set philosophy input to "${personalData.philosophy || 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.'}"`);
+        } else {
+            console.error('admin-philosophy input not found in DOM');
         }
         
         if (qualificationsInput) {
@@ -1906,25 +1939,45 @@ function updateSiteContent(data) {
         }
         
         // Update name in navigation
-        const navName = document.querySelector('header nav a.text-2xl');
+        const navName = document.querySelector('.nav-brand-name');
         if (navName && personalData.name) {
             navName.textContent = personalData.name;
         }
         
-        // Update hero section
+        // Update subtitle/role in navigation
+        const subtitleElements = document.querySelectorAll('.nav-brand-subtitle');
+        if (subtitleElements.length > 0 && personalData.subtitle) {
+            subtitleElements.forEach(el => {
+                el.textContent = personalData.subtitle;
+            });
+        }
+        
+        // Update hero section heading
         const heroTitle = document.querySelector('#hero h1');
-        if (heroTitle) {
+        if (heroTitle && personalData.heroHeading) {
             const spanElement = heroTitle.querySelector('span');
-            const spanHTML = spanElement ? spanElement.outerHTML : '<span class="text-yellow-400">Mathematics</span>';
-            heroTitle.innerHTML = `Inspiring Minds Through ${spanHTML}`;
+            const spanHTML = spanElement ? spanElement.outerHTML : '<span class="text-blue-600">Mathematics</span>';
+            const headingParts = personalData.heroHeading.split('Mathematics');
+            if (headingParts.length > 1) {
+                heroTitle.innerHTML = `${headingParts[0]}${spanHTML}${headingParts[1]}`;
+            } else {
+                heroTitle.innerHTML = `${personalData.heroHeading.replace('Mathematics', spanHTML)}`;
+            }
         }
         
-        const heroDesc = document.querySelector('#hero p.text-lg');
-        if (heroDesc && personalData.experience) {
-            heroDesc.textContent = personalData.experience;
+        // Update hero description
+        const heroDesc = document.querySelector('#hero p.text-base, #hero p.text-lg');
+        if (heroDesc && personalData.title) {
+            heroDesc.textContent = personalData.title;
         }
         
-        // Update about section
+        // Update teaching philosophy text
+        const philosophyText = document.querySelector('#about p.text-gray-600, #about p.mb-8');
+        if (philosophyText && personalData.philosophy) {
+            philosophyText.textContent = personalData.philosophy;
+        }
+        
+        // Update about section qualifications
         const qualsList = document.querySelector('#about ul');
         if (qualsList && Array.isArray(personalData.qualifications)) {
             qualsList.innerHTML = personalData.qualifications.map(qual => `
@@ -2191,7 +2244,10 @@ async function saveAdminChanges() {
         // Initialize all input elements with correct IDs
         const nameInput = document.getElementById('admin-name');
         const titleInput = document.getElementById('admin-title');
+        const subtitleInput = document.getElementById('admin-subtitle');
+        const heroHeadingInput = document.getElementById('admin-hero-heading');
         const experienceInput = document.getElementById('admin-experience');
+        const philosophyInput = document.getElementById('admin-philosophy');
         const qualificationsInput = document.getElementById('admin-qualifications');
         const schoolsInput = document.getElementById('admin-schools');
         const centersInput = document.getElementById('admin-centers');
@@ -2215,7 +2271,10 @@ async function saveAdminChanges() {
         console.log('Input elements found:', {
             nameInput: nameInput ? 'found' : 'not found',
             titleInput: titleInput ? 'found' : 'not found',
+            subtitleInput: subtitleInput ? 'found' : 'not found',
+            heroHeadingInput: heroHeadingInput ? 'found' : 'not found',
             experienceInput: experienceInput ? 'found' : 'not found',
+            philosophyInput: philosophyInput ? 'found' : 'not found',
             qualificationsInput: qualificationsInput ? 'found' : 'not found',
             schoolsInput: schoolsInput ? 'found' : 'not found',
             centersInput: centersInput ? 'found' : 'not found',
@@ -2233,7 +2292,10 @@ async function saveAdminChanges() {
             personal: {
                 name: nameInput?.value || currentData?.data?.personal?.name || '',
                 title: titleInput?.value || currentData?.data?.personal?.title || '',
+                subtitle: subtitleInput?.value || currentData?.data?.personal?.subtitle || 'History Teacher',
+                heroHeading: heroHeadingInput?.value || currentData?.data?.personal?.heroHeading || 'Inspiring Minds Through Mathematics',
                 experience: experienceInput?.value || currentData?.data?.personal?.experience || '',
+                philosophy: philosophyInput?.value || currentData?.data?.personal?.philosophy || 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.',
                 qualifications: qualificationsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
                              currentData?.data?.personal?.qualifications || []
             },
