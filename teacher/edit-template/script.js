@@ -2194,6 +2194,12 @@ async function saveAdminChanges() {
         const phoneInput = document.getElementById('admin-phone');
         const contactMessageInput = document.getElementById('admin-contact-message');
 
+        // Get current theme values from radio buttons
+        const currentColor = document.querySelector('input[name="theme-color"]:checked')?.value || 'blue';
+        const currentMode = document.querySelector('input[name="theme-mode"]:checked')?.value || 'light';
+
+        console.log('Current theme values:', { currentColor, currentMode });
+
         // Log which elements were found
         console.log('Input elements found:', {
             nameInput: nameInput ? 'found' : 'not found',
@@ -2237,8 +2243,8 @@ async function saveAdminChanges() {
                 contactMessage: contactMessageInput?.value || currentData?.data?.contact?.contactMessage || ''
             },
             theme: {
-                color: selectedColor || currentData?.data?.theme?.color || 'blue',
-                mode: selectedMode || currentData?.data?.theme?.mode || 'light'
+                color: currentColor,
+                mode: currentMode
             }
         };
 
@@ -2249,8 +2255,8 @@ async function saveAdminChanges() {
         
         // Also update current theme
         currentTheme = { 
-            color: selectedColor || currentData?.data?.theme?.color || 'blue', 
-            mode: selectedMode || currentData?.data?.theme?.mode || 'light' 
+            color: currentColor,
+            mode: currentMode
         };
 
         // Save to Supabase with verification
