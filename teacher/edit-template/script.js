@@ -2194,9 +2194,12 @@ async function saveAdminChanges() {
         const phoneInput = document.getElementById('admin-phone');
         const contactMessageInput = document.getElementById('admin-contact-message');
 
-        // Get current theme values from radio buttons
-        const currentColor = document.querySelector('input[name="theme-color"]:checked')?.value || 'blue';
-        const currentMode = document.querySelector('input[name="theme-mode"]:checked')?.value || 'light';
+        // Get current theme values from radio buttons with fallbacks
+        const colorRadio = document.querySelector('input[name="theme-color"]:checked');
+        const modeRadio = document.querySelector('input[name="theme-mode"]:checked');
+        
+        const currentColor = colorRadio ? colorRadio.value : (currentData?.data?.theme?.color || 'blue');
+        const currentMode = modeRadio ? modeRadio.value : (currentData?.data?.theme?.mode || 'light');
 
         console.log('Current theme values:', { currentColor, currentMode });
 
@@ -2258,6 +2261,9 @@ async function saveAdminChanges() {
             color: currentColor,
             mode: currentMode
         };
+
+        // Apply the theme immediately
+        applyTheme(currentColor, currentMode);
 
         // Save to Supabase with verification
         let supabaseSaveSuccess = false;
