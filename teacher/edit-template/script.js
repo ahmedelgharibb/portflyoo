@@ -2150,13 +2150,22 @@ function updateResultsChart(subjects) {
 
 // Save admin changes to Supabase and localStorage
 async function saveAdminChanges() {
+    console.log('Save changes function called');
+    
     // Show loading state on button
     const saveBtn = document.getElementById('saveChangesBtn');
+    if (!saveBtn) {
+        console.error('Save button not found in DOM');
+        return;
+    }
+    
+    console.log('Save button found:', saveBtn);
     const originalBtnText = saveBtn.innerHTML;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
     saveBtn.disabled = true;
 
     try {
+        console.log('Fetching current data from Supabase...');
         // Get current data to preserve existing values
         const { data: currentData, error: fetchError } = await supabase
             .from('site_data')
@@ -2164,33 +2173,65 @@ async function saveAdminChanges() {
             .eq('id', 1)
             .single();
 
-        if (fetchError) throw fetchError;
+        if (fetchError) {
+            console.error('Error fetching current data:', fetchError);
+            throw fetchError;
+        }
+
+        console.log('Current data fetched successfully:', currentData);
+
+        // Get all input elements with proper error handling
+        const inputElements = {
+            nameInput: document.getElementById('nameInput'),
+            titleInput: document.getElementById('titleInput'),
+            experienceInput: document.getElementById('experienceInput'),
+            qualificationsInput: document.getElementById('qualificationsInput'),
+            schoolsInput: document.getElementById('schoolsInput'),
+            centersInput: document.getElementById('centersInput'),
+            platformsInput: document.getElementById('platformsInput'),
+            emailInput: document.getElementById('emailInput'),
+            formUrlInput: document.getElementById('formUrlInput'),
+            assistantFormUrlInput: document.getElementById('assistantFormUrlInput'),
+            phoneInput: document.getElementById('phoneInput'),
+            contactMessageInput: document.getElementById('contactMessageInput')
+        };
+
+        // Log which elements were found
+        console.log('Input elements found:', Object.entries(inputElements)
+            .reduce((acc, [key, value]) => {
+                acc[key] = value ? 'found' : 'not found';
+                return acc;
+            }, {}));
 
         // Start with current data to preserve all existing values
         const newData = {
             ...(currentData?.data || {}),
             personal: {
-                name: nameInput.value,
-                title: titleInput.value,
-                experience: experienceInput.value,
-                qualifications: qualificationsInput.value.split('\n').filter(item => item.trim() !== '')
+                name: inputElements.nameInput?.value || currentData?.data?.personal?.name || '',
+                title: inputElements.titleInput?.value || currentData?.data?.personal?.title || '',
+                experience: inputElements.experienceInput?.value || currentData?.data?.personal?.experience || '',
+                qualifications: inputElements.qualificationsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
+                             currentData?.data?.personal?.qualifications || []
             },
             experience: {
-                schools: schoolsInput.value.split('\n').filter(item => item.trim() !== ''),
-                centers: centersInput.value.split('\n').filter(item => item.trim() !== ''),
-                platforms: platformsInput.value.split('\n').filter(item => item.trim() !== '')
+                schools: inputElements.schoolsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
+                        currentData?.data?.experience?.schools || [],
+                centers: inputElements.centersInput?.value?.split('\n').filter(item => item.trim() !== '') || 
+                        currentData?.data?.experience?.centers || [],
+                platforms: inputElements.platformsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
+                          currentData?.data?.experience?.platforms || []
             },
             results: collectResultsData(),
             contact: {
-                email: emailInput.value,
-                formUrl: formUrlInput.value,
-                assistantFormUrl: assistantFormUrlInput.value,
-                phone: phoneInput.value,
-                contactMessage: contactMessageInput.value
+                email: inputElements.emailInput?.value || currentData?.data?.contact?.email || '',
+                formUrl: inputElements.formUrlInput?.value || currentData?.data?.contact?.formUrl || '',
+                assistantFormUrl: inputElements.assistantFormUrlInput?.value || currentData?.data?.contact?.assistantFormUrl || '',
+                phone: inputElements.phoneInput?.value || currentData?.data?.contact?.phone || '',
+                contactMessage: inputElements.contactMessageInput?.value || currentData?.data?.contact?.contactMessage || ''
             },
             theme: {
-                color: selectedColor,
-                mode: selectedMode
+                color: selectedColor || currentData?.data?.theme?.color || 'blue',
+                mode: selectedMode || currentData?.data?.theme?.mode || 'light'
             }
         };
 
@@ -2200,7 +2241,10 @@ async function saveAdminChanges() {
         siteData = newData;
         
         // Also update current theme
-        currentTheme = { color: selectedColor, mode: selectedMode };
+        currentTheme = { 
+            color: selectedColor || currentData?.data?.theme?.color || 'blue', 
+            mode: selectedMode || currentData?.data?.theme?.mode || 'light' 
+        };
 
         // Save to Supabase with verification
         let supabaseSaveSuccess = false;
@@ -2240,48 +2284,32 @@ async function saveAdminChanges() {
             
             supabaseSaveSuccess = true;
             console.log('✅ Data saved to Supabase successfully');
-        } catch (supabaseError) {
-            console.error('Failed to save to Supabase:', supabaseError);
-            // We'll continue and try localStorage as backup
+        } catch (error) {
+            console.error('Error saving to Supabase:', error);
+            showAdminAlert('error', `Failed to save to database: ${error.message}`);
         }
 
-        // Save to localStorage as backup
-        try {
-            localStorage.setItem('siteData', JSON.stringify(newData));
-            console.log('✅ Data saved to localStorage successfully');
-            
-            // Verify localStorage save
-            const storedData = localStorage.getItem('siteData');
-            if (storedData) {
-                const parsedData = JSON.parse(storedData);
-                console.log('localStorage verification:', parsedData);
-                console.log('localStorage results:', parsedData.results);
+        // If Supabase save failed, try localStorage
+        if (!supabaseSaveSuccess) {
+            try {
+                localStorage.setItem('siteData', JSON.stringify(newData));
+                console.log('✅ Data saved to localStorage as fallback');
+                showAdminAlert('success', 'Data saved to local storage successfully');
+            } catch (localError) {
+                console.error('Failed to save to localStorage:', localError);
+                showAdminAlert('error', 'Failed to save data to any storage location');
             }
-        } catch (localStorageError) {
-            console.error('Failed to save to localStorage:', localStorageError);
-            
-            // If both Supabase and localStorage failed, throw error
-            if (!supabaseSaveSuccess) {
-                throw new Error('Failed to save data to both Supabase and localStorage');
-            }
+        } else {
+            showAdminAlert('success', 'Changes saved successfully!');
         }
 
-        // Update site content with new data
-        console.log('Updating site content with new data...');
+        // Update the site content with the new data
         updateSiteContent(newData);
         
-        // Force update of results chart
-        if (Array.isArray(newData.results) && newData.results.length > 0) {
-            console.log('Force updating results chart with:', newData.results);
-            try {
-                updateResultsChart(newData.results);
-            } catch (chartError) {
-                console.error('Error updating chart after save:', chartError);
-            }
+        // Force update the results chart if it exists
+        if (window.resultsChart) {
+            updateResultsChart(newData.results);
         }
-        
-        // Show success message
-        showAdminAlert('success', 'Changes saved successfully!');
     } catch (error) {
         console.error('Error saving changes:', error);
         showAdminAlert('error', `Failed to save changes: ${error.message}`);
