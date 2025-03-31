@@ -1,0 +1,237 @@
+name: Create New Website Instance
+
+on:
+  workflow_dispatch:
+    inputs:
+      folder_name:
+        description: 'Folder name for the new website (alphanumeric, hyphens and underscores only)'
+        required: true
+        type: string
+      site_name:
+        description: 'Display name for the website'
+        required: true
+        type: string
+
+jobs:
+  create-website:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Validate folder name
+        id: validate
+        run: |
+          folder_name="${{ github.event.inputs.folder_name }}"
+          if [[ ! $folder_name =~ ^[a-zA-Z0-9_-]+$ ]]; then
+            echo "Error: Folder name must contain only letters, numbers, hyphens and underscores"
+            exit 1
+          fi
+          
+          if [ -d "teacher/$folder_name" ]; then
+            echo "Error: Folder 'teacher/$folder_name' already exists"
+            exit 1
+          fi
+          
+          echo "folder_name=$folder_name" >> $GITHUB_OUTPUT
+          echo "site_url=https://portflyo-new.vercel.app/teacher/$folder_name/index.html" >> $GITHUB_OUTPUT
+      
+      - name: Create new website folder
+        run: |
+          folder_name="${{ steps.validate.outputs.folder_name }}"
+          mkdir -p "teacher/$folder_name"
+          cp -r teacher/edit-template/* "teacher/$folder_name/"
+          echo "Created new website folder: teacher/$folder_name"
+      
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      
+      - name: Install dependencies
+        run: npm install @supabase/supabase-js
+      
+      - name: Register website in database
+        id: register
+        run: |
+          folder_name="${{ steps.validate.outputs.folder_name }}"
+          site_name="${{ github.event.inputs.site_name }}"
+          site_url="${{ steps.validate.outputs.site_url }}"
+          
+          cat > register-site.js << 'EOL'
+          const { createClient } = require('@supabase/supabase-js');
+          
+          const SUPABASE_URL = 'https://bqpchhitrbyfleqpyydz.supabase.co';
+          const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ';
+          
+          async function registerWebsite() {
+            const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+            
+            const folderName = process.argv[2];
+            const siteName = process.argv[3];
+            const siteUrl = process.argv[4];
+            
+            try {
+              // Insert the website record
+              const { data: website, error: websiteError } = await supabase
+                .from('websites')
+                .insert({
+                  site_name: siteName,
+                  site_url: siteUrl,
+                  folder_name: folderName
+                })
+                .select()
+                .single();
+              
+              if (websiteError) throw websiteError;
+              
+              // Get template data
+              const { data: templateWebsite, error: templateError } = await supabase
+                .from('websites')
+                .select('id')
+                .eq('site_name', 'Default Template')
+                .maybeSingle();
+              
+              let templateData = null;
+              
+              if (templateWebsite) {
+                const { data: templateSiteData, error: dataError } = await supabase
+                  .from('site_data')
+                  .select('data')
+                  .eq('website_id', templateWebsite.id)
+                  .maybeSingle();
+                
+                if (templateSiteData) {
+                  templateData = templateSiteData.data;
+                }
+              }
+              
+              // If no template data, use default
+              if (!templateData) {
+                templateData = {
+                  "theme": {
+                    "mode": "light",
+                    "color": "blue"
+                  },
+                  "contact": {
+                    "email": "",
+                    "phone": "",
+                    "formUrl": "",
+                    "contactMessage": "",
+                    "assistantFormUrl": ""
+                  },
+                  "results": [
+                    {"name": "Mathematics", "score": 85},
+                    {"name": "Physics", "score": 78},
+                    {"name": "Chemistry", "score": 82},
+                    {"name": "Biology", "score": 75}
+                  ],
+                  "personal": {
+                    "name": "Teacher Name",
+                    "title": "Mathematics Educator",
+                    "subtitle": "Math Teacher",
+                    "experience": "10+ years of teaching experience",
+                    "philosophy": "I believe in creating an engaging learning environment where students can develop their mathematical thinking skills.",
+                    "heroHeading": "Inspiring Minds Through Mathematics",
+                    "qualifications": [
+                      "Ph.D. in Mathematics Education",
+                      "Master's in Applied Mathematics",
+                      "Bachelor's in Mathematics"
+                    ]
+                  },
+                  "experience": {
+                    "centers": [],
+                    "schools": [],
+                    "platforms": []
+                  },
+                  "heroImage": ""
+                };
+              }
+              
+              // Insert the site data
+              const { error: siteDataError } = await supabase
+                .from('site_data')
+                .insert({
+                  website_id: website.id,
+                  data: templateData
+                });
+              
+              if (siteDataError) throw siteDataError;
+              
+              // Generate site-config.js content
+              const configContent = `/**
+ * site-config.js
+ * This file contains configuration specific to this website instance.
+ * It is automatically generated by GitHub Actions on: ${new Date().toISOString()}
+ */
+
+const siteConfig = {
+    // Website ID from the database
+    websiteId: "${website.id}",
+    
+    // Site name
+    siteName: "${siteName}",
+    
+    // Site URL
+    siteUrl: "${siteUrl}",
+    
+    // Folder name
+    folderName: "${folderName}",
+    
+    // Created timestamp
+    createdAt: "${website.created_at}"
+};
+
+export default siteConfig;`;
+              
+              console.log(JSON.stringify({
+                websiteId: website.id,
+                siteName: siteName,
+                siteUrl: siteUrl,
+                folderName: folderName,
+                configContent: configContent
+              }));
+              
+            } catch (error) {
+              console.error('Error:', error.message);
+              process.exit(1);
+            }
+          }
+          
+          registerWebsite();
+          EOL
+          
+          result=$(node register-site.js "$folder_name" "$site_name" "$site_url")
+          echo "Registration result: $result"
+          
+          # Extract the config content
+          config_content=$(echo $result | jq -r '.configContent')
+          website_id=$(echo $result | jq -r '.websiteId')
+          
+          # Write the site-config.js file
+          echo "$config_content" > "teacher/$folder_name/site-config.js"
+          
+          # Output the website URL
+          echo "website_id=$website_id" >> $GITHUB_OUTPUT
+          echo "site_url=$site_url" >> $GITHUB_OUTPUT
+      
+      - name: Commit and push changes
+        run: |
+          folder_name="${{ steps.validate.outputs.folder_name }}"
+          site_url="${{ steps.validate.outputs.site_url }}"
+          
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add "teacher/$folder_name"
+          git commit -m "feat: create new website instance for $folder_name"
+          git push
+      
+      - name: Website Created
+        run: |
+          echo "✅ New website created successfully!"
+          echo "Website ID: ${{ steps.register.outputs.website_id }}"
+          echo "Website URL: ${{ steps.register.outputs.site_url }}"
+          echo ""
+          echo "You can access your new website at:"
+          echo "${{ steps.register.outputs.site_url }}" 
