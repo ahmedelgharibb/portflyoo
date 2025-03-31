@@ -84,21 +84,80 @@ jobs:
                 
                 if (websitesCheckError) {
                   console.error('Error checking websites table:', websitesCheckError.message);
-                  throw new Error(`Table 'websites' may not exist: ${websitesCheckError.message}`);
+                  console.log('Creating websites table...');
+                  
+                  // Create websites table using SQL
+                  const { error: createTableError } = await supabase.rpc('create_websites_table', {});
+                  
+                  if (createTableError) {
+                    // If RPC fails, try direct SQL
+                    console.log('RPC failed, trying SQL directly...');
+                    const { error: sqlError } = await supabase.sql(`
+                      CREATE TABLE IF NOT EXISTS public.websites (
+                        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                        site_name TEXT NOT NULL,
+                        site_url TEXT NOT NULL,
+                        folder_name TEXT NOT NULL,
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                      );
+                      -- Add any needed indexes
+                      CREATE INDEX IF NOT EXISTS websites_folder_name_idx ON public.websites (folder_name);
+                    `);
+                    
+                    if (sqlError) {
+                      console.error('Failed to create websites table:', sqlError.message);
+                      throw new Error(`Failed to create websites table: ${sqlError.message}`);
+                    }
+                  }
+                  
+                  console.log('Websites table created successfully');
+                } else {
+                  console.log('Websites table verified');
                 }
                 
-                console.log('Websites table verified');
-                
-                const { count: siteDataCount, error: siteDataCheckError } = await supabase
+                // Check if site_data table has the correct columns
+                const { data: site_data_test, error: siteDataCheckError } = await supabase
                   .from('site_data')
                   .select('*', { count: 'exact', head: true });
                 
                 if (siteDataCheckError) {
                   console.error('Error checking site_data table:', siteDataCheckError.message);
-                  throw new Error(`Table 'site_data' may not exist: ${siteDataCheckError.message}`);
+                  throw new Error(`Table 'site_data' may not have the correct structure: ${siteDataCheckError.message}`);
                 }
                 
                 console.log('Site_data table verified');
+                
+                // Ensure site_data table has website_id column
+                try {
+                  console.log('Checking site_data table structure...');
+                  
+                  // Check if we need to add the website_id column
+                  const { error: addColumnError } = await supabase.sql(`
+                    DO $$ 
+                    BEGIN
+                      IF NOT EXISTS (
+                        SELECT 1 
+                        FROM information_schema.columns 
+                        WHERE table_schema = 'public' 
+                        AND table_name = 'site_data' 
+                        AND column_name = 'website_id'
+                      ) THEN
+                        ALTER TABLE public.site_data 
+                        ADD COLUMN website_id UUID;
+                      END IF;
+                    END $$;
+                  `);
+                  
+                  if (addColumnError) {
+                    console.error('Error updating site_data table:', addColumnError.message);
+                    // Continue anyway as it might be just a permission issue
+                  } else {
+                    console.log('Ensured site_data table has website_id column');
+                  }
+                } catch (structureError) {
+                  console.error('Error checking site_data structure:', structureError.message);
+                  // Continue anyway as we'll get a more specific error later if needed
+                }
               } catch (checkError) {
                 console.error('Database table verification failed:', checkError.message);
                 throw checkError;
