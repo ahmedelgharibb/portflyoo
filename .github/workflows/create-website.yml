@@ -206,16 +206,39 @@ jobs:
               
               // Insert with a simpler approach
               try {
-                // First try without website_id to be safe
-                console.log('Inserting site data without website_id...');
+                // Generate a sequential ID based on timestamp to avoid conflicts
+                const timestamp = Date.now();
+                
+                // First try with an explicit ID
+                console.log('Inserting site data with explicit ID...');
                 const { data: siteData, error: siteDataError } = await supabase
                   .from('site_data')
-                  .insert({ data: templateData })
+                  .insert({ 
+                    id: timestamp, // Provide explicit ID since it's a NOT NULL column
+                    data: templateData,
+                    website_id: website.id // Still include this in case the column exists
+                  })
                   .select();
                 
                 if (siteDataError) {
-                  console.error('Error inserting site data:', siteDataError.message);
-                  throw siteDataError;
+                  console.error('Error inserting site data with ID:', siteDataError.message);
+                  
+                  // Try alternative approach without website_id but still with ID
+                  console.log('Trying alternative approach without website_id...');
+                  const { data: altSiteData, error: altSiteDataError } = await supabase
+                    .from('site_data')
+                    .insert({ 
+                      id: timestamp + 1, // Use different ID to avoid conflict
+                      data: templateData 
+                    })
+                    .select();
+                  
+                  if (altSiteDataError) {
+                    console.error('Alternative approach also failed:', altSiteDataError.message);
+                    throw altSiteDataError;
+                  } else {
+                    console.log('Successfully inserted site data using alternative approach');
+                  }
                 } else {
                   console.log('Successfully inserted site data');
                 }
