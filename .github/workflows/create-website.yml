@@ -175,11 +175,11 @@ jobs:
                     "color": "blue"
                   },
                   "contact": {
-                    "email": "",
-                    "phone": "",
-                    "formUrl": "",
-                    "contactMessage": "",
-                    "assistantFormUrl": ""
+                    "email": "teacher@example.com",
+                    "phone": "+1 (555) 123-4567",
+                    "formUrl": "https://forms.example.com/contact",
+                    "contactMessage": "Feel free to reach out with any questions!",
+                    "assistantFormUrl": "https://forms.example.com/assistant"
                   },
                   "results": [
                     {"name": "Mathematics", "score": 85},
@@ -198,14 +198,36 @@ jobs:
                       "Ph.D. in Mathematics Education",
                       "Master's in Applied Mathematics",
                       "Bachelor's in Mathematics"
-                    ]
+                    ],
+                    "profileImage": "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"
                   },
                   "experience": {
-                    "centers": [],
-                    "schools": [],
-                    "platforms": []
+                    "centers": [
+                      {
+                        "name": "Learning Excellence Center",
+                        "position": "Senior Math Instructor",
+                        "years": "2018-Present",
+                        "description": "Teaching advanced mathematics to high school students and preparing them for college entrance exams."
+                      }
+                    ],
+                    "schools": [
+                      {
+                        "name": "Washington High School",
+                        "position": "Mathematics Teacher",
+                        "years": "2015-2018",
+                        "description": "Taught Algebra, Geometry, and Calculus to students in grades 9-12."
+                      }
+                    ],
+                    "platforms": [
+                      {
+                        "name": "Online Education Platform",
+                        "position": "Course Creator",
+                        "years": "2019-Present",
+                        "description": "Created and published online courses on mathematics, reaching over 5,000 students globally."
+                      }
+                    ]
                   },
-                  "heroImage": ""
+                  "heroImage": "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"
                 };
               }
               
