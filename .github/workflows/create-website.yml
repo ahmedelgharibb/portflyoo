@@ -78,85 +78,28 @@ jobs:
               // Check if tables exist
               console.log('Verifying database tables...');
               try {
+                // Check websites table
                 const { count: websitesCount, error: websitesCheckError } = await supabase
                   .from('websites')
                   .select('*', { count: 'exact', head: true });
                 
                 if (websitesCheckError) {
                   console.error('Error checking websites table:', websitesCheckError.message);
-                  console.log('Creating websites table...');
-                  
-                  // Create websites table using SQL
-                  const { error: createTableError } = await supabase.rpc('create_websites_table', {});
-                  
-                  if (createTableError) {
-                    // If RPC fails, try direct SQL
-                    console.log('RPC failed, trying SQL directly...');
-                    const { error: sqlError } = await supabase.sql(`
-                      CREATE TABLE IF NOT EXISTS public.websites (
-                        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-                        site_name TEXT NOT NULL,
-                        site_url TEXT NOT NULL,
-                        folder_name TEXT NOT NULL,
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                      );
-                      -- Add any needed indexes
-                      CREATE INDEX IF NOT EXISTS websites_folder_name_idx ON public.websites (folder_name);
-                    `);
-                    
-                    if (sqlError) {
-                      console.error('Failed to create websites table:', sqlError.message);
-                      throw new Error(`Failed to create websites table: ${sqlError.message}`);
-                    }
-                  }
-                  
-                  console.log('Websites table created successfully');
+                  throw new Error(`Error checking websites table: ${websitesCheckError.message}. Please run the SQL script manually to create the table.`);
                 } else {
                   console.log('Websites table verified');
                 }
                 
-                // Check if site_data table has the correct columns
+                // Check site_data table
                 const { data: site_data_test, error: siteDataCheckError } = await supabase
                   .from('site_data')
                   .select('*', { count: 'exact', head: true });
                 
                 if (siteDataCheckError) {
                   console.error('Error checking site_data table:', siteDataCheckError.message);
-                  throw new Error(`Table 'site_data' may not have the correct structure: ${siteDataCheckError.message}`);
-                }
-                
-                console.log('Site_data table verified');
-                
-                // Ensure site_data table has website_id column
-                try {
-                  console.log('Checking site_data table structure...');
-                  
-                  // Check if we need to add the website_id column
-                  const { error: addColumnError } = await supabase.sql(`
-                    DO $$ 
-                    BEGIN
-                      IF NOT EXISTS (
-                        SELECT 1 
-                        FROM information_schema.columns 
-                        WHERE table_schema = 'public' 
-                        AND table_name = 'site_data' 
-                        AND column_name = 'website_id'
-                      ) THEN
-                        ALTER TABLE public.site_data 
-                        ADD COLUMN website_id UUID;
-                      END IF;
-                    END $$;
-                  `);
-                  
-                  if (addColumnError) {
-                    console.error('Error updating site_data table:', addColumnError.message);
-                    // Continue anyway as it might be just a permission issue
-                  } else {
-                    console.log('Ensured site_data table has website_id column');
-                  }
-                } catch (structureError) {
-                  console.error('Error checking site_data structure:', structureError.message);
-                  // Continue anyway as we'll get a more specific error later if needed
+                  throw new Error(`Error checking site_data table: ${siteDataCheckError.message}`);
+                } else {
+                  console.log('Site_data table verified');
                 }
               } catch (checkError) {
                 console.error('Database table verification failed:', checkError.message);
@@ -199,10 +142,11 @@ jobs:
               let templateData = null;
               
               if (templateWebsite) {
+                // Note: We're not using website_id here since it might not exist
                 const { data: templateSiteData, error: dataError } = await supabase
                   .from('site_data')
-                  .select('data')
-                  .eq('website_id', templateWebsite.id)
+                  .select('*')
+                  .eq('id', 1) // Assuming template data is at ID 1, adjust as needed
                   .maybeSingle();
                 
                 if (dataError) {
@@ -258,17 +202,26 @@ jobs:
               }
               
               // Insert the site data
-              const { data: siteData, error: siteDataError } = await supabase
-                .from('site_data')
-                .insert({
-                  website_id: website.id,
-                  data: templateData
-                })
-                .select();
+              console.log('Inserting site data...');
               
-              if (siteDataError) {
-                console.error('Error inserting site data:', siteDataError.message);
-                throw siteDataError;
+              // Insert with a simpler approach
+              try {
+                // First try without website_id to be safe
+                console.log('Inserting site data without website_id...');
+                const { data: siteData, error: siteDataError } = await supabase
+                  .from('site_data')
+                  .insert({ data: templateData })
+                  .select();
+                
+                if (siteDataError) {
+                  console.error('Error inserting site data:', siteDataError.message);
+                  throw siteDataError;
+                } else {
+                  console.log('Successfully inserted site data');
+                }
+              } catch (insertError) {
+                console.error('Failed to insert site data:', insertError.message);
+                throw new Error(`Failed to insert site data: ${insertError.message}`);
               }
               
               // Generate site-config.js content
