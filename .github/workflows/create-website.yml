@@ -65,18 +65,21 @@ jobs:
           const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ';
           
           async function registerWebsite() {
-            console.log('Connecting to Supabase...');
+            // Redirect logs to stderr so they don't interfere with JSON output
+            const log = (message) => console.error(message);
+            
+            log('Connecting to Supabase...');
             const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
             
             const folderName = process.argv[2];
             const siteName = process.argv[3];
             const siteUrl = process.argv[4];
             
-            console.log(`Registering website: ${siteName} (${folderName}) at ${siteUrl}`);
+            log(`Registering website: ${siteName} (${folderName}) at ${siteUrl}`);
             
             try {
               // Check if tables exist
-              console.log('Verifying database tables...');
+              log('Verifying database tables...');
               try {
                 // Check websites table
                 const { count: websitesCount, error: websitesCheckError } = await supabase
@@ -87,7 +90,7 @@ jobs:
                   console.error('Error checking websites table:', websitesCheckError.message);
                   throw new Error(`Error checking websites table: ${websitesCheckError.message}. Please run the SQL script manually to create the table.`);
                 } else {
-                  console.log('Websites table verified');
+                  log('Websites table verified');
                 }
                 
                 // Check site_data table
@@ -99,7 +102,7 @@ jobs:
                   console.error('Error checking site_data table:', siteDataCheckError.message);
                   throw new Error(`Error checking site_data table: ${siteDataCheckError.message}`);
                 } else {
-                  console.log('Site_data table verified');
+                  log('Site_data table verified');
                 }
               } catch (checkError) {
                 console.error('Database table verification failed:', checkError.message);
@@ -107,7 +110,7 @@ jobs:
               }
               
               // Insert the website record
-              console.log('Inserting website record...');
+              log('Inserting website record...');
               const { data: website, error: websiteError } = await supabase
                 .from('websites')
                 .insert({
@@ -160,7 +163,7 @@ jobs:
               
               // If no template data, use default
               if (!templateData) {
-                console.log('Using default template data as no template found');
+                log('Using default template data as no template found');
                 templateData = {
                   "theme": {
                     "mode": "light",
@@ -202,7 +205,7 @@ jobs:
               }
               
               // Insert the site data
-              console.log('Inserting site data...');
+              log('Inserting site data...');
               
               // Insert with a simpler approach
               try {
@@ -210,7 +213,7 @@ jobs:
                 const timestamp = Date.now();
                 
                 // First try with an explicit ID
-                console.log('Inserting site data with explicit ID...');
+                log('Inserting site data with explicit ID...');
                 const { data: siteData, error: siteDataError } = await supabase
                   .from('site_data')
                   .insert({ 
@@ -224,7 +227,7 @@ jobs:
                   console.error('Error inserting site data with ID:', siteDataError.message);
                   
                   // Try alternative approach without website_id but still with ID
-                  console.log('Trying alternative approach without website_id...');
+                  log('Trying alternative approach without website_id...');
                   const { data: altSiteData, error: altSiteDataError } = await supabase
                     .from('site_data')
                     .insert({ 
@@ -237,10 +240,10 @@ jobs:
                     console.error('Alternative approach also failed:', altSiteDataError.message);
                     throw altSiteDataError;
                   } else {
-                    console.log('Successfully inserted site data using alternative approach');
+                    log('Successfully inserted site data using alternative approach');
                   }
                 } else {
-                  console.log('Successfully inserted site data');
+                  log('Successfully inserted site data');
                 }
               } catch (insertError) {
                 console.error('Failed to insert site data:', insertError.message);
@@ -268,6 +271,7 @@ jobs:
                 '};\n\n' +
                 'export default siteConfig;';
               
+              // Only output the JSON to stdout, all logs go to stderr
               console.log(JSON.stringify({
                 websiteId: website.id,
                 siteName: siteName,
@@ -287,14 +291,24 @@ jobs:
           EOL
           
           echo "Running website registration script..."
-          if ! result=$(node register-site.js "$folder_name" "$site_name" "$site_url"); then
+          # Redirect stderr to capture logging separately from the JSON output
+          if ! result=$(node register-site.js "$folder_name" "$site_name" "$site_url" 2>registration.log); then
+            cat registration.log
             echo "::error::Failed to register website in database. See error above."
             exit 1
           fi
           
-          echo "Registration result: $result"
+          # Show the logs from the registration process
+          cat registration.log
+          
+          echo "Processing registration result..."
           
           # Make sure result is valid JSON before proceeding
+          if [[ -z "$result" ]]; then
+            echo "::error::Empty result from registration script"
+            exit 1
+          fi
+          
           if ! echo "$result" | jq . > /dev/null 2>&1; then
             echo "::error::Invalid JSON result: $result"
             exit 1
