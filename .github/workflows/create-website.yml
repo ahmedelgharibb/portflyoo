@@ -340,7 +340,9 @@ jobs:
           
           git add "teacher/$folder_name"
           git commit -m "feat: create new website instance for $folder_name"
-          git push
+          
+          # Push using the GitHub token for authentication
+          git push https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
       
       - name: Website Created
         run: |
