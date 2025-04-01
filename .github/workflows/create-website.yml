@@ -15,9 +15,14 @@ on:
 jobs:
   create-website:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ github.token }}
+          fetch-depth: 0
         
       - name: Validate folder name
         id: validate
@@ -341,8 +346,9 @@ jobs:
           git add "teacher/$folder_name"
           git commit -m "feat: create new website instance for $folder_name"
           
-          # Push using the GitHub token for authentication
-          git push https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+          # GitHub Actions automatically provides a GITHUB_TOKEN with permissions to push
+          # This token is available to all GitHub Actions workflows by default
+          git push
       
       - name: Website Created
         run: |
