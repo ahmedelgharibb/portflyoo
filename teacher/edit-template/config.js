@@ -1,14 +1,12 @@
 const config = {
     personalInfo: {
         name: "Teacher Name",
-        title: "Mathematics Educator",
+        title: "Teacher Title",
         qualifications: [
-            "Ph.D. in Mathematics Education",
-            "Master's in Applied Mathematics",
-            "Bachelor's in Mathematics"
+            "Qualifications"
         ],
-        experience: "15+ years of teaching experience",
-        image: "teacher-image.jpg"
+        experience: "Experience",
+        image: "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"
     },
     experience: {
         schools: [
