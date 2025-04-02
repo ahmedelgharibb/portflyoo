@@ -622,21 +622,87 @@ function initializeWithDefaultData() {
 
 // Mobile Menu Functionality
 function toggleMenu() {
-    if (mobileMenu) {
-        mobileMenu.classList.toggle('active');
-        body.classList.toggle('menu-open');
+    console.log('Toggling menu');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
+    const menuBtn = document.getElementById('menuBtn');
+    const body = document.body;
+    
+    if (!mobileMenu || !mobileMenuBackdrop || !menuBtn) {
+        console.error('Mobile menu elements not found');
+        return;
+    }
+    
+    const isMenuOpen = mobileMenu.classList.contains('active');
+    console.log('Menu currently open:', isMenuOpen);
+    
+    if (isMenuOpen) {
+        // Close menu
+        closeMenu();
+    } else {
+        // Open menu with animation
+        mobileMenu.classList.add('active');
+        mobileMenuBackdrop.classList.add('active');
+        menuBtn.classList.add('open');
+        body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+        console.log('Menu opened with animations');
     }
 }
 
 function closeMenu() {
-    if (mobileMenu) {
-        mobileMenu.classList.remove('active');
-        body.classList.remove('menu-open');
-    }
+    console.log('Closing menu');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
+    const menuBtn = document.getElementById('menuBtn');
+    const body = document.body;
+    
+    if (mobileMenu) mobileMenu.classList.remove('active');
+    if (mobileMenuBackdrop) mobileMenuBackdrop.classList.remove('active');
+    if (menuBtn) menuBtn.classList.remove('open');
+    
+    body.style.overflow = '';
+    console.log('Menu closed');
 }
 
-if (menuBtn) menuBtn.addEventListener('click', toggleMenu);
-if (closeMenuBtn) closeMenuBtn.addEventListener('click', closeMenu);
+// Initialize DOM Elements function
+function initDOMElements() {
+    console.log('Initializing DOM elements');
+    
+    // Mobile Menu Elements
+    menuBtn = document.getElementById('menuBtn');
+    closeMenuBtn = document.getElementById('closeMenuBtn');
+    mobileMenu = document.getElementById('mobileMenu');
+    mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
+    mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
+    body = document.body;
+    
+    // Set up mobile menu event listeners
+    if (menuBtn) {
+        console.log('Setting up menu button click handler');
+        menuBtn.addEventListener('click', toggleMenu);
+    }
+    
+    if (closeMenuBtn) {
+        console.log('Setting up close menu button click handler');
+        closeMenuBtn.addEventListener('click', closeMenu);
+    }
+    
+    if (mobileMenuBackdrop) {
+        console.log('Setting up menu backdrop click handler');
+        mobileMenuBackdrop.addEventListener('click', closeMenu);
+    }
+    
+    // Close menu when clicking on mobile menu links
+    if (mobileMenuLinks && mobileMenuLinks.length > 0) {
+        console.log(`Setting up ${mobileMenuLinks.length} mobile link click handlers`);
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', closeMenu);
+        });
+    }
+    
+    // Other DOM elements initialization can go here
+    // ...
+}
 
 // Close menu when clicking outside
 document.addEventListener('click', (e) => {
