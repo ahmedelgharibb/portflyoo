@@ -622,47 +622,116 @@ function initializeWithDefaultData() {
 
 // Mobile Menu Functionality
 function toggleMenu() {
-    console.log('Toggling menu');
-    const mobileMenu = document.getElementById('mobileMenu');
-    const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
-    const menuBtn = document.getElementById('menuBtn');
-    const body = document.body;
-    
-    if (!mobileMenu || !mobileMenuBackdrop || !menuBtn) {
-        console.error('Mobile menu elements not found');
-        return;
-    }
-    
-    const isMenuOpen = mobileMenu.classList.contains('active');
-    console.log('Menu currently open:', isMenuOpen);
-    
-    if (isMenuOpen) {
-        // Close menu
-        closeMenu();
-    } else {
-        // Open menu with animation
-        mobileMenu.classList.add('active');
-        mobileMenuBackdrop.classList.add('active');
-        menuBtn.classList.add('open');
-        body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
-        console.log('Menu opened with animations');
-    }
+  console.log('Toggling menu...');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
+  const menuBtn = document.getElementById('menuBtn');
+  const body = document.body;
+  
+  if (!mobileMenu) {
+    console.error('Mobile menu element not found!');
+    return;
+  }
+  
+  console.log('Menu current state:', mobileMenu.classList.contains('active') ? 'open' : 'closed');
+  
+  // Toggle active class for the mobile menu and backdrop
+  mobileMenu.classList.toggle('active');
+  
+  // Toggle the hamburger icon animation
+  if (menuBtn) {
+    menuBtn.classList.toggle('open');
+  } else {
+    console.warn('Menu button not found when toggling menu');
+  }
+  
+  // Toggle the backdrop
+  if (mobileMenuBackdrop) {
+    mobileMenuBackdrop.classList.toggle('active');
+  } else {
+    console.warn('Menu backdrop not found when toggling menu');
+  }
+  
+  // Prevent body scrolling when menu is open
+  if (mobileMenu.classList.contains('active')) {
+    body.classList.add('menu-open');
+  } else {
+    body.classList.remove('menu-open');
+  }
+  
+  console.log('Menu new state:', mobileMenu.classList.contains('active') ? 'open' : 'closed');
 }
 
 function closeMenu() {
-    console.log('Closing menu');
-    const mobileMenu = document.getElementById('mobileMenu');
-    const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
-    const menuBtn = document.getElementById('menuBtn');
-    const body = document.body;
-    
-    if (mobileMenu) mobileMenu.classList.remove('active');
-    if (mobileMenuBackdrop) mobileMenuBackdrop.classList.remove('active');
-    if (menuBtn) menuBtn.classList.remove('open');
-    
-    body.style.overflow = '';
-    console.log('Menu closed');
+  console.log('Closing menu...');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
+  const menuBtn = document.getElementById('menuBtn');
+  const body = document.body;
+  
+  if (!mobileMenu) {
+    console.error('Mobile menu element not found!');
+    return;
+  }
+  
+  // Remove active class from the mobile menu
+  mobileMenu.classList.remove('active');
+  
+  // Remove open class from menu button
+  if (menuBtn) {
+    menuBtn.classList.remove('open');
+  }
+  
+  // Hide the backdrop
+  if (mobileMenuBackdrop) {
+    mobileMenuBackdrop.classList.remove('active');
+  }
+  
+  // Re-enable body scrolling
+  body.classList.remove('menu-open');
+  
+  console.log('Menu closed');
 }
+
+// Make sure event listeners are properly attached
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM fully loaded, setting up menu event listeners');
+  
+  // Menu button event listener
+  const menuBtn = document.getElementById('menuBtn');
+  if (menuBtn) {
+    console.log('Menu button found, attaching click event');
+    menuBtn.addEventListener('click', function(e) {
+      console.log('Menu button clicked');
+      toggleMenu();
+    });
+  } else {
+    console.error('Menu button not found on page load');
+  }
+  
+  // Close menu button event listener
+  const closeMenuBtn = document.getElementById('closeMenuBtn');
+  if (closeMenuBtn) {
+    console.log('Close menu button found, attaching click event');
+    closeMenuBtn.addEventListener('click', closeMenu);
+  }
+  
+  // Backdrop click to close menu
+  const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
+  if (mobileMenuBackdrop) {
+    console.log('Mobile menu backdrop found, attaching click event');
+    mobileMenuBackdrop.addEventListener('click', closeMenu);
+  }
+  
+  // Setup mobile menu links to close menu when clicked
+  const mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
+  if (mobileMenuLinks && mobileMenuLinks.length > 0) {
+    console.log(`Setting up ${mobileMenuLinks.length} mobile menu link click handlers`);
+    mobileMenuLinks.forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+  }
+});
 
 // Initialize DOM Elements function
 function initDOMElements() {
