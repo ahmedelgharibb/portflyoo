@@ -275,7 +275,7 @@
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     font-size: 1.25rem;
-    color: #333;
+    color: var(--primary);
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -355,7 +355,7 @@
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     font-size: 1rem;
-    color: #333333;
+    color: var(--primary);
     text-decoration: none;
     padding: 1rem 1.25rem;
     border-radius: 10px;
@@ -395,7 +395,7 @@
   
   .mobile-nav-link:hover, .mobile-nav-link:focus {
     background-color: rgba(235, 235, 235, 0.7);
-    color: var(--primary);
+    color: var(--primary-dark);
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   }
@@ -2461,6 +2461,22 @@
   /* Ensure proper element sizing */
   *, *::before, *::after {
     box-sizing: border-box !important;
+  }
+  
+  /* Dark mode mobile menu text colors */
+  .dark-mode .mobile-nav-link {
+    color: var(--primary-light); /* Use lighter variant of primary color for dark mode */
+    border-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(30, 41, 59, 0.5); /* Dark background with transparency */
+  }
+
+  .dark-mode .mobile-nav-link:hover, .dark-mode .mobile-nav-link:focus {
+    background-color: rgba(30, 41, 59, 0.7);
+    color: var(--primary-light);
+  }
+
+  .dark-mode .mobile-nav-title {
+    color: var(--primary-light); /* Match the menu text color in dark mode */
   }
   
   
