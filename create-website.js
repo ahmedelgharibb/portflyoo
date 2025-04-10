@@ -181,6 +181,7 @@ function validateInput(siteName, folderName) {
  * @param {string} folderName The folder name for the website
  * @param {object} options Optional parameters
  * @param {boolean} options.skipFolderName Whether to skip using the folder_name column
+ * @param {boolean} options.forceTeacherWebsites Whether to force using the teacher_websites table
  */
 async function registerWebsite(siteName, folderName, options = {}) {
   try {
@@ -189,8 +190,14 @@ async function registerWebsite(siteName, folderName, options = {}) {
     
     // Check options
     const skipFolderName = options.skipFolderName === true;
+    const forceTeacherWebsites = options.forceTeacherWebsites === true;
+    
     if (skipFolderName) {
       console.log('Option set to skip folder_name column');
+    }
+    
+    if (forceTeacherWebsites) {
+      console.log('Option set to force using teacher_websites table');
     }
     
     console.log('Connecting to Supabase...');
@@ -209,6 +216,9 @@ async function registerWebsite(siteName, folderName, options = {}) {
       hasTeacherWebsitesTable = true;
     } else {
       console.warn('teacher_websites table check failed:', teacherTableError.message);
+      if (forceTeacherWebsites) {
+        throw new Error('teacher_websites table is required but not available or accessible');
+      }
     }
     
     // Check if websites table exists
@@ -216,40 +226,17 @@ async function registerWebsite(siteName, folderName, options = {}) {
     if (!websitesTableError) {
       console.log('Found websites table');
       hasWebsitesTable = true;
-      
-      // Check if the websites table has the necessary columns
-      try {
-        const { data: websitesInfo, error: websitesInfoError } = await supabase
-          .from('websites')
-          .select('*')
-          .limit(1);
-          
-        if (!websitesInfoError && websitesInfo && websitesInfo.length > 0) {
-          console.log('Available columns in websites table:', Object.keys(websitesInfo[0]).join(', '));
-          
-          // If folder_name is missing from websites table but we need to use it, 
-          // set a flag to handle this case differently
-          const columns = Object.keys(websitesInfo[0]);
-          if (!columns.includes('folder_name')) {
-            console.warn('websites table does not have folder_name column');
-            
-            // We'll use admin_username instead if available
-            if (columns.includes('admin_username')) {
-              console.log('Will use admin_username instead of folder_name for websites table');
-            }
-          }
-        }
-      } catch (websitesCheckError) {
-        console.warn('Error checking websites table structure:', websitesCheckError.message);
-      }
     } else {
       console.warn('websites table check failed:', websitesTableError.message);
     }
     
     // Decide which table to use
     if (hasTeacherWebsitesTable) {
+      // Always prioritize teacher_websites table if it exists
       tableToUse = 'teacher_websites';
-    } else if (hasWebsitesTable) {
+      console.log('Prioritizing teacher_websites table for registration');
+    } else if (hasWebsitesTable && !forceTeacherWebsites) {
+      console.log('WARNING: Using websites table as fallback only because teacher_websites table is not available');
       tableToUse = 'websites';
       // Force skipFolderName to true when using websites table
       if (!skipFolderName) {
@@ -258,13 +245,15 @@ async function registerWebsite(siteName, folderName, options = {}) {
         skipFolderName = true;
       }
     } else {
-      throw new Error('No suitable database table found. Please ensure either teacher_websites or websites table exists.');
+      throw new Error('No suitable database table found. Please ensure teacher_websites table exists.');
     }
     
     console.log(`Using '${tableToUse}' table for website registration`);
     
     // Get table structure to identify available columns
     console.log(`Checking ${tableToUse} table structure...`);
+    let availableColumns = [];
+    
     try {
       const { data: tableInfo, error: tableError } = await supabase
         .from(tableToUse)
@@ -274,7 +263,8 @@ async function registerWebsite(siteName, folderName, options = {}) {
       if (tableError) {
         console.warn(`Could not retrieve ${tableToUse} structure:`, tableError.message);
       } else if (tableInfo && tableInfo.length > 0) {
-        console.log(`Available columns in ${tableToUse} table:`, Object.keys(tableInfo[0]).join(', '));
+        availableColumns = Object.keys(tableInfo[0]);
+        console.log(`Available columns in ${tableToUse} table:`, availableColumns.join(', '));
       } else {
         console.log(`Table ${tableToUse} appears to be empty, could not infer structure from existing records`);
       }
@@ -371,11 +361,18 @@ async function registerWebsite(siteName, folderName, options = {}) {
     let websiteData = {};
     
     if (tableToUse === 'teacher_websites') {
-      websiteData = {
+      // Define base data structure that should work with all versions of the table
+      const baseData = {
         site_id: siteId,
         admin_username: adminUsername,
         admin_password_hash: adminPasswordHash,
         teacher_name: validSiteName,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      // Additional data that may be present in some installations
+      const additionalData = {
         teacher_title: 'Teacher',
         hero_heading: 'Inspiring Minds Through Education',
         experience_years: '15+',
@@ -393,34 +390,23 @@ async function registerWebsite(siteName, folderName, options = {}) {
         experience_schools: JSON.stringify(DEFAULT_TEMPLATE_DATA.experience.schools),
         experience_centers: JSON.stringify(DEFAULT_TEMPLATE_DATA.experience.centers),
         experience_platforms: JSON.stringify(DEFAULT_TEMPLATE_DATA.experience.platforms),
-        results: JSON.stringify(DEFAULT_TEMPLATE_DATA.results),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        results: JSON.stringify(DEFAULT_TEMPLATE_DATA.results)
       };
-    } else {
-      // For websites table, use a simpler structure
-      // First check columns to ensure we only include valid ones
-      let availableWebsitesColumns = [];
       
-      try {
-        const { data: columnInfo, error: columnError } = await supabase
-          .from('websites')
-          .select('*')
-          .limit(1);
-          
-        if (!columnError && columnInfo && columnInfo.length > 0) {
-          availableWebsitesColumns = Object.keys(columnInfo[0]);
-          console.log('Available columns in websites table for data insertion:', availableWebsitesColumns.join(', '));
-        } else {
-          console.warn('Could not determine columns for websites table, using basic fields only');
-          availableWebsitesColumns = ['site_name', 'site_url', 'created_at', 'updated_at'];
+      // Start with base data
+      websiteData = { ...baseData };
+      
+      // Only add additional fields if they exist in the table schema
+      for (const [key, value] of Object.entries(additionalData)) {
+        if (availableColumns.includes(key)) {
+          websiteData[key] = value;
         }
-      } catch (columnCheckError) {
-        console.warn('Error checking websites columns:', columnCheckError.message);
-        // Fallback to basic fields
-        availableWebsitesColumns = ['site_name', 'site_url', 'created_at', 'updated_at'];
       }
       
+      console.log(`Preparing data for teacher_websites with ${Object.keys(websiteData).length} columns`);
+    } else {
+      // For websites table (fallback only)
+      // First check columns to ensure we only include valid ones      
       // Start with basic data that should work on all schemas
       websiteData = {
         site_name: validSiteName,
@@ -430,7 +416,7 @@ async function registerWebsite(siteName, folderName, options = {}) {
       };
       
       // Only add fields that exist in the table
-      if (availableWebsitesColumns.includes('admin_username')) {
+      if (availableColumns.includes('admin_username')) {
         websiteData.admin_username = adminUsername;
       }
       

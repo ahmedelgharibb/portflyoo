@@ -230,9 +230,12 @@ app.post('/api/create-website', async (req, res) => {
     
     // Register the website in the database
     try {
-      // Always pass skipFolderName: true to ensure we never hit the folder_name issue
-      const options = { skipFolderName: true };
-      console.log('Using skipFolderName option to avoid folder_name column issues');
+      // Configure options to use teacher_websites table and align data with columns
+      const options = { 
+        skipFolderName: true,        // Avoid folder_name column issues
+        forceTeacherWebsites: true   // Always try to use teacher_websites table
+      };
+      console.log('Using teacher_websites table for registration with correct column alignment');
       
       const result = await registerWebsite(siteName, folderName, options);
       
