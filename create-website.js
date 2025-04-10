@@ -179,11 +179,19 @@ function validateInput(siteName, folderName) {
  * Register a new website in the database
  * @param {string} siteName The name of the website
  * @param {string} folderName The folder name for the website
+ * @param {object} options Optional parameters
+ * @param {boolean} options.skipFolderName Whether to skip using the folder_name column
  */
-async function registerWebsite(siteName, folderName) {
+async function registerWebsite(siteName, folderName, options = {}) {
   try {
     console.log('Validating input...');
     const { siteName: validSiteName, folderName: validFolderName } = validateInput(siteName, folderName);
+    
+    // Check options
+    const skipFolderName = options.skipFolderName === true;
+    if (skipFolderName) {
+      console.log('Option set to skip folder_name column');
+    }
     
     console.log('Connecting to Supabase...');
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -291,36 +299,49 @@ async function registerWebsite(siteName, folderName) {
     // For websites table, check different columns depending on structure
     else if (tableToUse === 'websites') {
       try {
-        // Try folder_name first if it might exist
-        const { data: existingWebsite, error: existingWebsiteError } = await supabase
+        // First check table structure to see what columns we have
+        const { data: columnCheck, error: columnCheckError } = await supabase
           .from(tableToUse)
-          .select('id, site_name')
-          .or(`folder_name.eq.${validFolderName},admin_username.eq.${validFolderName}`)
-          .maybeSingle();
+          .select('*')
+          .limit(1);
           
-        if (!existingWebsiteError && existingWebsite) {
-          console.error(`Website with folder name "${validFolderName}" already exists (ID: ${existingWebsite.id})`);
-          throw new Error(`A website already exists with folder name "${validFolderName}". Please choose a different folder name.`);
+        if (columnCheckError) {
+          console.warn('Error checking columns:', columnCheckError.message);
+        } else {
+          const availableColumns = columnCheck && columnCheck.length > 0 
+            ? Object.keys(columnCheck[0]) 
+            : [];
+            
+          console.log('Available columns for existence check:', availableColumns.join(', '));
+          
+          // Check if admin_username exists (safer check)
+          if (availableColumns.includes('admin_username')) {
+            const { data: existingWebsite, error: existingWebsiteError } = await supabase
+              .from(tableToUse)
+              .select('id, site_name')
+              .eq('admin_username', validFolderName)
+              .maybeSingle();
+              
+            if (!existingWebsiteError && existingWebsite) {
+              console.error(`Website with username "${validFolderName}" already exists (ID: ${existingWebsite.id})`);
+              throw new Error(`A website already exists with username "${validFolderName}". Please choose a different folder name.`);
+            }
+          }
+          
+          // Check site_name as a fallback
+          const { data: nameCheck, error: nameCheckError } = await supabase
+            .from(tableToUse)
+            .select('id, site_name')
+            .eq('site_name', validSiteName)
+            .maybeSingle();
+            
+          if (!nameCheckError && nameCheck) {
+            console.error(`Website with name "${validSiteName}" already exists (ID: ${nameCheck.id})`);
+            throw new Error(`A website already exists with name "${validSiteName}". Please choose a different site name.`);
+          }
         }
       } catch (checkError) {
         console.warn('Error checking existing website in websites table:', checkError.message);
-        
-        // Alternative approach if the previous query failed
-        try {
-          // Try admin_username or site_name as fallback
-          const { data: existingWebsite, error: existingWebsiteError } = await supabase
-            .from(tableToUse)
-            .select('id, site_name')
-            .eq('site_name', validFolderName)
-            .maybeSingle();
-            
-          if (!existingWebsiteError && existingWebsite) {
-            console.error(`Website with name "${validFolderName}" already exists (ID: ${existingWebsite.id})`);
-            throw new Error(`A website already exists with name "${validFolderName}". Please choose a different folder name.`);
-          }
-        } catch (altCheckError) {
-          console.warn('Alternative check for existing website also failed:', altCheckError.message);
-        }
       }
     }
     
@@ -372,20 +393,44 @@ async function registerWebsite(siteName, folderName) {
       };
     } else {
       // For websites table, use a simpler structure
+      // First check columns to ensure we only include valid ones
+      let availableWebsitesColumns = [];
+      
+      try {
+        const { data: columnInfo, error: columnError } = await supabase
+          .from('websites')
+          .select('*')
+          .limit(1);
+          
+        if (!columnError && columnInfo && columnInfo.length > 0) {
+          availableWebsitesColumns = Object.keys(columnInfo[0]);
+          console.log('Available columns in websites table for data insertion:', availableWebsitesColumns.join(', '));
+        } else {
+          console.warn('Could not determine columns for websites table, using basic fields only');
+          availableWebsitesColumns = ['site_name', 'site_url', 'created_at', 'updated_at'];
+        }
+      } catch (columnCheckError) {
+        console.warn('Error checking websites columns:', columnCheckError.message);
+        // Fallback to basic fields
+        availableWebsitesColumns = ['site_name', 'site_url', 'created_at', 'updated_at'];
+      }
+      
+      // Start with basic data that should work on all schemas
       websiteData = {
         site_name: validSiteName,
         site_url: siteUrl,
-        admin_username: adminUsername,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
       
-      // Attempt to add folder_name if needed
-      // This might fail if the column doesn't exist, but we try anyway
-      try {
+      // Only add fields that exist in the table
+      if (availableWebsitesColumns.includes('admin_username')) {
+        websiteData.admin_username = adminUsername;
+      }
+      
+      // Only try to add folder_name if it exists in the schema and we're not skipping it
+      if (availableWebsitesColumns.includes('folder_name') && !skipFolderName) {
         websiteData.folder_name = validFolderName;
-      } catch (e) {
-        console.warn('Could not add folder_name field to data object');
       }
     }
     
@@ -396,6 +441,12 @@ async function registerWebsite(siteName, folderName) {
     
     while (retries > 0 && !website) {
       try {
+        // For websites table, double-check if folder_name is included but shouldn't be
+        if (tableToUse === 'websites' && websiteData.folder_name !== undefined && (skipFolderName || !availableWebsitesColumns.includes('folder_name'))) {
+          console.log('Skipping folder_name field due to known issues or explicit skip request');
+          delete websiteData.folder_name;
+        }
+        
         const response = await supabase
           .from(tableToUse)
           .insert(websiteData)

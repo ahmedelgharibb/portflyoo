@@ -269,10 +269,51 @@ app.post('/api/create-website', async (req, res) => {
       // Specifically handle folder_name column issue
       if (dbError.message && dbError.message.includes('folder_name')) {
         console.error('Folder name column error:', dbError.message);
-        return res.status(500).json({ 
-          error: 'Database schema issue: The folder_name column is missing. Please contact the administrator to fix the database schema.',
-          technicalDetails: dbError.message 
-        });
+        
+        // Try to insert into database without the folder_name column
+        try {
+          console.log('Attempting to create website without folder_name...');
+          // Create a modified version of registerWebsite function call with extra option
+          const result = await registerWebsite(siteName, folderName, { skipFolderName: true });
+          
+          if (!result || !result.siteId) {
+            return res.status(500).json({ 
+              error: 'Database schema issue: The folder_name column is missing, and fallback attempt also failed.'
+            });
+          }
+          
+          console.log(`Website registered successfully with ID: ${result.siteId} (without folder_name)`);
+          
+          // Create the website directory
+          console.log('Creating website directory:', newWebsiteDir);
+          await fs.mkdir(newWebsiteDir, { recursive: true });
+          
+          // Copy template files to the new website directory
+          console.log('Copying template files to new directory...');
+          await fs.copy(templateDir, newWebsiteDir);
+          
+          // Create site-config.js file
+          const configPath = path.join(newWebsiteDir, 'site-config.js');
+          console.log('Creating site-config.js at:', configPath);
+          await fs.writeFile(configPath, result.configContent);
+          
+          console.log('Website creation completed successfully (without folder_name)');
+          
+          // Return the result
+          return res.status(201).json({
+            siteId: result.siteId,
+            siteName: result.siteName,
+            siteUrl: result.siteUrl,
+            folderName: result.folderName,
+            note: "Website created successfully, but folder_name column was missing in database."
+          });
+        } catch (fallbackError) {
+          console.error('Fallback attempt also failed:', fallbackError.message);
+          return res.status(500).json({ 
+            error: 'Database schema issue: The folder_name column is missing. Please contact the administrator to fix the database schema.',
+            technicalDetails: `${dbError.message}. Fallback also failed: ${fallbackError.message}`
+          });
+        }
       }
       
       // Otherwise, rethrow the error
