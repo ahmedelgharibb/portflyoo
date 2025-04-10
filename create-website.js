@@ -188,28 +188,81 @@ async function registerWebsite(siteName, folderName) {
     console.log('Connecting to Supabase...');
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    // Verify connection to Supabase
-    const { error: connectionError } = await supabase.from('teacher_websites').select('count').limit(1);
-    if (connectionError) {
-      console.error('Error connecting to Supabase:', connectionError);
-      throw new Error(`Failed to connect to database: ${connectionError.message}`);
+    // Verify connection to Supabase and determine which table to use
+    console.log('Checking database tables...');
+    let tableToUse = 'teacher_websites'; // Default table name
+    let hasTeacherWebsitesTable = false;
+    let hasWebsitesTable = false;
+    
+    // Check if teacher_websites table exists
+    const { error: teacherTableError } = await supabase.from('teacher_websites').select('count').limit(1);
+    if (!teacherTableError) {
+      console.log('Found teacher_websites table');
+      hasTeacherWebsitesTable = true;
+    } else {
+      console.warn('teacher_websites table check failed:', teacherTableError.message);
     }
-    console.log('Successfully connected to Supabase');
+    
+    // Check if websites table exists
+    const { error: websitesTableError } = await supabase.from('websites').select('count').limit(1);
+    if (!websitesTableError) {
+      console.log('Found websites table');
+      hasWebsitesTable = true;
+      
+      // Check if the websites table has the necessary columns
+      try {
+        const { data: websitesInfo, error: websitesInfoError } = await supabase
+          .from('websites')
+          .select('*')
+          .limit(1);
+          
+        if (!websitesInfoError && websitesInfo && websitesInfo.length > 0) {
+          console.log('Available columns in websites table:', Object.keys(websitesInfo[0]).join(', '));
+          
+          // If folder_name is missing from websites table but we need to use it, 
+          // set a flag to handle this case differently
+          const columns = Object.keys(websitesInfo[0]);
+          if (!columns.includes('folder_name')) {
+            console.warn('websites table does not have folder_name column');
+            
+            // We'll use admin_username instead if available
+            if (columns.includes('admin_username')) {
+              console.log('Will use admin_username instead of folder_name for websites table');
+            }
+          }
+        }
+      } catch (websitesCheckError) {
+        console.warn('Error checking websites table structure:', websitesCheckError.message);
+      }
+    } else {
+      console.warn('websites table check failed:', websitesTableError.message);
+    }
+    
+    // Decide which table to use
+    if (hasTeacherWebsitesTable) {
+      tableToUse = 'teacher_websites';
+    } else if (hasWebsitesTable) {
+      tableToUse = 'websites';
+    } else {
+      throw new Error('No suitable database table found. Please ensure either teacher_websites or websites table exists.');
+    }
+    
+    console.log(`Using '${tableToUse}' table for website registration`);
     
     // Get table structure to identify available columns
-    console.log('Checking table structure...');
+    console.log(`Checking ${tableToUse} table structure...`);
     try {
       const { data: tableInfo, error: tableError } = await supabase
-        .from('teacher_websites')
+        .from(tableToUse)
         .select('*')
         .limit(1);
         
       if (tableError) {
-        console.warn('Could not retrieve table structure:', tableError.message);
+        console.warn(`Could not retrieve ${tableToUse} structure:`, tableError.message);
       } else if (tableInfo && tableInfo.length > 0) {
-        console.log('Available columns in teacher_websites table:', Object.keys(tableInfo[0]).join(', '));
+        console.log(`Available columns in ${tableToUse} table:`, Object.keys(tableInfo[0]).join(', '));
       } else {
-        console.log('Table appears to be empty, could not infer structure from existing records');
+        console.log(`Table ${tableToUse} appears to be empty, could not infer structure from existing records`);
       }
     } catch (structureError) {
       console.warn('Error checking table structure:', structureError.message);
@@ -217,19 +270,58 @@ async function registerWebsite(siteName, folderName) {
     
     // Check if website with the same admin_username (folder name) already exists
     console.log(`Checking if website with folder name "${validFolderName}" already exists...`);
-    const { data: existingWebsite, error: existingWebsiteError } = await supabase
-      .from('teacher_websites')
-      .select('site_id, admin_username, teacher_name')
-      .eq('admin_username', validFolderName)
-      .maybeSingle();
-      
-    if (existingWebsiteError) {
-      console.warn('Error checking for existing website:', existingWebsiteError.message);
-    }
     
-    if (existingWebsite) {
-      console.error(`Website with folder name "${validFolderName}" already exists (ID: ${existingWebsite.site_id})`);
-      throw new Error(`A website already exists with folder name "${validFolderName}". Please choose a different folder name.`);
+    // For teacher_websites table, check admin_username
+    if (tableToUse === 'teacher_websites') {
+      const { data: existingWebsite, error: existingWebsiteError } = await supabase
+        .from(tableToUse)
+        .select('site_id, admin_username, teacher_name')
+        .eq('admin_username', validFolderName)
+        .maybeSingle();
+        
+      if (existingWebsiteError) {
+        console.warn('Error checking for existing website:', existingWebsiteError.message);
+      }
+      
+      if (existingWebsite) {
+        console.error(`Website with folder name "${validFolderName}" already exists (ID: ${existingWebsite.site_id})`);
+        throw new Error(`A website already exists with folder name "${validFolderName}". Please choose a different folder name.`);
+      }
+    } 
+    // For websites table, check different columns depending on structure
+    else if (tableToUse === 'websites') {
+      try {
+        // Try folder_name first if it might exist
+        const { data: existingWebsite, error: existingWebsiteError } = await supabase
+          .from(tableToUse)
+          .select('id, site_name')
+          .or(`folder_name.eq.${validFolderName},admin_username.eq.${validFolderName}`)
+          .maybeSingle();
+          
+        if (!existingWebsiteError && existingWebsite) {
+          console.error(`Website with folder name "${validFolderName}" already exists (ID: ${existingWebsite.id})`);
+          throw new Error(`A website already exists with folder name "${validFolderName}". Please choose a different folder name.`);
+        }
+      } catch (checkError) {
+        console.warn('Error checking existing website in websites table:', checkError.message);
+        
+        // Alternative approach if the previous query failed
+        try {
+          // Try admin_username or site_name as fallback
+          const { data: existingWebsite, error: existingWebsiteError } = await supabase
+            .from(tableToUse)
+            .select('id, site_name')
+            .eq('site_name', validFolderName)
+            .maybeSingle();
+            
+          if (!existingWebsiteError && existingWebsite) {
+            console.error(`Website with name "${validFolderName}" already exists (ID: ${existingWebsite.id})`);
+            throw new Error(`A website already exists with name "${validFolderName}". Please choose a different folder name.`);
+          }
+        } catch (altCheckError) {
+          console.warn('Alternative check for existing website also failed:', altCheckError.message);
+        }
+      }
     }
     
     console.log(`No existing website found with folder name "${validFolderName}"`);
@@ -245,36 +337,57 @@ async function registerWebsite(siteName, folderName) {
     const adminUsername = validFolderName;
     const adminPasswordHash = generateHashedPassword();
     
-    // Create the website record in the teacher_websites table
-    console.log('Creating website record in the database...');
+    // Create the website record in the database table
+    console.log(`Creating website record in the ${tableToUse} table...`);
     
-    // Format complex data types as JSON strings for Supabase
-    const websiteData = {
-      site_id: siteId,
-      admin_username: adminUsername,
-      admin_password_hash: adminPasswordHash,
-      teacher_name: validSiteName,
-      teacher_title: 'Teacher',
-      hero_heading: 'Inspiring Minds Through Education',
-      experience_years: '15+',
-      teaching_philosophy: DEFAULT_TEMPLATE_DATA.personal.philosophy,
-      contact_email: DEFAULT_TEMPLATE_DATA.contact.email,
-      phone_number: DEFAULT_TEMPLATE_DATA.contact.phone,
-      registration_form_url: DEFAULT_TEMPLATE_DATA.contact.formUrl,
-      assistant_form_url: DEFAULT_TEMPLATE_DATA.contact.assistantFormUrl,
-      contact_message: DEFAULT_TEMPLATE_DATA.contact.contactMessage,
-      theme_color: DEFAULT_TEMPLATE_DATA.theme.color,
-      theme_mode: DEFAULT_TEMPLATE_DATA.theme.mode,
-      hero_image_url: DEFAULT_TEMPLATE_DATA.heroImage,
-      subjects: JSON.stringify(DEFAULT_TEMPLATE_DATA.subjects),
-      qualifications: JSON.stringify(DEFAULT_TEMPLATE_DATA.personal.qualifications),
-      experience_schools: JSON.stringify(DEFAULT_TEMPLATE_DATA.experience.schools),
-      experience_centers: JSON.stringify(DEFAULT_TEMPLATE_DATA.experience.centers),
-      experience_platforms: JSON.stringify(DEFAULT_TEMPLATE_DATA.experience.platforms),
-      results: JSON.stringify(DEFAULT_TEMPLATE_DATA.results),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    // Prepare the data based on which table we're using
+    let websiteData = {};
+    
+    if (tableToUse === 'teacher_websites') {
+      websiteData = {
+        site_id: siteId,
+        admin_username: adminUsername,
+        admin_password_hash: adminPasswordHash,
+        teacher_name: validSiteName,
+        teacher_title: 'Teacher',
+        hero_heading: 'Inspiring Minds Through Education',
+        experience_years: '15+',
+        teaching_philosophy: DEFAULT_TEMPLATE_DATA.personal.philosophy,
+        contact_email: DEFAULT_TEMPLATE_DATA.contact.email,
+        phone_number: DEFAULT_TEMPLATE_DATA.contact.phone,
+        registration_form_url: DEFAULT_TEMPLATE_DATA.contact.formUrl,
+        assistant_form_url: DEFAULT_TEMPLATE_DATA.contact.assistantFormUrl,
+        contact_message: DEFAULT_TEMPLATE_DATA.contact.contactMessage,
+        theme_color: DEFAULT_TEMPLATE_DATA.theme.color,
+        theme_mode: DEFAULT_TEMPLATE_DATA.theme.mode,
+        hero_image_url: DEFAULT_TEMPLATE_DATA.heroImage,
+        subjects: JSON.stringify(DEFAULT_TEMPLATE_DATA.subjects),
+        qualifications: JSON.stringify(DEFAULT_TEMPLATE_DATA.personal.qualifications),
+        experience_schools: JSON.stringify(DEFAULT_TEMPLATE_DATA.experience.schools),
+        experience_centers: JSON.stringify(DEFAULT_TEMPLATE_DATA.experience.centers),
+        experience_platforms: JSON.stringify(DEFAULT_TEMPLATE_DATA.experience.platforms),
+        results: JSON.stringify(DEFAULT_TEMPLATE_DATA.results),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+    } else {
+      // For websites table, use a simpler structure
+      websiteData = {
+        site_name: validSiteName,
+        site_url: siteUrl,
+        admin_username: adminUsername,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      // Attempt to add folder_name if needed
+      // This might fail if the column doesn't exist, but we try anyway
+      try {
+        websiteData.folder_name = validFolderName;
+      } catch (e) {
+        console.warn('Could not add folder_name field to data object');
+      }
+    }
     
     // Retry logic for database insertion
     let website = null;
@@ -282,26 +395,49 @@ async function registerWebsite(siteName, folderName) {
     let retries = 3;
     
     while (retries > 0 && !website) {
-      const response = await supabase
-        .from('teacher_websites')
-        .insert(websiteData)
-        .select()
-        .single();
+      try {
+        const response = await supabase
+          .from(tableToUse)
+          .insert(websiteData)
+          .select()
+          .single();
+          
+        website = response.data;
+        websiteError = response.error;
         
-      website = response.data;
-      websiteError = response.error;
-      
-      if (websiteError) {
-        console.warn(`Database insertion attempt failed (${4-retries}/3), retrying...`, websiteError.message);
+        if (websiteError) {
+          console.warn(`Database insertion attempt failed (${4-retries}/3), retrying...`, websiteError.message);
+          
+          // Handle specific case of missing folder_name column
+          if (websiteError.message && websiteError.message.includes("folder_name")) {
+            console.log("Detected folder_name column error, removing folder_name from data");
+            
+            // Remove the folder_name field and try again
+            if (websiteData.folder_name) {
+              delete websiteData.folder_name;
+              console.log("Modified data object:", Object.keys(websiteData).join(', '));
+            }
+          }
+          
+          retries--;
+          
+          if (retries > 0) {
+            // Wait before retrying (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, 1000 * (4-retries)));
+          }
+        } else {
+          console.log('Website data inserted successfully on attempt', 4-retries);
+          break;
+        }
+      } catch (insertError) {
+        console.error('Unexpected error during database insertion:', insertError.message);
+        websiteError = {message: insertError.message};
         retries--;
         
         if (retries > 0) {
-          // Wait before retrying (exponential backoff)
+          // Wait before retrying
           await new Promise(resolve => setTimeout(resolve, 1000 * (4-retries)));
         }
-      } else {
-        console.log('Website data inserted successfully on attempt', 4-retries);
-        break;
       }
     }
     
