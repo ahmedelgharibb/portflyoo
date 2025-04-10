@@ -42,64 +42,65 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Once the document is ready
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log('Document ready, initializing...');
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded, initializing admin functionality');
     
-    // Initialize DOM elements
-    initDOMElements();
+    // Get references to admin-related elements
+    adminBtn = document.getElementById('adminBtn');
+    adminBtnMobile = document.getElementById('adminBtnMobile');
+    adminLoginModal = document.getElementById('adminLoginModal');
+    adminLoginForm = document.getElementById('adminLoginForm');
+    cancelLoginBtn = document.getElementById('cancelLogin');
+    exitLoginBtn = document.getElementById('exitLoginBtn');
     
-    // Check if user is logged in (using sessionStorage for session-only login)
-    isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+    // Check if user is logged in (using localStorage instead of sessionStorage for persistence)
+    isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
     console.log('Login status:', isLoggedIn ? 'Logged in' : 'Not logged in');
     
     // Set up the admin button functionality based on login status
     if (adminBtn) {
-        console.log('Setting up admin button click handler');
+        console.log('Admin button found, setting up click handler');
         if (isLoggedIn) {
+            adminBtn.innerHTML = '<i class="fas fa-lock-open"></i>';
+            adminBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openAdminPanel();
+            });
+        } else {
             adminBtn.innerHTML = '<i class="fas fa-lock"></i>';
             adminBtn.addEventListener('click', function(e) {
-                console.log('Admin button clicked (logged in) - opening panel');
                 e.preventDefault();
-                openAdminPanel();
-            });
-        } else {
-            adminBtn.textContent = 'Admin Login';
-            adminBtn.addEventListener('click', function(e) {
                 console.log('Admin button clicked (not logged in) - showing login form');
-                e.preventDefault();
                 showLoginForm();
             });
         }
     } else {
-        console.warn('Admin button not found in the DOM');
+        console.error('Admin button not found in the DOM');
     }
     
-    // Mobile admin button functionality
+    // Set up mobile admin button
     if (adminBtnMobile) {
-        console.log('Setting up mobile admin button click handler');
+        console.log('Mobile admin button found, setting up click handler');
         if (isLoggedIn) {
             adminBtnMobile.addEventListener('click', function(e) {
-                console.log('Mobile admin button clicked (logged in) - opening panel');
                 e.preventDefault();
-                closeMenu();
                 openAdminPanel();
             });
         } else {
             adminBtnMobile.addEventListener('click', function(e) {
-                console.log('Mobile admin button clicked (not logged in) - showing login form');
                 e.preventDefault();
-                closeMenu();
+                console.log('Mobile admin button clicked (not logged in) - showing login form');
                 showLoginForm();
             });
         }
-    } else {
-        console.warn('Mobile admin button not found in the DOM');
     }
     
     // Set up admin login form event listener
     if (adminLoginForm) {
         console.log('Setting up admin login form submit handler');
         adminLoginForm.addEventListener('submit', handleAdminLogin);
+    } else {
+        console.error('Admin login form not found');
     }
     
     // Set up cancel login button
@@ -113,586 +114,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log('Setting up exit login button click handler');
         exitLoginBtn.addEventListener('click', hideAdminLogin);
     }
-    
-    // Set up close admin panel button
-    if (closeAdminPanelBtn) {
-        console.log('Setting up close admin panel button click handler');
-        closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
-    }
-    
-    // Initialize Supabase client
-    try {
-        // Try to load from Supabase
-        try {
-            const { data, error } = await supabase
-                .from('site_data')
-                .select('data')
-                .eq('id', 1)
-                .single();
-            
-            if (error) {
-                console.error('Error loading initial data from Supabase:', error);
-                // Data doesn't exist or there was an error, restore it
-                console.log('Attempting to restore data to Supabase...');
-                await restoreDataToSupabase();
-            } else if (data && data.data) {
-                siteData = data.data;
-                console.log('✅ Initial data loaded from Supabase successfully');
-                updateSiteContent(siteData);
-            } else {
-                console.log('No initial data found in Supabase');
-                console.log('Attempting to restore data to Supabase...');
-                await restoreDataToSupabase();
-            }
-        } catch (error) {
-            console.error('Error during initialization:', error);
-            await restoreDataToSupabase();
-        }
-    } catch (error) {
-        console.error('Error during initialization:', error);
-        initializeWithDefaultData();
-    }
-    
-    // Apply the saved theme
-    loadSavedTheme();
-    
-    // Setup admin panel event listeners if present and user is logged in
-    if (isLoggedIn) {
-        if (closeAdminPanelBtn) closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
-        if (saveChangesBtn) saveChangesBtn.addEventListener('click', saveAdminChanges);
-        
-        // Add result button
-        if (addResultBtn) addResultBtn.addEventListener('click', addNewResult);
-        
-        // Logout button
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) logoutBtn.addEventListener('click', adminLogout);
-    }
-    
-    // Set up danger zone functionality
-    setupDangerZone();
-    
-    // Setup theme toggle functionality (placeholder for future dark mode implementation)
-    setupThemeToggle();
-    
-    // Image Upload Functionality
-    const heroImageInput = document.getElementById('heroImageInput');
-    const aboutImageInput = document.getElementById('aboutImageInput');
-    const heroUploadBtn = document.getElementById('heroUploadBtn');
-    const aboutUploadBtn = document.getElementById('aboutUploadBtn');
-    const heroPreview = document.getElementById('heroPreview');
-    const aboutPreview = document.getElementById('aboutPreview');
-    const removeHeroBtn = document.getElementById('removeHeroBtn');
-    const removeAboutBtn = document.getElementById('removeAboutBtn');
-    const heroDropZone = document.getElementById('heroDropZone');
-    const aboutDropZone = document.getElementById('aboutDropZone');
-    
-    // Initialize image upload functionality
-    async function initializeImageUpload() {
-        try {
-            const { data, error } = await supabase
-                .from('website_data')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .limit(1);
-
-            if (error) throw error;
-
-            if (data && data.length > 0) {
-                const websiteData = data[0].data;
-                
-                // Handle hero image
-                if (websiteData.heroImage) {
-                    const heroImg = heroPreview.querySelector('img');
-                    heroImg.src = websiteData.heroImage;
-                    heroPreview.classList.remove('hidden');
-                }
-
-                // Handle about image
-                if (websiteData.aboutImage) {
-                    const aboutImg = aboutPreview.querySelector('img');
-                    aboutImg.src = websiteData.aboutImage;
-                    aboutPreview.classList.remove('hidden');
-                }
-            }
-        } catch (error) {
-            console.error('Error initializing image upload:', error);
-        }
-    }
-    
-    // Setup drag and drop functionality
-    function setupDragAndDrop(dropZone, fileInput, type) {
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight(e) {
-            dropZone.classList.add('border-blue-500', 'dark:border-blue-400');
-        }
-
-        function unhighlight(e) {
-            dropZone.classList.remove('border-blue-500', 'dark:border-blue-400');
-        }
-
-        dropZone.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files.length > 0) {
-                handleImageUpload(files[0], type);
-            }
-        }
-    }
-    
-    // Handle image upload
-    async function handleImageUpload(file, type) {
-        try {
-            // Validate file type
-            if (!file.type.startsWith('image/')) {
-                showAdminAlert('error', 'Please upload an image file');
-                return;
-            }
-
-            // Validate file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                showAdminAlert('error', 'Image size should be less than 5MB');
-                return;
-            }
-
-            // Get current data
-            const { data: currentData, error: fetchError } = await supabase
-                .from('site_data')
-                .select('*')
-                .eq('id', 1)
-                .single();
-
-            if (fetchError) throw fetchError;
-
-            // Start with current data to preserve all existing values
-            let websiteData = currentData?.data || {
-                theme: { mode: 'light', color: 'red' },
-                contact: { email: '', phone: '', formUrl: '', contactMessage: '', assistantFormUrl: '' },
-                results: [],
-                personal: { name: '', title: '', experience: '', qualifications: [] },
-                experience: { centers: [], schools: [], platforms: [] }
-            };
-                
-            // Generate unique filename
-            const timestamp = new Date().getTime();
-            const filename = `${type}_${timestamp}_${file.name}`;
-                
-            // Upload to Supabase Storage
-            const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('website-images')
-                .upload(filename, file);
-
-            if (uploadError) {
-                console.error('Upload error:', uploadError);
-                if (uploadError.message.includes('bucket')) {
-                    showAdminAlert('error', 'Storage bucket "website-images" not found. Please create it in your Supabase project: 1. Go to Storage in Supabase dashboard 2. Click "Create a new bucket" 3. Name it "website-images" 4. Set to Public 5. Click Create');
-                    return;
-                }
-                throw uploadError;
-            }
-
-            // Get public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('website-images')
-                .getPublicUrl(filename);
-
-            // Delete old image if exists
-            if (websiteData[`${type}Image`]) {
-                const oldFilename = websiteData[`${type}Image`].split('/').pop();
-                await supabase.storage
-                    .from('website-images')
-                    .remove([oldFilename]);
-            }
-
-            // Update website data with new image URL
-            websiteData = {
-                ...websiteData,
-                [`${type}Image`]: publicUrl
-            };
-
-            // Update the database with the new data
-            const { error: updateError } = await supabase
-                .from('site_data')
-                .upsert({
-                    id: 1,
-                    data: websiteData
-                });
-
-            if (updateError) throw updateError;
-
-            // Update global state
-            siteData = websiteData;
-
-            // Update preview
-            const preview = type === 'hero' ? heroPreview : aboutPreview;
-            const previewImg = preview.querySelector('img');
-            previewImg.src = publicUrl;
-            preview.classList.remove('hidden');
-
-            // Update the actual images on the page
-            const mainImage = document.getElementById(`${type}Image`);
-            const mobileImage = document.getElementById(`${type}ImageMobile`);
-            if (mainImage) mainImage.src = publicUrl;
-            if (mobileImage) mobileImage.src = publicUrl;
-
-            showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image updated successfully`);
-                
-            // Update the website content
-            updateSiteContent(websiteData);
-        } catch (error) {
-            console.error('Error uploading image:', error);
-            showAdminAlert('error', error.message || 'Failed to upload image. Please try again.');
-        }
-    }
-    
-    // Handle image removal
-    async function handleImageRemove(type) {
-        try {
-            // Get current data
-            const { data: currentData, error: fetchError } = await supabase
-                .from('site_data')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .limit(1);
-
-            if (fetchError) throw fetchError;
-
-            let websiteData = currentData && currentData.length > 0 ? currentData[0].data : {};
-            
-            // Delete image from storage if exists
-            if (websiteData[`${type}Image`]) {
-                const filename = websiteData[`${type}Image`].split('/').pop();
-                await supabase.storage
-                    .from('website-images')
-                    .remove([filename]);
-            }
-
-            // Remove image URL from data
-            delete websiteData[`${type}Image`];
-
-            // Update the database
-            const { error: updateError } = await supabase
-                .from('site_data')
-                .upsert([{ data: websiteData }]);
-
-            if (updateError) throw updateError;
-
-            // Hide preview
-            if (type === 'hero') {
-                heroPreview.classList.add('hidden');
-            } else {
-                aboutPreview.classList.add('hidden');
-            }
-
-            showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image removed successfully`);
-            
-            // Update the website content
-            updateSiteContent(websiteData);
-        } catch (error) {
-            console.error('Error removing image:', error);
-            showAdminAlert('error', error.message || 'Failed to remove image. Please try again.');
-        }
-    }
-    
-    // Event Listeners
-    heroUploadBtn.addEventListener('click', () => heroImageInput.click());
-    aboutUploadBtn.addEventListener('click', () => aboutImageInput.click());
-    
-    heroImageInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            // Show preview before upload
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                heroPreview.querySelector('img').src = e.target.result;
-                heroPreview.classList.remove('hidden');
-            }
-            reader.readAsDataURL(file);
-            // Then upload
-            handleImageUpload(file, 'hero');
-        }
-    });
-    
-    aboutImageInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            // Show preview before upload
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                aboutPreview.querySelector('img').src = e.target.result;
-                aboutPreview.classList.remove('hidden');
-            }
-            reader.readAsDataURL(file);
-            // Then upload
-            handleImageUpload(file, 'about');
-        }
-    });
-    
-    removeHeroBtn.addEventListener('click', () => handleImageRemove('hero'));
-    removeAboutBtn.addEventListener('click', () => handleImageRemove('about'));
-    
-    // Setup drag and drop
-    setupDragAndDrop(heroDropZone, heroImageInput, 'hero');
-    setupDragAndDrop(aboutDropZone, aboutImageInput, 'about');
-    
-    // Initialize image upload when admin panel is loaded
-    document.addEventListener('DOMContentLoaded', async () => {
-        if (document.getElementById('adminPanel')) {
-            try {
-                const { data: currentData, error: fetchError } = await supabase
-                    .from('site_data')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(1);
-
-                if (fetchError) throw fetchError;
-
-                if (currentData && currentData.length > 0) {
-                    const websiteData = currentData[0].data;
-                    
-                    // Initialize hero image
-                    if (websiteData.heroImage) {
-                        const heroImg = heroPreview.querySelector('img');
-                        heroImg.src = websiteData.heroImage;
-                        heroPreview.classList.remove('hidden');
-                    }
-
-                    // Initialize about image
-                    if (websiteData.aboutImage) {
-                        const aboutImg = aboutPreview.querySelector('img');
-                        aboutImg.src = websiteData.aboutImage;
-                        aboutPreview.classList.remove('hidden');
-                    }
-                }
-            } catch (error) {
-                console.error('Error initializing images:', error);
-            }
-        }
-    });
 });
-
-// Function to restore data to Supabase when it's missing
-async function restoreDataToSupabase() {
-    console.log('Restoring default data to Supabase');
-    
-    // First initialize with default data for the site
-    initializeWithDefaultData();
-    
-    // Log what we're about to save
-    console.log('About to save this data to Supabase:', JSON.stringify(siteData, null, 2));
-    
-    // Then save this data to Supabase with proper error handling
-    try {
-        // Use upsert with onConflict to handle existing records
-        const { data, error } = await supabase
-            .from('site_data')
-            .upsert({ 
-                id: 1, 
-                data: siteData 
-            }, { 
-                onConflict: 'id',
-                returning: 'minimal'
-            });
-        
-        if (error) {
-            console.error('Supabase upsert error:', error);
-            throw new Error(`Supabase error: ${error.message}`);
-        }
-        
-        // Verify the data was saved by fetching it back
-        const { data: verifyData, error: verifyError } = await supabase
-            .from('site_data')
-            .select('data')
-            .eq('id', 1)
-            .single();
-            
-        if (verifyError) {
-            console.error('Failed to verify data was saved:', verifyError);
-            throw new Error(`Verification error: ${verifyError.message}`);
-        }
-        
-        if (!verifyData || !verifyData.data) {
-            console.error('Data verification failed: No data found after save');
-            throw new Error('Data verification failed: No data found after save');
-        }
-        
-        console.log('✅ Data verification successful:', verifyData);
-        console.log('✅ Data successfully restored to Supabase!');
-        alert('Data has been restored to the database successfully!');
-    } catch (restoreError) {
-        console.error('Exception during data restoration:', restoreError);
-        alert('Error restoring data to Supabase: ' + restoreError.message);
-        
-        // Fall back to localStorage only
-        try {
-            localStorage.setItem('siteData', JSON.stringify(siteData));
-            console.log('✅ Fallback: Data saved to localStorage successfully');
-            alert('Data has been saved to local storage as a fallback.');
-        } catch (localError) {
-            console.error('Failed to save to localStorage as fallback:', localError);
-            alert('Warning: Could not save data to any storage location. Your changes may be lost.');
-        }
-    }
-}
-
-// Initialize with default data
-function initializeWithDefaultData() {
-    console.log('Using default data');
-    
-    // Create a consistent data structure
-    siteData = {
-        personal: {
-            name: 'Dr. Ahmed Mahmoud',
-            title: 'Mathematics Educator',
-            qualifications: [
-                'Ph.D. in Mathematics Education',
-                'Master\'s in Applied Mathematics',
-                'Bachelor\'s in Mathematics'
-            ],
-            experience: '15+ years of teaching experience'
-        },
-        experience: {
-            schools: [
-                'International School of Mathematics',
-                'Elite Academy',
-                'Science High School'
-            ],
-            centers: [
-                'Math Excellence Center',
-                'Advanced Learning Institute',
-                'STEM Education Hub'
-            ],
-            platforms: [
-                'Khan Academy',
-                'Coursera - Mathematics for Machine Learning',
-                'Udemy - Advanced Calculus',
-                'edX - Linear Algebra',
-                'YouTube Math Channel'
-            ]
-        },
-        results: [
-            {name: 'Mathematics', score: 85},
-            {name: 'Physics', score: 78},
-            {name: 'Chemistry', score: 82},
-            {name: 'Biology', score: 75}
-        ],
-        contact: {
-            email: 'ahmed.mahmoud@mathseducator.com',
-            formUrl: 'https://forms.google.com/your-form-link',
-            assistantFormUrl: 'https://forms.google.com/assistant-form-link',
-            phone: '+1 123-456-7890',
-            contactMessage: 'Thank you for your interest in my teaching services. I will get back to you as soon as possible.'
-        },
-        theme: {
-            color: 'blue',
-            mode: 'light'
-        }
-    };
-    
-    console.log('Default data initialized:', JSON.stringify(siteData, null, 2));
-    
-    // Apply default data to the page
-    updateSiteContent(siteData);
-    
-    // Save default data to localStorage for future use
-    try {
-        localStorage.setItem('siteData', JSON.stringify(siteData));
-        console.log('Default data saved to localStorage');
-    } catch (error) {
-        console.error('Failed to save default data to localStorage:', error);
-    }
-}
-
-// Mobile Menu Functionality
-function toggleMenu() {
-  console.log('Toggling menu...');
-  const mobileMenu = document.getElementById('mobileMenu');
-  const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
-  const menuBtn = document.getElementById('menuBtn');
-  const body = document.body;
-  
-  if (!mobileMenu) {
-    console.error('Mobile menu element not found!');
-    return;
-  }
-  
-  console.log('Menu current state:', mobileMenu.classList.contains('active') ? 'open' : 'closed');
-  
-  // Toggle active class for the mobile menu and backdrop
-        mobileMenu.classList.toggle('active');
-  
-  // Toggle the hamburger icon animation
-  if (menuBtn) {
-    menuBtn.classList.toggle('open');
-  } else {
-    console.warn('Menu button not found when toggling menu');
-  }
-  
-  // Toggle the backdrop
-  if (mobileMenuBackdrop) {
-    mobileMenuBackdrop.classList.toggle('active');
-  } else {
-    console.warn('Menu backdrop not found when toggling menu');
-  }
-  
-  // Prevent body scrolling when menu is open
-  if (mobileMenu.classList.contains('active')) {
-    body.classList.add('menu-open');
-  } else {
-    body.classList.remove('menu-open');
-  }
-  
-  console.log('Menu new state:', mobileMenu.classList.contains('active') ? 'open' : 'closed');
-}
-
-function closeMenu() {
-  console.log('Closing menu...');
-  const mobileMenu = document.getElementById('mobileMenu');
-  const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
-  const menuBtn = document.getElementById('menuBtn');
-  const body = document.body;
-  
-  if (!mobileMenu) {
-    console.error('Mobile menu element not found!');
-    return;
-  }
-  
-  // Remove active class from the mobile menu
-        mobileMenu.classList.remove('active');
-  
-  // Remove open class from menu button
-  if (menuBtn) {
-    menuBtn.classList.remove('open');
-  }
-  
-  // Hide the backdrop
-  if (mobileMenuBackdrop) {
-    mobileMenuBackdrop.classList.remove('active');
-  }
-  
-  // Re-enable body scrolling
-        body.classList.remove('menu-open');
-  
-  console.log('Menu closed');
-}
 
 // Initialize DOM Elements
 function initDOMElements() {
@@ -1183,11 +605,16 @@ function toggleDangerZone() {
 function showLoginForm() {
     console.log('showLoginForm called');
     
-    if (isLoggedIn) {
-        // If already logged in, just open the admin panel
-        console.log('User already logged in, opening admin panel instead');
-        openAdminPanel();
-        return;
+    // Create alert container if it doesn't exist
+    if (!document.getElementById('loginAlertContainer')) {
+        const alertContainer = document.createElement('div');
+        alertContainer.id = 'loginAlertContainer';
+        alertContainer.className = 'mb-4';
+        
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        if (adminLoginForm && adminLoginForm.parentNode) {
+            adminLoginForm.parentNode.insertBefore(alertContainer, adminLoginForm);
+        }
     }
     
     const adminLoginModal = document.getElementById('adminLoginModal');
@@ -1230,7 +657,8 @@ function hideAdminLogin() {
 
 // Handle admin login
 function handleAdminLogin(e) {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault();
+    
     console.log('Admin login attempt');
     
     const passwordInput = document.getElementById('adminPassword');
@@ -1252,7 +680,6 @@ function handleAdminLogin(e) {
         console.log('No password entered');
         showAdminAlert('error', 'Please enter a password', true);
         
-        // Reset button
         if (loginBtn) {
             loginBtn.disabled = false;
             loginBtn.innerHTML = 'Login';
@@ -1265,26 +692,21 @@ function handleAdminLogin(e) {
     if (password === 'admin123') {
         console.log('Admin login successful');
         
-        // Save login state
-        sessionStorage.setItem('adminLoggedIn', 'true');
-        isLoggedIn = true;
+        // Save login state to localStorage for persistence
+        localStorage.setItem('adminLoggedIn', 'true');
         
-        // Show success message
         showAdminAlert('success', 'Login successful!', true);
         
         // Close login modal and open admin panel immediately
         hideAdminLogin();
-        openAdminPanel();
-        
-        // Reset form
-        document.getElementById('adminLoginForm').reset();
+        setTimeout(openAdminPanel, 500);
     } else {
+        document.getElementById('adminLoginForm').reset();
+        
         console.log('Admin login failed: Invalid password');
         
-        // Show error message
         showAdminAlert('error', 'Invalid password. Please try again.', true);
         
-        // Reset button
         if (loginBtn) {
             loginBtn.disabled = false;
             loginBtn.innerHTML = 'Login';
@@ -1415,7 +837,7 @@ async function openAdminPanel() {
     console.log('Opening admin panel, login status:', isLoggedIn);
     
     // Double-check login status
-    if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+    if (localStorage.getItem('adminLoggedIn') === 'true') {
         isLoggedIn = true;
     }
     
@@ -2612,7 +2034,7 @@ function adminLogout() {
     
     // Clear login state
     isLoggedIn = false;
-    sessionStorage.removeItem('adminLoggedIn');
+    localStorage.removeItem('adminLoggedIn');
     
     // Close admin panel
     closeAdminPanel();
@@ -3597,3 +3019,44 @@ function handleDrop(e) {
 // Update drop zones to include type
 heroDropZone.dataset.type = 'hero';
 aboutDropZone.dataset.type = 'about';
+
+// This function can be used to fix any initialization issues with the admin button
+function fixAdminButton() {
+    console.log('Attempting to fix admin button');
+    
+    // Ensure the button exists
+    const adminBtn = document.getElementById('adminBtn');
+    if (!adminBtn) {
+        console.error('Admin button not found, cannot fix');
+        return false;
+    }
+    
+    // Re-initialize the event listener
+    adminBtn.innerHTML = '<i class="fas fa-lock"></i>';
+    
+    // Remove any existing event listeners by cloning and replacing
+    const newAdminBtn = adminBtn.cloneNode(true);
+    adminBtn.parentNode.replaceChild(newAdminBtn, adminBtn);
+    
+    // Add event listener to the new button
+    newAdminBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Fixed admin button clicked');
+        
+        // Check if already logged in
+        const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+        if (isLoggedIn) {
+            openAdminPanel();
+        } else {
+            showLoginForm();
+        }
+    });
+    
+    console.log('Admin button fixed');
+    return true;
+}
+
+// Call the fix function when the page is loaded or when there might be issues
+window.addEventListener('load', function() {
+    setTimeout(fixAdminButton, 1000); // Delay slightly to ensure DOM is fully processed
+});
