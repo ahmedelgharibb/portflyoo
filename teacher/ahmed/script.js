@@ -53,6 +53,22 @@ document.addEventListener('DOMContentLoaded', function() {
     cancelLoginBtn = document.getElementById('cancelLogin');
     exitLoginBtn = document.getElementById('exitLoginBtn');
     
+    // Add missing adminPanel initialization
+    adminPanel = document.getElementById('adminPanel');
+    closeAdminPanelBtn = document.getElementById('closeAdminPanel');
+    saveChangesBtn = document.getElementById('saveChangesBtn');
+    body = document.body;
+    
+    console.log('Admin elements found:', {
+        adminBtn: !!adminBtn,
+        adminBtnMobile: !!adminBtnMobile,
+        adminLoginModal: !!adminLoginModal,
+        adminLoginForm: !!adminLoginForm,
+        adminPanel: !!adminPanel,
+        closeAdminPanelBtn: !!closeAdminPanelBtn,
+        saveChangesBtn: !!saveChangesBtn
+    });
+    
     // Check if user is logged in (using localStorage instead of sessionStorage for persistence)
     isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
     console.log('Login status:', isLoggedIn ? 'Logged in' : 'Not logged in');
@@ -113,6 +129,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (exitLoginBtn) {
         console.log('Setting up exit login button click handler');
         exitLoginBtn.addEventListener('click', hideAdminLogin);
+    }
+    
+    // Set up close admin panel button
+    if (closeAdminPanelBtn) {
+        console.log('Setting up close admin panel button click handler');
+        closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
+    } else {
+        console.error('Close admin panel button not found');
+    }
+    
+    // Set up save changes button
+    if (saveChangesBtn) {
+        console.log('Setting up save changes button click handler');
+        saveChangesBtn.addEventListener('click', saveAdminChanges);
     }
 });
 
