@@ -188,6 +188,52 @@ async function registerWebsite(siteName, folderName) {
     console.log('Connecting to Supabase...');
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     
+    // Verify connection to Supabase
+    const { error: connectionError } = await supabase.from('teacher_websites').select('count').limit(1);
+    if (connectionError) {
+      console.error('Error connecting to Supabase:', connectionError);
+      throw new Error(`Failed to connect to database: ${connectionError.message}`);
+    }
+    console.log('Successfully connected to Supabase');
+    
+    // Get table structure to identify available columns
+    console.log('Checking table structure...');
+    try {
+      const { data: tableInfo, error: tableError } = await supabase
+        .from('teacher_websites')
+        .select('*')
+        .limit(1);
+        
+      if (tableError) {
+        console.warn('Could not retrieve table structure:', tableError.message);
+      } else if (tableInfo && tableInfo.length > 0) {
+        console.log('Available columns in teacher_websites table:', Object.keys(tableInfo[0]).join(', '));
+      } else {
+        console.log('Table appears to be empty, could not infer structure from existing records');
+      }
+    } catch (structureError) {
+      console.warn('Error checking table structure:', structureError.message);
+    }
+    
+    // Check if website with the same admin_username (folder name) already exists
+    console.log(`Checking if website with folder name "${validFolderName}" already exists...`);
+    const { data: existingWebsite, error: existingWebsiteError } = await supabase
+      .from('teacher_websites')
+      .select('site_id, admin_username, teacher_name')
+      .eq('admin_username', validFolderName)
+      .maybeSingle();
+      
+    if (existingWebsiteError) {
+      console.warn('Error checking for existing website:', existingWebsiteError.message);
+    }
+    
+    if (existingWebsite) {
+      console.error(`Website with folder name "${validFolderName}" already exists (ID: ${existingWebsite.site_id})`);
+      throw new Error(`A website already exists with folder name "${validFolderName}". Please choose a different folder name.`);
+    }
+    
+    console.log(`No existing website found with folder name "${validFolderName}"`);
+    
     // Generate a site URL based on the folder name
     const siteUrl = `https://portflyo-new.vercel.app/teacher/${validFolderName}/index.html`;
     console.log(`Registering website: ${validSiteName} (${validFolderName}) at ${siteUrl}`);
@@ -201,43 +247,74 @@ async function registerWebsite(siteName, folderName) {
     
     // Create the website record in the teacher_websites table
     console.log('Creating website record in the database...');
-    const { data: website, error: websiteError } = await supabase
-      .from('teacher_websites')
-      .insert({
-        site_id: siteId,
-        admin_username: adminUsername,
-        admin_password_hash: adminPasswordHash,
-        teacher_name: validSiteName,
-        teacher_title: 'Teacher',
-        hero_heading: 'Inspiring Minds Through Education',
-        experience_years: '15+',
-        teaching_philosophy: DEFAULT_TEMPLATE_DATA.personal.philosophy,
-        contact_email: DEFAULT_TEMPLATE_DATA.contact.email,
-        phone_number: DEFAULT_TEMPLATE_DATA.contact.phone,
-        registration_form_url: DEFAULT_TEMPLATE_DATA.contact.formUrl,
-        assistant_form_url: DEFAULT_TEMPLATE_DATA.contact.assistantFormUrl,
-        contact_message: DEFAULT_TEMPLATE_DATA.contact.contactMessage,
-        theme_color: DEFAULT_TEMPLATE_DATA.theme.color,
-        theme_mode: DEFAULT_TEMPLATE_DATA.theme.mode,
-        hero_image_url: DEFAULT_TEMPLATE_DATA.heroImage,
-        subjects: DEFAULT_TEMPLATE_DATA.subjects,
-        qualifications: DEFAULT_TEMPLATE_DATA.personal.qualifications,
-        experience_schools: DEFAULT_TEMPLATE_DATA.experience.schools,
-        experience_centers: DEFAULT_TEMPLATE_DATA.experience.centers,
-        experience_platforms: DEFAULT_TEMPLATE_DATA.experience.platforms,
-        results: DEFAULT_TEMPLATE_DATA.results
-      })
-      .select()
-      .single();
+    
+    // Format complex data types as JSON strings for Supabase
+    const websiteData = {
+      site_id: siteId,
+      admin_username: adminUsername,
+      admin_password_hash: adminPasswordHash,
+      teacher_name: validSiteName,
+      teacher_title: 'Teacher',
+      hero_heading: 'Inspiring Minds Through Education',
+      experience_years: '15+',
+      teaching_philosophy: DEFAULT_TEMPLATE_DATA.personal.philosophy,
+      contact_email: DEFAULT_TEMPLATE_DATA.contact.email,
+      phone_number: DEFAULT_TEMPLATE_DATA.contact.phone,
+      registration_form_url: DEFAULT_TEMPLATE_DATA.contact.formUrl,
+      assistant_form_url: DEFAULT_TEMPLATE_DATA.contact.assistantFormUrl,
+      contact_message: DEFAULT_TEMPLATE_DATA.contact.contactMessage,
+      theme_color: DEFAULT_TEMPLATE_DATA.theme.color,
+      theme_mode: DEFAULT_TEMPLATE_DATA.theme.mode,
+      hero_image_url: DEFAULT_TEMPLATE_DATA.heroImage,
+      subjects: JSON.stringify(DEFAULT_TEMPLATE_DATA.subjects),
+      qualifications: JSON.stringify(DEFAULT_TEMPLATE_DATA.personal.qualifications),
+      experience_schools: JSON.stringify(DEFAULT_TEMPLATE_DATA.experience.schools),
+      experience_centers: JSON.stringify(DEFAULT_TEMPLATE_DATA.experience.centers),
+      experience_platforms: JSON.stringify(DEFAULT_TEMPLATE_DATA.experience.platforms),
+      results: JSON.stringify(DEFAULT_TEMPLATE_DATA.results),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    // Retry logic for database insertion
+    let website = null;
+    let websiteError = null;
+    let retries = 3;
+    
+    while (retries > 0 && !website) {
+      const response = await supabase
+        .from('teacher_websites')
+        .insert(websiteData)
+        .select()
+        .single();
+        
+      website = response.data;
+      websiteError = response.error;
+      
+      if (websiteError) {
+        console.warn(`Database insertion attempt failed (${4-retries}/3), retrying...`, websiteError.message);
+        retries--;
+        
+        if (retries > 0) {
+          // Wait before retrying (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 1000 * (4-retries)));
+        }
+      } else {
+        console.log('Website data inserted successfully on attempt', 4-retries);
+        break;
+      }
+    }
     
     if (websiteError) {
-      console.error('Error creating website record:', websiteError);
-      throw new Error(`Failed to create website record: ${websiteError.message}`);
+      console.error('All database insertion attempts failed:', websiteError);
+      throw new Error(`Failed to create website record after multiple attempts: ${websiteError.message}`);
     }
     
     if (!website) {
       throw new Error('No website data returned after insert');
     }
+    
+    console.log('Website registered successfully with ID:', siteId);
     
     // Generate and write the site-config.js file content
     const configContent = 

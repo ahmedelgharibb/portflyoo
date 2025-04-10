@@ -210,45 +210,70 @@ app.post('/api/create-website', async (req, res) => {
       return res.status(400).json({ error: 'Site name and folder name are required' });
     }
     
-    // Register the website in the database
-    const result = await registerWebsite(siteName, folderName);
+    console.log(`Attempting to create website: "${siteName}" with folder: "${folderName}"`);
     
-    // Create the website folder and files
+    // Check if the website folder already exists in the filesystem
     const templateDir = path.join(__dirname, 'teacher', 'edit-template');
     const newWebsiteDir = path.join(__dirname, 'teacher', folderName);
     
     // Check if template directory exists
     if (!fs.existsSync(templateDir)) {
+      console.error('Template directory not found:', templateDir);
       return res.status(500).json({ error: 'Template directory not found' });
     }
     
     // Check if website directory already exists
     if (fs.existsSync(newWebsiteDir)) {
-      return res.status(400).json({ error: 'Folder already exists' });
+      console.error('Folder already exists:', newWebsiteDir);
+      return res.status(400).json({ error: 'A website with this folder name already exists. Please choose a different folder name.' });
     }
     
-    // Create the website directory
-    await fs.mkdir(newWebsiteDir, { recursive: true });
-    
-    // Copy template files to the new website directory
-    await fs.copy(templateDir, newWebsiteDir);
-    
-    // Create site-config.js file
-    await fs.writeFile(
-      path.join(newWebsiteDir, 'site-config.js'),
-      result.configContent
-    );
-    
-    // Return the result
-    res.status(201).json({
-      siteId: result.siteId,
-      siteName: result.siteName,
-      siteUrl: result.siteUrl,
-      folderName: result.folderName
-    });
-    
+    // Register the website in the database
+    try {
+      const result = await registerWebsite(siteName, folderName);
+      
+      if (!result || !result.siteId) {
+        return res.status(500).json({ error: 'Failed to register website in database' });
+      }
+      
+      console.log(`Website registered successfully with ID: ${result.siteId}`);
+      
+      // Create the website directory
+      console.log('Creating website directory:', newWebsiteDir);
+      await fs.mkdir(newWebsiteDir, { recursive: true });
+      
+      // Copy template files to the new website directory
+      console.log('Copying template files to new directory...');
+      await fs.copy(templateDir, newWebsiteDir);
+      
+      // Create site-config.js file
+      const configPath = path.join(newWebsiteDir, 'site-config.js');
+      console.log('Creating site-config.js at:', configPath);
+      await fs.writeFile(configPath, result.configContent);
+      
+      console.log('Website creation completed successfully');
+      
+      // Return the result
+      res.status(201).json({
+        siteId: result.siteId,
+        siteName: result.siteName,
+        siteUrl: result.siteUrl,
+        folderName: result.folderName
+      });
+    } catch (dbError) {
+      // If there's a database error, check if it's a duplicate error
+      if (dbError.message && dbError.message.includes('already exists')) {
+        return res.status(409).json({ error: dbError.message });
+      }
+      
+      // Otherwise, rethrow the error
+      throw dbError;
+    }
   } catch (error) {
-    console.error('Error creating website:', error);
+    console.error('Error creating website:', error.message);
+    if (error.stack) {
+      console.error(error.stack);
+    }
     res.status(500).json({ error: error.message });
   }
 });
