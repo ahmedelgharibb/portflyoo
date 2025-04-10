@@ -261,9 +261,18 @@ app.post('/api/create-website', async (req, res) => {
         folderName: result.folderName
       });
     } catch (dbError) {
-      // If there's a database error, check if it's a duplicate error
+      // If there's a database error, handle specific cases
       if (dbError.message && dbError.message.includes('already exists')) {
         return res.status(409).json({ error: dbError.message });
+      }
+      
+      // Specifically handle folder_name column issue
+      if (dbError.message && dbError.message.includes('folder_name')) {
+        console.error('Folder name column error:', dbError.message);
+        return res.status(500).json({ 
+          error: 'Database schema issue: The folder_name column is missing. Please contact the administrator to fix the database schema.',
+          technicalDetails: dbError.message 
+        });
       }
       
       // Otherwise, rethrow the error
