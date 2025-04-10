@@ -1,4 +1,5 @@
-// script.js
+// script.js - Log when script loads
+console.log('📂 script.js loaded at', new Date().toISOString());
 
 // Preloader
 window.addEventListener('load', () => {
@@ -636,7 +637,7 @@ function toggleMenu() {
   console.log('Menu current state:', mobileMenu.classList.contains('active') ? 'open' : 'closed');
   
   // Toggle active class for the mobile menu and backdrop
-  mobileMenu.classList.toggle('active');
+        mobileMenu.classList.toggle('active');
   
   // Toggle the hamburger icon animation
   if (menuBtn) {
@@ -675,7 +676,7 @@ function closeMenu() {
   }
   
   // Remove active class from the mobile menu
-  mobileMenu.classList.remove('active');
+        mobileMenu.classList.remove('active');
   
   // Remove open class from menu button
   if (menuBtn) {
@@ -688,56 +689,16 @@ function closeMenu() {
   }
   
   // Re-enable body scrolling
-  body.classList.remove('menu-open');
+        body.classList.remove('menu-open');
   
   console.log('Menu closed');
 }
 
-// Make sure event listeners are properly attached
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM fully loaded, setting up menu event listeners');
-  
-  // Menu button event listener
-  const menuBtn = document.getElementById('menuBtn');
-  if (menuBtn) {
-    console.log('Menu button found, attaching click event');
-    menuBtn.addEventListener('click', function(e) {
-      console.log('Menu button clicked');
-      toggleMenu();
-    });
-  } else {
-    console.error('Menu button not found on page load');
-  }
-  
-  // Close menu button event listener
-  const closeMenuBtn = document.getElementById('closeMenuBtn');
-  if (closeMenuBtn) {
-    console.log('Close menu button found, attaching click event');
-    closeMenuBtn.addEventListener('click', closeMenu);
-  }
-  
-  // Backdrop click to close menu
-  const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
-  if (mobileMenuBackdrop) {
-    console.log('Mobile menu backdrop found, attaching click event');
-    mobileMenuBackdrop.addEventListener('click', closeMenu);
-  }
-  
-  // Setup mobile menu links to close menu when clicked
-  const mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
-  if (mobileMenuLinks && mobileMenuLinks.length > 0) {
-    console.log(`Setting up ${mobileMenuLinks.length} mobile menu link click handlers`);
-    mobileMenuLinks.forEach(link => {
-      link.addEventListener('click', closeMenu);
-    });
-  }
-});
-
-// Initialize DOM Elements function
+// Initialize DOM Elements
 function initDOMElements() {
     console.log('Initializing DOM elements');
     
-    // Mobile Menu Elements
+    // Menu elements
     menuBtn = document.getElementById('menuBtn');
     closeMenuBtn = document.getElementById('closeMenuBtn');
     mobileMenu = document.getElementById('mobileMenu');
@@ -745,32 +706,61 @@ function initDOMElements() {
     mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
     body = document.body;
     
-    // Set up mobile menu event listeners
+    console.log('Menu elements found:', {
+        menuBtn: !!menuBtn,
+        closeMenuBtn: !!closeMenuBtn,
+        mobileMenu: !!mobileMenu,
+        mobileMenuBackdrop: !!mobileMenuBackdrop,
+        mobileMenuLinks: mobileMenuLinks ? mobileMenuLinks.length : 0
+    });
+    
+    // Set up menu button event listeners
     if (menuBtn) {
         console.log('Setting up menu button click handler');
+        // Remove any existing event listeners first to prevent duplicates
+        menuBtn.removeEventListener('click', toggleMenu);
+        // Add new event listener
         menuBtn.addEventListener('click', toggleMenu);
+    } else {
+        console.warn('Menu button not found when initializing');
     }
     
+    // Set up close menu button
     if (closeMenuBtn) {
         console.log('Setting up close menu button click handler');
+        closeMenuBtn.removeEventListener('click', closeMenu);
         closeMenuBtn.addEventListener('click', closeMenu);
+    } else {
+        console.warn('Close menu button not found when initializing');
     }
     
+    // Set up backdrop click to close menu
     if (mobileMenuBackdrop) {
         console.log('Setting up menu backdrop click handler');
+        mobileMenuBackdrop.removeEventListener('click', closeMenu);
         mobileMenuBackdrop.addEventListener('click', closeMenu);
+    } else {
+        console.warn('Mobile menu backdrop not found when initializing');
     }
     
-    // Close menu when clicking on mobile menu links
+    // Setup mobile menu links to close menu when clicked
     if (mobileMenuLinks && mobileMenuLinks.length > 0) {
-        console.log(`Setting up ${mobileMenuLinks.length} mobile link click handlers`);
+        console.log(`Setting up ${mobileMenuLinks.length} mobile menu link click handlers`);
         mobileMenuLinks.forEach(link => {
+            link.removeEventListener('click', closeMenu);
             link.addEventListener('click', closeMenu);
         });
+    } else {
+        console.warn('No mobile menu links found when initializing');
     }
     
-    // Other DOM elements initialization can go here
-    // ...
+    // Continue with other DOM elements initialization...
+    
+    // Return initialization status
+    return {
+        menuInitialized: !!menuBtn && !!closeMenuBtn && !!mobileMenu,
+        menuLinksCount: mobileMenuLinks ? mobileMenuLinks.length : 0
+    };
 }
 
 // Close menu when clicking outside
@@ -1933,48 +1923,71 @@ function addResultItem(name = '', score = '') {
 
 // Initialize DOM elements
 function initDOMElements() {
+    console.log('Initializing DOM elements');
+    
+    // Menu elements
     menuBtn = document.getElementById('menuBtn');
     closeMenuBtn = document.getElementById('closeMenuBtn');
     mobileMenu = document.getElementById('mobileMenu');
+    mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
     mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
     body = document.body;
-    adminBtn = document.getElementById('adminBtn');
-    adminBtnMobile = document.getElementById('adminBtnMobile');
-    adminLoginModal = document.getElementById('adminLoginModal');
-    adminLoginForm = document.getElementById('adminLoginForm');
-    cancelLoginBtn = document.getElementById('cancelLogin');
-    exitLoginBtn = document.getElementById('exitLoginBtn');
-    adminPanel = document.getElementById('adminPanel');
-    closeAdminPanelBtn = document.getElementById('closeAdminPanel');
-    saveChangesBtn = document.getElementById('saveChangesBtn');
-    addResultBtn = document.getElementById('addResultBtn');
-    adminResultsContainer = document.getElementById('admin-results-container');
-    adminAlert = document.getElementById('adminAlertContainer');
     
-    // Add new password change elements
-    const showChangePasswordBtn = document.getElementById('showChangePasswordBtn');
-    const changePasswordSection = document.getElementById('changePasswordSection');
-    const hidePasswordSection = document.getElementById('hidePasswordSection');
-    const changePasswordForm = document.getElementById('changePasswordForm');
+    console.log('Menu elements found:', {
+        menuBtn: !!menuBtn,
+        closeMenuBtn: !!closeMenuBtn,
+        mobileMenu: !!mobileMenu,
+        mobileMenuBackdrop: !!mobileMenuBackdrop,
+        mobileMenuLinks: mobileMenuLinks ? mobileMenuLinks.length : 0
+    });
     
-    if (showChangePasswordBtn && changePasswordSection && hidePasswordSection && changePasswordForm) {
-        showChangePasswordBtn.addEventListener('click', showChangePasswordSection);
-        hidePasswordSection.addEventListener('click', hideChangePasswordSection);
-        changePasswordForm.addEventListener('submit', handlePasswordChange);
+    // Set up menu button event listeners
+    if (menuBtn) {
+        console.log('Setting up menu button click handler');
+        // Remove any existing event listeners first to prevent duplicates
+        menuBtn.removeEventListener('click', toggleMenu);
+        // Add new event listener
+        menuBtn.addEventListener('click', toggleMenu);
+    } else {
+        console.warn('Menu button not found when initializing');
     }
     
-    console.log('DOM elements initialized');
+    // Set up close menu button
+    if (closeMenuBtn) {
+        console.log('Setting up close menu button click handler');
+        closeMenuBtn.removeEventListener('click', closeMenu);
+        closeMenuBtn.addEventListener('click', closeMenu);
+    } else {
+        console.warn('Close menu button not found when initializing');
+    }
     
-    // Log which admin elements were found
-    console.log('Admin elements found:', {
-        adminBtn: !!adminBtn,
-        adminBtnMobile: !!adminBtnMobile,
-        adminPanel: !!adminPanel,
-        adminLoginModal: !!adminLoginModal,
-        exitLoginBtn: !!exitLoginBtn,
-        showChangePasswordBtn: !!showChangePasswordBtn,
-        changePasswordSection: !!changePasswordSection
-    });
+    // Set up backdrop click to close menu
+    if (mobileMenuBackdrop) {
+        console.log('Setting up menu backdrop click handler');
+        mobileMenuBackdrop.removeEventListener('click', closeMenu);
+        mobileMenuBackdrop.addEventListener('click', closeMenu);
+    } else {
+        console.warn('Mobile menu backdrop not found when initializing');
+    }
+    
+    // Setup mobile menu links to close menu when clicked
+    if (mobileMenuLinks && mobileMenuLinks.length > 0) {
+        console.log(`Setting up ${mobileMenuLinks.length} mobile menu link click handlers`);
+        mobileMenuLinks.forEach(link => {
+            link.removeEventListener('click', closeMenu);
+            link.addEventListener('click', closeMenu);
+        });
+    } else {
+        console.warn('No mobile menu links found when initializing');
+    }
+    
+    // Continue with other DOM elements initialization...
+    
+    // Return initialization status
+    return {
+        menuInitialized: !!menuBtn && !!closeMenuBtn && !!mobileMenu,
+        menuLinksCount: mobileMenuLinks ? mobileMenuLinks.length : 0
+    };
 }
 
 // Show password change section
