@@ -230,7 +230,11 @@ app.post('/api/create-website', async (req, res) => {
     
     // Register the website in the database
     try {
-      const result = await registerWebsite(siteName, folderName);
+      // Always pass skipFolderName: true to ensure we never hit the folder_name issue
+      const options = { skipFolderName: true };
+      console.log('Using skipFolderName option to avoid folder_name column issues');
+      
+      const result = await registerWebsite(siteName, folderName, options);
       
       if (!result || !result.siteId) {
         return res.status(500).json({ error: 'Failed to register website in database' });

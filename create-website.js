@@ -251,6 +251,12 @@ async function registerWebsite(siteName, folderName, options = {}) {
       tableToUse = 'teacher_websites';
     } else if (hasWebsitesTable) {
       tableToUse = 'websites';
+      // Force skipFolderName to true when using websites table
+      if (!skipFolderName) {
+        console.log('Automatically skipping folder_name column for websites table to avoid errors');
+        options.skipFolderName = true;
+        skipFolderName = true;
+      }
     } else {
       throw new Error('No suitable database table found. Please ensure either teacher_websites or websites table exists.');
     }
@@ -428,10 +434,11 @@ async function registerWebsite(siteName, folderName, options = {}) {
         websiteData.admin_username = adminUsername;
       }
       
-      // Only try to add folder_name if it exists in the schema and we're not skipping it
-      if (availableWebsitesColumns.includes('folder_name') && !skipFolderName) {
-        websiteData.folder_name = validFolderName;
-      }
+      // NEVER add folder_name to websites table regardless of schema check
+      // This ensures we never hit the folder_name column issue
+      
+      // Debug log the final data being used
+      console.log('Final data for websites table:', JSON.stringify(websiteData));
     }
     
     // Retry logic for database insertion
@@ -441,9 +448,9 @@ async function registerWebsite(siteName, folderName, options = {}) {
     
     while (retries > 0 && !website) {
       try {
-        // For websites table, double-check if folder_name is included but shouldn't be
-        if (tableToUse === 'websites' && websiteData.folder_name !== undefined && (skipFolderName || !availableWebsitesColumns.includes('folder_name'))) {
-          console.log('Skipping folder_name field due to known issues or explicit skip request');
+        // For websites table, make absolutely sure folder_name is not included
+        if (tableToUse === 'websites' && websiteData.folder_name !== undefined) {
+          console.log('Removing folder_name field for websites table to prevent errors');
           delete websiteData.folder_name;
         }
         
