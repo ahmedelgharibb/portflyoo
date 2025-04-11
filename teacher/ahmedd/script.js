@@ -2,11 +2,19 @@
 console.log('📂 script.js loaded at', new Date().toISOString());
 
 // Import site configuration - safe-guarded for browsers without ES6 module support
-let WEBSITE_ID = "ahmedd_01"; // Default fallback ID
+let WEBSITE_ID = "2"; // Default fallback ID
 
 try {
     // For browsers that support ES6 modules
-    console.log('Attempting to use ES6 module imports');
+    import('./site-config.js').then(module => {
+        const siteConfig = module.default;
+        console.log('Site config loaded successfully:', siteConfig);
+        WEBSITE_ID = siteConfig.websiteId;
+        console.log('Using website ID from config:', WEBSITE_ID);
+    }).catch(error => {
+        console.error('Error importing site-config.js:', error);
+        console.log('Falling back to default website ID:', WEBSITE_ID);
+    });
 } catch (error) {
     console.error('ES6 module import error:', error);
     console.log('Using fallback website ID:', WEBSITE_ID);
@@ -211,10 +219,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         // Try to load from Supabase
         try {
+            console.log('Attempting to load initial data with website ID:', WEBSITE_ID);
             const { data, error } = await supabase
                 .from('site_data')
                 .select('data')
-                .eq('id', 1)
+                .eq('id', WEBSITE_ID)
                 .single();
             
             if (error) {
@@ -280,6 +289,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             const { data, error } = await supabase
                 .from('website_data')
                 .select('*')
+                .eq('id', WEBSITE_ID)  // Use WEBSITE_ID instead of hardcoded value
                 .order('created_at', { ascending: false })
                 .limit(1);
 
@@ -364,7 +374,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             const { data: currentData, error: fetchError } = await supabase
                 .from('site_data')
                 .select('*')
-                .eq('id', 1)
+                .eq('id', WEBSITE_ID)  // Use WEBSITE_ID instead of hardcoded value
                 .single();
 
             if (fetchError) throw fetchError;
@@ -419,8 +429,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             const { error: updateError } = await supabase
                 .from('site_data')
                 .upsert({
-                    id: 1,
-                    data: websiteData
+                    id: WEBSITE_ID,
+                    data: websiteData,
+                    updated_at: new Date().toISOString()
                 });
 
             if (updateError) throw updateError;
@@ -478,7 +489,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Update the database
             const { error: updateError } = await supabase
                 .from('site_data')
-                .upsert([{ data: websiteData }]);
+                .update({ data: websiteData })
+                .eq('id', WEBSITE_ID);  // Use WEBSITE_ID instead of hardcoded value
 
             if (updateError) throw updateError;
 
@@ -578,22 +590,34 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // Function to restore data to Supabase when it's missing
 async function restoreDataToSupabase() {
-    console.log('Restoring default data to Supabase');
-    
-    // First initialize with default data for the site
-    initializeWithDefaultData();
-    
-    // Log what we're about to save
-    console.log('About to save this data to Supabase:', JSON.stringify(siteData, null, 2));
-    
-    // Then save this data to Supabase with proper error handling
+    console.log('Restoring default data to Supabase...');
     try {
-        // Use upsert with onConflict to handle existing records
+        // First initialize with default data for the site
+        initializeWithDefaultData();
+        
+        // Log what we're about to save
+        console.log('About to save this data to Supabase with ID:', WEBSITE_ID);
+        console.log('Data to save:', JSON.stringify(siteData, null, 2));
+        
+        // Check if data already exists
+        const { data: existingData, error: checkError } = await supabase
+            .from('site_data')
+            .select('*')
+            .eq('id', WEBSITE_ID)
+            .single();
+            
+        if (checkError && checkError.code !== 'PGRST116') {
+            // Real error, not just "no rows returned"
+            console.error('Error checking existing data:', checkError);
+        }
+        
+        // If data exists, update it, otherwise create new record
         const { data, error } = await supabase
             .from('site_data')
             .upsert({ 
-                id: 1, 
-                data: siteData 
+                id: WEBSITE_ID, 
+                data: siteData,
+                updated_at: new Date().toISOString()
             }, { 
                 onConflict: 'id',
                 returning: 'minimal'
@@ -608,9 +632,9 @@ async function restoreDataToSupabase() {
         const { data: verifyData, error: verifyError } = await supabase
             .from('site_data')
             .select('data')
-            .eq('id', 1)
+            .eq('id', WEBSITE_ID)
             .single();
-            
+        
         if (verifyError) {
             console.error('Failed to verify data was saved:', verifyError);
             throw new Error(`Verification error: ${verifyError.message}`);
@@ -622,21 +646,21 @@ async function restoreDataToSupabase() {
         }
         
         console.log('✅ Data verification successful:', verifyData);
-        console.log('✅ Data successfully restored to Supabase!');
-        alert('Data has been restored to the database successfully!');
-    } catch (restoreError) {
-        console.error('Exception during data restoration:', restoreError);
-        alert('Error restoring data to Supabase: ' + restoreError.message);
+        console.log('✅ Data successfully restored to Supabase with ID:', WEBSITE_ID);
+        
+        return siteData;
+    } catch (error) {
+        console.error('Error restoring data to Supabase:', error);
         
         // Fall back to localStorage only
         try {
             localStorage.setItem('siteData', JSON.stringify(siteData));
             console.log('✅ Fallback: Data saved to localStorage successfully');
-            alert('Data has been saved to local storage as a fallback.');
         } catch (localError) {
             console.error('Failed to save to localStorage as fallback:', localError);
-            alert('Warning: Could not save data to any storage location. Your changes may be lost.');
         }
+        
+        throw error;
     }
 }
 
@@ -1648,32 +1672,29 @@ async function openAdminPanel() {
         // Try to load from Supabase
         try {
             console.log('Attempting to load data from Supabase');
+            console.log('Using website ID:', WEBSITE_ID);
+            // Get current data to preserve existing values
             const { data, error } = await supabase
                 .from('site_data')
                 .select('data')
-                .eq('id', 1)
+                .eq('id', WEBSITE_ID)
                 .single();
-            
-            console.log('Supabase query response:', data, error);
             
             if (error) {
                 console.error('Error loading from Supabase:', error);
                 showAdminAlert('error', 'Failed to load data from database. Using local data instead.');
             } else if (data && data.data) {
                 console.log('✅ Raw data from Supabase:', data);
-                console.log('✅ Parsed data structure:', JSON.stringify(data.data, null, 2));
                 siteData = data.data;
                 dataLoaded = true;
                 dataSource = 'supabase';
+                
                 console.log('✅ Data loaded for admin panel from Supabase successfully');
                 showAdminAlert('success', 'Data loaded successfully from Supabase!');
-            } else {
-                console.log('No data found in Supabase for admin panel');
-                showAdminAlert('error', 'No data found in database. Using local storage or default values.');
             }
         } catch (error) {
             console.error('Error in admin data loading from Supabase:', error);
-            showAdminAlert('error', `Database error: ${error.message}. Using local data instead.`);
+            showAdminAlert('error', 'Error loading from database: ' + error.message);
         }
         
         // If Supabase failed, try localStorage
@@ -2600,11 +2621,12 @@ async function saveAdminChanges() {
 
     try {
         console.log('Fetching current data from Supabase...');
+        console.log('Using website ID:', WEBSITE_ID);
         // Get current data to preserve existing values
         const { data: currentData, error: fetchError } = await supabase
             .from('site_data')
             .select('*')
-            .eq('id', 1)
+            .eq('id', WEBSITE_ID)
             .single();
 
         if (fetchError) {
@@ -2714,7 +2736,11 @@ async function saveAdminChanges() {
             console.log('Attempting to save to Supabase...');
             const { error } = await supabase
                 .from('site_data')
-                .upsert({ id: 1, data: newData }, { onConflict: 'id' });
+                .upsert({
+                    id: WEBSITE_ID,
+                    data: newData,
+                    updated_at: new Date().toISOString()
+                });
 
             if (error) {
                 console.error('Supabase upsert error:', error);
@@ -2726,7 +2752,7 @@ async function saveAdminChanges() {
             const { data: verifyData, error: verifyError } = await supabase
                 .from('site_data')
                 .select('data')
-                .eq('id', 1)
+                .eq('id', WEBSITE_ID)
                 .single();
                 
             if (verifyError) {
