@@ -1,0 +1,156 @@
+name: Create New Website Using Unified Table
+
+on:
+  workflow_dispatch:
+    inputs:
+      folder_name:
+        description: 'Folder name for the new website (alphanumeric, hyphens and underscores only)'
+        required: true
+        type: string
+      site_name:
+        description: 'Display name for the website'
+        required: true
+        type: string
+
+jobs:
+  create-website:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ github.token }}
+          fetch-depth: 0
+        
+      - name: Validate folder name
+        id: validate
+        run: |
+          folder_name="${{ github.event.inputs.folder_name }}"
+          if [[ ! $folder_name =~ ^[a-zA-Z0-9_-]+$ ]]; then
+            echo "Error: Folder name must contain only letters, numbers, hyphens and underscores"
+            exit 1
+          fi
+          
+          if [ -d "teacher/$folder_name" ]; then
+            echo "Error: Folder 'teacher/$folder_name' already exists"
+            exit 1
+          fi
+          
+          echo "folder_name=$folder_name" >> $GITHUB_OUTPUT
+          echo "site_url=https://portflyo-new.vercel.app/teacher/$folder_name/index.html" >> $GITHUB_OUTPUT
+      
+      - name: Create new website folder
+        run: |
+          folder_name="${{ steps.validate.outputs.folder_name }}"
+          mkdir -p "teacher/$folder_name"
+          cp -r teacher/edit-template/* "teacher/$folder_name/"
+          echo "Created new website folder: teacher/$folder_name"
+      
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      
+      - name: Install dependencies
+        run: npm install @supabase/supabase-js
+      
+      - name: Register website in unified database
+        id: register
+        run: |
+          folder_name="${{ steps.validate.outputs.folder_name }}"
+          site_name="${{ github.event.inputs.site_name }}"
+          site_url="${{ steps.validate.outputs.site_url }}"
+          
+          # Copy the modified_create_website.js script from source
+          cp modified_create_website.js register-unified-site.js
+          
+          echo "Running unified website registration script..."
+          # Redirect stderr to capture logging separately from the JSON output
+          if ! result=$(node register-unified-site.js "$site_name" "$folder_name" 2>registration.log); then
+            cat registration.log
+            echo "::error::Failed to register website in unified database. See error above."
+            
+            # If the unified table doesn't exist, try to create it
+            if grep -q "unified_site_data table not found" registration.log; then
+              echo "Unified table not found. Attempting to run migration script..."
+              echo "Please run the database migration script first or use the traditional website creation workflow."
+            fi
+            
+            exit 1
+          fi
+          
+          # Show the logs from the registration process
+          cat registration.log
+          
+          echo "Processing registration result..."
+          
+          # Make sure result is valid JSON before proceeding
+          if [[ -z "$result" ]]; then
+            echo "::error::Empty result from registration script"
+            exit 1
+          fi
+          
+          if ! echo "$result" | jq . > /dev/null 2>&1; then
+            echo "::error::Invalid JSON result: $result"
+            exit 1
+          fi
+          
+          # Extract the config content
+          config_content=$(echo $result | jq -r '.configContent')
+          website_id=$(echo $result | jq -r '.siteId')
+          
+          if [[ -z "$website_id" || "$website_id" == "null" ]]; then
+            echo "::error::Failed to get website ID from registration result"
+            exit 1
+          fi
+          
+          # Write the site-config.js file
+          echo "$config_content" > "teacher/$folder_name/site-config.js"
+          
+          # Copy unified_site_data.js to the website folder
+          echo "Copying unified_site_data.js to teacher/$folder_name/"
+          cp unified_site_data.js "teacher/$folder_name/"
+          
+          # Update Supabase credentials in the unified_site_data.js file
+          # This step ensures the credentials work in the website's context
+          sed -i 's|https://your-supabase-url.supabase.co|https://bqpchhitrbyfleqpyydz.supabase.co|g' "teacher/$folder_name/unified_site_data.js"
+          sed -i 's|your-supabase-anon-key|eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ|g' "teacher/$folder_name/unified_site_data.js"
+          
+          # Update script.js to import the UnifiedSiteData library
+          # Add import at the top of the file
+          sed -i '1i// Import UnifiedSiteData helper\nimport UnifiedSiteData from "./unified_site_data.js";\nimport siteConfig from "./site-config.js";\n\n// Initialize the unified data helper\nconst WEBSITE_ID = siteConfig.websiteId;\nconst unifiedData = new UnifiedSiteData(WEBSITE_ID);\n' "teacher/$folder_name/script.js"
+          
+          echo "Website ID: $website_id" 
+          
+          # Output the website URL
+          echo "website_id=$website_id" >> $GITHUB_OUTPUT
+          echo "site_url=$site_url" >> $GITHUB_OUTPUT
+      
+      - name: Commit and push changes
+        run: |
+          folder_name="${{ steps.validate.outputs.folder_name }}"
+          site_url="${{ steps.validate.outputs.site_url }}"
+          
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add "teacher/$folder_name"
+          git commit -m "feat: create new website instance for $folder_name using unified table"
+          
+          # GitHub Actions automatically provides a GITHUB_TOKEN with permissions to push
+          # This token is available to all GitHub Actions workflows by default
+          git push
+      
+      - name: Website Created
+        run: |
+          echo "✅ New website created successfully using unified table!"
+          echo "Website ID: ${{ steps.register.outputs.website_id }}"
+          echo "Website URL: ${{ steps.register.outputs.site_url }}"
+          echo ""
+          echo "You can access your new website at:"
+          echo "${{ steps.register.outputs.site_url }}"
+          echo ""
+          echo "Important: Make sure the unified_site_data table has been created in your database."
+          echo "If you haven't run the migration script yet, do so before using the new website." 
