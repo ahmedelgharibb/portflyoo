@@ -18,6 +18,18 @@ window.addEventListener('load', () => {
     
     // Make sure admin button works after full page load
     ensureAdminButtonWorks();
+    
+    // Call fixAdminButton explicitly to ensure the admin button works
+    fixAdminButton();
+    
+    // Use a multi-layered approach to make sure the admin button always works
+    setTimeout(() => {
+        if (!adminBtn || !adminBtn.onclick) {
+            console.log('Admin button needs another fix attempt');
+            fixAdminButton();
+            ensureAdminButtonWorks();
+        }
+    }, 1500);
 });
 
 // DOM Elements - using let for all variables so they can be reassigned in DOMContentLoaded
@@ -80,16 +92,16 @@ function ensureAdminButtonWorks() {
         }
         
         // Add new event listener
-        adminBtn.addEventListener('click', function(e) {
-            e.preventDefault();
+            adminBtn.addEventListener('click', function(e) {
+                e.preventDefault();
             e.stopPropagation();
             console.log('Admin button clicked - login status:', isLoggedIn);
             
             if (isLoggedIn) {
                 openAdminPanel();
-            } else {
+        } else {
                 showLoginForm();
-            }
+        }
         });
     } else {
         console.error('Admin button not found in the DOM');
@@ -114,16 +126,16 @@ function ensureAdminButtonWorks() {
         }
         
         // Add new event listener
-        adminBtnMobile.addEventListener('click', function(e) {
-            e.preventDefault();
+            adminBtnMobile.addEventListener('click', function(e) {
+                e.preventDefault();
             e.stopPropagation();
             console.log('Mobile admin button clicked - login status:', isLoggedIn);
             
             if (isLoggedIn) {
                 openAdminPanel();
-            } else {
+        } else {
                 showLoginForm();
-            }
+        }
         });
     } else {
         console.warn('Mobile admin button not found');
@@ -133,6 +145,9 @@ function ensureAdminButtonWorks() {
 // Once the document is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded, initializing admin functionality');
+    
+    // Initialize DOM elements
+    initDOMElements();
     
     // Get references to admin-related elements
     adminBtn = document.getElementById('adminBtn');
@@ -158,15 +173,23 @@ document.addEventListener('DOMContentLoaded', function() {
         saveChangesBtn: !!saveChangesBtn
     });
     
-    // Initialize other DOM elements
-    initDOMElements();
+    // First try to fix the admin button using our robust function
+    fixAdminButton();
     
-    // Check login status and set up admin button
+    // Then ensure the admin button works by setting up normal handlers
     ensureAdminButtonWorks();
     
     // Set up admin login form event listener
     if (adminLoginForm) {
         console.log('Setting up admin login form submit handler');
+        
+        // Remove any existing event listeners first
+        const newAdminLoginForm = adminLoginForm.cloneNode(true);
+        if (adminLoginForm.parentNode) {
+            adminLoginForm.parentNode.replaceChild(newAdminLoginForm, adminLoginForm);
+            adminLoginForm = newAdminLoginForm;
+        }
+        
         adminLoginForm.addEventListener('submit', handleAdminLogin);
     } else {
         console.error('Admin login form not found');
@@ -197,6 +220,10 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Setting up save changes button click handler');
         saveChangesBtn.addEventListener('click', saveAdminChanges);
     }
+    
+    // Schedule additional fix attempts over time for redundancy
+    setTimeout(fixAdminButton, 1000);
+    setTimeout(ensureAdminButtonWorks, 1500);
     
     // Initialize the site with saved data if available
     initializeSite();
@@ -691,6 +718,17 @@ function toggleDangerZone() {
 function showLoginForm() {
     console.log('showLoginForm called');
     
+    // Check if we already have a login in progress
+    if (document.querySelector('.admin-login-in-progress')) {
+        console.log('Login already in progress, not showing another form');
+        return;
+    }
+    
+    // Mark that we're showing a login form
+    const loginMarker = document.createElement('div');
+    loginMarker.className = 'admin-login-in-progress hidden';
+    document.body.appendChild(loginMarker);
+    
     // Create alert container if it doesn't exist
     if (!document.getElementById('loginAlertContainer')) {
         const alertContainer = document.createElement('div');
@@ -705,30 +743,127 @@ function showLoginForm() {
     
     const adminLoginModal = document.getElementById('adminLoginModal');
     if (adminLoginModal) {
-        console.log('Showing admin login modal');
+        console.log('Admin login modal found, showing it');
         adminLoginModal.classList.remove('hidden');
         const passwordInput = document.getElementById('adminPassword');
         if (passwordInput) {
             passwordInput.value = ''; // Clear any previous input
-            passwordInput.focus();
+            setTimeout(() => {
+                passwordInput.focus();
+            }, 300); // Slight delay to ensure modal is visible
         } else {
             console.error('Password input not found in login modal');
         }
     } else {
-        console.error('Admin login modal not found in the DOM');
+        console.warn('Admin login modal not found in the DOM, creating fallback');
         
-        // Create a fallback login mechanism
-        const password = prompt('Please enter admin password:');
-        if (password) {
-            if (password === 'admin123') {
-                localStorage.setItem('adminLoggedIn', 'true');
-                isLoggedIn = true;
-                ensureAdminButtonWorks();
-                setTimeout(openAdminPanel, 500);
-                alert('Login successful!');
-            } else {
-                alert('Invalid password. Please try again.');
+        // Create a fallback modal
+        try {
+            // Try to create a fallback modal if the main one doesn't exist
+            const fallbackModal = document.createElement('div');
+            fallbackModal.id = 'fallbackAdminLoginModal';
+            fallbackModal.className = 'fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50';
+            fallbackModal.innerHTML = `
+                <div class="bg-white rounded-lg p-8 max-w-md w-full">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">Admin Login</h2>
+                        <button id="fallbackCloseBtn" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="fallbackLoginAlertContainer" class="mb-4"></div>
+                    <form id="fallbackAdminLoginForm">
+                        <div class="mb-4">
+                            <label for="fallbackAdminPassword" class="block text-gray-700 mb-2">Password</label>
+                            <input type="password" id="fallbackAdminPassword" class="w-full px-3 py-2 border rounded-lg" placeholder="Enter admin password">
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="button" id="fallbackCancelLogin" class="px-4 py-2 mr-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Login</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            document.body.appendChild(fallbackModal);
+            
+            // Add event listeners to the fallback modal
+            document.getElementById('fallbackCloseBtn').addEventListener('click', () => {
+                fallbackModal.remove();
+                document.querySelector('.admin-login-in-progress').remove();
+            });
+            
+            document.getElementById('fallbackCancelLogin').addEventListener('click', () => {
+                fallbackModal.remove();
+                document.querySelector('.admin-login-in-progress').remove();
+            });
+            
+            document.getElementById('fallbackAdminLoginForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const password = document.getElementById('fallbackAdminPassword').value;
+                
+                if (password === 'admin123') {
+                    localStorage.setItem('adminLoggedIn', 'true');
+                    isLoggedIn = true;
+                    
+                    // Show success message
+                    const alertContainer = document.getElementById('fallbackLoginAlertContainer');
+                    alertContainer.innerHTML = `
+                        <div class="bg-green-100 text-green-800 p-3 rounded-lg border border-green-200">
+                            <i class="fas fa-check-circle mr-2"></i> Login successful!
+                        </div>
+                    `;
+                    
+                    // Close the modal after a delay
+                    setTimeout(() => {
+                        fallbackModal.remove();
+                        document.querySelector('.admin-login-in-progress').remove();
+                        
+                        // Update admin buttons
+                        ensureAdminButtonWorks();
+                        
+                        // Open the admin panel
+                        setTimeout(openAdminPanel, 500);
+                    }, 1000);
+                } else {
+                    // Show error message
+                    const alertContainer = document.getElementById('fallbackLoginAlertContainer');
+                    alertContainer.innerHTML = `
+                        <div class="bg-red-100 text-red-800 p-3 rounded-lg border border-red-200">
+                            <i class="fas fa-exclamation-circle mr-2"></i> Invalid password. Please try again.
+                        </div>
+                    `;
+                    
+                    // Clear the password input
+                    document.getElementById('fallbackAdminPassword').value = '';
+                    document.getElementById('fallbackAdminPassword').focus();
+                }
+            });
+            
+            // Focus the password input
+            setTimeout(() => {
+                document.getElementById('fallbackAdminPassword').focus();
+            }, 300);
+            
+        } catch (error) {
+            console.error('Error creating fallback modal:', error);
+            
+            // Final fallback: use browser prompt
+            const password = prompt('Please enter admin password:');
+            if (password) {
+                if (password === 'admin123') {
+                    localStorage.setItem('adminLoggedIn', 'true');
+                    isLoggedIn = true;
+                    ensureAdminButtonWorks();
+                    setTimeout(openAdminPanel, 500);
+                    alert('Login successful!');
+                } else {
+                    alert('Invalid password. Please try again.');
+                }
             }
+            
+            // Clean up login marker
+            document.querySelector('.admin-login-in-progress').remove();
         }
     }
 }
@@ -959,14 +1094,65 @@ async function openAdminPanel() {
         let dataLoaded = false;
         let dataSource = 'default';
         
-        // Try to load from Supabase
+        // Try to load from API
         try {
-            console.log('Attempting to load data from Supabase');
-            console.log('Using website ID:', WEBSITE_ID);
+            console.log('Attempting to load data from API');
+            
+            // Try to dynamically import the API client
+            // This lets us fall back gracefully if the module isn't available
+            const apiModule = await import('./api-client.js').catch(() => null);
+            
+            if (apiModule) {
+                // Check if API is available
+                const isApiAvailable = await apiModule.checkApiAvailability().catch(() => false);
+                
+                if (isApiAvailable) {
+                    // Get all site data or attempt to get site_data category
+                    const apiData = await apiModule.fetchAllData(WEBSITE_ID) || 
+                                    await apiModule.fetchData(WEBSITE_ID, 'site_data');
+                    
+                    if (apiData) {
+                        console.log('✅ Data from API:', apiData);
+                        
+                        // Determine if we have categorized data or a flat structure
+                        if (apiData.personal || apiData.experience || apiData.contact) {
+                            // Already correctly structured data
+                            siteData = apiData;
+                        } else if (apiData.data) {
+                            // Data is nested under 'data' property
+                            siteData = apiData.data;
+                        } else {
+                            // Assume this is the site_data category
+                            siteData = apiData;
+                        }
+                        
+                        dataLoaded = true;
+                        dataSource = 'api';
+                        console.log('✅ Data loaded for admin panel from API successfully');
+                        showAdminAlert('success', 'Data loaded successfully from API!');
+                    } else {
+                        console.log('No data found in API for admin panel');
+                    }
+                } else {
+                    console.log('API is not available, falling back to alternatives');
+                }
+            } else {
+                console.log('API client module not available, falling back to alternatives');
+            }
+        } catch (apiError) {
+            console.error('Error in admin data loading from API:', apiError);
+            showAdminAlert('warning', `API error: ${apiError.message}. Trying alternatives.`);
+        }
+        
+        // If API failed, try Supabase as fallback
+        if (!dataLoaded) {
+            try {
+                console.log('Attempting to load data from Supabase as fallback');
+                console.log('Using website ID:', WEBSITE_ID);
             const { data, error } = await supabase
                 .from('site_data')
                 .select('data')
-                .eq('id', WEBSITE_ID)
+                    .eq('id', WEBSITE_ID)
                 .single();
             
             console.log('Supabase query response:', data, error);
@@ -989,9 +1175,10 @@ async function openAdminPanel() {
         } catch (error) {
             console.error('Error in admin data loading from Supabase:', error);
             showAdminAlert('error', `Database error: ${error.message}. Using local data instead.`);
+            }
         }
         
-        // If Supabase failed, try localStorage
+        // If API and Supabase failed, try localStorage
         if (!dataLoaded) {
             try {
                 const localData = localStorage.getItem('siteData');
@@ -1016,7 +1203,7 @@ async function openAdminPanel() {
             }
         }
         
-        // If neither worked, use default data
+        // If nothing worked, use default data
         if (!dataLoaded || !siteData) {
             console.log('No data found in any storage, using defaults');
             initializeWithDefaultData();
@@ -1885,7 +2072,7 @@ function updateResultsChart(subjects) {
     }
 }
 
-// Save admin changes to Supabase and localStorage
+// Save admin changes to the database
 async function saveAdminChanges() {
     console.log('Save changes function called');
     
@@ -1902,21 +2089,7 @@ async function saveAdminChanges() {
     saveBtn.disabled = true;
 
     try {
-        console.log('Fetching current data from Supabase...');
-        console.log('Using website ID:', WEBSITE_ID);
-        // Get current data to preserve existing values
-        const { data: currentData, error: fetchError } = await supabase
-            .from('site_data')
-            .select('*')
-            .eq('id', WEBSITE_ID)
-            .single();
-
-        if (fetchError) {
-            console.error('Error fetching current data:', fetchError);
-            throw fetchError;
-        }
-
-        console.log('Current data fetched successfully:', currentData);
+        console.log('Preparing data for save...');
 
         // Initialize all input elements with correct IDs
         const nameInput = document.getElementById('admin-name');
@@ -1939,8 +2112,8 @@ async function saveAdminChanges() {
         const colorRadio = document.querySelector('input[name="theme-color"]:checked');
         const modeRadio = document.querySelector('input[name="theme-mode"]:checked');
         
-        const currentColor = colorRadio ? colorRadio.value : (currentData?.data?.theme?.color || 'blue');
-        const currentMode = modeRadio ? modeRadio.value : (currentData?.data?.theme?.mode || 'light');
+        const currentColor = colorRadio ? colorRadio.value : (siteData?.theme?.color || 'blue');
+        const currentMode = modeRadio ? modeRadio.value : (siteData?.theme?.mode || 'light');
 
         console.log('Current theme values:', { currentColor, currentMode });
 
@@ -1963,34 +2136,37 @@ async function saveAdminChanges() {
             contactMessageInput: contactMessageInput ? 'found' : 'not found'
         });
 
-        // Start with current data to preserve all existing values
+        // Build new data object from form inputs, preserving existing data
         const newData = {
-            ...(currentData?.data || {}),
+            ...(siteData || {}),
             personal: {
-                name: nameInput?.value || currentData?.data?.personal?.name || '',
-                title: titleInput?.value || currentData?.data?.personal?.title || '',
-                subtitle: subtitleInput?.value || currentData?.data?.personal?.subtitle || 'History Teacher',
-                heroHeading: heroHeadingInput?.value || currentData?.data?.personal?.heroHeading || 'Inspiring Minds Through Mathematics',
-                experience: experienceInput?.value || currentData?.data?.personal?.experience || '',
-                philosophy: philosophyInput?.value || currentData?.data?.personal?.philosophy || 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.',
+                ...(siteData?.personal || {}),
+                name: nameInput?.value || siteData?.personal?.name || '',
+                title: titleInput?.value || siteData?.personal?.title || '',
+                subtitle: subtitleInput?.value || siteData?.personal?.subtitle || 'History Teacher',
+                heroHeading: heroHeadingInput?.value || siteData?.personal?.heroHeading || 'Inspiring Students Through History',
+                experience: experienceInput?.value || siteData?.personal?.experience || '',
+                philosophy: philosophyInput?.value || siteData?.personal?.philosophy || 'I believe in creating an engaging and supportive learning environment where students can develop their historical thinking and analytical skills.',
                 qualifications: qualificationsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
-                             currentData?.data?.personal?.qualifications || []
+                             siteData?.personal?.qualifications || []
             },
             experience: {
+                ...(siteData?.experience || {}),
                 schools: schoolsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
-                        currentData?.data?.experience?.schools || [],
+                        siteData?.experience?.schools || [],
                 centers: centersInput?.value?.split('\n').filter(item => item.trim() !== '') || 
-                        currentData?.data?.experience?.centers || [],
+                        siteData?.experience?.centers || [],
                 platforms: platformsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
-                          currentData?.data?.experience?.platforms || []
+                          siteData?.experience?.platforms || []
             },
             results: collectResultsData(),
             contact: {
-                email: emailInput?.value || currentData?.data?.contact?.email || '',
-                formUrl: formUrlInput?.value || currentData?.data?.contact?.formUrl || '',
-                assistantFormUrl: assistantFormUrlInput?.value || currentData?.data?.contact?.assistantFormUrl || '',
-                phone: phoneInput?.value || currentData?.data?.contact?.phone || '',
-                contactMessage: contactMessageInput?.value || currentData?.data?.contact?.contactMessage || ''
+                ...(siteData?.contact || {}),
+                email: emailInput?.value || siteData?.contact?.email || '',
+                formUrl: formUrlInput?.value || siteData?.contact?.formUrl || '',
+                assistantFormUrl: assistantFormUrlInput?.value || siteData?.contact?.assistantFormUrl || '',
+                phone: phoneInput?.value || siteData?.contact?.phone || '',
+                contactMessage: contactMessageInput?.value || siteData?.contact?.contactMessage || ''
             },
             theme: {
                 color: currentColor,
@@ -2000,10 +2176,10 @@ async function saveAdminChanges() {
 
         console.log('Saving data:', JSON.stringify(newData, null, 2));
         
-        // Update our global state
+        // Update global state
         siteData = newData;
         
-        // Also update current theme
+        // Update current theme
         currentTheme = { 
             color: currentColor,
             mode: currentMode
@@ -2012,14 +2188,54 @@ async function saveAdminChanges() {
         // Apply the theme immediately
         applyTheme(currentColor, currentMode);
 
-        // Save to Supabase with verification
-        let supabaseSaveSuccess = false;
+        // Attempt to save data using API first
+        let apiSaveSuccess = false;
         try {
-            console.log('Attempting to save to Supabase...');
-            console.log('Using website ID:', WEBSITE_ID);
+            console.log('Attempting to save data using API...');
+            
+            // Try to dynamically import the API client
+            const apiModule = await import('./api-client.js').catch(() => null);
+            
+            if (apiModule) {
+                // First, try saving as a complete site_data object
+                apiSaveSuccess = await apiModule.saveData(WEBSITE_ID, 'site_data', newData);
+                
+                // If that fails, try saving individual categories
+                if (!apiSaveSuccess) {
+                    console.log('Trying to save individual data categories...');
+                    
+                    const personalSuccess = await apiModule.saveData(WEBSITE_ID, 'personal', newData.personal);
+                    const experienceSuccess = await apiModule.saveData(WEBSITE_ID, 'experience', newData.experience);
+                    const resultsSuccess = await apiModule.saveData(WEBSITE_ID, 'results', newData.results);
+                    const contactSuccess = await apiModule.saveData(WEBSITE_ID, 'contact', newData.contact);
+                    const themeSuccess = await apiModule.saveData(WEBSITE_ID, 'theme', newData.theme);
+                    
+                    apiSaveSuccess = personalSuccess && experienceSuccess && resultsSuccess && 
+                                    contactSuccess && themeSuccess;
+                                    
+                    if (apiSaveSuccess) {
+                        console.log('✅ Successfully saved all data categories via API');
+                    } else {
+                        console.warn('⚠️ Some data categories failed to save via API');
+                    }
+                } else {
+                    console.log('✅ Successfully saved complete data via API');
+                }
+            }
+        } catch (apiError) {
+            console.error('Error saving data via API:', apiError);
+            showAdminAlert('warning', `API error: ${apiError.message}. Trying alternatives.`);
+        }
+        
+        // If API save failed, try Supabase as fallback
+        let supabaseSaveSuccess = false;
+        if (!apiSaveSuccess) {
+        try {
+                console.log('Attempting to save to Supabase as fallback...');
+                console.log('Using website ID:', WEBSITE_ID);
             const { error } = await supabase
                 .from('site_data')
-                .upsert({ id: WEBSITE_ID, data: newData }, { onConflict: 'id' });
+                    .upsert({ id: WEBSITE_ID, data: newData }, { onConflict: 'id' });
 
             if (error) {
                 console.error('Supabase upsert error:', error);
@@ -2028,11 +2244,11 @@ async function saveAdminChanges() {
             
             // Verify the data was saved correctly
             console.log('Verifying Supabase data after save...');
-            console.log('Using website ID:', WEBSITE_ID);
+                console.log('Using website ID:', WEBSITE_ID);
             const { data: verifyData, error: verifyError } = await supabase
                 .from('site_data')
                 .select('data')
-                .eq('id', WEBSITE_ID)
+                    .eq('id', WEBSITE_ID)
                 .single();
                 
             if (verifyError) {
@@ -2055,10 +2271,11 @@ async function saveAdminChanges() {
         } catch (error) {
             console.error('Error saving to Supabase:', error);
             showAdminAlert('error', `Failed to save to database: ${error.message}`);
+            }
         }
 
-        // If Supabase save failed, try localStorage
-        if (!supabaseSaveSuccess) {
+        // If both API and Supabase failed, try localStorage as last resort
+        if (!apiSaveSuccess && !supabaseSaveSuccess) {
             try {
                 localStorage.setItem('siteData', JSON.stringify(newData));
                 console.log('✅ Data saved to localStorage as fallback');
@@ -2068,15 +2285,12 @@ async function saveAdminChanges() {
                 showAdminAlert('error', 'Failed to save data to any storage location');
             }
         } else {
-            showAdminAlert('success', 'Changes saved successfully!');
-        }
-
-        // Update the site content with the new data
-        updateSiteContent(newData);
-        
-        // Force update the results chart if it exists
-        if (window.resultsChart) {
-            updateResultsChart(newData.results);
+            // Show success message
+            if (apiSaveSuccess) {
+                showAdminAlert('success', 'Changes saved successfully to API!');
+            } else {
+                showAdminAlert('success', 'Changes saved successfully to database!');
+            }
         }
     } catch (error) {
         console.error('Error saving changes:', error);
@@ -3134,34 +3348,89 @@ function fixAdminButton() {
     console.log('Attempting to fix admin button');
     
     // Ensure the button exists
-    const adminBtn = document.getElementById('adminBtn');
+    let adminBtn = document.getElementById('adminBtn');
     if (!adminBtn) {
         console.error('Admin button not found, cannot fix');
-        return false;
+        
+        // Try to find it with a different approach
+        adminBtn = document.querySelector('.admin-btn');
+        if (!adminBtn) {
+            console.error('Admin button still not found using class selector');
+            
+            // Attempt to check if we can find the button container
+            const headerRight = document.querySelector('header .right-section') || 
+                               document.querySelector('header .flex-1.justify-end') ||
+                               document.querySelector('header nav');
+                               
+            if (headerRight) {
+                console.log('Found header right section, attempting to create admin button');
+                
+                // Create the admin button if it doesn't exist
+                adminBtn = document.createElement('button');
+                adminBtn.id = 'adminBtn';
+                adminBtn.className = 'admin-btn ml-6';
+                adminBtn.innerHTML = '<i class="fas fa-lock"></i>';
+                headerRight.appendChild(adminBtn);
+                console.log('Created new admin button as fallback');
+            } else {
+                console.error('Could not find header section to add admin button');
+                return false;
+            }
+        }
     }
     
-    // Re-initialize the event listener
-    adminBtn.innerHTML = '<i class="fas fa-lock"></i>';
+    // Check login status and set appropriate icon
+    const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+    adminBtn.innerHTML = isLoggedIn ? '<i class="fas fa-lock-open"></i>' : '<i class="fas fa-lock"></i>';
     
     // Remove any existing event listeners by cloning and replacing
     const newAdminBtn = adminBtn.cloneNode(true);
-    adminBtn.parentNode.replaceChild(newAdminBtn, adminBtn);
+    if (adminBtn.parentNode) {
+        adminBtn.parentNode.replaceChild(newAdminBtn, adminBtn);
+    } else {
+        console.error('Admin button has no parent node, cannot replace');
+        return false;
+    }
     
     // Add event listener to the new button
     newAdminBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        console.log('Fixed admin button clicked');
+        e.stopPropagation(); // Prevent event bubbling
+        
+        console.log('Admin button clicked via fixAdminButton handler');
         
         // Check if already logged in
-        const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
-        if (isLoggedIn) {
+        const isCurrentlyLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+        
+        if (isCurrentlyLoggedIn) {
+            console.log('User is logged in, opening admin panel');
             openAdminPanel();
         } else {
+            console.log('User is not logged in, showing login form');
             showLoginForm();
         }
     });
     
-    console.log('Admin button fixed');
+    // Also add touch event for mobile devices
+    newAdminBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        console.log('Admin button touched via fixAdminButton handler');
+        
+        // Check if already logged in
+        const isTouchLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+        
+        if (isTouchLoggedIn) {
+            console.log('User is logged in (touch), opening admin panel');
+            openAdminPanel();
+        } else {
+            console.log('User is not logged in (touch), showing login form');
+            showLoginForm();
+        }
+    });
+    
+    console.log('Admin button fixed and event handlers attached');
     return true;
 }
 
@@ -3170,55 +3439,141 @@ window.addEventListener('load', function() {
     setTimeout(fixAdminButton, 1000); // Delay slightly to ensure DOM is fully processed
 });
 
+// Also try again after a longer delay just to be absolutely sure
+window.addEventListener('load', function() {
+    setTimeout(fixAdminButton, 3000); // Second attempt after DOM is definitely loaded
+});
+
 // Initialize the site with saved data
 async function initializeSite() {
-    console.log('Initializing site with saved data');
+    console.log('🚀 Initializing site');
+    let loadedData = null;
     
     try {
-        // Try to load from Supabase
+        // Try to load data from API first
+        console.log('Attempting to load data from API...');
         try {
-            console.log('Attempting to load initial data from Supabase');
-            console.log('Using website ID:', WEBSITE_ID);
-            const { data, error } = await supabase
-                .from('site_data')
-                .select('data')
-                .eq('id', WEBSITE_ID)
-                .single();
+            // Dynamically import the API client
+            const apiModule = await import('./api-client.js').catch(e => {
+                console.warn('Could not import API client:', e);
+                return null;
+            });
             
-            if (error) {
-                console.error('Error loading initial data from Supabase:', error);
-            } else if (data && data.data) {
-                console.log('Initial data loaded from Supabase:', data.data);
-                siteData = data.data;
-                updateSiteContent(siteData);
-                return;
-            } else {
-                console.log('No initial data found in Supabase');
+            if (apiModule) {
+                console.log('API client loaded, checking API availability...');
+                const isApiAvailable = await apiModule.isApiAvailable();
+                
+                if (isApiAvailable) {
+                    console.log('API is available, attempting to load data for website ID:', WEBSITE_ID);
+                    // Try to get the complete site_data
+                    loadedData = await apiModule.getData(WEBSITE_ID, 'site_data');
+                    
+                    // If we didn't get complete data, try loading individual sections
+                    if (!loadedData) {
+                        console.log('Could not load complete data, trying individual sections...');
+                        const personal = await apiModule.getData(WEBSITE_ID, 'personal');
+                        const experience = await apiModule.getData(WEBSITE_ID, 'experience');
+                        const results = await apiModule.getData(WEBSITE_ID, 'results');
+                        const contact = await apiModule.getData(WEBSITE_ID, 'contact');
+                        const theme = await apiModule.getData(WEBSITE_ID, 'theme');
+                        
+                        // If we got any data, combine it into a single object
+                        if (personal || experience || results || contact || theme) {
+                            loadedData = {
+                                personal: personal || {},
+                                experience: experience || {},
+                                results: results || {},
+                                contact: contact || {},
+                                theme: theme || {}
+                            };
+                            console.log('✅ Successfully loaded data from individual API sections');
+                        }
+                    } else {
+                        console.log('✅ Successfully loaded complete data from API');
+                    }
+                } else {
+                    console.log('⚠️ API is not available');
+                }
             }
-        } catch (error) {
-            console.error('Error loading initial data from Supabase:', error);
+        } catch (apiError) {
+            console.error('Error loading data from API:', apiError);
         }
         
-        // If Supabase failed, try localStorage
-        try {
-            const localData = localStorage.getItem('siteData');
-            if (localData) {
-                console.log('Found initial data in localStorage');
-                siteData = JSON.parse(localData);
-                console.log('Parsed localStorage data:', siteData);
-                updateSiteContent(siteData);
-                return;
-            } else {
-                console.log('No initial data found in localStorage');
+        // If API failed, try Supabase as fallback
+        if (!loadedData) {
+            console.log('API data not available, falling back to Supabase...');
+            console.log('Using website ID:', WEBSITE_ID);
+            try {
+                const { data, error } = await supabase
+                    .from('site_data')
+                    .select('data')
+                    .eq('id', WEBSITE_ID)
+                    .single();
+                    
+                if (error) {
+                    console.error('Error loading from Supabase:', error);
+                    throw new Error(`Supabase error: ${error.message}`);
+                }
+                
+                if (data) {
+                    loadedData = data.data;
+                    console.log('✅ Successfully loaded data from Supabase');
+                    console.log('Data loaded from Supabase:', loadedData);
+                }
+            } catch (supabaseError) {
+                console.warn('Failed to load from Supabase:', supabaseError);
             }
-        } catch (localError) {
-            console.error('Error accessing localStorage for initial data:', localError);
         }
         
-        // If we get here, use default data
-        initializeWithDefaultData();
+        // If both API and Supabase failed, try localStorage
+        if (!loadedData) {
+            console.log('Database data not available, checking localStorage...');
+            const savedData = localStorage.getItem('siteData');
+            if (savedData) {
+                try {
+                    loadedData = JSON.parse(savedData);
+                    console.log('✅ Successfully loaded data from localStorage');
+                } catch (parseError) {
+                    console.error('Error parsing localStorage data:', parseError);
+                }
+            }
+        }
         
+        // If we still don't have data, load default
+        if (!loadedData) {
+            console.log('No saved data found, loading default data...');
+            loadedData = DEFAULT_SITE_DATA;
+        }
+        
+        // Set global state
+        siteData = loadedData;
+        
+        // Extract and set theme
+        if (siteData?.theme) {
+            currentTheme = siteData.theme;
+            currentMode = siteData.theme.mode || 'light';
+            currentColor = siteData.theme.color || 'indigo';
+        }
+        
+        // Apply the theme
+        applyTheme(currentColor, currentMode);
+        
+        // Update site content with the loaded data
+        updateSiteContent(siteData);
+        
+        // Update charts if they exist
+        if (window.resultsChart) {
+            updateResultsChart(siteData.results);
+        }
+        
+        console.log('✅ Site initialized successfully with data source:', 
+            loadedData === DEFAULT_SITE_DATA ? 'default data' : 
+            (loadedData === JSON.parse(localStorage.getItem('siteData') || '{}') ? 'localStorage' : 'database'));
+            
     } catch (error) {
-        console.error('Error initializing site with saved data:', error);
+        console.error('🔥 Error initializing site:', error);
+        // Try to recover with default data
+        siteData = DEFAULT_SITE_DATA;
+        updateSiteContent(DEFAULT_SITE_DATA);
     }
 }
