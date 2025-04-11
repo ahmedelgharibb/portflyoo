@@ -2003,6 +2003,71 @@
     </div>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
+    
+    <!-- Fallback script to ensure admin button always works -->
+    <script>
+        // This emergency fallback script ensures the admin button works even if the main script has issues
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                console.log('Emergency fallback script for admin button');
+                
+                // Get the admin button
+                const adminBtn = document.getElementById('adminBtn');
+                if (!adminBtn) {
+                    console.error('Admin button not found in emergency fallback');
+                    return;
+                }
+                
+                // Test if the button already has event handlers
+                if (adminBtn.onclick) {
+                    console.log('Admin button already has click handler, not adding emergency fallback');
+                    return;
+                }
+                
+                // Add emergency click handler
+                console.log('Adding emergency click handler to admin button');
+                adminBtn.onclick = function(e) {
+                    if (e) e.preventDefault();
+                    console.log('Admin button clicked (emergency handler)');
+                    
+                    // Check if logged in
+                    const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+                    
+                    if (isLoggedIn) {
+                        // Try to open admin panel
+                        const adminPanel = document.getElementById('adminPanel');
+                        if (adminPanel) {
+                            adminPanel.classList.remove('hidden');
+                            document.body.classList.add('overflow-hidden');
+                            console.log('Admin panel opened by emergency handler');
+                        } else {
+                            console.error('Admin panel not found in emergency handler');
+                            alert('Admin panel not found. Please refresh the page.');
+                        }
+                    } else {
+                        // Show simple password prompt
+                        const password = prompt('Please enter the admin password:');
+                        if (password === 'admin123') {
+                            sessionStorage.setItem('adminLoggedIn', 'true');
+                            alert('Login successful! Refreshing page...');
+                            window.location.reload();
+                        } else {
+                            alert('Invalid password. Please try again.');
+                        }
+                    }
+                    
+                    return false;
+                };
+                
+                // Also apply correct icon just in case
+                adminBtn.innerHTML = '<i class="fas fa-lock text-lg"></i>';
+                
+                console.log('Emergency handler applied to admin button');
+            }, 3000); // Wait 3 seconds to ensure main script has had a chance to run
+        });
+    </script>
 </body>
 </html>

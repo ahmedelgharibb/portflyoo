@@ -52,9 +52,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
     console.log('Login status:', isLoggedIn ? 'Logged in' : 'Not logged in');
     
-    // Set up the admin button functionality based on login status
+    // First attempt to initialize admin button
+    ensureAdminButtonWorks();
+    
+    // Set up the admin button functionality based on login status (backup approach)
     if (adminBtn) {
-        console.log('Setting up admin button click handler');
+        console.log('Setting up admin button click handler (backup)');
         if (isLoggedIn) {
             adminBtn.innerHTML = '<i class="fas fa-lock"></i>';
             adminBtn.addEventListener('click', function(e) {
@@ -63,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 openAdminPanel();
             });
         } else {
-            adminBtn.textContent = 'Admin Login';
+            adminBtn.innerHTML = '<i class="fas fa-lock"></i>';
             adminBtn.addEventListener('click', function(e) {
                 console.log('Admin button clicked (not logged in) - showing login form');
                 e.preventDefault();
@@ -1202,9 +1205,123 @@ function showLoginForm() {
             console.error('Password input not found in login modal');
         }
     } else {
-        console.error('Admin login modal not found in the DOM');
-        alert('Error: Login form not found. Please refresh the page and try again.');
+        console.error('Admin login modal not found in the DOM, creating fallback form');
+        
+        // Create a fallback login form since the modal doesn't exist
+        const fallbackForm = document.createElement('div');
+        fallbackForm.id = 'fallbackLoginModal';
+        fallbackForm.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        `;
+        
+        fallbackForm.innerHTML = `
+            <div style="background-color: white; padding: 2rem; border-radius: 0.5rem; max-width: 400px; width: 90%;">
+                <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;">Admin Login</h2>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Password:</label>
+                    <input type="password" id="fallbackPassword" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 0.25rem;">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                    <button id="fallbackCancel" style="padding: 0.5rem 1rem; background-color: #e5e7eb; border-radius: 0.25rem;">Cancel</button>
+                    <button id="fallbackLogin" style="padding: 0.5rem 1rem; background-color: #3b82f6; color: white; border-radius: 0.25rem;">Login</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(fallbackForm);
+        
+        // Focus on password field
+        setTimeout(() => {
+            const passwordField = document.getElementById('fallbackPassword');
+            if (passwordField) {
+                passwordField.focus();
+            }
+        }, 100);
+        
+        // Add event listeners
+        document.getElementById('fallbackCancel').addEventListener('click', function() {
+            document.body.removeChild(fallbackForm);
+        });
+        
+        document.getElementById('fallbackLogin').addEventListener('click', function() {
+            const password = document.getElementById('fallbackPassword').value;
+            if (password === 'admin123') {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                document.body.removeChild(fallbackForm);
+                alert('Login successful! Refreshing page...');
+                window.location.reload();
+            } else {
+                alert('Invalid password. Please try again.');
+                document.getElementById('fallbackPassword').value = '';
+                document.getElementById('fallbackPassword').focus();
+            }
+        });
+        
+        // Handle enter key press
+        document.getElementById('fallbackPassword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('fallbackLogin').click();
+            }
+        });
     }
+}
+
+// Also ensure admin button works when window is fully loaded
+window.addEventListener('load', function() {
+    console.log('Window loaded, ensuring admin button works');
+    setTimeout(ensureAdminButtonWorks, 1000);
+    
+    // Make one more attempt in case of any timing issues
+    setTimeout(testAdminButton, 2000);
+});
+
+// Function to test if admin button has click handlers
+function testAdminButton() {
+    console.log('Testing admin button functionality');
+    const adminBtn = document.getElementById('adminBtn');
+    if (!adminBtn) {
+        console.error('Admin button not found in testAdminButton');
+        return false;
+    }
+    
+    // If the button doesn't respond to normal methods, apply a direct onclick handler
+    if (!adminBtn.onclick) {
+        console.warn('Admin button has no onclick handler, applying direct handler');
+        adminBtn.onclick = function(e) {
+            if (e) e.preventDefault();
+            const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+            if (isLoggedIn) {
+                try {
+                    openAdminPanel();
+                } catch (err) {
+                    console.error('Error opening admin panel:', err);
+                    alert('Admin panel could not be opened. Please refresh the page.');
+                }
+            } else {
+                const password = prompt('Enter admin password:');
+                if (password === 'admin123') {
+                    sessionStorage.setItem('adminLoggedIn', 'true');
+                    alert('Login successful! Refreshing page...');
+                    window.location.reload();
+                } else {
+                    alert('Invalid password. Please try again.');
+                }
+            }
+            return false;
+        };
+        return true;
+    }
+    
+    return false;
 }
 
 // Hide admin login modal
@@ -3597,3 +3714,84 @@ function handleDrop(e) {
 // Update drop zones to include type
 heroDropZone.dataset.type = 'hero';
 aboutDropZone.dataset.type = 'about';
+
+// Ensure admin button functionality works even if there are other errors
+function ensureAdminButtonWorks() {
+    console.log('Ensuring admin button functionality...');
+    const adminBtn = document.getElementById('adminBtn');
+    if (!adminBtn) {
+        console.error('Admin button not found in ensureAdminButtonWorks');
+        return false;
+    }
+    
+    const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+    console.log('Admin login status:', isLoggedIn ? 'Logged in' : 'Not logged in');
+    
+    // Set appropriate icon
+    adminBtn.innerHTML = '<i class="fas fa-lock text-lg"></i>';
+    
+    // Remove any existing event listeners by cloning the node
+    const newAdminBtn = adminBtn.cloneNode(true);
+    if (adminBtn.parentNode) {
+        adminBtn.parentNode.replaceChild(newAdminBtn, adminBtn);
+    } else {
+        console.error('Admin button has no parent node');
+        return false;
+    }
+    
+    // Add click handler with robust error handling
+    newAdminBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Admin button clicked from ensure function');
+        
+        try {
+            if (isLoggedIn) {
+                if (typeof openAdminPanel === 'function') {
+                    openAdminPanel();
+                } else {
+                    // Fallback if openAdminPanel function isn't available
+                    const adminPanel = document.getElementById('adminPanel');
+                    if (adminPanel) {
+                        adminPanel.classList.remove('hidden');
+                        document.body.classList.add('overflow-hidden');
+                        console.log('Admin panel opened (fallback)');
+                    } else {
+                        console.error('Admin panel not found');
+                        alert('Error: Admin panel not found. Please refresh and try again.');
+                    }
+                }
+            } else {
+                // Try to show login form
+                if (typeof showLoginForm === 'function') {
+                    showLoginForm();
+                } else {
+                    // Fallback login prompt
+                    console.error('showLoginForm function not available, using fallback');
+                    const password = prompt('Enter admin password:');
+                    if (password === 'admin123') {
+                        sessionStorage.setItem('adminLoggedIn', 'true');
+                        alert('Login successful! Refreshing page...');
+                        window.location.reload();
+                    } else {
+                        alert('Invalid password. Please try again.');
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error in admin button click handler:', error);
+            
+            // Ultimate fallback - direct password prompt
+            const password = prompt('Enter admin password (emergency login):');
+            if (password === 'admin123') {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                alert('Login successful! Refreshing page...');
+                window.location.reload();
+            } else {
+                alert('Invalid password. Please try again.');
+            }
+        }
+    });
+    
+    console.log('Admin button successfully initialized');
+    return true;
+}
