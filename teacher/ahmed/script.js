@@ -1,6 +1,11 @@
 // script.js - Log when script loads
 console.log('📂 script.js loaded at', new Date().toISOString());
 
+// Import site configuration
+import siteConfig from './site-config.js';
+const WEBSITE_ID = siteConfig.websiteId;
+console.log('Site config loaded, using website ID:', WEBSITE_ID);
+
 // Preloader
 window.addEventListener('load', () => {
     const preloader = document.querySelector('.preloader');
@@ -10,6 +15,9 @@ window.addEventListener('load', () => {
             preloader.style.display = 'none';
         }, 600);
     }
+    
+    // Make sure admin button works after full page load
+    ensureAdminButtonWorks();
 });
 
 // DOM Elements - using let for all variables so they can be reassigned in DOMContentLoaded
@@ -41,6 +49,87 @@ const SUPABASE_URL = 'https://bqpchhitrbyfleqpyydz.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Function to ensure admin button works - can be called multiple times
+function ensureAdminButtonWorks() {
+    console.log('Ensuring admin button works');
+    
+    // Check if user is logged in (using localStorage instead of sessionStorage for persistence)
+    isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+    console.log('Login status:', isLoggedIn ? 'Logged in' : 'Not logged in');
+    
+    // Get references to admin buttons
+    adminBtn = document.getElementById('adminBtn');
+    adminBtnMobile = document.getElementById('adminBtnMobile');
+    
+    // Set up the admin button functionality based on login status
+    if (adminBtn) {
+        console.log('Admin button found, setting up click handler');
+        
+        // Remove any existing event listeners to prevent duplicates
+        const newAdminBtn = adminBtn.cloneNode(true);
+        if (adminBtn.parentNode) {
+            adminBtn.parentNode.replaceChild(newAdminBtn, adminBtn);
+        }
+        adminBtn = newAdminBtn;
+        
+        // Set icon based on login status
+        if (isLoggedIn) {
+            adminBtn.innerHTML = '<i class="fas fa-lock-open"></i>';
+        } else {
+            adminBtn.innerHTML = '<i class="fas fa-lock"></i>';
+        }
+        
+        // Add new event listener
+        adminBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Admin button clicked - login status:', isLoggedIn);
+            
+            if (isLoggedIn) {
+                openAdminPanel();
+            } else {
+                showLoginForm();
+            }
+        });
+    } else {
+        console.error('Admin button not found in the DOM');
+    }
+    
+    // Set up mobile admin button
+    if (adminBtnMobile) {
+        console.log('Mobile admin button found, setting up click handler');
+        
+        // Remove any existing event listeners to prevent duplicates
+        const newAdminBtnMobile = adminBtnMobile.cloneNode(true);
+        if (adminBtnMobile.parentNode) {
+            adminBtnMobile.parentNode.replaceChild(newAdminBtnMobile, adminBtnMobile);
+        }
+        adminBtnMobile = newAdminBtnMobile;
+        
+        // Set icon based on login status
+        if (isLoggedIn) {
+            adminBtnMobile.innerHTML = '<i class="fas fa-lock-open"></i>';
+        } else {
+            adminBtnMobile.innerHTML = '<i class="fas fa-lock"></i>';
+        }
+        
+        // Add new event listener
+        adminBtnMobile.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile admin button clicked - login status:', isLoggedIn);
+            
+            if (isLoggedIn) {
+                openAdminPanel();
+            } else {
+                showLoginForm();
+            }
+        });
+    } else {
+        console.warn('Mobile admin button not found');
+    }
+}
+
 // Once the document is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded, initializing admin functionality');
@@ -69,47 +158,11 @@ document.addEventListener('DOMContentLoaded', function() {
         saveChangesBtn: !!saveChangesBtn
     });
     
-    // Check if user is logged in (using localStorage instead of sessionStorage for persistence)
-    isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
-    console.log('Login status:', isLoggedIn ? 'Logged in' : 'Not logged in');
+    // Initialize other DOM elements
+    initDOMElements();
     
-    // Set up the admin button functionality based on login status
-    if (adminBtn) {
-        console.log('Admin button found, setting up click handler');
-        if (isLoggedIn) {
-            adminBtn.innerHTML = '<i class="fas fa-lock-open"></i>';
-            adminBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                openAdminPanel();
-            });
-        } else {
-            adminBtn.innerHTML = '<i class="fas fa-lock"></i>';
-            adminBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Admin button clicked (not logged in) - showing login form');
-                showLoginForm();
-            });
-        }
-    } else {
-        console.error('Admin button not found in the DOM');
-    }
-    
-    // Set up mobile admin button
-    if (adminBtnMobile) {
-        console.log('Mobile admin button found, setting up click handler');
-        if (isLoggedIn) {
-            adminBtnMobile.addEventListener('click', function(e) {
-                e.preventDefault();
-                openAdminPanel();
-            });
-        } else {
-            adminBtnMobile.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Mobile admin button clicked (not logged in) - showing login form');
-                showLoginForm();
-            });
-        }
-    }
+    // Check login status and set up admin button
+    ensureAdminButtonWorks();
     
     // Set up admin login form event listener
     if (adminLoginForm) {
@@ -144,6 +197,9 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Setting up save changes button click handler');
         saveChangesBtn.addEventListener('click', saveAdminChanges);
     }
+    
+    // Initialize the site with saved data if available
+    initializeSite();
 });
 
 // Initialize DOM Elements
@@ -660,7 +716,20 @@ function showLoginForm() {
         }
     } else {
         console.error('Admin login modal not found in the DOM');
-        alert('Error: Login form not found. Please refresh the page and try again.');
+        
+        // Create a fallback login mechanism
+        const password = prompt('Please enter admin password:');
+        if (password) {
+            if (password === 'admin123') {
+                localStorage.setItem('adminLoggedIn', 'true');
+                isLoggedIn = true;
+                ensureAdminButtonWorks();
+                setTimeout(openAdminPanel, 500);
+                alert('Login successful!');
+            } else {
+                alert('Invalid password. Please try again.');
+            }
+        }
     }
 }
 
@@ -724,11 +793,17 @@ function handleAdminLogin(e) {
         
         // Save login state to localStorage for persistence
         localStorage.setItem('adminLoggedIn', 'true');
+        isLoggedIn = true;
         
         showAdminAlert('success', 'Login successful!', true);
         
         // Close login modal and open admin panel immediately
         hideAdminLogin();
+        
+        // Update admin button to show lock open icon
+        ensureAdminButtonWorks();
+        
+        // Open admin panel
         setTimeout(openAdminPanel, 500);
     } else {
         document.getElementById('adminLoginForm').reset();
@@ -887,10 +962,11 @@ async function openAdminPanel() {
         // Try to load from Supabase
         try {
             console.log('Attempting to load data from Supabase');
+            console.log('Using website ID:', WEBSITE_ID);
             const { data, error } = await supabase
                 .from('site_data')
                 .select('data')
-                .eq('id', 1)
+                .eq('id', WEBSITE_ID)
                 .single();
             
             console.log('Supabase query response:', data, error);
@@ -1827,11 +1903,12 @@ async function saveAdminChanges() {
 
     try {
         console.log('Fetching current data from Supabase...');
+        console.log('Using website ID:', WEBSITE_ID);
         // Get current data to preserve existing values
         const { data: currentData, error: fetchError } = await supabase
             .from('site_data')
             .select('*')
-            .eq('id', 1)
+            .eq('id', WEBSITE_ID)
             .single();
 
         if (fetchError) {
@@ -1939,9 +2016,10 @@ async function saveAdminChanges() {
         let supabaseSaveSuccess = false;
         try {
             console.log('Attempting to save to Supabase...');
+            console.log('Using website ID:', WEBSITE_ID);
             const { error } = await supabase
                 .from('site_data')
-                .upsert({ id: 1, data: newData }, { onConflict: 'id' });
+                .upsert({ id: WEBSITE_ID, data: newData }, { onConflict: 'id' });
 
             if (error) {
                 console.error('Supabase upsert error:', error);
@@ -1950,10 +2028,11 @@ async function saveAdminChanges() {
             
             // Verify the data was saved correctly
             console.log('Verifying Supabase data after save...');
+            console.log('Using website ID:', WEBSITE_ID);
             const { data: verifyData, error: verifyError } = await supabase
                 .from('site_data')
                 .select('data')
-                .eq('id', 1)
+                .eq('id', WEBSITE_ID)
                 .single();
                 
             if (verifyError) {
@@ -3090,3 +3169,56 @@ function fixAdminButton() {
 window.addEventListener('load', function() {
     setTimeout(fixAdminButton, 1000); // Delay slightly to ensure DOM is fully processed
 });
+
+// Initialize the site with saved data
+async function initializeSite() {
+    console.log('Initializing site with saved data');
+    
+    try {
+        // Try to load from Supabase
+        try {
+            console.log('Attempting to load initial data from Supabase');
+            console.log('Using website ID:', WEBSITE_ID);
+            const { data, error } = await supabase
+                .from('site_data')
+                .select('data')
+                .eq('id', WEBSITE_ID)
+                .single();
+            
+            if (error) {
+                console.error('Error loading initial data from Supabase:', error);
+            } else if (data && data.data) {
+                console.log('Initial data loaded from Supabase:', data.data);
+                siteData = data.data;
+                updateSiteContent(siteData);
+                return;
+            } else {
+                console.log('No initial data found in Supabase');
+            }
+        } catch (error) {
+            console.error('Error loading initial data from Supabase:', error);
+        }
+        
+        // If Supabase failed, try localStorage
+        try {
+            const localData = localStorage.getItem('siteData');
+            if (localData) {
+                console.log('Found initial data in localStorage');
+                siteData = JSON.parse(localData);
+                console.log('Parsed localStorage data:', siteData);
+                updateSiteContent(siteData);
+                return;
+            } else {
+                console.log('No initial data found in localStorage');
+            }
+        } catch (localError) {
+            console.error('Error accessing localStorage for initial data:', localError);
+        }
+        
+        // If we get here, use default data
+        initializeWithDefaultData();
+        
+    } catch (error) {
+        console.error('Error initializing site with saved data:', error);
+    }
+}
