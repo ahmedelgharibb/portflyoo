@@ -2005,7 +2005,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
     
     <!-- Fallback script to ensure admin button always works -->
     <script>
@@ -2020,6 +2020,9 @@
                     console.error('Admin button not found in emergency fallback');
                     return;
                 }
+                
+                // Ensure proper icon is displayed
+                adminBtn.innerHTML = '<i class="fas fa-lock text-lg"></i>';
                 
                 // Test if the button already has event handlers
                 if (adminBtn.onclick) {
@@ -2061,9 +2064,6 @@
                     
                     return false;
                 };
-                
-                // Also apply correct icon just in case
-                adminBtn.innerHTML = '<i class="fas fa-lock text-lg"></i>';
                 
                 console.log('Emergency handler applied to admin button');
             }, 3000); // Wait 3 seconds to ensure main script has had a chance to run

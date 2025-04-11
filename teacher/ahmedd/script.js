@@ -1,8 +1,20 @@
 // script.js - Log when script loads
 console.log('📂 script.js loaded at', new Date().toISOString());
 
+// Import site configuration - safe-guarded for browsers without ES6 module support
+let WEBSITE_ID = "ahmedd_01"; // Default fallback ID
+
+try {
+    // For browsers that support ES6 modules
+    console.log('Attempting to use ES6 module imports');
+} catch (error) {
+    console.error('ES6 module import error:', error);
+    console.log('Using fallback website ID:', WEBSITE_ID);
+}
+
 // Preloader
 window.addEventListener('load', () => {
+    console.log('Window loaded event fired');
     const preloader = document.querySelector('.preloader');
     if (preloader) {
         preloader.classList.add('fade-out');
@@ -10,6 +22,12 @@ window.addEventListener('load', () => {
             preloader.style.display = 'none';
         }, 600);
     }
+    
+    // Call ensureAdminButtonWorks again after window load
+    setTimeout(() => {
+        console.log('Calling ensureAdminButtonWorks after window load');
+        ensureAdminButtonWorks();
+    }, 1000);
 });
 
 // DOM Elements - using let for all variables so they can be reassigned in DOMContentLoaded
@@ -59,14 +77,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (adminBtn) {
         console.log('Setting up admin button click handler (backup)');
         if (isLoggedIn) {
-            adminBtn.innerHTML = '<i class="fas fa-lock"></i>';
+            adminBtn.innerHTML = '<i class="fas fa-lock text-lg"></i>';
             adminBtn.addEventListener('click', function(e) {
                 console.log('Admin button clicked (logged in) - opening panel');
                 e.preventDefault();
                 openAdminPanel();
             });
         } else {
-            adminBtn.innerHTML = '<i class="fas fa-lock"></i>';
+            adminBtn.innerHTML = '<i class="fas fa-lock text-lg"></i>';
             adminBtn.addEventListener('click', function(e) {
                 console.log('Admin button clicked (not logged in) - showing login form');
                 e.preventDefault();
@@ -102,25 +120,91 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Set up admin login form event listener
     if (adminLoginForm) {
         console.log('Setting up admin login form submit handler');
-        adminLoginForm.addEventListener('submit', handleAdminLogin);
+        // Remove any existing handlers first
+        const newForm = adminLoginForm.cloneNode(true);
+        adminLoginForm.parentNode.replaceChild(newForm, adminLoginForm);
+        adminLoginForm = newForm;
+        
+        // Add the submit handler
+        adminLoginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Admin login form submitted');
+            
+            // Get the password input
+            const passwordInput = document.getElementById('adminPassword');
+            if (!passwordInput) {
+                console.error('Password input not found');
+                return;
+            }
+            
+            const password = passwordInput.value.trim();
+            
+            // Check if password is correct
+            if (password === 'admin123') {
+                console.log('Password correct, logging in');
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                isLoggedIn = true;
+                
+                // Hide the login modal
+                const adminLoginModal = document.getElementById('adminLoginModal');
+                if (adminLoginModal) {
+                    adminLoginModal.classList.add('hidden');
+                }
+                
+                // Optionally show a success message
+                alert('Login successful!');
+                
+                // Open admin panel
+                openAdminPanel();
+            } else {
+                console.log('Incorrect password');
+                alert('Incorrect password. Please try again.');
+                
+                // Clear the password field
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        });
+    } else {
+        console.warn('Admin login form not found in the DOM');
     }
     
     // Set up cancel login button
+    const cancelLoginBtn = document.getElementById('cancelLogin');
     if (cancelLoginBtn) {
         console.log('Setting up cancel login button click handler');
         cancelLoginBtn.addEventListener('click', hideAdminLogin);
+    } else {
+        console.warn('Cancel login button not found in the DOM');
     }
     
     // Set up exit login button
+    const exitLoginBtn = document.getElementById('exitLoginBtn');
     if (exitLoginBtn) {
         console.log('Setting up exit login button click handler');
         exitLoginBtn.addEventListener('click', hideAdminLogin);
+    } else {
+        console.warn('Exit login button not found in the DOM');
     }
     
     // Set up close admin panel button
     if (closeAdminPanelBtn) {
         console.log('Setting up close admin panel button click handler');
         closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
+    } else {
+        const closeAdminPanel = document.getElementById('closeAdminPanel');
+        if (closeAdminPanel) {
+            console.log('Setting up close admin panel button click handler (using ID)');
+            closeAdminPanel.addEventListener('click', function() {
+                const adminPanel = document.getElementById('adminPanel');
+                if (adminPanel) {
+                    adminPanel.classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
+                }
+            });
+        } else {
+            console.warn('Close admin panel button not found in the DOM');
+        }
     }
     
     // Initialize Supabase client
@@ -709,12 +793,25 @@ function initDOMElements() {
     mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
     body = document.body;
     
-    console.log('Menu elements found:', {
-        menuBtn: !!menuBtn,
-        closeMenuBtn: !!closeMenuBtn,
-        mobileMenu: !!mobileMenu,
-        mobileMenuBackdrop: !!mobileMenuBackdrop,
-        mobileMenuLinks: mobileMenuLinks ? mobileMenuLinks.length : 0
+    // Important - Admin elements
+    adminBtn = document.getElementById('adminBtn');
+    adminBtnMobile = document.getElementById('adminBtnMobile');
+    adminLoginModal = document.getElementById('adminLoginModal');
+    adminLoginForm = document.getElementById('adminLoginForm');
+    cancelLoginBtn = document.getElementById('cancelLoginBtn');
+    exitLoginBtn = document.getElementById('exitLoginBtn');
+    adminPanel = document.getElementById('adminPanel');
+    closeAdminPanelBtn = document.getElementById('closeAdminPanelBtn');
+    saveChangesBtn = document.getElementById('saveChangesBtn');
+    addResultBtn = document.getElementById('addResultBtn');
+    adminResultsContainer = document.getElementById('adminResultsContainer');
+    
+    console.log('Admin elements found:', {
+        adminBtn: !!adminBtn,
+        adminBtnMobile: !!adminBtnMobile,
+        adminLoginModal: !!adminLoginModal,
+        adminLoginForm: !!adminLoginForm,
+        adminPanel: !!adminPanel
     });
     
     // Set up menu button event listeners
@@ -757,11 +854,10 @@ function initDOMElements() {
         console.warn('No mobile menu links found when initializing');
     }
     
-    // Continue with other DOM elements initialization...
-    
     // Return initialization status
     return {
         menuInitialized: !!menuBtn && !!closeMenuBtn && !!mobileMenu,
+        adminInitialized: !!adminBtn && !!adminPanel,
         menuLinksCount: mobileMenuLinks ? mobileMenuLinks.length : 0
     };
 }
@@ -2050,12 +2146,25 @@ function initDOMElements() {
     mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
     body = document.body;
     
-    console.log('Menu elements found:', {
-        menuBtn: !!menuBtn,
-        closeMenuBtn: !!closeMenuBtn,
-        mobileMenu: !!mobileMenu,
-        mobileMenuBackdrop: !!mobileMenuBackdrop,
-        mobileMenuLinks: mobileMenuLinks ? mobileMenuLinks.length : 0
+    // Important - Admin elements
+    adminBtn = document.getElementById('adminBtn');
+    adminBtnMobile = document.getElementById('adminBtnMobile');
+    adminLoginModal = document.getElementById('adminLoginModal');
+    adminLoginForm = document.getElementById('adminLoginForm');
+    cancelLoginBtn = document.getElementById('cancelLoginBtn');
+    exitLoginBtn = document.getElementById('exitLoginBtn');
+    adminPanel = document.getElementById('adminPanel');
+    closeAdminPanelBtn = document.getElementById('closeAdminPanelBtn');
+    saveChangesBtn = document.getElementById('saveChangesBtn');
+    addResultBtn = document.getElementById('addResultBtn');
+    adminResultsContainer = document.getElementById('adminResultsContainer');
+    
+    console.log('Admin elements found:', {
+        adminBtn: !!adminBtn,
+        adminBtnMobile: !!adminBtnMobile,
+        adminLoginModal: !!adminLoginModal,
+        adminLoginForm: !!adminLoginForm,
+        adminPanel: !!adminPanel
     });
     
     // Set up menu button event listeners
@@ -2098,11 +2207,10 @@ function initDOMElements() {
         console.warn('No mobile menu links found when initializing');
     }
     
-    // Continue with other DOM elements initialization...
-    
     // Return initialization status
     return {
         menuInitialized: !!menuBtn && !!closeMenuBtn && !!mobileMenu,
+        adminInitialized: !!adminBtn && !!adminPanel,
         menuLinksCount: mobileMenuLinks ? mobileMenuLinks.length : 0
     };
 }
@@ -3725,7 +3833,7 @@ function ensureAdminButtonWorks() {
     }
     
     const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
-    console.log('Admin login status:', isLoggedIn ? 'Logged in' : 'Not logged in');
+    console.log('Admin login status in ensureAdminButtonWorks:', isLoggedIn ? 'Logged in' : 'Not logged in');
     
     // Set appropriate icon
     adminBtn.innerHTML = '<i class="fas fa-lock text-lg"></i>';
@@ -3734,6 +3842,8 @@ function ensureAdminButtonWorks() {
     const newAdminBtn = adminBtn.cloneNode(true);
     if (adminBtn.parentNode) {
         adminBtn.parentNode.replaceChild(newAdminBtn, adminBtn);
+        // Update the global variable reference
+        adminBtn = newAdminBtn;
     } else {
         console.error('Admin button has no parent node');
         return false;
@@ -3790,6 +3900,8 @@ function ensureAdminButtonWorks() {
                 alert('Invalid password. Please try again.');
             }
         }
+        
+        return false;
     });
     
     console.log('Admin button successfully initialized');
