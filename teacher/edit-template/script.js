@@ -260,105 +260,77 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Handle image upload
     async function handleImageUpload(file, type) {
         try {
-            // Validate file type
-            if (!file.type.startsWith('image/')) {
+            if (!file || !file.type.startsWith('image/')) {
                 showAdminAlert('error', 'Please upload an image file');
                 return;
             }
 
-            // Validate file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                showAdminAlert('error', 'Image size should be less than 5MB');
-                return;
-            }
-
-            // Get current data
-            const { data: currentData, error: fetchError } = await supabase
-                .from('site_data')
-                .select('*')
-                .eq('id', 1)
-                .single();
-
-            if (fetchError) throw fetchError;
-
-            // Start with current data to preserve all existing values
-            let websiteData = currentData?.data || {
-                theme: { mode: 'light', color: 'red' },
-                contact: { email: '', phone: '', formUrl: '', contactMessage: '', assistantFormUrl: '' },
-                results: [],
-                personal: { name: '', title: '', experience: '', qualifications: [] },
-                experience: { centers: [], schools: [], platforms: [] }
+            // Show spinner for the appropriate upload type
+            const spinner = document.getElementById(`${type}UploadSpinner`);
+            if (spinner) spinner.classList.remove('hidden');
+            
+            // First update the preview
+            const previewElement = document.getElementById(`${type}Preview`);
+            const previewImg = previewElement.querySelector('img');
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                previewElement.classList.remove('hidden');
             };
-                
-            // Generate unique filename
+            reader.readAsDataURL(file);
+            
+            // Get the file extension
+            const extension = file.name.split('.').pop().toLowerCase();
+            // Create a unique filename
             const timestamp = new Date().getTime();
-            const filename = `${type}_${timestamp}_${file.name}`;
+            const filename = `${type}-image-${timestamp}.${extension}`;
+            
+            try {
+                // Upload to Supabase Storage
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('images')
+                    .upload(filename, file);
                 
-            // Upload to Supabase Storage
-            const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('website-images')
-                .upload(filename, file);
-
-            if (uploadError) {
-                console.error('Upload error:', uploadError);
-                if (uploadError.message.includes('bucket')) {
-                    showAdminAlert('error', 'Storage bucket "website-images" not found. Please create it in your Supabase project: 1. Go to Storage in Supabase dashboard 2. Click "Create a new bucket" 3. Name it "website-images" 4. Set to Public 5. Click Create');
-                    return;
+                if (uploadError) {
+                    console.error('Upload error:', uploadError);
+                    if (uploadError.message.includes('bucket')) {
+                        showAdminAlert('error', 'Storage bucket not found. Please ensure your Supabase project is set up correctly with an "images" bucket.');
+                        return;
+                    }
+                    throw uploadError;
                 }
-                throw uploadError;
-            }
-
-            // Get public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('website-images')
-                .getPublicUrl(filename);
-
-            // Delete old image if exists
-            if (websiteData[`${type}Image`]) {
-                const oldFilename = websiteData[`${type}Image`].split('/').pop();
-                await supabase.storage
-                    .from('website-images')
-                    .remove([oldFilename]);
-            }
-
-            // Update website data with new image URL
-            websiteData = {
-                ...websiteData,
-                [`${type}Image`]: publicUrl
-            };
-
-            // Update the database with the new data
-            const { error: updateError } = await supabase
-                .from('site_data')
-                .upsert({
-                    id: 1,
-                    data: websiteData
-                });
-
-            if (updateError) throw updateError;
-
-            // Update global state
-            siteData = websiteData;
-
-            // Update preview
-            const preview = type === 'hero' ? heroPreview : aboutPreview;
-            const previewImg = preview.querySelector('img');
-            previewImg.src = publicUrl;
-            preview.classList.remove('hidden');
-
-            // Update the actual images on the page
-            const mainImage = document.getElementById(`${type}Image`);
-            const mobileImage = document.getElementById(`${type}ImageMobile`);
-            if (mainImage) mainImage.src = publicUrl;
-            if (mobileImage) mobileImage.src = publicUrl;
-
-            showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image updated successfully`);
                 
-            // Update the website content
-            updateSiteContent(websiteData);
+                // Get the public URL
+                const { data: { publicUrl } } = supabase.storage
+                    .from('images')
+                    .getPublicUrl(filename);
+                
+                // Update the website data object
+                if (type === 'hero') {
+                    websiteData.heroImage = publicUrl;
+                } else if (type === 'about') {
+                    websiteData.aboutImage = publicUrl;
+                }
+                
+                // Save to database
+                await saveWebsiteData();
+                
+                showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image uploaded successfully!`);
+            } catch (error) {
+                throw error;
+            } finally {
+                // Hide spinner regardless of success or failure
+                if (spinner) spinner.classList.add('hidden');
+            }
         } catch (error) {
             console.error('Error uploading image:', error);
             showAdminAlert('error', error.message || 'Failed to upload image. Please try again.');
+            
+            // Hide spinner on error
+            const spinner = document.getElementById(`${type}UploadSpinner`);
+            if (spinner) spinner.classList.add('hidden');
         }
     }
     
