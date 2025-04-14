@@ -1152,6 +1152,9 @@
     
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Reviews script -->
+    <script src="reviews.js"></script>
 </head>
 <body class="overflow-fix">
     <!-- Header -->
@@ -1581,6 +1584,57 @@
         </div>
     </section>
 
+    <!-- Reviews Section -->
+    <section id="reviews" class="py-20 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">Student Reviews</h2>
+            
+            <!-- Reviews Display -->
+            <div id="reviews-container" class="max-w-4xl mx-auto mb-16 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                <!-- Reviews will be dynamically loaded here -->
+                <div class="review-empty-state text-center col-span-full py-8">
+                    <i class="fas fa-comments text-gray-300 text-5xl mb-4"></i>
+                    <p class="text-gray-500">No reviews yet. Be the first to leave a review!</p>
+                </div>
+            </div>
+            
+            <!-- Review Form -->
+            <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Share Your Experience</h3>
+                <form id="reviewForm" class="space-y-6">
+                    <div>
+                        <label for="reviewName" class="form-label">Your Name</label>
+                        <input type="text" id="reviewName" name="name" required class="form-input">
+                    </div>
+                    
+                    <div>
+                        <label class="form-label">Rating</label>
+                        <div class="flex items-center space-x-2">
+                            <div class="rating-container flex text-3xl">
+                                <span class="star cursor-pointer" data-rating="1">★</span>
+                                <span class="star cursor-pointer" data-rating="2">★</span>
+                                <span class="star cursor-pointer" data-rating="3">★</span>
+                                <span class="star cursor-pointer" data-rating="4">★</span>
+                                <span class="star cursor-pointer" data-rating="5">★</span>
+                            </div>
+                            <span id="selected-rating" class="ml-2 text-lg">0/5</span>
+                            <input type="hidden" id="reviewRating" name="rating" value="0">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="reviewComment" class="form-label">Your Review</label>
+                        <textarea id="reviewComment" name="comment" required rows="4" class="form-input" placeholder="Share your experience with the teacher..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-full">
+                        <i class="fas fa-paper-plane mr-2"></i>Submit Review
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12">
         <div class="container mx-auto px-4">
@@ -1722,6 +1776,32 @@
                 <div class="mt-4">
                     <label class="form-label">Contact Message</label>
                     <textarea id="admin-contact-message" class="form-input" rows="3"></textarea>
+                </div>
+            </div>
+            
+            <!-- Reviews Management Section -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Reviews Management</h3>
+                
+                <div class="mb-4">
+                    <p class="text-gray-600 mb-4">Manage student reviews that appear on your website.</p>
+                    
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-lg font-semibold text-gray-700">All Reviews</h4>
+                        <div class="flex gap-2">
+                            <button id="refreshReviewsBtn" class="btn btn-secondary">
+                                <i class="fas fa-sync-alt mr-2"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="admin-reviews-container" class="border border-gray-200 rounded-lg divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                        <!-- Reviews will be loaded here -->
+                        <div class="p-6 text-center text-gray-500">
+                            <i class="fas fa-comments text-gray-300 text-4xl mb-2"></i>
+                            <p>No reviews found.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
             
