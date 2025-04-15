@@ -55,40 +55,6 @@ VALUES (
 -- Set up Row Level Security
 ALTER TABLE site_data ENABLE ROW LEVEL SECURITY;
 
--- Drop existing policies if they exist
-DO $$
-BEGIN
-    -- Check and drop existing policies
-    IF EXISTS (
-        SELECT 1 FROM pg_policies 
-        WHERE tablename = 'site_data' AND policyname = 'site_data_select_policy'
-    ) THEN
-        DROP POLICY site_data_select_policy ON site_data;
-    END IF;
-    
-    IF EXISTS (
-        SELECT 1 FROM pg_policies 
-        WHERE tablename = 'site_data' AND policyname = 'site_data_insert_policy'
-    ) THEN
-        DROP POLICY site_data_insert_policy ON site_data;
-    END IF;
-    
-    IF EXISTS (
-        SELECT 1 FROM pg_policies 
-        WHERE tablename = 'site_data' AND policyname = 'site_data_update_policy'
-    ) THEN
-        DROP POLICY site_data_update_policy ON site_data;
-    END IF;
-    
-    IF EXISTS (
-        SELECT 1 FROM pg_policies 
-        WHERE tablename = 'site_data' AND policyname = 'site_data_delete_policy'
-    ) THEN
-        DROP POLICY site_data_delete_policy ON site_data;
-    END IF;
-END
-$$;
-
 -- Create policy for read access (anyone can read)
 CREATE POLICY site_data_select_policy
   ON site_data

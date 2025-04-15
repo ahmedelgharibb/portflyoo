@@ -3257,17 +3257,24 @@ function applyModeTheme(mode) {
         });
         
         // Handle Chart.js elements - make chart text white in dark mode
-        if (window.Chart) {
+        if (typeof Chart !== 'undefined') {
             Chart.defaults.color = '#f3f4f6'; // Light gray/white text
             Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)'; // Lighter grid lines
             
             // If we have a chart instance, update it
-            if (window.resultsChart) {
-                window.resultsChart.options.scales.x.ticks.color = '#f3f4f6';
-                window.resultsChart.options.scales.y.ticks.color = '#f3f4f6';
-                window.resultsChart.options.plugins.legend.labels.color = '#f3f4f6';
-                window.resultsChart.options.plugins.title.color = '#f3f4f6';
-                window.resultsChart.update();
+            if (window.resultsChart && typeof window.resultsChart.options !== 'undefined' && 
+                typeof window.resultsChart.options.scales !== 'undefined') {
+                // Safely update chart properties
+                try {
+                    window.resultsChart.options.scales.x.ticks.color = '#f3f4f6';
+                    window.resultsChart.options.scales.y.ticks.color = '#f3f4f6';
+                    window.resultsChart.options.plugins.legend.labels.color = '#f3f4f6';
+                    window.resultsChart.options.plugins.title.color = '#f3f4f6';
+                    window.resultsChart.update();
+                } catch (err) {
+                    console.warn('Could not update chart colors in dark mode:', err);
+                    // Don't throw an error, just log the warning
+                }
             }
         }
         
@@ -3435,17 +3442,30 @@ function applyModeTheme(mode) {
         });
         
         // Reset Chart.js elements to default dark colors in light mode
-        if (window.Chart) {
+        if (typeof Chart !== 'undefined') {
             Chart.defaults.color = '#666'; // Default chart text color
             Chart.defaults.borderColor = 'rgba(0, 0, 0, 0.1)'; // Default grid lines
             
             // If we have a chart instance, update it
-            if (window.resultsChart) {
-                window.resultsChart.options.scales.x.ticks.color = '';
-                window.resultsChart.options.scales.y.ticks.color = '';
-                window.resultsChart.options.plugins.legend.labels.color = '';
-                window.resultsChart.options.plugins.title.color = '';
-                window.resultsChart.update();
+            if (window.resultsChart && window.resultsChart.options && window.resultsChart.options.scales) {
+                try {
+                    // Only update if the properties exist
+                    if (window.resultsChart.options.scales.x) {
+                        window.resultsChart.options.scales.x.ticks.color = '';
+                    }
+                    if (window.resultsChart.options.scales.y) {
+                        window.resultsChart.options.scales.y.ticks.color = '';
+                    }
+                    if (window.resultsChart.options.plugins && window.resultsChart.options.plugins.legend) {
+                        window.resultsChart.options.plugins.legend.labels.color = '';
+                    }
+                    if (window.resultsChart.options.plugins && window.resultsChart.options.plugins.title) {
+                        window.resultsChart.options.plugins.title.color = '';
+                    }
+                    window.resultsChart.update();
+                } catch (err) {
+                    console.warn('Error updating chart in light mode:', err);
+                }
             }
         }
         
