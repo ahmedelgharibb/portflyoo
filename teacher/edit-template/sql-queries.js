@@ -5,21 +5,6 @@
 
 // Schema information - Run this to see the database structure
 const SCHEMA_INFO = `
--- Get table structure for reviews table
-SELECT 
-    table_schema,
-    table_name, 
-    column_name, 
-    data_type, 
-    column_default,
-    is_nullable
-FROM 
-    information_schema.columns
-WHERE 
-    table_name = 'reviews'
-ORDER BY 
-    ordinal_position;
-
 -- Get table structure for site_data table
 SELECT 
     table_schema,
@@ -36,51 +21,18 @@ ORDER BY
     ordinal_position;
 `;
 
-// Basic review queries
+// Basic site_data queries
 const REVIEW_QUERIES = {
-    // Get all reviews
+    // Get all site_data
     getAllReviews: `
-SELECT * FROM reviews 
-ORDER BY created_at DESC;`,
+SELECT * FROM site_data 
+WHERE id = 1;`,
 
-    // Get approved reviews only
-    getApprovedReviews: `
-SELECT * FROM reviews 
-WHERE approved = true 
-ORDER BY created_at DESC;`,
-
-    // Get unapproved (pending) reviews
-    getUnapprovedReviews: `
-SELECT * FROM reviews 
-WHERE approved = false 
-ORDER BY created_at DESC;`,
-
-    // Get review statistics
+    // Get site_data count
     getReviewStats: `
 SELECT 
-    COUNT(*) AS total_reviews,
-    COUNT(CASE WHEN approved = true THEN 1 END) AS approved_reviews,
-    COUNT(CASE WHEN approved = false THEN 1 END) AS pending_reviews,
-    AVG(rating) AS average_rating,
-    MIN(created_at) AS first_review_date,
-    MAX(created_at) AS latest_review_date
-FROM reviews;`,
-
-    // Get reviews by date range (last 30 days)
-    getRecentReviews: `
-SELECT * FROM reviews 
-WHERE created_at >= NOW() - INTERVAL '30 days'
-ORDER BY created_at DESC;`,
-
-    // Get review distribution by rating
-    getRatingDistribution: `
-SELECT 
-    rating, 
-    COUNT(*) as count, 
-    ROUND((COUNT(*) * 100.0 / (SELECT COUNT(*) FROM reviews)), 1) as percentage
-FROM reviews
-GROUP BY rating
-ORDER BY rating DESC;`
+    COUNT(*) AS site_data_count
+FROM site_data;`
 };
 
 // Site data queries
@@ -99,18 +51,24 @@ WHERE id = 1;`
 
 // Update operations (these should be executed through the Supabase API, not SQL)
 const UPDATE_OPERATIONS = {
-    // Approve a review - replace :id with the actual review ID
+    // Dummy operations - these are for reference only, not for direct execution
     approveReview: `
-UPDATE reviews
-SET approved = true
-WHERE id = :id
-RETURNING *;`,
+-- This operation should be performed using JavaScript, not SQL
+-- Example of how to update a specific review in the site_data.reviews array:
 
-    // Delete a review - replace :id with the actual review ID
+-- 1. Get the current site_data
+-- 2. Find the review by ID in the site_data.data.reviews array
+-- 3. Update the approved status to true
+-- 4. Save the updated site_data back to the database`,
+
+    // Delete a review - reference only
     deleteReview: `
-DELETE FROM reviews
-WHERE id = :id
-RETURNING *;`
+-- This operation should be performed using JavaScript, not SQL
+-- Example of how to delete a review from the site_data.reviews array:
+
+-- 1. Get the current site_data
+-- 2. Filter out the review with the specified ID from site_data.data.reviews
+-- 3. Save the updated site_data back to the database`
 };
 
 // JSON queries - for reviews stored in site_data.data.reviews
@@ -214,7 +172,7 @@ VALUES (1, '{"reviews": []}'::jsonb)
 ON CONFLICT (id) DO NOTHING;
 `;
 
-// Update site_data with reviews
+// Add a review example
 const ADD_REVIEW_TO_SITE_DATA = `
 -- Example: Add a review to the reviews array
 UPDATE site_data

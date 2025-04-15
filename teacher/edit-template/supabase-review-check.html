@@ -128,7 +128,7 @@
 
     <div>
         <h3>Custom SQL Query:</h3>
-        <textarea id="sqlQuery">SELECT * FROM reviews ORDER BY created_at DESC LIMIT 10;</textarea>
+        <textarea id="sqlQuery">SELECT * FROM site_data WHERE id = 1;</textarea>
         <p><small>Note: Only SELECT operations are allowed for security reasons</small></p>
         <div class="query-templates">
             <h4>Common SQL Queries:</h4>
@@ -314,17 +314,29 @@
                 showLoading("Fetching reviews from database...");
                 
                 const { data, error } = await supabaseClient
-                    .from('reviews')
+                    .from('site_data')
                     .select('*')
-                    .order('created_at', { ascending: false });
+                    .eq('id', 1)
+                    .single();
                 
                 if (error) throw error;
                 
-                document.getElementById('results').innerHTML = data.length > 0 
-                    ? renderAsTable(data) 
-                    : '<p>No reviews found in the database.</p>';
+                if (!data || !data.data || !data.data.reviews || !Array.isArray(data.data.reviews)) {
+                    document.getElementById('results').innerHTML = '<p>No reviews found in the site_data table.</p>';
+                    showSuccess("Query completed - no reviews found");
+                    return;
+                }
                 
-                showSuccess(`Successfully retrieved ${data.length} reviews.`);
+                const reviews = data.data.reviews;
+                
+                document.getElementById('results').innerHTML = reviews.length > 0 
+                    ? `
+                        <h3>Reviews from site_data (${reviews.length}):</h3>
+                        <pre>${JSON.stringify(reviews, null, 2)}</pre>
+                      `
+                    : '<p>No reviews found in site_data.</p>';
+                
+                showSuccess(`Successfully retrieved ${reviews.length} reviews from site_data.`);
             } catch (error) {
                 showError(error.message);
                 document.getElementById('results').innerHTML = `<pre>${error.stack}</pre>`;
@@ -697,10 +709,10 @@
                         sqlQueryTextarea.value = REVIEW_QUERIES.getAllReviews;
                         break;
                     case 'approvedReviews':
-                        sqlQueryTextarea.value = REVIEW_QUERIES.getApprovedReviews;
+                        sqlQueryTextarea.value = JSON_REVIEW_QUERIES.getApprovedJsonReviews;
                         break;
                     case 'pendingReviews':
-                        sqlQueryTextarea.value = REVIEW_QUERIES.getUnapprovedReviews;
+                        sqlQueryTextarea.value = JSON_REVIEW_QUERIES.getPendingJsonReviews;
                         break;
                     case 'reviewStats':
                         sqlQueryTextarea.value = REVIEW_QUERIES.getReviewStats;
