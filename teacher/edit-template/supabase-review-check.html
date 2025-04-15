@@ -195,18 +195,55 @@
     <script>
         // Initialize Supabase client
         const SUPABASE_URL = 'https://bqpchhitrbyfleqpyydz.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W4EHO4YLRDGU6p0xJhGbj_as';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTIzNDI2NDAsImV4cCI6MjAyNzkxODY0MH0.D2Hq3jwjpXXaaMQvK0_vEFYS6JvFyb39nXBGxiJmqQs';
         
         let supabaseClient;
+        let supabaseInitialized = false;
         
         try {
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            supabaseInitialized = true;
             document.getElementById('status').innerHTML = "Supabase client initialized successfully.";
             document.getElementById('status').classList.add('success');
         } catch (error) {
             document.getElementById('status').innerHTML = `Error initializing Supabase: ${error.message}`;
             document.getElementById('status').classList.add('error');
         }
+
+        // Test Supabase connection on load
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!supabaseInitialized) return;
+            
+            try {
+                // Try to make a simple query to test the connection
+                const { data, error } = await supabaseClient
+                    .from('site_data')
+                    .select('id')
+                    .limit(1);
+                
+                if (error) throw error;
+                
+                document.getElementById('status').innerHTML = "Supabase connection verified successfully.";
+                document.getElementById('status').classList.add('success');
+            } catch (error) {
+                let errorMessage = `Supabase connection error: ${error.message}`;
+                
+                if (error.message.includes("Invalid API key") || error.message.includes("JWT")) {
+                    errorMessage = `API Key Error: The Supabase API key appears to be invalid or expired. 
+                        <br><br>This tool will operate in localStorage-only mode. 
+                        <br><br>To update the API key, edit the SUPABASE_KEY constant in this file.`;
+                    
+                    // Hide database-dependent buttons
+                    document.getElementById('getReviews').style.display = 'none';
+                    document.getElementById('getSiteData').style.display = 'none';
+                    document.getElementById('runCustomQuery').style.display = 'none';
+                    supabaseInitialized = false;
+                }
+                
+                document.getElementById('status').innerHTML = errorMessage;
+                document.getElementById('status').classList.add('error');
+            }
+        });
         
         // Helper function to show loading state
         function showLoading(message = "Loading...") {
@@ -363,21 +400,6 @@
             e.preventDefault();
             
             try {
-                showLoading("Adding review to site_data...");
-                
-                // Get current site_data
-                const { data: siteData, error: siteDataError } = await supabaseClient
-                    .from('site_data')
-                    .select('*')
-                    .eq('id', 1)
-                    .single();
-                
-                if (siteDataError) throw siteDataError;
-                
-                if (!siteData) {
-                    throw new Error('No site_data found with id=1');
-                }
-                
                 // Get form values
                 const name = document.getElementById('reviewerName').value.trim();
                 const rating = parseInt(document.getElementById('rating').value);
@@ -394,46 +416,133 @@
                     approved
                 };
                 
-                // Update site_data.data.reviews
-                let siteDataObj = siteData.data || {};
-                if (!siteDataObj.reviews || !Array.isArray(siteDataObj.reviews)) {
-                    siteDataObj.reviews = [];
+                // First, update localStorage
+                let localReviews = [];
+                try {
+                    const existingReviews = localStorage.getItem('reviews');
+                    if (existingReviews) {
+                        localReviews = JSON.parse(existingReviews);
+                        if (!Array.isArray(localReviews)) {
+                            localReviews = [];
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error parsing localStorage reviews', e);
+                    localReviews = [];
                 }
                 
-                // Add the new review at the beginning of the array
-                siteDataObj.reviews.unshift(newReview);
+                // Add new review to localStorage
+                localReviews.unshift(newReview);
+                localStorage.setItem('reviews', JSON.stringify(localReviews));
                 
-                // Update the database
-                const { data: updateResult, error: updateError } = await supabaseClient
-                    .from('site_data')
-                    .update({ data: siteDataObj })
-                    .eq('id', 1);
-                
-                if (updateError) throw updateError;
-                
-                showSuccess(`Review added successfully to site_data.`);
+                // If Supabase is initialized, also update there
+                if (supabaseInitialized) {
+                    showLoading("Adding review to site_data...");
+                    
+                    try {
+                        // Get current site_data
+                        const { data: siteData, error: siteDataError } = await supabaseClient
+                            .from('site_data')
+                            .select('*')
+                            .eq('id', 1)
+                            .single();
+                        
+                        if (siteDataError) throw siteDataError;
+                        
+                        if (!siteData) {
+                            // Create site_data if it doesn't exist
+                            const { data: newSiteData, error: createError } = await supabaseClient
+                                .from('site_data')
+                                .insert([
+                                    { id: 1, data: { reviews: [newReview] } }
+                                ])
+                                .select();
+                                
+                            if (createError) throw createError;
+                            
+                            showSuccess(`Review added successfully to new site_data.`);
+                            
+                            // Reset form and hide it
+                            document.getElementById('reviewForm').reset();
+                            document.getElementById('addReviewForm').style.display = 'none';
+                            
+                            document.getElementById('results').innerHTML = `
+                                <h3>Review added to site_data successfully!</h3>
+                                <h4>New site_data created with review:</h4>
+                                <pre>${JSON.stringify(newReview, null, 2)}</pre>
+                            `;
+                            
+                            return;
+                        }
+                        
+                        // Update site_data.data.reviews
+                        let siteDataObj = siteData.data || {};
+                        if (!siteDataObj.reviews || !Array.isArray(siteDataObj.reviews)) {
+                            siteDataObj.reviews = [];
+                        }
+                        
+                        // Add the new review at the beginning of the array
+                        siteDataObj.reviews.unshift(newReview);
+                        
+                        // Update the database
+                        const { data: updateResult, error: updateError } = await supabaseClient
+                            .from('site_data')
+                            .update({ data: siteDataObj })
+                            .eq('id', 1);
+                        
+                        if (updateError) throw updateError;
+                        
+                        showSuccess(`Review added successfully to site_data and localStorage.`);
+                        
+                        // Display updated site_data
+                        const { data: updatedData, error: refreshError } = await supabaseClient
+                            .from('site_data')
+                            .select('*')
+                            .eq('id', 1)
+                            .single();
+                        
+                        if (refreshError) throw refreshError;
+                        
+                        document.getElementById('results').innerHTML = `
+                            <h3>Review added to site_data successfully!</h3>
+                            <h4>Updated site_data:</h4>
+                            <pre>${JSON.stringify(updatedData.data.reviews, null, 2)}</pre>
+                        `;
+                    } catch (dbError) {
+                        console.error('Supabase error:', dbError);
+                        showError(`Error updating Supabase: ${dbError.message}. Review saved to localStorage only.`);
+                        
+                        document.getElementById('results').innerHTML = `
+                            <h3>Review added to localStorage only</h3>
+                            <p>There was an error updating Supabase: ${dbError.message}</p>
+                            <h4>Review in localStorage:</h4>
+                            <pre>${JSON.stringify(newReview, null, 2)}</pre>
+                        `;
+                    }
+                } else {
+                    // Supabase not initialized, just use localStorage
+                    showSuccess(`Review added successfully to localStorage only.`);
+                    
+                    // Reset form and hide it
+                    document.getElementById('reviewForm').reset();
+                    document.getElementById('addReviewForm').style.display = 'none';
+                    
+                    document.getElementById('results').innerHTML = `
+                        <h3>Review added to localStorage only</h3>
+                        <p>Supabase connection not available, but the review has been saved locally.</p>
+                        <h4>Saved review:</h4>
+                        <pre>${JSON.stringify(newReview, null, 2)}</pre>
+                        <h4>All reviews in localStorage (${localReviews.length}):</h4>
+                        <pre>${JSON.stringify(localReviews, null, 2)}</pre>
+                    `;
+                }
                 
                 // Reset form and hide it
                 document.getElementById('reviewForm').reset();
                 document.getElementById('addReviewForm').style.display = 'none';
                 
-                // Display updated site_data
-                const { data: updatedData, error: refreshError } = await supabaseClient
-                    .from('site_data')
-                    .select('*')
-                    .eq('id', 1)
-                    .single();
-                
-                if (refreshError) throw refreshError;
-                
-                document.getElementById('results').innerHTML = `
-                    <h3>Review added to site_data successfully!</h3>
-                    <h4>Updated site_data:</h4>
-                    <pre>${JSON.stringify(updatedData.data.reviews, null, 2)}</pre>
-                `;
-                
             } catch (error) {
-                showError(error.message);
+                showError(`Error: ${error.message}`);
                 document.getElementById('results').innerHTML = `<pre>${error.stack}</pre>`;
             }
         });
@@ -457,6 +566,16 @@
                     throw new Error(`Error parsing localStorage reviews: ${e.message}`);
                 }
                 
+                // If Supabase is not initialized, just show the localStorage data
+                if (!supabaseInitialized) {
+                    showError('Cannot export to Supabase - API key invalid or connection error. Reviews exist only in localStorage.');
+                    document.getElementById('results').innerHTML = `
+                        <h3>Reviews in localStorage (${reviewsArray.length}):</h3>
+                        <pre>${JSON.stringify(reviewsArray, null, 2)}</pre>
+                    `;
+                    return;
+                }
+                
                 showLoading(`Exporting ${reviewsArray.length} reviews from localStorage to site_data...`);
                 
                 // Get current site_data
@@ -466,10 +585,32 @@
                     .eq('id', 1)
                     .single();
                 
-                if (siteDataError) throw siteDataError;
+                if (siteDataError && siteDataError.code !== 'PGRST116') {
+                    // PGRST116 is "row not found" - we'll handle that by creating a new row
+                    throw siteDataError;
+                }
                 
+                // If no site_data found, create a new one
                 if (!siteData) {
-                    throw new Error('No site_data found with id=1');
+                    const { data: newSiteData, error: createError } = await supabaseClient
+                        .from('site_data')
+                        .insert([
+                            { id: 1, data: { reviews: reviewsArray } }
+                        ])
+                        .select();
+                        
+                    if (createError) throw createError;
+                    
+                    showSuccess(`Created new site_data with ${reviewsArray.length} reviews from localStorage.`);
+                    
+                    document.getElementById('results').innerHTML = `
+                        <h3>Reviews exported successfully to new site_data!</h3>
+                        <p>Created new site_data record with all ${reviewsArray.length} reviews from localStorage.</p>
+                        <h4>Exported reviews:</h4>
+                        <pre>${JSON.stringify(reviewsArray, null, 2)}</pre>
+                    `;
+                    
+                    return;
                 }
                 
                 // Update site_data.data.reviews
