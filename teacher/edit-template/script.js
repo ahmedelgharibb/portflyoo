@@ -34,6 +34,8 @@ let adminAlert;
 let siteData = null;
 let isLoggedIn = false;
 let currentTheme = { color: 'blue', mode: 'light' };
+let isAdminLoggedIn = false;
+let websiteData = {}; // Object to store website data including images
 
 // Supabase setup
 const SUPABASE_URL = 'https://bqpchhitrbyfleqpyydz.supabase.co';
@@ -290,13 +292,13 @@ document.addEventListener('DOMContentLoaded', async function() {
             try {
                 // Upload to Supabase Storage
                 const { data: uploadData, error: uploadError } = await supabase.storage
-                    .from('images')
+                    .from('website-images')
                     .upload(filename, file);
                 
                 if (uploadError) {
                     console.error('Upload error:', uploadError);
                     if (uploadError.message.includes('bucket')) {
-                        showAdminAlert('error', 'Storage bucket not found. Please ensure your Supabase project is set up correctly with an "images" bucket.');
+                        showAdminAlert('error', 'Storage bucket not found. Please ensure your Supabase project is set up correctly with a "website-images" bucket.');
                         return;
                     }
                     throw uploadError;
@@ -304,7 +306,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 
                 // Get the public URL
                 const { data: { publicUrl } } = supabase.storage
-                    .from('images')
+                    .from('website-images')
                     .getPublicUrl(filename);
                 
                 // Update the website data object
@@ -3556,3 +3558,42 @@ function handleDrop(e) {
 // Update drop zones to include type
 heroDropZone.dataset.type = 'hero';
 aboutDropZone.dataset.type = 'about';
+
+// Save website data to Supabase
+async function saveWebsiteData() {
+    try {
+        // First get current data to make sure we don't overwrite other fields
+        const { data: currentData, error: fetchError } = await supabase
+            .from('site_data')
+            .select('*')
+            .eq('id', 1)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        // Prepare new data object, preserving existing data
+        const dataToSave = {
+            ...(currentData?.data || {}),
+            // Ensure images are preserved in the data
+            heroImage: websiteData.heroImage || currentData?.data?.heroImage,
+            aboutImage: websiteData.aboutImage || currentData?.data?.aboutImage
+        };
+
+        // Save to Supabase
+        const { error: saveError } = await supabase
+            .from('site_data')
+            .upsert({ 
+                id: 1, 
+                data: dataToSave 
+            }, { onConflict: 'id' });
+
+        if (saveError) throw saveError;
+
+        console.log('Website data saved successfully');
+        return true;
+    } catch (error) {
+        console.error('Error saving website data:', error);
+        showAdminAlert('error', 'Failed to save image data: ' + error.message);
+        return false;
+    }
+}
