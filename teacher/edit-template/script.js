@@ -1249,7 +1249,7 @@ function handleAdminLogin(e) {
     if (password === 'admin123') {
         console.log('Admin login successful');
         
-        // Save login state
+        // Save login state consistently
         sessionStorage.setItem('adminLoggedIn', 'true');
         isLoggedIn = true;
         
@@ -1398,33 +1398,37 @@ function showAdminAlert(type, message, inLoginModal = false, autoHideDelay = 0) 
 async function openAdminPanel() {
     console.log('Opening admin panel, login status:', isLoggedIn);
     
-    // Double-check login status
-    if (sessionStorage.getItem('adminLoggedIn') === 'true') {
-        isLoggedIn = true;
-    }
-    
     if (!isLoggedIn) {
-        console.warn('Attempt to open admin panel while not logged in');
+        console.error('Attempt to open admin panel when not logged in');
         showLoginForm();
         return;
     }
     
+    if (!adminPanel) {
+        console.error('Admin panel element not found');
+        return;
+    }
+    
+    // Show the admin panel
+    adminPanel.classList.remove('hidden');
+    
+    // Make sure body doesn't scroll when panel is open
+    document.body.classList.add('overflow-hidden');
+    
     try {
-        // Show a loading message
-        showAdminAlert('success', 'Loading admin panel...');
-        
-        let dataLoaded = false;
-        let dataSource = 'default';
+        // Load admin data
+        let dataSource = 'unknown';
         
         // Try to load from Supabase
+        let adminData;
         try {
             console.log('Attempting to load data from Supabase');
             const { data, error } = await supabase
                 .from('site_data')
-                .select('data')
+                .select('*')
                 .eq('id', 1)
                 .single();
-            
+                
             console.log('Supabase query response:', data, error);
             
             if (error) {
@@ -1432,9 +1436,9 @@ async function openAdminPanel() {
                 showAdminAlert('error', 'Failed to load data from database. Using local data instead.');
             } else if (data && data.data) {
                 console.log('✅ Raw data from Supabase:', data);
-                console.log('✅ Parsed data structure:', JSON.stringify(data.data, null, 2));
-                siteData = data.data;
-                dataLoaded = true;
+                // Use the data property which contains the actual site content
+                adminData = data.data;
+                
                 dataSource = 'supabase';
                 console.log('✅ Data loaded for admin panel from Supabase successfully');
                 showAdminAlert('success', 'Data loaded successfully from Supabase!');
@@ -1448,85 +1452,102 @@ async function openAdminPanel() {
         }
         
         // If Supabase failed, try localStorage
-        if (!dataLoaded) {
+        if (!adminData) {
             try {
                 const localData = localStorage.getItem('siteData');
                 if (localData) {
-                    console.log('Found data in localStorage');
-                    try {
-                        siteData = JSON.parse(localData);
-                        console.log('✅ Parsed localStorage data:', JSON.stringify(siteData, null, 2));
-                        dataLoaded = true;
-                        dataSource = 'localStorage';
-                        console.log('✅ Data loaded from localStorage successfully');
-                        showAdminAlert('success', 'Data loaded successfully from local storage!');
-                    } catch (parseError) {
-                        console.error('Error parsing localStorage data:', parseError);
-                        showAdminAlert('error', `Error parsing local data: ${parseError.message}. Using defaults.`);
-                    }
-                } else {
-                    console.log('No data found in localStorage');
+                    adminData = JSON.parse(localData);
+                    dataSource = 'localStorage';
+                    console.log('✅ Data loaded for admin panel from localStorage successfully');
+                    showAdminAlert('info', 'Data loaded from local storage (offline mode)');
                 }
             } catch (localError) {
-                console.error('Error accessing localStorage:', localError);
+                console.error('Error loading from localStorage:', localError);
             }
         }
         
-        // If neither worked, use default data
-        if (!dataLoaded || !siteData) {
-            console.log('No data found in any storage, using defaults');
-            initializeWithDefaultData();
+        // If both failed, use default data
+        if (!adminData) {
+            adminData = {
+                personal: {
+                    name: 'Dr. Ahmed Mahmoud',
+                    title: 'Mathematics Educator',
+                    subtitle: 'Inspiring the next generation',
+                    heroHeading: 'Inspiring Minds Through Mathematics',
+                    experience: '15+ years teaching experience',
+                    philosophy: 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.',
+                    qualifications: [
+                        'Ph.D. in Mathematics Education',
+                        'Master\'s in Applied Mathematics',
+                        'Bachelor\'s in Mathematics'
+                    ]
+                },
+                experience: {
+                    schools: [
+                        'International School of Mathematics',
+                        'Elite Academy',
+                        'Science High School'
+                    ],
+                    centers: [
+                        'Math Excellence Center',
+                        'Advanced Learning Institute',
+                        'STEM Education Hub'
+                    ],
+                    platforms: [
+                        'MathPro Online',
+                        'EduTech Academy',
+                        'Virtual Learning Center'
+                    ]
+                },
+                results: {
+                    subjects: [
+                        { name: 'Mathematics', score: 85 },
+                        { name: 'Physics', score: 78 },
+                        { name: 'Chemistry', score: 82 },
+                        { name: 'Biology', score: 75 }
+                    ]
+                },
+                contact: {
+                    email: 'teacher@example.com',
+                    formUrl: 'https://forms.google.com/your-form-link',
+                    phone: '+1 234 567 890',
+                    contactMessage: 'Feel free to reach out with any questions about tutoring.'
+                },
+                theme: {
+                    color: 'blue',
+                    mode: 'light'
+                }
+            };
             dataSource = 'default';
-            showAdminAlert('success', 'Using default data as no saved data was found.');
+            console.log('✅ Default data used for admin panel');
+            showAdminAlert('info', 'Using default data - no saved data found');
         }
         
-        console.log(`FINAL DATA LOAD [source: ${dataSource}]:`, JSON.stringify(siteData, null, 2));
+        // Store the data globally
+        siteData = adminData;
+        console.log(`Admin data loaded from ${dataSource}:`, adminData);
         
-        // Check data structure before form population
-        if (!siteData) {
-            console.error('CRITICAL ERROR: siteData is null or undefined after all attempts to load');
-            showAdminAlert('error', 'Failed to load any data. Please refresh and try again.');
-            return;
-        }
+        // Populate the admin form with the loaded data
+        populateAdminForm(adminData);
         
-        // Validate data structure
-        const hasPersonalData = siteData.personal || siteData.personalInfo;
-        const hasExperienceData = siteData.experience;
-        const hasResults = Array.isArray(siteData.results);
-        const hasContactData = siteData.contact;
+        // Make sure we have the saveChangesBtn properly initialized
+        saveChangesBtn = document.getElementById('saveChangesBtn');
         
-        console.log('Data validation before form population:', {
-            hasPersonalData,
-            hasExperienceData,
-            hasResults,
-            hasContactData
-        });
-        
-        // Populate admin form with data
-        populateAdminForm(siteData);
-        
-        // Verify form population after completion
-        validateFormPopulation(siteData);
-        
-        // Show admin panel
-        if (adminPanel) {
-            adminPanel.classList.remove('hidden');
-            body.classList.add('overflow-hidden');
+        // Always attach event listener to save changes button when opening admin panel
+        if (saveChangesBtn) {
+            // Remove any existing event listeners to prevent duplicates
+            saveChangesBtn.removeEventListener('click', saveAdminChanges);
             
-            // Also show the danger zone button
-            if (toggleDangerBtn) {
-                toggleDangerBtn.classList.remove('hidden');
-            }
-            
-            // Dispatch admin panel opened event
-            document.dispatchEvent(new CustomEvent('adminPanelOpened'));
+            // Add fresh event listener
+            saveChangesBtn.addEventListener('click', saveAdminChanges);
+            console.log('Save changes button event listener attached');
         } else {
-            console.error('Admin panel element not found');
-            alert('Error: Admin panel not found. Please refresh the page and try again.');
+            console.error('Save changes button not found in DOM when opening admin panel');
         }
+        
     } catch (error) {
         console.error('Error opening admin panel:', error);
-        showAdminAlert('error', `Failed to open admin panel: ${error.message}. Please try again.`);
+        showAdminAlert('error', 'Failed to load admin panel: ' + error.message);
     }
 }
 
