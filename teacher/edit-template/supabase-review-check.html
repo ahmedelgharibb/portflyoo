@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Reviews Check</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #ffebee;
+            margin: 10px 0;
+        }
+        .error {
+            color: #c62828;
+        }
+        .success {
+            color: #2e7d32;
+            background-color: #e8f5e9;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,.3);
+            border-radius: 50%;
+            border-top-color: #333;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+        .query-templates {
+            margin-top: 15px;
+        }
+        .query-btn {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 6px 12px;
+            margin: 0 5px 5px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .query-btn:hover {
+            background-color: #e0e0e0;
+            border-color: #ccc;
+        }
+        .query-templates h4 {
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Supabase Reviews Database Check</h1>
+    
+    <div class="controls">
+        <button id="getReviews">Get Reviews</button>
+        <button id="getSiteData">Get Site Data</button>
+        <button id="runCustomQuery">Run Custom SQL Query</button>
+    </div>
+
+    <div>
+        <h3>Custom SQL Query:</h3>
+        <textarea id="sqlQuery">SELECT * FROM reviews ORDER BY created_at DESC LIMIT 10;</textarea>
+        <p><small>Note: Only SELECT operations are allowed for security reasons</small></p>
+        <div class="query-templates">
+            <h4>Common SQL Queries:</h4>
+            <button class="query-btn" data-query="schema">Database Schema</button>
+            <button class="query-btn" data-query="allReviews">All Reviews</button>
+            <button class="query-btn" data-query="approvedReviews">Approved Reviews</button>
+            <button class="query-btn" data-query="pendingReviews">Pending Reviews</button>
+            <button class="query-btn" data-query="reviewStats">Review Statistics</button>
+            <button class="query-btn" data-query="siteData">Site Data</button>
+        </div>
+    </div>
+
+    <div id="status" class="status">Ready to check database...</div>
+    
+    <h2>Results:</h2>
+    <div id="results">
+        <p>Click one of the buttons above to fetch data from your Supabase database.</p>
+    </div>
+    
+    <script src="sql-queries.js"></script>
+    <script>
+        // Initialize Supabase client
+        const SUPABASE_URL = 'https://bqpchhitrbyfleqpyydz.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W4EHO4YLRDGU6p0xJhGbj_as';
+        
+        let supabaseClient;
+        
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            document.getElementById('status').innerHTML = "Supabase client initialized successfully.";
+            document.getElementById('status').classList.add('success');
+        } catch (error) {
+            document.getElementById('status').innerHTML = `Error initializing Supabase: ${error.message}`;
+            document.getElementById('status').classList.add('error');
+        }
+        
+        // Helper function to show loading state
+        function showLoading(message = "Loading...") {
+            const statusElement = document.getElementById('status');
+            statusElement.innerHTML = `<div class="loading"></div> ${message}`;
+            statusElement.classList.remove('error', 'success');
+        }
+        
+        // Helper function to show error
+        function showError(message) {
+            const statusElement = document.getElementById('status');
+            statusElement.innerHTML = `Error: ${message}`;
+            statusElement.classList.add('error');
+            statusElement.classList.remove('success');
+        }
+        
+        // Helper function to show success
+        function showSuccess(message) {
+            const statusElement = document.getElementById('status');
+            statusElement.innerHTML = message;
+            statusElement.classList.add('success');
+            statusElement.classList.remove('error');
+        }
+        
+        // Helper function to render data as table
+        function renderAsTable(data) {
+            if (!Array.isArray(data) || data.length === 0) {
+                return '<p>No data found or invalid data format.</p>';
+            }
+            
+            const headers = Object.keys(data[0]);
+            let html = '<table><thead><tr>';
+            
+            // Add table headers
+            headers.forEach(header => {
+                html += `<th>${header}</th>`;
+            });
+            
+            html += '</tr></thead><tbody>';
+            
+            // Add table rows
+            data.forEach(row => {
+                html += '<tr>';
+                headers.forEach(header => {
+                    // Format the cell value based on type
+                    let cellValue = row[header];
+                    
+                    if (cellValue === null || cellValue === undefined) {
+                        cellValue = '<em>null</em>';
+                    } else if (typeof cellValue === 'object') {
+                        cellValue = `<pre>${JSON.stringify(cellValue, null, 2)}</pre>`;
+                    } else if (typeof cellValue === 'boolean') {
+                        cellValue = cellValue ? 'true' : 'false';
+                    }
+                    
+                    html += `<td>${cellValue}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            return html;
+        }
+        
+        // Get reviews button click handler
+        document.getElementById('getReviews').addEventListener('click', async () => {
+            try {
+                showLoading("Fetching reviews from database...");
+                
+                const { data, error } = await supabaseClient
+                    .from('reviews')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                document.getElementById('results').innerHTML = data.length > 0 
+                    ? renderAsTable(data) 
+                    : '<p>No reviews found in the database.</p>';
+                
+                showSuccess(`Successfully retrieved ${data.length} reviews.`);
+            } catch (error) {
+                showError(error.message);
+                document.getElementById('results').innerHTML = `<pre>${error.stack}</pre>`;
+            }
+        });
+        
+        // Get site data button click handler
+        document.getElementById('getSiteData').addEventListener('click', async () => {
+            try {
+                showLoading("Fetching site data from database...");
+                
+                const { data, error } = await supabaseClient
+                    .from('site_data')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                document.getElementById('results').innerHTML = data.length > 0 
+                    ? renderAsTable(data) 
+                    : '<p>No site data found in the database.</p>';
+                
+                showSuccess(`Successfully retrieved ${data.length} site data records.`);
+            } catch (error) {
+                showError(error.message);
+                document.getElementById('results').innerHTML = `<pre>${error.stack}</pre>`;
+            }
+        });
+        
+        // Run custom SQL query
+        document.getElementById('runCustomQuery').addEventListener('click', async () => {
+            try {
+                const query = document.getElementById('sqlQuery').value.trim();
+                
+                // Simple security check - only allow SELECT statements
+                if (!query.toLowerCase().startsWith('select')) {
+                    throw new Error('Only SELECT queries are allowed for security reasons.');
+                }
+                
+                showLoading("Executing custom SQL query...");
+                
+                const { data, error } = await supabaseClient.rpc('execute_sql', { 
+                    query_text: query 
+                });
+                
+                if (error) throw error;
+                
+                document.getElementById('results').innerHTML = data.length > 0 
+                    ? renderAsTable(data) 
+                    : '<p>Query executed successfully but returned no data.</p>';
+                
+                showSuccess(`Query executed successfully. Returned ${data.length} rows.`);
+            } catch (error) {
+                showError(error.message);
+                document.getElementById('results').innerHTML = `<pre>${error.stack}</pre>`;
+            }
+        });
+        
+        // Check if localStorage has reviews and display them
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const localReviews = localStorage.getItem('reviews');
+                if (localReviews) {
+                    const reviewsData = JSON.parse(localReviews);
+                    if (Array.isArray(reviewsData) && reviewsData.length > 0) {
+                        const localStorageSection = document.createElement('div');
+                        localStorageSection.innerHTML = `
+                            <h2>Reviews in localStorage (${reviewsData.length}):</h2>
+                            <pre>${JSON.stringify(reviewsData, null, 2)}</pre>
+                        `;
+                        document.body.appendChild(localStorageSection);
+                    }
+                }
+            } catch (e) {
+                console.error('Error displaying localStorage reviews', e);
+            }
+        });
+
+        // Add event listeners for query template buttons
+        document.querySelectorAll('.query-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const queryType = btn.getAttribute('data-query');
+                const sqlQueryTextarea = document.getElementById('sqlQuery');
+                
+                switch(queryType) {
+                    case 'schema':
+                        sqlQueryTextarea.value = SCHEMA_INFO;
+                        break;
+                    case 'allReviews':
+                        sqlQueryTextarea.value = REVIEW_QUERIES.getAllReviews;
+                        break;
+                    case 'approvedReviews':
+                        sqlQueryTextarea.value = REVIEW_QUERIES.getApprovedReviews;
+                        break;
+                    case 'pendingReviews':
+                        sqlQueryTextarea.value = REVIEW_QUERIES.getUnapprovedReviews;
+                        break;
+                    case 'reviewStats':
+                        sqlQueryTextarea.value = REVIEW_QUERIES.getReviewStats;
+                        break;
+                    case 'siteData':
+                        sqlQueryTextarea.value = SITE_DATA_QUERIES.getSiteData;
+                        break;
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
