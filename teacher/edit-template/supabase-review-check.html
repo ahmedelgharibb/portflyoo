@@ -122,6 +122,8 @@
         <button id="getReviews">Get Reviews</button>
         <button id="getSiteData">Get Site Data</button>
         <button id="runCustomQuery">Run Custom SQL Query</button>
+        <button id="addReview">Add Review to site_data</button>
+        <button id="exportLocalReviews">Export localStorage Reviews to site_data</button>
     </div>
 
     <div>
@@ -136,10 +138,53 @@
             <button class="query-btn" data-query="pendingReviews">Pending Reviews</button>
             <button class="query-btn" data-query="reviewStats">Review Statistics</button>
             <button class="query-btn" data-query="siteData">Site Data</button>
+            
+            <h4>JSON Reviews in site_data Queries:</h4>
+            <button class="query-btn" data-query="jsonReviews">JSON Reviews</button>
+            <button class="query-btn" data-query="jsonReviewsAsRows">JSON Reviews as Rows</button>
+            <button class="query-btn" data-query="jsonApprovedReviews">JSON Approved Reviews</button>
+            <button class="query-btn" data-query="jsonPendingReviews">JSON Pending Reviews</button>
+            <button class="query-btn" data-query="jsonRatingAvg">JSON Rating Average</button>
+            <button class="query-btn" data-query="jsonRatingDist">JSON Rating Distribution</button>
+            <button class="query-btn" data-query="createSiteData">Create site_data Table</button>
         </div>
     </div>
 
     <div id="status" class="status">Ready to check database...</div>
+    
+    <!-- Add Review Form -->
+    <div id="addReviewForm" style="display: none; margin-top: 20px; border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
+        <h2>Add New Review to site_data</h2>
+        <form id="reviewForm">
+            <div style="margin-bottom: 15px;">
+                <label for="reviewerName" style="display: block; margin-bottom: 5px;">Reviewer Name:</label>
+                <input type="text" id="reviewerName" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="rating" style="display: block; margin-bottom: 5px;">Rating (1-5):</label>
+                <select id="rating" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="5">5 Stars</option>
+                    <option value="4">4 Stars</option>
+                    <option value="3">3 Stars</option>
+                    <option value="2">2 Stars</option>
+                    <option value="1">1 Star</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="reviewComment" style="display: block; margin-bottom: 5px;">Review Comment:</label>
+                <textarea id="reviewComment" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 100px;"></textarea>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="approvalStatus" style="display: block; margin-bottom: 5px;">Approval Status:</label>
+                <select id="approvalStatus" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="true">Approved</option>
+                    <option value="false">Pending Approval</option>
+                </select>
+            </div>
+            <button type="submit" style="background-color: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Submit Review</button>
+            <button type="button" id="cancelReview" style="background-color: #f44336; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-left: 10px;">Cancel</button>
+        </form>
+    </div>
     
     <h2>Results:</h2>
     <div id="results">
@@ -301,6 +346,182 @@
             }
         });
         
+        // Toggle Add Review Form
+        document.getElementById('addReview').addEventListener('click', () => {
+            const form = document.getElementById('addReviewForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Cancel Add Review
+        document.getElementById('cancelReview').addEventListener('click', () => {
+            document.getElementById('addReviewForm').style.display = 'none';
+            document.getElementById('reviewForm').reset();
+        });
+
+        // Submit Review Form
+        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            try {
+                showLoading("Adding review to site_data...");
+                
+                // Get current site_data
+                const { data: siteData, error: siteDataError } = await supabaseClient
+                    .from('site_data')
+                    .select('*')
+                    .eq('id', 1)
+                    .single();
+                
+                if (siteDataError) throw siteDataError;
+                
+                if (!siteData) {
+                    throw new Error('No site_data found with id=1');
+                }
+                
+                // Get form values
+                const name = document.getElementById('reviewerName').value.trim();
+                const rating = parseInt(document.getElementById('rating').value);
+                const comment = document.getElementById('reviewComment').value.trim();
+                const approved = document.getElementById('approvalStatus').value === 'true';
+                
+                // Prepare new review
+                const newReview = {
+                    id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+                    name,
+                    rating,
+                    comment,
+                    date: new Date().toISOString(),
+                    approved
+                };
+                
+                // Update site_data.data.reviews
+                let siteDataObj = siteData.data || {};
+                if (!siteDataObj.reviews || !Array.isArray(siteDataObj.reviews)) {
+                    siteDataObj.reviews = [];
+                }
+                
+                // Add the new review at the beginning of the array
+                siteDataObj.reviews.unshift(newReview);
+                
+                // Update the database
+                const { data: updateResult, error: updateError } = await supabaseClient
+                    .from('site_data')
+                    .update({ data: siteDataObj })
+                    .eq('id', 1);
+                
+                if (updateError) throw updateError;
+                
+                showSuccess(`Review added successfully to site_data.`);
+                
+                // Reset form and hide it
+                document.getElementById('reviewForm').reset();
+                document.getElementById('addReviewForm').style.display = 'none';
+                
+                // Display updated site_data
+                const { data: updatedData, error: refreshError } = await supabaseClient
+                    .from('site_data')
+                    .select('*')
+                    .eq('id', 1)
+                    .single();
+                
+                if (refreshError) throw refreshError;
+                
+                document.getElementById('results').innerHTML = `
+                    <h3>Review added to site_data successfully!</h3>
+                    <h4>Updated site_data:</h4>
+                    <pre>${JSON.stringify(updatedData.data.reviews, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                showError(error.message);
+                document.getElementById('results').innerHTML = `<pre>${error.stack}</pre>`;
+            }
+        });
+
+        // Export localStorage reviews to site_data
+        document.getElementById('exportLocalReviews').addEventListener('click', async () => {
+            try {
+                // Get reviews from localStorage
+                const localReviews = localStorage.getItem('reviews');
+                if (!localReviews) {
+                    throw new Error('No reviews found in localStorage');
+                }
+                
+                let reviewsArray;
+                try {
+                    reviewsArray = JSON.parse(localReviews);
+                    if (!Array.isArray(reviewsArray) || reviewsArray.length === 0) {
+                        throw new Error('No valid reviews found in localStorage');
+                    }
+                } catch (e) {
+                    throw new Error(`Error parsing localStorage reviews: ${e.message}`);
+                }
+                
+                showLoading(`Exporting ${reviewsArray.length} reviews from localStorage to site_data...`);
+                
+                // Get current site_data
+                const { data: siteData, error: siteDataError } = await supabaseClient
+                    .from('site_data')
+                    .select('*')
+                    .eq('id', 1)
+                    .single();
+                
+                if (siteDataError) throw siteDataError;
+                
+                if (!siteData) {
+                    throw new Error('No site_data found with id=1');
+                }
+                
+                // Update site_data.data.reviews
+                let siteDataObj = siteData.data || {};
+                if (!siteDataObj.reviews || !Array.isArray(siteDataObj.reviews)) {
+                    siteDataObj.reviews = [];
+                }
+                
+                // Check for duplicates by ID and merge arrays
+                const existingIds = new Set(siteDataObj.reviews.map(r => r.id));
+                const newReviews = reviewsArray.filter(r => !existingIds.has(r.id));
+                
+                if (newReviews.length === 0) {
+                    showSuccess('No new reviews to export (all reviews already exist in site_data)');
+                    return;
+                }
+                
+                // Add the new reviews at the beginning of the array
+                siteDataObj.reviews = [...newReviews, ...siteDataObj.reviews];
+                
+                // Update the database
+                const { data: updateResult, error: updateError } = await supabaseClient
+                    .from('site_data')
+                    .update({ data: siteDataObj })
+                    .eq('id', 1);
+                
+                if (updateError) throw updateError;
+                
+                showSuccess(`Exported ${newReviews.length} new reviews from localStorage to site_data.`);
+                
+                // Display updated site_data
+                const { data: updatedData, error: refreshError } = await supabaseClient
+                    .from('site_data')
+                    .select('*')
+                    .eq('id', 1)
+                    .single();
+                
+                if (refreshError) throw refreshError;
+                
+                document.getElementById('results').innerHTML = `
+                    <h3>Reviews exported successfully!</h3>
+                    <p>Exported ${newReviews.length} new reviews out of ${reviewsArray.length} total localStorage reviews.</p>
+                    <h4>Updated site_data reviews (${updatedData.data.reviews.length} total):</h4>
+                    <pre>${JSON.stringify(updatedData.data.reviews, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                showError(error.message);
+                document.getElementById('results').innerHTML = `<pre>${error.stack}</pre>`;
+            }
+        });
+
         // Check if localStorage has reviews and display them
         document.addEventListener('DOMContentLoaded', () => {
             try {
@@ -345,6 +566,28 @@
                         break;
                     case 'siteData':
                         sqlQueryTextarea.value = SITE_DATA_QUERIES.getSiteData;
+                        break;
+                    // JSON review queries
+                    case 'jsonReviews':
+                        sqlQueryTextarea.value = JSON_REVIEW_QUERIES.getAllJsonReviews;
+                        break;
+                    case 'jsonReviewsAsRows':
+                        sqlQueryTextarea.value = JSON_REVIEW_QUERIES.getJsonReviewsAsRows;
+                        break;
+                    case 'jsonApprovedReviews':
+                        sqlQueryTextarea.value = JSON_REVIEW_QUERIES.getApprovedJsonReviews;
+                        break;
+                    case 'jsonPendingReviews':
+                        sqlQueryTextarea.value = JSON_REVIEW_QUERIES.getPendingJsonReviews;
+                        break;
+                    case 'jsonRatingAvg':
+                        sqlQueryTextarea.value = JSON_REVIEW_QUERIES.getJsonAverageRating;
+                        break;
+                    case 'jsonRatingDist':
+                        sqlQueryTextarea.value = JSON_REVIEW_QUERIES.getJsonRatingDistribution;
+                        break;
+                    case 'createSiteData':
+                        sqlQueryTextarea.value = CREATE_SITE_DATA_SQL;
                         break;
                 }
             });
