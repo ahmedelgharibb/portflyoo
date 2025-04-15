@@ -69,7 +69,7 @@
                 // Test a basic query to see if we can connect
                 const { data, error } = await supabase
                     .from('site_data')
-                    .select('id')
+                    .select('id, site_id')
                     .limit(1);
                 
                 if (error) {
@@ -191,7 +191,13 @@
                 
                 const { data, error } = await supabase
                     .from('site_data')
-                    .upsert({ id: 1, data: sampleData }, { onConflict: 'id' });
+                    .upsert({ 
+                        id: 1, 
+                        site_id: '11111111-1111-1111-1111-111111111111',
+                        data: sampleData 
+                    }, { 
+                        onConflict: 'id,site_id' 
+                    });
                 
                 if (error) throw error;
                 
@@ -229,7 +235,8 @@
                 const { data, error } = await supabase
                     .from('site_data')
                     .delete()
-                    .eq('id', 1);
+                    .eq('id', 1)
+                    .eq('site_id', '11111111-1111-1111-1111-111111111111');
                 
                 if (error) throw error;
                 

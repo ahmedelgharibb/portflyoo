@@ -23,6 +23,24 @@ try {
 function setupReviews() {
     console.log('Setting up reviews functionality');
     
+    // Ensure reviews array exists in localStorage
+    if (!localStorage.getItem('reviews')) {
+        localStorage.setItem('reviews', JSON.stringify([]));
+        console.log('Created initial empty reviews array in localStorage');
+    } else {
+        // Validate stored reviews are an array
+        try {
+            const storedReviews = JSON.parse(localStorage.getItem('reviews'));
+            if (!Array.isArray(storedReviews)) {
+                console.warn('Stored reviews is not an array, resetting');
+                localStorage.setItem('reviews', JSON.stringify([]));
+            }
+        } catch (e) {
+            console.warn('Error parsing stored reviews, resetting', e);
+            localStorage.setItem('reviews', JSON.stringify([]));
+        }
+    }
+    
     // Set up star rating functionality
     const stars = document.querySelectorAll('.rating-container .star');
     const selectedRating = document.getElementById('selected-rating');
@@ -65,6 +83,8 @@ function setupReviews() {
                 }
             });
         }
+    } else {
+        console.warn('Star rating elements not found in the DOM');
     }
     
     // Handle review form submission
@@ -172,6 +192,34 @@ function setupReviews() {
     const refreshReviewsBtn = document.getElementById('refreshReviewsBtn');
     if (refreshReviewsBtn) {
         refreshReviewsBtn.addEventListener('click', function() {
+            console.log('Refresh reviews button clicked');
+            
+            // Clear the reviews for a clean reload
+            const adminContainer = document.getElementById('admin-reviews-container');
+            if (adminContainer) {
+                adminContainer.innerHTML = `
+                    <div class="p-6 text-center text-gray-500">
+                        <i class="fas fa-spinner fa-spin text-gray-300 text-4xl mb-2"></i>
+                        <p>Loading reviews...</p>
+                    </div>
+                `;
+            }
+            
+            // Force reload reviews from localStorage
+            const localReviews = localStorage.getItem('reviews');
+            if (localReviews) {
+                try {
+                    const parsedReviews = JSON.parse(localReviews);
+                    if (Array.isArray(parsedReviews)) {
+                        console.log('Displaying reviews from localStorage directly:', parsedReviews.length);
+                        displayAdminReviews(parsedReviews);
+                    }
+                } catch (e) {
+                    console.error('Error parsing reviews for refresh:', e);
+                }
+            }
+            
+            // Also try the standard loading method
             loadAdminReviews();
         });
     }
@@ -185,69 +233,88 @@ function setupReviews() {
     }
 }
 
-// Load reviews from storage
+// Load reviews from Supabase
 async function loadReviews(includeUnapproved = false) {
     try {
-        let reviews = [];
+        console.log('Loading reviews, includeUnapproved:', includeUnapproved);
         
-        // First try to get from localStorage
+        // First try to get reviews from localStorage
+        let reviews = [];
         const localData = localStorage.getItem('reviews');
+        
         if (localData) {
             try {
                 reviews = JSON.parse(localData);
-                console.log('Loaded reviews from localStorage:', reviews);
-            } catch (e) {
-                console.warn('Error parsing localStorage reviews', e);
-            }
-        }
-        
-        // Try to get from Supabase if available and localStorage is empty
-        if (reviews.length === 0 && supabase && supabase.from) {
-            try {
-                const { data, error } = await supabase
-                    .from('site_data')
-                    .select('data')
-                    .eq('id', 1)
-                    .single();
-                
-                if (!error && data && data.data && data.data.reviews) {
-                    reviews = data.data.reviews;
-                    console.log('Loaded reviews from Supabase:', reviews);
-                    
-                    // Update localStorage with Supabase data
-                    localStorage.setItem('reviews', JSON.stringify(reviews));
+                if (!Array.isArray(reviews)) {
+                    console.warn('localStorage reviews is not an array, resetting');
+                    reviews = [];
+                } else {
+                    console.log(`Found ${reviews.length} reviews in localStorage`);
                 }
             } catch (e) {
-                console.warn('Error loading reviews from Supabase, using localStorage', e);
+                console.error('Error parsing reviews from localStorage:', e);
+                reviews = [];
             }
         }
         
-        // Add ID field if missing (for backward compatibility)
-        reviews = reviews.map(review => {
-            if (!review.id) {
-                review.id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+        // If we already have reviews in localStorage, use those
+        if (reviews.length > 0) {
+            console.log('Using reviews from localStorage');
+            
+            // Display reviews based on approval status
+            if (includeUnapproved) {
+                console.log('Displaying all reviews including unapproved in admin panel');
+                displayAdminReviews(reviews);
+            } else {
+                console.log('Displaying only approved reviews in public view');
+                displayReviews(reviews.filter(review => review.approved !== false));
             }
-            // Add approved field if missing (for backward compatibility)
-            if (review.approved === undefined) {
-                review.approved = true;
-            }
-            return review;
-        });
-        
-        // Filter out unapproved reviews for public display
-        if (!includeUnapproved) {
-            reviews = reviews.filter(review => review.approved !== false);
+            
+            return reviews;
         }
         
-        // Display the reviews on the public-facing section
-        const container = document.getElementById('reviews-container');
-        if (container) {
-            displayReviews(reviews);
+        // Otherwise try to fetch from Supabase
+        console.log('Attempting to fetch reviews from Supabase');
+        
+        // If no supabase client, return empty array
+        if (!supabase) {
+            console.warn('Supabase client not initialized');
+            return [];
+        }
+        
+        // Get reviews from Supabase
+        const { data, error } = await supabase
+            .from('reviews')
+            .select('*')
+            .order('created_at', { ascending: false });
+            
+        if (error) {
+            console.error('Error loading reviews from Supabase:', error);
+            // Continue with any cached reviews we might have
+        }
+        
+        if (data && Array.isArray(data)) {
+            console.log(`Retrieved ${data.length} reviews from Supabase`);
+            reviews = data;
+            
+            // Cache in localStorage
+            localStorage.setItem('reviews', JSON.stringify(reviews));
+            
+            // Display reviews based on approval status
+            if (includeUnapproved) {
+                console.log('Displaying all reviews including unapproved in admin panel');
+                displayAdminReviews(reviews);
+            } else {
+                console.log('Displaying only approved reviews in public view');
+                displayReviews(reviews.filter(review => review.approved !== false));
+            }
+        } else {
+            console.warn('No reviews found or invalid data format received');
         }
         
         return reviews;
     } catch (error) {
-        console.error('Error loading reviews:', error);
+        console.error('Error in loadReviews function:', error);
         return [];
     }
 }
@@ -270,12 +337,21 @@ async function saveReview(review) {
             }
         }
         
+        // If we get here and existingReviews is not an array, initialize it as one
+        if (!Array.isArray(existingReviews)) {
+            console.warn('existingReviews is not an array, resetting to empty array');
+            existingReviews = [];
+        }
+        
         // Add the new review
         existingReviews.push(review);
         
+        // Force a deep clone to avoid reference issues
+        const reviewsToSave = JSON.parse(JSON.stringify(existingReviews));
+        
         // Always save to localStorage first as backup
-        localStorage.setItem('reviews', JSON.stringify(existingReviews));
-        console.log('Saved review to localStorage');
+        localStorage.setItem('reviews', JSON.stringify(reviewsToSave));
+        console.log('Saved review to localStorage:', reviewsToSave);
         
         // Try to save to Supabase if available
         if (supabase && supabase.from) {
@@ -291,7 +367,7 @@ async function saveReview(review) {
                     // Update the reviews in the site data
                     const updatedData = {
                         ...siteData.data,
-                        reviews: existingReviews
+                        reviews: reviewsToSave
                     };
                     
                     // Save back to Supabase
@@ -314,6 +390,9 @@ async function saveReview(review) {
         } else {
             console.log('Supabase not available, reviews saved to localStorage only');
         }
+        
+        // Immediately update the UI with the new review
+        displayReviews(reviewsToSave);
         
         return true;
     } catch (error) {
@@ -469,122 +548,200 @@ async function loadAdminReviews() {
 // Display reviews in the admin panel
 function displayAdminReviews(reviews) {
     const container = document.getElementById('admin-reviews-container');
-    if (!container) return;
-    
-    // Clear existing content
-    container.innerHTML = '';
-    
-    if (!reviews || reviews.length === 0) {
-        container.innerHTML = `
-            <div class="p-6 text-center text-gray-500">
-                <i class="fas fa-comments text-gray-300 text-4xl mb-2"></i>
-                <p>No reviews found.</p>
-            </div>
-        `;
+    if (!container) {
+        console.error('Admin reviews container not found');
         return;
     }
     
-    // Sort reviews by date (newest first)
-    reviews.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    // Add reviews to the container
-    reviews.forEach(review => {
-        const reviewEl = document.createElement('div');
-        reviewEl.className = 'p-4 hover:bg-gray-50 transition-colors';
-        reviewEl.dataset.reviewId = review.id || Date.now().toString(); // Fallback ID
+    try {
+        console.log('Displaying admin reviews:', reviews ? reviews.length : 0);
         
-        // Format the date
-        const reviewDate = new Date(review.date);
-        const formattedDate = reviewDate.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric' 
+        // Clear existing content
+        container.innerHTML = '';
+        
+        // Validate reviews is an array
+        if (!Array.isArray(reviews) || reviews.length === 0) {
+            console.log('No reviews to display in admin panel');
+            container.innerHTML = `
+                <div class="p-6 text-center text-gray-500">
+                    <i class="fas fa-comments text-gray-300 text-4xl mb-2"></i>
+                    <p>No reviews found.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Sort reviews by date (newest first)
+        reviews.sort((a, b) => {
+            try {
+                return new Date(b.date) - new Date(a.date);
+            } catch (e) {
+                return 0;
+            }
         });
         
-        // Create stars
-        let stars = '';
-        for (let i = 1; i <= 5; i++) {
-            if (i <= review.rating) {
-                stars += '★';
-            } else {
-                stars += '☆';
-            }
-        }
-        
-        reviewEl.innerHTML = `
-            <div class="flex justify-between items-start mb-2">
-                <div>
-                    <h5 class="font-semibold text-gray-800">${review.name}</h5>
-                    <p class="text-sm text-gray-500">${formattedDate}</p>
-                </div>
-                <div class="text-yellow-500">${stars}</div>
-            </div>
-            <p class="text-gray-600 mb-4">${review.comment}</p>
-            <div class="flex justify-end gap-2">
-                <button class="delete-review-btn px-3 py-1 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors">
-                    <i class="fas fa-trash-alt"></i> Delete
-                </button>
-                ${review.approved !== false ? 
-                    `<button class="unapprove-review-btn px-3 py-1 bg-yellow-50 text-yellow-600 rounded hover:bg-yellow-100 transition-colors">
-                        <i class="fas fa-eye-slash"></i> Hide
-                    </button>` : 
-                    `<button class="approve-review-btn px-3 py-1 bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors">
-                        <i class="fas fa-check"></i> Approve
-                    </button>`
+        // Add reviews to the container
+        reviews.forEach(review => {
+            try {
+                // Skip invalid reviews
+                if (!review || typeof review !== 'object') {
+                    console.warn('Invalid review object in admin display:', review);
+                    return;
                 }
+                
+                const reviewEl = document.createElement('div');
+                reviewEl.className = 'p-4 hover:bg-gray-50 transition-colors';
+                reviewEl.dataset.reviewId = review.id || Date.now().toString(); // Fallback ID
+                
+                // Format the date safely
+                let formattedDate = 'Unknown date';
+                try {
+                    const reviewDate = new Date(review.date || new Date());
+                    formattedDate = reviewDate.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                } catch (e) {
+                    console.warn('Error formatting date for admin review:', e);
+                }
+                
+                // Create stars safely
+                let stars = '';
+                try {
+                    const rating = parseInt(review.rating) || 0;
+                    for (let i = 1; i <= 5; i++) {
+                        if (i <= rating) {
+                            stars += '★';
+                        } else {
+                            stars += '☆';
+                        }
+                    }
+                } catch (e) {
+                    stars = '☆☆☆☆☆';
+                    console.warn('Error creating stars for admin review:', e);
+                }
+                
+                reviewEl.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h5 class="font-semibold text-gray-800">${review.name || 'Anonymous'}</h5>
+                            <p class="text-sm text-gray-500">${formattedDate}</p>
+                        </div>
+                        <div class="text-yellow-500">${stars}</div>
+                    </div>
+                    <p class="text-gray-600 mb-4">${review.comment || 'No comment provided'}</p>
+                    <div class="flex justify-end gap-2">
+                        <button class="delete-review-btn px-3 py-1 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                        ${review.approved !== false ? 
+                            `<button class="unapprove-review-btn px-3 py-1 bg-yellow-50 text-yellow-600 rounded hover:bg-yellow-100 transition-colors">
+                                <i class="fas fa-eye-slash"></i> Hide
+                            </button>` : 
+                            `<button class="approve-review-btn px-3 py-1 bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors">
+                                <i class="fas fa-check"></i> Approve
+                            </button>`
+                        }
+                    </div>
+                `;
+                
+                // Add event listeners for action buttons
+                const deleteBtn = reviewEl.querySelector('.delete-review-btn');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', async () => {
+                        if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+                            await deleteReview(reviewEl.dataset.reviewId);
+                            reviewEl.remove();
+                            // Refresh the public reviews
+                            loadReviews();
+                        }
+                    });
+                }
+                
+                const approveBtn = reviewEl.querySelector('.approve-review-btn');
+                if (approveBtn) {
+                    approveBtn.addEventListener('click', async () => {
+                        await approveReview(reviewEl.dataset.reviewId);
+                        loadAdminReviews(); // Reload admin reviews
+                        loadReviews(); // Reload public reviews
+                    });
+                }
+                
+                const unapproveBtn = reviewEl.querySelector('.unapprove-review-btn');
+                if (unapproveBtn) {
+                    unapproveBtn.addEventListener('click', async () => {
+                        await toggleReviewApproval(reviewEl.dataset.reviewId, false);
+                        loadAdminReviews(); // Reload admin reviews
+                        loadReviews(); // Reload public reviews
+                    });
+                }
+                
+                container.appendChild(reviewEl);
+            } catch (error) {
+                console.error('Error creating admin review element:', error);
+            }
+        });
+        
+        console.log('Admin reviews displayed successfully');
+    } catch (error) {
+        console.error('Error displaying admin reviews:', error);
+        container.innerHTML = `
+            <div class="p-6 text-center text-gray-500">
+                <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-2"></i>
+                <p>There was an error displaying reviews. Please try refreshing the page.</p>
             </div>
         `;
-        
-        // Add event listeners for action buttons
-        const deleteBtn = reviewEl.querySelector('.delete-review-btn');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', async () => {
-                if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
-                    await deleteReview(reviewEl.dataset.reviewId);
-                    reviewEl.remove();
-                    // Refresh the public reviews
-                    loadReviews();
-                }
-            });
-        }
-        
-        const approveBtn = reviewEl.querySelector('.approve-review-btn');
-        if (approveBtn) {
-            approveBtn.addEventListener('click', async () => {
-                await toggleReviewApproval(reviewEl.dataset.reviewId, true);
-                loadAdminReviews(); // Reload admin reviews
-                loadReviews(); // Reload public reviews
-            });
-        }
-        
-        const unapproveBtn = reviewEl.querySelector('.unapprove-review-btn');
-        if (unapproveBtn) {
-            unapproveBtn.addEventListener('click', async () => {
-                await toggleReviewApproval(reviewEl.dataset.reviewId, false);
-                loadAdminReviews(); // Reload admin reviews
-                loadReviews(); // Reload public reviews
-            });
-        }
-        
-        container.appendChild(reviewEl);
-    });
+    }
 }
 
 // Toggle review approval status
 async function toggleReviewApproval(reviewId, approved) {
     try {
-        // Get reviews from storage
-        let reviews = await loadReviews(true);
+        console.log('Toggling review approval:', reviewId, approved);
+        
+        // Get reviews directly from localStorage first
+        let reviews = [];
+        const localData = localStorage.getItem('reviews');
+        
+        if (localData) {
+            try {
+                reviews = JSON.parse(localData);
+                if (!Array.isArray(reviews)) {
+                    console.warn('localStorage reviews is not an array');
+                    reviews = [];
+                }
+            } catch (e) {
+                console.error('Error parsing reviews from localStorage:', e);
+                reviews = [];
+            }
+        }
+        
+        // If no reviews in localStorage, try to load them
+        if (reviews.length === 0) {
+            reviews = await loadReviews(true);
+        }
         
         // Find and update the review
         const index = reviews.findIndex(review => review.id === reviewId);
+        
         if (index !== -1) {
             reviews[index].approved = approved;
+            console.log('Updated review approval status:', reviewId, approved);
+            
+            // Save updated reviews back to localStorage immediately
+            localStorage.setItem('reviews', JSON.stringify(reviews));
             
             // Save updated reviews back to storage
             await saveReviews(reviews);
             
+            // Reload reviews in UI
+            displayAdminReviews(reviews);
+            displayReviews(reviews.filter(review => review.approved !== false));
+            
             return true;
+        } else {
+            console.warn('Review not found for approval toggle:', reviewId);
         }
         return false;
     } catch (error) {
@@ -596,16 +753,58 @@ async function toggleReviewApproval(reviewId, approved) {
 // Delete a review
 async function deleteReview(reviewId) {
     try {
-        // Get reviews from storage
-        let reviews = await loadReviews(true);
+        console.log('Deleting review:', reviewId);
+        
+        // Get reviews directly from localStorage first
+        let reviews = [];
+        const localData = localStorage.getItem('reviews');
+        
+        if (localData) {
+            try {
+                reviews = JSON.parse(localData);
+                if (!Array.isArray(reviews)) {
+                    console.warn('localStorage reviews is not an array');
+                    reviews = [];
+                }
+            } catch (e) {
+                console.error('Error parsing reviews from localStorage:', e);
+                reviews = [];
+            }
+        }
+        
+        // If no reviews in localStorage, try to load them
+        if (reviews.length === 0) {
+            reviews = await loadReviews(true);
+        }
+        
+        // Count reviews before filtering
+        const countBefore = reviews.length;
         
         // Filter out the deleted review
         reviews = reviews.filter(review => review.id !== reviewId);
         
-        // Save updated reviews back to storage
-        await saveReviews(reviews);
+        // Count reviews after filtering
+        const countAfter = reviews.length;
         
-        return true;
+        if (countBefore !== countAfter) {
+            console.log('Review deleted successfully:', reviewId);
+            
+            // Save updated reviews back to localStorage immediately
+            localStorage.setItem('reviews', JSON.stringify(reviews));
+            
+            // Save updated reviews back to storage
+            await saveReviews(reviews);
+            
+            // Reload reviews in UI
+            displayAdminReviews(reviews);
+            displayReviews(reviews.filter(review => review.approved !== false));
+            
+            return true;
+        } else {
+            console.warn('Review not found for deletion:', reviewId);
+        }
+        
+        return false;
     } catch (error) {
         console.error('Error deleting review:', error);
         throw error;
@@ -743,4 +942,97 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-}); 
+});
+
+// Submit a new review
+async function submitReview(event) {
+    event.preventDefault();
+    
+    try {
+        const form = event.target;
+        const nameField = form.querySelector('#review-name');
+        const ratingField = form.querySelector('#review-rating');
+        const commentField = form.querySelector('#review-comment');
+        
+        // Basic validation
+        if (!nameField.value || !ratingField.value || !commentField.value) {
+            showAlert('Please fill in all fields', 'error');
+            return;
+        }
+        
+        // Create the review object
+        const newReview = {
+            id: Date.now().toString() + Math.random().toString(36).substring(2, 5),
+            name: nameField.value.trim(),
+            rating: parseInt(ratingField.value, 10),
+            comment: commentField.value.trim(),
+            date: new Date().toISOString(),
+            approved: false // New reviews start as unapproved
+        };
+        
+        console.log('Submitting new review:', newReview);
+        
+        // Get current reviews from localStorage
+        let reviews = [];
+        try {
+            const localData = localStorage.getItem('reviews');
+            if (localData) {
+                reviews = JSON.parse(localData);
+                if (!Array.isArray(reviews)) {
+                    console.warn('localStorage reviews is not an array, resetting');
+                    reviews = [];
+                }
+            }
+        } catch (e) {
+            console.error('Error parsing reviews from localStorage:', e);
+            reviews = [];
+        }
+        
+        // Add the new review
+        reviews.unshift(newReview); // Add to the beginning of the array
+        
+        // Save to localStorage
+        localStorage.setItem('reviews', JSON.stringify(reviews));
+        
+        // If Supabase is available, also save there
+        if (supabase) {
+            try {
+                const { data, error } = await supabase
+                    .from('reviews')
+                    .insert([newReview]);
+                    
+                if (error) {
+                    console.error('Error saving review to Supabase:', error);
+                    // Continue anyway as we saved to localStorage
+                } else {
+                    console.log('Review saved to Supabase successfully');
+                }
+            } catch (e) {
+                console.error('Exception when saving to Supabase:', e);
+                // Continue anyway as we saved to localStorage
+            }
+        } else {
+            console.log('Supabase not available, review saved only to localStorage');
+        }
+        
+        // Clear the form
+        form.reset();
+        
+        // Show success message
+        showAlert('Thank you for your review! It will be visible after approval.', 'success');
+        
+        // Refresh the reviews display
+        await loadReviews();
+        
+        // If we're in the admin panel, refresh the admin view too
+        if (document.getElementById('admin-reviews-container')) {
+            await loadReviews(true);
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Error submitting review:', error);
+        showAlert('An error occurred while submitting your review. Please try again.', 'error');
+        return false;
+    }
+} 
