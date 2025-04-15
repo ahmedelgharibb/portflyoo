@@ -1,5 +1,22 @@
 // Reviews functionality for teacher portfolio website
 
+// Initialize Supabase client if not already defined
+let supabase;
+if (window.supabase) {
+    try {
+        const SUPABASE_URL = 'https://bqpchhitrbyfleqpyydz.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W4EHO4YLRDGU6p0xJhGbj_as';
+        
+        // Use the global supabase client if defined in script.js
+        if (window.supabase) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log('Supabase initialized in reviews.js');
+        }
+    } catch (error) {
+        console.error('Error initializing Supabase in reviews.js:', error);
+    }
+}
+
 // Setup reviews functionality
 function setupReviews() {
     console.log('Setting up reviews functionality');
@@ -490,4 +507,10 @@ async function saveReviews(reviews) {
         console.error('Error saving reviews:', error);
         throw error;
     }
-} 
+}
+
+// Initialize the reviews functionality when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing reviews functionality...');
+    setupReviews();
+}); 
