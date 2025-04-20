@@ -3651,13 +3651,7 @@ function updateSubjectsGrid(subjects) {
             <div class="text-blue-600 mb-4">
                 <i class="fas fa-book text-3xl"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-800 mb-2">${subject.name}</h3>
-            <div class="flex items-center">
-                <div class="flex-grow bg-gray-200 rounded-full h-2">
-                    <div class="bg-blue-600 rounded-full h-2" style="width: ${subject.score}%"></div>
-                </div>
-                <span class="ml-3 text-gray-600 font-medium">${subject.score}%</span>
-            </div>
+            <h3 class="text-xl font-bold text-gray-800 text-center">${subject.name}</h3>
         </div>
     `).join('');
 }
