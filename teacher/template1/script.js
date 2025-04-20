@@ -3648,7 +3648,7 @@ function updateSubjectsGrid(subjects) {
 
     subjectsGrid.innerHTML = subjects.map(subject => `
         <div class="bg-white rounded-lg shadow-lg p-6 transform hover:-translate-y-1 transition-all duration-300">
-            <div class="text-blue-600 mb-4">
+            <div class="text-blue-600 mb-4 text-center">
                 <i class="fas fa-book text-3xl"></i>
             </div>
             <h3 class="text-xl font-bold text-gray-800 text-center">${subject.name}</h3>
