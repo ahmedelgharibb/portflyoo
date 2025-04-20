@@ -1,4 +1,4 @@
-// Initialize Supabase client
+    // Initialize Supabase client
 const supabaseUrl = 'https://bqpchhitrbyfleqpyydz.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ';
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -8,12 +8,12 @@ const adminBtn = document.getElementById('adminBtn');
 const adminLoginModal = document.getElementById('adminLoginModal');
 const adminLoginForm = document.getElementById('adminLoginForm');
 const adminPanel = document.getElementById('adminPanel');
-const logoutBtn = document.getElementById('logoutBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
 const closeAdminPanel = document.getElementById('closeAdminPanel');
-const menuBtn = document.getElementById('menuBtn');
-const mobileMenu = document.getElementById('mobileMenu');
-const closeMenuBtn = document.getElementById('closeMenuBtn');
-const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const closeMenuBtn = document.getElementById('closeMenuBtn');
+  const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
 const contactForm = document.getElementById('contactForm');
 
 // Theme elements
@@ -61,7 +61,7 @@ function setupEventListeners() {
     contactForm.addEventListener('submit', handleContactSubmit);
 
     // Smooth Scrolling
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', handleSmoothScroll);
     });
 
@@ -99,9 +99,9 @@ function setupEventListeners() {
 
             if (currentPassword !== adminData.password_hash) {
                 showAlert('Current password is incorrect', 'error', 'adminAlertContainer');
-                return;
-            }
-
+        return;
+    }
+    
             // Update password
             const { error: updateError } = await supabase
                 .from('admin_settings')
@@ -113,7 +113,7 @@ function setupEventListeners() {
             showAlert('Password changed successfully', 'success', 'adminAlertContainer');
             changePasswordForm.reset();
             changePasswordSection.classList.add('hidden');
-        } catch (error) {
+    } catch (error) {
             console.error('Error changing password:', error);
             showAlert('Failed to change password', 'error', 'adminAlertContainer');
         }
@@ -122,7 +122,7 @@ function setupEventListeners() {
 
 // Admin Authentication Functions
 function showAdminLogin() {
-    adminLoginModal.classList.remove('hidden');
+        adminLoginModal.classList.remove('hidden');
 }
 
 async function handleAdminLogin(e) {
@@ -131,11 +131,11 @@ async function handleAdminLogin(e) {
 
     try {
         // Here you would typically make a call to your backend to verify the password
-        const { data, error } = await supabase
+            const { data, error } = await supabase
             .from('admin_settings')
             .select('password_hash')
-            .single();
-
+                .single();
+            
         if (error) throw error;
 
         // In production, use proper password hashing
@@ -190,20 +190,20 @@ function initializeChart() {
         type: 'bar',
         data: {
             labels: ['A*', 'A', 'B', 'C', 'D', 'E'],
-            datasets: [{
+                datasets: [{
                 label: 'Student Grades Distribution',
                 data: [30, 25, 20, 15, 7, 3],
                 backgroundColor: 'rgba(59, 130, 246, 0.5)',
                 borderColor: 'rgb(59, 130, 246)',
-                borderWidth: 1
-            }]
+                    borderWidth: 1
+                }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
                     title: {
                         display: true,
                         text: 'Number of Students'
@@ -215,9 +215,9 @@ function initializeChart() {
                         text: 'Grades'
                     }
                 }
+                }
             }
-        }
-    });
+        });
 }
 
 // Utility Functions
