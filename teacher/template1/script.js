@@ -2151,10 +2151,10 @@ function updateSiteContent(data) {
             `).join('');
         }
         
-        // Update results chart - wrap in try/catch to prevent errors from breaking everything
+        // Update results chart and subjects grid
         try {
             const resultsData = data.results || [];
-            console.log('Results data for chart update:', JSON.stringify(resultsData, null, 2));
+            console.log('Results data for updates:', JSON.stringify(resultsData, null, 2));
             
             if (!Array.isArray(resultsData)) {
                 console.error('Results data is not an array:', typeof resultsData);
@@ -2162,7 +2162,7 @@ function updateSiteContent(data) {
             }
             
             if (resultsData.length === 0) {
-                console.warn('Results data array is empty, skipping chart update');
+                console.warn('Results data array is empty, skipping updates');
                 return;
             }
             
@@ -2179,14 +2179,16 @@ function updateSiteContent(data) {
                 if (fixedResults.length > 0) {
                     console.log('Using fixed results data:', fixedResults);
                     updateResultsChart(fixedResults);
+                    updateSubjectsGrid(fixedResults);
                 }
                 return;
             }
             
-            console.log('Updating chart with valid results data');
+            console.log('Updating chart and subjects grid with valid results data');
             updateResultsChart(resultsData);
-        } catch (chartError) {
-            console.error('Error updating chart:', chartError);
+            updateSubjectsGrid(resultsData);
+        } catch (updateError) {
+            console.error('Error updating results:', updateError);
         }
         
         // Update contact form
@@ -3637,4 +3639,25 @@ async function saveWebsiteData() {
         showAdminAlert('error', 'Failed to save image data: ' + error.message);
         return false;
     }
+}
+
+// Function to populate subjects grid
+function updateSubjectsGrid(subjects) {
+    const subjectsGrid = document.getElementById('subjects-grid');
+    if (!subjectsGrid || !Array.isArray(subjects)) return;
+
+    subjectsGrid.innerHTML = subjects.map(subject => `
+        <div class="bg-white rounded-lg shadow-lg p-6 transform hover:-translate-y-1 transition-all duration-300">
+            <div class="text-blue-600 mb-4">
+                <i class="fas fa-book text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">${subject.name}</h3>
+            <div class="flex items-center">
+                <div class="flex-grow bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 rounded-full h-2" style="width: ${subject.score}%"></div>
+                </div>
+                <span class="ml-3 text-gray-600 font-medium">${subject.score}%</span>
+            </div>
+        </div>
+    `).join('');
 }
