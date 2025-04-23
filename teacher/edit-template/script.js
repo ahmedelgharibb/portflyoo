@@ -28,15 +28,64 @@ let resultsChart;
 const heroImageInput = document.getElementById('heroImageInput');
 const aboutImageInput = document.getElementById('aboutImageInput');
 
+// Database verification function
+async function verifyDatabase() {
+    try {
+        const { data, error } = await supabase
+            .from('admin_settings')
+            .select('*');
+            
+        if (error) {
+            console.error('Database connection error:', error);
+            return false;
+        }
+        
+        console.log('Database connection successful');
+        console.log('Available data:', data);
+        return true;
+    } catch (error) {
+        console.error('Database verification failed:', error);
+        return false;
+    }
+}
+
 // Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Supabase client
-    supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-    
-    initializeTheme();
-    initializeChart();
-    checkAdminStatus();
-    setupEventListeners();
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Initialize Supabase client
+        supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // Verify database connection
+        const isConnected = await verifyDatabase();
+        if (!isConnected) {
+            showAlert('Unable to connect to database', 'error', 'alertContainer');
+            return;
+        }
+        
+        // Load website content for all users
+        const { data, error } = await supabase
+            .from('admin_settings')
+            .select('*')
+            .single();
+            
+        if (error) throw error;
+        
+        if (data) {
+            updateWebsiteContent(data);
+        } else {
+            console.log('No admin settings found in database');
+        }
+        
+        initializeTheme();
+        if (data && data.results) {
+            initializeChart(data.results);
+        }
+        checkAdminStatus();
+        setupEventListeners();
+    } catch (error) {
+        console.error('Error initializing website:', error);
+        showAlert('Failed to load website content', 'error', 'alertContainer');
+    }
 });
 
 function setupEventListeners() {
@@ -187,29 +236,39 @@ function applyTheme(color, mode) {
 }
 
 // Chart Functions
-function initializeChart() {
-    const ctx = document.getElementById('resultsChart').getContext('2d');
+function initializeChart(results) {
+    if (!results || !results.length) {
+        console.log('No results data available');
+        return;
+    }
+
+    const ctx = document.getElementById('resultsChart')?.getContext('2d');
+    if (!ctx) {
+        console.log('Chart context not found');
+        return;
+    }
+
     resultsChart = new Chart(ctx, {
         type: 'pie',
         data: {
-                labels: subjects.map(subject => subject.name),
-                datasets: [{
-                    label: 'Student Performance (%)',
-                    data: subjects.map(subject => subject.score),
-                    backgroundColor: [
-                        'rgba(59, 130, 246, 0.8)',
-                        'rgba(16, 185, 129, 0.8)',
-                        'rgba(245, 158, 11, 0.8)',
-                        'rgba(239, 68, 68, 0.8)'
-                    ],
-                    borderColor: [
-                        'rgba(59, 130, 246, 1)',
-                        'rgba(16, 185, 129, 1)',
-                        'rgba(245, 158, 11, 1)',
-                        'rgba(239, 68, 68, 1)'
-                    ],
-                    borderWidth: 1
-                }]
+            labels: results.map(result => result.name),
+            datasets: [{
+                label: 'Student Performance (%)',
+                data: results.map(result => result.score),
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(239, 68, 68, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(245, 158, 11, 1)',
+                    'rgba(239, 68, 68, 1)'
+                ],
+                borderWidth: 1
+            }]
         },
         options: {
             responsive: true,
@@ -237,7 +296,39 @@ function initializeChart() {
                 easing: 'easeOutQuart'
             }
         }
-        });
+    });
+}
+
+function updateWebsiteContent(data) {
+    // Update website content with admin data
+    const navBrandName = document.querySelector('.nav-brand-name');
+    const navBrandSubtitle = document.querySelector('.nav-brand-subtitle');
+    const heroTitle = document.querySelector('.hero-title');
+    const experienceSection = document.querySelector('.experience-section');
+    
+    if (navBrandName) navBrandName.textContent = data.name || '';
+    if (navBrandSubtitle) navBrandSubtitle.textContent = data.title || '';
+    if (heroTitle) heroTitle.innerHTML = `Inspiring Minds Through <span class="text-blue-600">${data.subtitle || ''}</span>`;
+    if (experienceSection) experienceSection.textContent = data.experience || '';
+    
+    // Update other elements
+    const elements = {
+        'philosophy': data.philosophy,
+        'qualifications': data.qualifications,
+        'schools': data.schools,
+        'centers': data.centers,
+        'platforms': data.platforms,
+        'email': data.email,
+        'phone': data.phone,
+        'contact-message': data.contact_message
+    };
+    
+    for (const [id, value] of Object.entries(elements)) {
+        const element = document.getElementById(id);
+        if (element && value) {
+            element.textContent = value;
+        }
+    }
 }
 
 // Utility Functions
@@ -381,14 +472,6 @@ document.getElementById('saveChangesBtn').addEventListener('click', async () => 
         showAlert('Failed to save changes', 'error', 'adminAlertContainer');
     }
 });
-
-function updateWebsiteContent(data) {
-    // Update website content with new admin data
-    document.querySelector('.nav-brand-name').textContent = data.name;
-    document.querySelector('.nav-brand-subtitle').textContent = data.title;
-    document.querySelector('.hero-title').innerHTML = `Inspiring Minds Through <span class="text-blue-600">${data.subtitle}</span>`;
-    // Update other elements as needed
-}
 
 // Initialize the page
 function checkAdminStatus() {
