@@ -187,36 +187,53 @@ function applyTheme(color, mode) {
 function initializeChart() {
     const ctx = document.getElementById('resultsChart').getContext('2d');
     resultsChart = new Chart(ctx, {
-        type: 'bar',
+        type: 'pie',
         data: {
-            labels: ['A*', 'A', 'B', 'C', 'D', 'E'],
+                labels: subjects.map(subject => subject.name),
                 datasets: [{
-                label: 'Student Grades Distribution',
-                data: [30, 25, 20, 15, 7, 3],
-                backgroundColor: 'rgba(59, 130, 246, 0.5)',
-                borderColor: 'rgb(59, 130, 246)',
+                    label: 'Student Performance (%)',
+                    data: subjects.map(subject => subject.score),
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(239, 68, 68, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(16, 185, 129, 1)',
+                        'rgba(245, 158, 11, 1)',
+                        'rgba(239, 68, 68, 1)'
+                    ],
                     borderWidth: 1
                 }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Students'
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        font: {
+                            size: 14
+                        }
                     }
                 },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Grades'
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw}%`;
+                        }
                     }
                 }
-                }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeOutQuart'
             }
+        }
         });
 }
 
