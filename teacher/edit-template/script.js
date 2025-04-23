@@ -1,19 +1,19 @@
-    // Initialize Supabase client
+// Supabase configuration
 const supabaseUrl = 'https://bqpchhitrbyfleqpyydz.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ';
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+let supabase;
 
 // DOM Elements
 const adminBtn = document.getElementById('adminBtn');
 const adminLoginModal = document.getElementById('adminLoginModal');
 const adminLoginForm = document.getElementById('adminLoginForm');
 const adminPanel = document.getElementById('adminPanel');
-        const logoutBtn = document.getElementById('logoutBtn');
+const logoutBtn = document.getElementById('logoutBtn');
 const closeAdminPanel = document.getElementById('closeAdminPanel');
-  const menuBtn = document.getElementById('menuBtn');
-  const mobileMenu = document.getElementById('mobileMenu');
-  const closeMenuBtn = document.getElementById('closeMenuBtn');
-  const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+const closeMenuBtn = document.getElementById('closeMenuBtn');
+const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
 const contactForm = document.getElementById('contactForm');
 
 // Theme elements
@@ -30,6 +30,9 @@ const aboutImageInput = document.getElementById('aboutImageInput');
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Supabase client
+    supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    
     initializeTheme();
     initializeChart();
     checkAdminStatus();
