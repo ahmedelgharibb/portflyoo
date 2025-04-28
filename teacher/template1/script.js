@@ -2175,17 +2175,25 @@ function updateSiteContent(data) {
                 // Try to fix the data if possible
                 const fixedResults = resultsData.filter(item => 
                     item && typeof item === 'object' && 'name' in item && 'score' in item);
-                    
+                
                 if (fixedResults.length > 0) {
                     console.log('Using fixed results data:', fixedResults);
-                    updateResultsChart(fixedResults);
+                    if (document.getElementById('resultsChart')) {
+                        updateResultsChart(fixedResults);
+                    } else {
+                        console.warn('Results chart canvas not found, skipping chart update.');
+                    }
                     updateSubjectsGrid(fixedResults);
                 }
                 return;
             }
             
             console.log('Updating chart and subjects grid with valid results data');
-            updateResultsChart(resultsData);
+            if (document.getElementById('resultsChart')) {
+                updateResultsChart(resultsData);
+            } else {
+                console.warn('Results chart canvas not found, skipping chart update.');
+            }
             updateSubjectsGrid(resultsData);
         } catch (updateError) {
             console.error('Error updating results:', updateError);
