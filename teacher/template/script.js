@@ -272,30 +272,33 @@ if (chartCanvas && typeof Chart !== 'undefined') {
     const ctx = chartCanvas.getContext('2d');
     
     const resultsChart = new Chart(ctx, {
-        type: 'bar',
+        type: 'pie',
         data: {
             labels: ['Mathematics', 'Physics', 'Chemistry', 'Biology'],
-            datasets: [
-                {
-                    label: 'A* Grades',
-                    data: [85, 78, 72, 68],
-                    backgroundColor: '#3b82f6',
-                    borderRadius: 6,
-                },
-                {
-                    label: 'A Grades',
-                    data: [92, 85, 80, 75],
-                    backgroundColor: '#60a5fa',
-                    borderRadius: 6,
-                }
-            ]
+            datasets: [{
+                label: 'Student Performance (%)',
+                data: [85, 78, 72, 68],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(239, 68, 68, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(245, 158, 11, 1)',
+                    'rgba(239, 68, 68, 1)'
+                ],
+                borderWidth: 1
+            }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'top',
+                    position: 'right',
                     labels: {
                         padding: 20,
                         font: {
@@ -303,31 +306,17 @@ if (chartCanvas && typeof Chart !== 'undefined') {
                         }
                     }
                 },
-                title: {
-                    display: true,
-                    text: 'Student Performance by Subject',
-                    padding: {
-                        top: 10,
-                        bottom: 30
-                    },
-                    font: {
-                        size: 16,
-                        weight: 'bold'
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: value => value + '%'
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw}%`;
+                        }
                     }
                 }
             },
             animation: {
-                duration: 2000,
-                easing: 'easeInOutQuart'
+                duration: 1000,
+                easing: 'easeOutQuart'
             }
         }
     });

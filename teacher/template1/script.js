@@ -2281,7 +2281,7 @@ function updateResultsChart(subjects) {
         
         // Always create a fresh chart
         window.resultsChart = new Chart(ctx, {
-        type: 'bar',
+        type: 'pie',
         data: {
                 labels: subjects.map(subject => subject.name),
                 datasets: [{
@@ -2305,34 +2305,29 @@ function updateResultsChart(subjects) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: function(value) {
-                                return value + '%';
-                            }
-                        }
-                    }
-                },
             plugins: {
                 legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.raw + '%';
-                            }
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        font: {
+                            size: 14
                         }
                     }
                 },
-                animation: {
-                    duration: 1000,
-                    easing: 'easeOutQuart'
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw}%`;
+                        }
+                    }
                 }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeOutQuart'
             }
+        }
         });
         console.log('✅ Chart created/updated successfully');
     } catch (error) {
