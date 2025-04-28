@@ -8,7 +8,7 @@ const adminBtn = document.getElementById('adminBtn');
 const adminLoginModal = document.getElementById('adminLoginModal');
 const adminLoginForm = document.getElementById('adminLoginForm');
 const adminPanel = document.getElementById('adminPanel');
-const logoutBtn = document.getElementById('logoutBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
 const closeAdminPanel = document.getElementById('closeAdminPanel');
 const menuBtn = document.getElementById('menuBtn');
 const mobileMenu = document.getElementById('mobileMenu');
@@ -25,13 +25,13 @@ const previewThemeBtn = document.getElementById('previewThemeBtn');
 let resultsChart;
 
 // Handle file uploads
-const heroImageInput = document.getElementById('heroImageInput');
-const aboutImageInput = document.getElementById('aboutImageInput');
+    const heroImageInput = document.getElementById('heroImageInput');
+    const aboutImageInput = document.getElementById('aboutImageInput');
 
 // Database verification function
 async function verifyDatabase() {
-    try {
-        const { data, error } = await supabase
+        try {
+            const { data, error } = await supabase
             .from('admin_settings')
             .select('*');
             
@@ -43,7 +43,7 @@ async function verifyDatabase() {
         console.log('Database connection successful');
         console.log('Available data:', data);
         return true;
-    } catch (error) {
+        } catch (error) {
         console.error('Database verification failed:', error);
         return false;
     }
@@ -59,30 +59,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isConnected = await verifyDatabase();
         if (!isConnected) {
             showAlert('Unable to connect to database', 'error', 'alertContainer');
-            return;
-        }
-        
+                return;
+            }
+
         // Load website content for all users
         const { data, error } = await supabase
             .from('admin_settings')
-            .select('*')
-            .single();
-            
+                .select('*')
+                .single();
+
         if (error) throw error;
         
         if (data) {
             updateWebsiteContent(data);
-        } else {
+            } else {
             console.log('No admin settings found in database');
         }
         
         initializeTheme();
         if (data && data.results) {
-            initializeChart(data.results);
+            initializeCharts(data.results);
         }
         checkAdminStatus();
         setupEventListeners();
-    } catch (error) {
+            } catch (error) {
         console.error('Error initializing website:', error);
         showAlert('Failed to load website content', 'error', 'alertContainer');
     }
@@ -165,7 +165,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             showAlert('Password changed successfully', 'success', 'adminAlertContainer');
             changePasswordForm.reset();
             changePasswordSection.classList.add('hidden');
-    } catch (error) {
+        } catch (error) {
             console.error('Error changing password:', error);
             showAlert('Failed to change password', 'error', 'adminAlertContainer');
         }
@@ -236,66 +236,83 @@ function applyTheme(color, mode) {
 }
 
 // Chart Functions
-function initializeChart(results) {
+function initializeCharts(results) {
     if (!results || !results.length) {
         console.log('No results data available');
         return;
     }
-
-    const ctx = document.getElementById('resultsChart')?.getContext('2d');
-    if (!ctx) {
-        console.log('Chart context not found');
+    
+    const chartsContainer = document.getElementById('results-charts');
+    if (!chartsContainer) {
+        console.log('Charts container not found');
         return;
     }
-
-    resultsChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: results.map(result => result.name),
-            datasets: [{
-                label: 'Student Performance (%)',
-                data: results.map(result => result.score),
-                backgroundColor: [
-                    'rgba(59, 130, 246, 0.8)',
-                    'rgba(16, 185, 129, 0.8)',
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(239, 68, 68, 0.8)'
-                ],
-                borderColor: [
-                    'rgba(59, 130, 246, 1)',
-                    'rgba(16, 185, 129, 1)',
-                    'rgba(245, 158, 11, 1)',
-                    'rgba(239, 68, 68, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        padding: 20,
-                        font: {
-                            size: 14
+    
+    // Clear existing charts
+    chartsContainer.innerHTML = '';
+    
+    results.forEach((subject, index) => {
+        const chartContainer = document.createElement('div');
+        chartContainer.className = 'bg-white rounded-lg shadow-lg p-4';
+        chartContainer.innerHTML = `
+            <h3 class="text-lg font-semibold mb-4">${subject.name}</h3>
+            <div class="w-full" style="height: 300px;">
+                <canvas id="chart-${index}"></canvas>
+            </div>
+        `;
+        chartsContainer.appendChild(chartContainer);
+        
+        const ctx = document.getElementById(`chart-${index}`).getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['A*', 'A', 'Rest'],
+                datasets: [{
+                    data: [
+                        subject.grades['A*'],
+                        subject.grades['A'],
+                        subject.grades['Rest']
+                    ],
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(245, 158, 11, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(16, 185, 129, 1)',
+                        'rgba(245, 158, 11, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw} students`;
+                            }
                         }
                     }
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.label}: ${context.raw}%`;
-                        }
-                    }
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
                 }
-            },
-            animation: {
-                duration: 1000,
-                easing: 'easeOutQuart'
             }
-        }
+        });
     });
 }
 
@@ -347,7 +364,7 @@ function showAlert(message, type, containerId) {
 }
 
 function handleSmoothScroll(e) {
-    e.preventDefault();
+            e.preventDefault();
     const targetId = this.getAttribute('href');
     const targetElement = document.querySelector(targetId);
     
@@ -429,7 +446,7 @@ async function loadAdminData() {
 
         // Update results chart if data exists
         if (data.results) {
-            updateResultsChart(data.results);
+            initializeCharts(data.results);
         }
     } catch (error) {
         console.error('Error loading admin data:', error);

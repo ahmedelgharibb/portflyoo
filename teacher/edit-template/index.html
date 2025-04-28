@@ -1338,13 +1338,22 @@
     <section id="results" class="py-20 bg-white">
         <div class="container mx-auto px-4">
             <h2 class="section-title">Student Performance</h2>
-            <div class="bg-white rounded-lg shadow-lg p-4 md:p-8">
-                <div class="w-full" style="height: 400px;">
-                    <canvas id="resultsChart"></canvas>
-                </div>
+            <div id="results-charts" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Charts will be dynamically added here -->
             </div>
         </div>
     </section>
+
+    <!-- Admin Panel Results Section -->
+    <div id="admin-results" class="hidden">
+        <h3 class="text-xl font-semibold mb-4">Grade Distribution</h3>
+        <div id="results-form" class="space-y-4">
+            <!-- Results inputs will be dynamically added here -->
+        </div>
+        <button onclick="addNewResult()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            Add Subject
+        </button>
+    </div>
 
     <!-- Experience Section -->
     <section id="experience" class="py-20 bg-gray-50">
