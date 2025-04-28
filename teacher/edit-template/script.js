@@ -448,6 +448,10 @@ async function loadAdminData() {
         if (data.results) {
             initializeCharts(data.results);
         }
+
+        // Load admin data and initialize adminResults
+        window.adminResults = Array.isArray(data.results) ? data.results : [];
+        renderAdminResults(window.adminResults);
     } catch (error) {
         console.error('Error loading admin data:', error);
         showAlert('Failed to load admin data', 'error', 'adminAlertContainer');
@@ -526,4 +530,88 @@ function updateImagePreview(inputId, imageUrl) {
     
     img.src = imageUrl;
     preview.classList.remove('hidden');
+}
+
+// Admin Panel Results Section
+function renderAdminResults(subjects) {
+    const container = document.getElementById('admin-results-container');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    subjects.forEach((subject, idx) => {
+        const row = document.createElement('div');
+        row.className = 'flex flex-col md:flex-row items-center gap-4 mb-4 p-4 bg-gray-50 rounded-lg';
+        row.innerHTML = `
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Subject Name</label>
+                <input type="text" class="subject-name form-input w-full" value="${subject.name || ''}" placeholder="e.g. Mathematics" data-idx="${idx}">
+            </div>
+            <div class="flex flex-row gap-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">A*</label>
+                    <input type="number" class="grade-input form-input w-20" value="${subject.grades?.['A*'] ?? 0}" min="0" data-idx="${idx}" data-grade="A*">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">A</label>
+                    <input type="number" class="grade-input form-input w-20" value="${subject.grades?.A ?? 0}" min="0" data-idx="${idx}" data-grade="A">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Rest</label>
+                    <input type="number" class="grade-input form-input w-20" value="${subject.grades?.Rest ?? 0}" min="0" data-idx="${idx}" data-grade="Rest">
+                </div>
+            </div>
+            <button class="remove-subject-btn ml-2 bg-red-100 text-red-600 px-3 py-2 rounded hover:bg-red-200" data-idx="${idx}">✕</button>
+        `;
+        container.appendChild(row);
+    });
+    
+    // Add event listeners
+    container.querySelectorAll('.subject-name').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const idx = e.target.dataset.idx;
+            window.adminResults[idx].name = e.target.value;
+        });
+    });
+    container.querySelectorAll('.grade-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const idx = e.target.dataset.idx;
+            const grade = e.target.dataset.grade;
+            window.adminResults[idx].grades[grade] = parseInt(e.target.value) || 0;
+        });
+    });
+    container.querySelectorAll('.remove-subject-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const idx = e.target.dataset.idx;
+            window.adminResults.splice(idx, 1);
+            renderAdminResults(window.adminResults);
+        });
+    });
+}
+
+// Add Subject Button
+const addResultBtn = document.getElementById('addResultBtn');
+if (addResultBtn) {
+    addResultBtn.addEventListener('click', () => {
+        window.adminResults.push({ name: '', grades: { 'A*': 0, 'A': 0, 'Rest': 0 } });
+        renderAdminResults(window.adminResults);
+    });
+}
+
+// Save Changes Button
+const saveChangesBtn = document.getElementById('saveChangesBtn');
+if (saveChangesBtn) {
+    saveChangesBtn.addEventListener('click', async () => {
+        try {
+            const { error } = await supabase
+                .from('admin_settings')
+                .update({ results: window.adminResults })
+                .eq('id', 1);
+            if (error) throw error;
+            showAlert('Changes saved successfully!', 'success', 'adminAlertContainer');
+            initializeCharts(window.adminResults);
+        } catch (error) {
+            console.error('Error saving changes:', error);
+            showAlert('Failed to save changes', 'error', 'adminAlertContainer');
+        }
+    });
 }
