@@ -2154,15 +2154,15 @@ function updateSiteContent(data) {
         // Update results chart and subjects grid
         try {
             const resultsData = data.results || [];
-            console.log('Results data for updates:', JSON.stringify(resultsData, null, 2));
+            console.log('🔍 Loading results data:', JSON.stringify(resultsData, null, 2));
             
             if (!Array.isArray(resultsData)) {
-                console.error('Results data is not an array:', typeof resultsData);
+                console.error('❌ Results data is not an array:', typeof resultsData);
                 return;
             }
             
             if (resultsData.length === 0) {
-                console.warn('Results data array is empty, skipping updates');
+                console.warn('⚠️ Results data array is empty, skipping updates');
                 return;
             }
             
@@ -2171,32 +2171,24 @@ function updateSiteContent(data) {
                 item && typeof item === 'object' && 'name' in item && 'score' in item);
                 
             if (!validResults) {
-                console.error('Invalid results data structure:', resultsData);
+                console.error('❌ Invalid results data structure:', resultsData);
                 // Try to fix the data if possible
                 const fixedResults = resultsData.filter(item => 
                     item && typeof item === 'object' && 'name' in item && 'score' in item);
                 
                 if (fixedResults.length > 0) {
-                    console.log('Using fixed results data:', fixedResults);
-                    if (document.getElementById('resultsChart')) {
-                        updateResultsChart(fixedResults);
-                    } else {
-                        console.warn('Results chart canvas not found, skipping chart update.');
-                    }
+                    console.log('🔧 Using fixed results data:', fixedResults);
+                    updateResultsChart(fixedResults);
                     updateSubjectsGrid(fixedResults);
                 }
                 return;
             }
             
-            console.log('Updating chart and subjects grid with valid results data');
-            if (document.getElementById('resultsChart')) {
-                updateResultsChart(resultsData);
-            } else {
-                console.warn('Results chart canvas not found, skipping chart update.');
-            }
+            console.log('✅ Valid results data found, updating chart and subjects grid:', resultsData);
+            updateResultsChart(resultsData);
             updateSubjectsGrid(resultsData);
         } catch (updateError) {
-            console.error('Error updating results:', updateError);
+            console.error('❌ Error updating results:', updateError);
         }
         
         // Update contact form
@@ -2257,22 +2249,24 @@ function updateSiteContent(data) {
 
 // Update results chart with new data
 function updateResultsChart(subjects) {
+    console.log('📊 Attempting to update results chart with subjects:', subjects);
+    
     // Ensure we have data to work with
     if (!subjects || !Array.isArray(subjects) || subjects.length === 0) {
-        console.log('No chart data provided or invalid data format');
+        console.warn('⚠️ No chart data provided or invalid format');
         return;
     }
     
     // Make sure Chart.js is loaded
     if (typeof Chart === 'undefined') {
-        console.error('Chart.js is not loaded or available');
+        console.error('❌ Chart.js is not loaded or available');
         return;
     }
     
     // Get the chart canvas
     const ctx = document.getElementById('resultsChart');
     if (!ctx) {
-        console.error('Chart canvas element not found');
+        console.error('❌ Chart canvas element not found. Make sure the element exists in the HTML.');
         return;
     }
     
@@ -2282,15 +2276,22 @@ function updateResultsChart(subjects) {
             try {
                 window.resultsChart.destroy();
                 window.resultsChart = null;
+                console.log('🔄 Previous chart instance destroyed');
             } catch (e) {
-                console.error('Error destroying chart during data reset:', e);
+                console.error('❌ Error destroying chart during data reset:', e);
             }
         }
         
+        // Log the data being used for the chart
+        console.log('📈 Creating chart with data:', {
+            labels: subjects.map(subject => subject.name),
+            data: subjects.map(subject => subject.score)
+        });
+        
         // Always create a fresh chart
         window.resultsChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
+            type: 'pie',
+            data: {
                 labels: subjects.map(subject => subject.name),
                 datasets: [{
                     label: 'Student Performance (%)',
@@ -2309,39 +2310,37 @@ function updateResultsChart(subjects) {
                     ],
                     borderWidth: 1
                 }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        padding: 20,
-                        font: {
-                            size: 14
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw}%`;
+                            }
                         }
                     }
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.label}: ${context.raw}%`;
-                        }
-                    }
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
                 }
-            },
-            animation: {
-                duration: 1000,
-                easing: 'easeOutQuart'
             }
-        }
         });
-        console.log('✅ Chart created/updated successfully');
-        console.log('✅ Success: Data for results chart loaded and chart updated.');
+        console.log('✅ Chart created/updated successfully with subjects:', subjects.map(s => s.name).join(', '));
     } catch (error) {
-        console.error('Failed to create/update chart:', error);
-        // Don't throw error, just log it, to prevent breaking the save process
+        console.error('❌ Failed to create/update chart:', error);
     }
 }
 
