@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS public.grade_distribution;
 -- Create grade_distribution table
 CREATE TABLE IF NOT EXISTS public.grade_distribution (
     id SERIAL PRIMARY KEY,
-    subject VARCHAR(255) NOT NULL,
+    subject VARCHAR(255) NOT NULL UNIQUE,
     a_star_count INTEGER NOT NULL DEFAULT 0,
     a_count INTEGER NOT NULL DEFAULT 0,
     rest_count INTEGER NOT NULL DEFAULT 0,
