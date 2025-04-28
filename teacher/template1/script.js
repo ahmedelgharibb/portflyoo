@@ -3678,7 +3678,7 @@ function updateSubjectsGrid(subjects) {
             <div class="text-blue-600 mb-4 text-center">
                 <i class="fas fa-book text-3xl"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-800 text-center">${subject.name}</h3>
+            <h3 class="text-xl font-bold text-gray-800 text-center">${subject.subject}</h3>
         </div>
     `).join('');
 }
