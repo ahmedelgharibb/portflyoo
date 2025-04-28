@@ -2330,6 +2330,7 @@ function updateResultsChart(subjects) {
         }
         });
         console.log('✅ Chart created/updated successfully');
+        console.log('✅ Success: Data for results chart loaded and chart updated.');
     } catch (error) {
         console.error('Failed to create/update chart:', error);
         // Don't throw error, just log it, to prevent breaking the save process
