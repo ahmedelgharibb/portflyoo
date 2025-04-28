@@ -1321,10 +1321,8 @@
     <section id="results" class="py-20 bg-white">
         <div class="container mx-auto px-4">
             <h2 class="section-title">Student Performance</h2>
-            <div class="bg-white rounded-lg shadow-lg p-4 md:p-8">
-                <div class="w-full" style="height: 400px;">
-                    <canvas id="resultsChart"></canvas>
-                </div>
+            <div id="gradeDistributionContainer" class="space-y-6">
+                <!-- Grade distribution cards will be dynamically added here -->
             </div>
         </div>
     </section>
@@ -1989,6 +1987,9 @@
     </div>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="grade-distribution.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
