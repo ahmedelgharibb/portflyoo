@@ -2037,13 +2037,69 @@ async function handlePasswordChange(e) {
 // Update site content with new data
 function updateSiteContent(data) {
     try {
-        console.log('Updating site content with new data');
+        console.log('Updating site content with data:', data);
         
-        if (!data) {
-            console.error('No data provided to updateSiteContent');
-            return;
+        // Update name and title
+        document.querySelectorAll('.nav-brand-name').forEach(el => {
+            el.textContent = data.name || 'Teacher Name';
+        });
+        
+        document.querySelectorAll('.nav-brand-subtitle').forEach(el => {
+            el.textContent = data.title || 'Teacher Title';
+        });
+        
+        // Update hero section
+        const heroHeading = document.querySelector('.hero-title');
+        if (heroHeading) {
+            heroHeading.innerHTML = data.heroHeading || 'Inspiring Minds Through <span class="text-blue-600">Education</span>';
         }
-        
+
+        // Handle results data
+        try {
+            const resultsData = data.results || [];
+            
+            if (resultsData.length === 0) {
+                console.warn('⚠️ Results data array is empty, skipping updates');
+                return;
+            }
+            
+            // Validate the structure of results data
+            const validResults = resultsData.every(item => 
+                item && 
+                typeof item === 'object' && 
+                'subject' in item && 
+                'astar' in item && 
+                'a' in item && 
+                'other' in item
+            );
+                
+            if (!validResults) {
+                console.error('❌ Invalid results data structure:', resultsData);
+                // Try to fix the data if possible
+                const fixedResults = resultsData.filter(item => 
+                    item && 
+                    typeof item === 'object' && 
+                    'subject' in item && 
+                    'astar' in item && 
+                    'a' in item && 
+                    'other' in item
+                );
+                
+                if (fixedResults.length > 0) {
+                    console.log('🔧 Using fixed results data:', fixedResults);
+                    updateResultsChart(fixedResults);
+                    updateSubjectsGrid(fixedResults);
+                }
+                return;
+            }
+            
+            console.log('✅ Valid results data found, updating chart and subjects grid:', resultsData);
+            updateResultsChart(resultsData);
+            updateSubjectsGrid(resultsData);
+        } catch (updateError) {
+            console.error('❌ Error updating results:', updateError);
+        }
+
         // Update hero images if they exist
         if (data.heroImage) {
             const heroImg = document.querySelector('#heroImage');
@@ -2087,19 +2143,6 @@ function updateSiteContent(data) {
             subtitleElements.forEach(el => {
                 el.textContent = personalData.subtitle;
             });
-        }
-        
-        // Update hero section heading
-        const heroTitle = document.querySelector('#hero h1');
-        if (heroTitle && personalData.heroHeading) {
-            const spanElement = heroTitle.querySelector('span');
-            const spanHTML = spanElement ? spanElement.outerHTML : '<span class="text-blue-600">Mathematics</span>';
-            const headingParts = personalData.heroHeading.split('Mathematics');
-            if (headingParts.length > 1) {
-                heroTitle.innerHTML = `${headingParts[0]}${spanHTML}${headingParts[1]}`;
-            } else {
-                heroTitle.innerHTML = `${personalData.heroHeading.replace('Mathematics', spanHTML)}`;
-            }
         }
         
         // Update hero description
@@ -2156,46 +2199,6 @@ function updateSiteContent(data) {
                     <span>${platform}</span>
                 </li>
             `).join('');
-        }
-        
-        // Update results chart and subjects grid
-        try {
-            const resultsData = data.results || [];
-            console.log('🔍 Loading results data:', JSON.stringify(resultsData, null, 2));
-            
-            if (!Array.isArray(resultsData)) {
-                console.error('❌ Results data is not an array:', typeof resultsData);
-                return;
-            }
-            
-            if (resultsData.length === 0) {
-                console.warn('⚠️ Results data array is empty, skipping updates');
-                return;
-            }
-            
-            // Validate the structure of results data
-            const validResults = resultsData.every(item => 
-                item && typeof item === 'object' && 'name' in item && 'score' in item);
-                
-            if (!validResults) {
-                console.error('❌ Invalid results data structure:', resultsData);
-                // Try to fix the data if possible
-                const fixedResults = resultsData.filter(item => 
-                    item && typeof item === 'object' && 'name' in item && 'score' in item);
-                
-                if (fixedResults.length > 0) {
-                    console.log('🔧 Using fixed results data:', fixedResults);
-                    updateResultsChart(fixedResults);
-                    updateSubjectsGrid(fixedResults);
-                }
-                return;
-            }
-            
-            console.log('✅ Valid results data found, updating chart and subjects grid:', resultsData);
-            updateResultsChart(resultsData);
-            updateSubjectsGrid(resultsData);
-        } catch (updateError) {
-            console.error('❌ Error updating results:', updateError);
         }
         
         // Update contact form
@@ -2288,32 +2291,42 @@ function updateResultsChart(subjects) {
                 console.error('❌ Error destroying chart during data reset:', e);
             }
         }
-        
-        // Log the data being used for the chart
-        console.log('📈 Creating chart with data:', {
-            labels: subjects.map(subject => subject.name),
-            data: subjects.map(subject => subject.score)
+
+        // Calculate total grades and percentages for each subject
+        const chartData = subjects.map(subject => {
+            const total = subject.astar + subject.a + subject.other;
+            return {
+                subject: subject.subject,
+                astarPercent: ((subject.astar / total) * 100).toFixed(1),
+                aPercent: ((subject.a / total) * 100).toFixed(1),
+                otherPercent: ((subject.other / total) * 100).toFixed(1),
+                total: total
+            };
         });
         
-        // Always create a fresh chart
+        // Log the processed data
+        console.log('📈 Creating chart with processed data:', chartData);
+        
+        // Create the new chart
         window.resultsChart = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: subjects.map(subject => subject.name),
+                labels: ['A*', 'A', 'Other Grades'],
                 datasets: [{
-                    label: 'Student Performance (%)',
-                    data: subjects.map(subject => subject.score),
+                    data: [
+                        chartData.reduce((sum, item) => sum + parseFloat(item.astarPercent), 0) / chartData.length,
+                        chartData.reduce((sum, item) => sum + parseFloat(item.aPercent), 0) / chartData.length,
+                        chartData.reduce((sum, item) => sum + parseFloat(item.otherPercent), 0) / chartData.length
+                    ],
                     backgroundColor: [
-                        'rgba(59, 130, 246, 0.8)',
-                        'rgba(16, 185, 129, 0.8)',
-                        'rgba(245, 158, 11, 0.8)',
-                        'rgba(239, 68, 68, 0.8)'
+                        'rgba(54, 162, 235, 0.8)',  // Blue for A*
+                        'rgba(75, 192, 192, 0.8)',  // Green for A
+                        'rgba(255, 159, 64, 0.8)'   // Orange for Other
                     ],
                     borderColor: [
-                        'rgba(59, 130, 246, 1)',
-                        'rgba(16, 185, 129, 1)',
-                        'rgba(245, 158, 11, 1)',
-                        'rgba(239, 68, 68, 1)'
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 159, 64, 1)'
                     ],
                     borderWidth: 1
                 }]
@@ -2325,16 +2338,23 @@ function updateResultsChart(subjects) {
                     legend: {
                         position: 'right',
                         labels: {
-                            padding: 20,
                             font: {
-                                size: 14
+                                family: "'Inter', sans-serif"
                             }
                         }
                     },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return `${context.label}: ${context.raw}%`;
+                                const value = context.raw.toFixed(1);
+                                const label = context.label;
+                                const totalStudents = chartData.reduce((sum, item) => sum + item.total, 0);
+                                const gradeCount = label === 'A*' ? 
+                                    subjects.reduce((sum, item) => sum + item.astar, 0) :
+                                    label === 'A' ? 
+                                        subjects.reduce((sum, item) => sum + item.a, 0) :
+                                        subjects.reduce((sum, item) => sum + item.other, 0);
+                                return `${label}: ${value}% (${gradeCount} students)`;
                             }
                         }
                     }
@@ -2345,7 +2365,7 @@ function updateResultsChart(subjects) {
                 }
             }
         });
-        console.log('✅ Chart created/updated successfully with subjects:', subjects.map(s => s.name).join(', '));
+        console.log('✅ Chart created/updated successfully');
     } catch (error) {
         console.error('❌ Failed to create/update chart:', error);
     }
