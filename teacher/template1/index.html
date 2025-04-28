@@ -1590,345 +1590,501 @@
     </div>
 
     <!-- Admin Panel -->
-    <div id="adminPanel" class="fixed inset-0 bg-gray-100 z-[1000] overflow-auto hidden">
-        <div class="container mx-auto px-4 py-8">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-bold text-gray-800">Admin Panel</h2>
-                <div class="flex gap-4">
-                    <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                    </button>
-                    <button id="closeAdminPanel" class="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
+    <div id="adminPanel" class="fixed inset-0 bg-gray-100/95 backdrop-blur-md z-[1000] overflow-auto hidden">
+        <!-- Sidebar -->
+        <div class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-10">
+            <div class="p-6 border-b">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-shield-alt text-blue-600"></i>
+                    Admin Panel
+                </h2>
             </div>
-            
-            <!-- Alert container for messages -->
-            <div id="adminAlertContainer"></div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-xl font-bold mb-4 text-gray-800">Personal Information</h3>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="form-label">Name</label>
-                        <input type="text" id="admin-name" class="form-input">
-                    </div>
-                    <div>
-                        <label class="form-label">Title</label>
-                        <input type="text" id="admin-title" class="form-input">
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <label class="form-label">Subtitle/Role</label>
-                    <input type="text" id="admin-subtitle" class="form-input" placeholder="History Teacher">
-                </div>
-                <div class="mt-4">
-                    <label class="form-label">Hero Heading</label>
-                    <input type="text" id="admin-hero-heading" class="form-input" placeholder="Inspiring Minds Through Mathematics">
-                </div>
-                <div class="mt-4">
-                    <label class="form-label">Experience</label>
-                    <input type="text" id="admin-experience" class="form-input">
-                </div>
-                <div class="mt-4">
-                    <label class="form-label">Teaching Philosophy</label>
-                    <textarea id="admin-philosophy" class="form-input" rows="4" placeholder="I believe in creating an engaging and supportive learning environment..."></textarea>
-                </div>
-                <div class="mt-4">
-                    <label class="form-label">Qualifications (one per line)</label>
-                    <textarea id="admin-qualifications" class="form-input" rows="4"></textarea>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-xl font-bold mb-4 text-gray-800">Experience</h3>
-                
-                <div class="mb-6">
-                    <label class="form-label">Schools (one per line)</label>
-                    <textarea id="admin-schools" class="form-input" rows="4"></textarea>
-                </div>
-                
-                <div class="mb-6">
-                    <label class="form-label">Centers (one per line)</label>
-                    <textarea id="admin-centers" class="form-input" rows="4"></textarea>
-                </div>
-                
-                <div>
-                    <label class="form-label">Online Platforms (one per line)</label>
-                    <textarea id="admin-platforms" class="form-input" rows="4"></textarea>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-xl font-bold mb-4 text-gray-800">Results</h3>
-                <div id="admin-results-container">
-                    <!-- Results will be dynamically generated here -->
-                </div>
-                <button id="addResultBtn" class="btn btn-secondary mt-4">
-                    <i class="fas fa-plus mr-2"></i> Add Subject
+            <nav class="p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#personal-info" class="admin-nav-link active">
+                            <i class="fas fa-user"></i>
+                            <span>Personal Info</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#experience-section" class="admin-nav-link">
+                            <i class="fas fa-briefcase"></i>
+                            <span>Experience</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#results-section" class="admin-nav-link">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Results</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#contact-section" class="admin-nav-link">
+                            <i class="fas fa-envelope"></i>
+                            <span>Contact</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#theme-section" class="admin-nav-link">
+                            <i class="fas fa-paint-brush"></i>
+                            <span>Theme</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#security-section" class="admin-nav-link">
+                            <i class="fas fa-lock"></i>
+                            <span>Security</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#images-section" class="admin-nav-link">
+                            <i class="fas fa-images"></i>
+                            <span>Images</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t bg-white">
+                <button id="logoutBtn" class="w-full flex items-center justify-center gap-2 text-red-600 hover:text-red-700 transition-colors">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
                 </button>
             </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-xl font-bold mb-4 text-gray-800">Contact</h3>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="form-label">Email</label>
-                        <input type="email" id="admin-email" class="form-input">
+        </div>
+
+        <!-- Main Content -->
+        <div class="ml-64 p-8">
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center gap-4">
+                    <div class="bg-blue-600 text-white p-3 rounded-lg">
+                        <i class="fas fa-user-shield text-xl"></i>
                     </div>
                     <div>
-                        <label class="form-label">Form URL</label>
-                        <input type="url" id="admin-form-url" class="form-input">
+                        <h2 class="text-2xl font-bold text-gray-800">Welcome Back, Admin</h2>
+                        <p class="text-gray-600">Manage your website content</p>
                     </div>
                 </div>
-                
-                <div class="mt-4 grid md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="form-label">Assistant Form URL</label>
-                        <input type="url" id="admin-assistant-form-url" class="form-input">
-                    </div>
-                    <div>
-                        <label class="form-label">Phone Number</label>
-                        <input type="tel" id="admin-phone" class="form-input">
-                    </div>
-                </div>
-                
-                <div class="mt-4">
-                    <label class="form-label">Contact Message</label>
-                    <textarea id="admin-contact-message" class="form-input" rows="3"></textarea>
-                </div>
-            </div>
-            
-            <!-- Reviews Management Section -->
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-xl font-bold mb-4 text-gray-800">Reviews Management</h3>
-                
-                <div class="mb-4">
-                    <p class="text-gray-600 mb-4">Manage student reviews that appear on your website.</p>
-                    
-                    <div class="flex justify-between items-center mb-4">
-                        <h4 class="text-lg font-semibold text-gray-700">All Reviews</h4>
-                        <div class="flex gap-2">
-                            <button id="refreshReviewsBtn" class="btn btn-secondary">
-                                <i class="fas fa-sync-alt mr-2"></i> Refresh
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div id="admin-reviews-container" class="border border-gray-200 rounded-lg divide-y divide-gray-200 max-h-96 overflow-y-auto">
-                        <!-- Reviews will be loaded here -->
-                        <div class="p-6 text-center text-gray-500">
-                            <i class="fas fa-comments text-gray-300 text-4xl mb-2"></i>
-                            <p>No reviews found.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h3 class="text-xl font-bold mb-4 text-gray-800">Theme Settings</h3>
-                
-                <div class="mb-6">
-                    <label class="form-label">Primary Color Theme</label>
-                    <div class="grid grid-cols-5 gap-3 mt-2">
-                        <div class="theme-color-option">
-                            <input type="radio" name="theme-color" id="theme-blue" value="blue" checked class="sr-only">
-                            <label for="theme-blue" class="flex items-center justify-center h-12 bg-blue-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all">
-                                <span>Blue</span>
-                            </label>
-                        </div>
-                        <div class="theme-color-option">
-                            <input type="radio" name="theme-color" id="theme-green" value="green" class="sr-only">
-                            <label for="theme-green" class="flex items-center justify-center h-12 bg-green-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-green-500 transition-all">
-                                <span>Green</span>
-                            </label>
-                        </div>
-                        <div class="theme-color-option">
-                            <input type="radio" name="theme-color" id="theme-purple" value="purple" class="sr-only">
-                            <label for="theme-purple" class="flex items-center justify-center h-12 bg-purple-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all">
-                                <span>Purple</span>
-                            </label>
-                        </div>
-                        <div class="theme-color-option">
-                            <input type="radio" name="theme-color" id="theme-red" value="red" class="sr-only">
-                            <label for="theme-red" class="flex items-center justify-center h-12 bg-red-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-red-500 transition-all">
-                                <span>Red</span>
-                            </label>
-                        </div>
-                        <div class="theme-color-option">
-                            <input type="radio" name="theme-color" id="theme-gray" value="gray" class="sr-only">
-                            <label for="theme-gray" class="flex items-center justify-center h-12 bg-gray-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-gray-500 transition-all">
-                                <span>Gray</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mb-6">
-                    <label class="form-label">Display Mode</label>
-                    <div class="grid grid-cols-2 gap-3 mt-2">
-                        <div class="theme-mode-option">
-                            <input type="radio" name="theme-mode" id="mode-light" value="light" checked class="sr-only">
-                            <label for="mode-light" class="flex items-center justify-center h-12 bg-white text-gray-800 border border-gray-200 rounded-lg cursor-pointer hover:ring-2 hover:ring-gray-300 transition-all">
-                                <i class="fas fa-sun mr-2"></i>
-                                <span>Light Mode</span>
-                            </label>
-                        </div>
-                        <div class="theme-mode-option">
-                            <input type="radio" name="theme-mode" id="mode-dark" value="dark" class="sr-only">
-                            <label for="mode-dark" class="flex items-center justify-center h-12 bg-gray-800 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-gray-600 transition-all">
-                                <i class="fas fa-moon mr-2"></i>
-                                <span>Dark Mode</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <button id="previewThemeBtn" class="btn btn-secondary">
-                        <i class="fas fa-eye mr-2"></i> Preview Theme
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Security Settings -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Security Settings</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Admin Password</label>
-                        <div class="flex gap-2">
-                            <input type="password" id="adminPassword" class="form-input flex-1" placeholder="Enter new password">
-                            <button id="changePasswordBtn" class="btn-primary">Change Password</button>
-                        </div>
-                    </div>
-                </div>
+                <button id="closeAdminPanel" class="bg-white p-2 rounded-full hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
             </div>
 
-            <!-- Image Upload Section -->
-            <div class="backdrop-blur-sm bg-white/70 dark:bg-gray-800/80 rounded-xl shadow-lg p-6 mb-6 transition-all duration-300">
-                <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-6">Website Images</h3>
-                <div class="space-y-6">
-                    <!-- Hero Image Upload -->
-                    <div class="bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm rounded-xl p-5 transition-all duration-300 hover:shadow-md">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Hero Image</label>
-                        <div class="flex flex-col md:flex-row gap-4 items-start">
-                            <div class="relative flex-1">
-                                <input type="file" id="heroImageInput" accept="image/*" class="hidden">
-                                <div id="heroDropZone" class="border border-gray-200 dark:border-gray-600 rounded-lg p-5 transition-all duration-300 hover:border-purple-400 dark:hover:border-purple-300 cursor-pointer focus-within:ring-2 focus-within:ring-purple-400 dark:focus-within:ring-purple-300" tabindex="0" role="button" aria-label="Upload hero image by clicking or dropping a file">
-                                    <button id="heroUploadBtn" class="w-full px-5 py-2.5 border border-purple-500 dark:border-purple-400 text-purple-600 dark:text-purple-300 bg-transparent hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 group">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-1">
-                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                            <polyline points="17 8 12 3 7 8"></polyline>
-                                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                                        </svg>
-                                        <span>Upload Hero Image</span>
+            <!-- Alert Container -->
+            <div id="adminAlertContainer" class="mb-6"></div>
+
+            <!-- Content Sections -->
+            <div class="space-y-6">
+                <!-- Personal Information -->
+                <section id="personal-info" class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="border-b border-gray-100 p-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-user text-blue-600"></i>
+                            Personal Information
+                        </h3>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label class="form-label" for="admin-name">Name</label>
+                                <div class="relative">
+                                    <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" id="admin-name" class="form-input pl-10" placeholder="Your name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="admin-title">Title</label>
+                                <div class="relative">
+                                    <i class="fas fa-graduation-cap absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" id="admin-title" class="form-input pl-10" placeholder="Your title">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="admin-subtitle">Subtitle/Role</label>
+                            <div class="relative">
+                                <i class="fas fa-id-badge absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="admin-subtitle" class="form-input pl-10" placeholder="Your role or subtitle">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="admin-hero-heading">Hero Heading</label>
+                            <div class="relative">
+                                <i class="fas fa-heading absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="admin-hero-heading" class="form-input pl-10" placeholder="Main heading for hero section">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="admin-experience">Experience</label>
+                            <div class="relative">
+                                <i class="fas fa-briefcase absolute left-3 top-3 text-gray-400"></i>
+                                <textarea id="admin-experience" class="form-input pl-10" rows="3" placeholder="Your experience"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="admin-philosophy">Teaching Philosophy</label>
+                            <div class="relative">
+                                <i class="fas fa-book absolute left-3 top-3 text-gray-400"></i>
+                                <textarea id="admin-philosophy" class="form-input pl-10" rows="4" placeholder="Your teaching philosophy"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="admin-qualifications">Qualifications</label>
+                            <div class="relative">
+                                <i class="fas fa-certificate absolute left-3 top-3 text-gray-400"></i>
+                                <textarea id="admin-qualifications" class="form-input pl-10" rows="4" placeholder="One qualification per line"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Experience Section -->
+                <section id="experience-section" class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="border-b border-gray-100 p-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-briefcase text-blue-600"></i>
+                            Experience
+                        </h3>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="form-group">
+                            <label class="form-label" for="admin-schools">Schools</label>
+                            <div class="relative">
+                                <i class="fas fa-school absolute left-3 top-3 text-gray-400"></i>
+                                <textarea id="admin-schools" class="form-input pl-10" rows="4" placeholder="One school per line"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="admin-centers">Centers</label>
+                            <div class="relative">
+                                <i class="fas fa-building absolute left-3 top-3 text-gray-400"></i>
+                                <textarea id="admin-centers" class="form-input pl-10" rows="4" placeholder="One center per line"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="admin-platforms">Online Platforms</label>
+                            <div class="relative">
+                                <i class="fas fa-laptop absolute left-3 top-3 text-gray-400"></i>
+                                <textarea id="admin-platforms" class="form-input pl-10" rows="4" placeholder="One platform per line"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Results Section -->
+                <section id="results-section" class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="border-b border-gray-100 p-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-chart-pie text-blue-600"></i>
+                            Results
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div id="admin-results-container" class="space-y-4">
+                            <!-- Results will be dynamically generated here -->
+                        </div>
+                        <button id="addResultBtn" class="mt-4 flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors">
+                            <i class="fas fa-plus"></i>
+                            <span>Add Subject</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Contact Section -->
+                <section id="contact-section" class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="border-b border-gray-100 p-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-envelope text-blue-600"></i>
+                            Contact Information
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label class="form-label" for="admin-email">Email</label>
+                                <div class="relative">
+                                    <i class="fas fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                    <input type="email" id="admin-email" class="form-input pl-10" placeholder="Your email">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="admin-phone">Phone</label>
+                                <div class="relative">
+                                    <i class="fas fa-phone absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                    <input type="tel" id="admin-phone" class="form-input pl-10" placeholder="Your phone number">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="admin-form-url">Registration Form URL</label>
+                                <div class="relative">
+                                    <i class="fas fa-link absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                    <input type="url" id="admin-form-url" class="form-input pl-10" placeholder="Registration form URL">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="admin-assistant-form-url">Assistant Form URL</label>
+                                <div class="relative">
+                                    <i class="fas fa-user-plus absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                    <input type="url" id="admin-assistant-form-url" class="form-input pl-10" placeholder="Assistant application form URL">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mt-6">
+                            <label class="form-label" for="admin-contact-message">Contact Message</label>
+                            <div class="relative">
+                                <i class="fas fa-comment absolute left-3 top-3 text-gray-400"></i>
+                                <textarea id="admin-contact-message" class="form-input pl-10" rows="3" placeholder="Message for contact section"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Theme Section -->
+                <section id="theme-section" class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="border-b border-gray-100 p-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-paint-brush text-blue-600"></i>
+                            Theme Settings
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="mb-6">
+                            <label class="form-label">Color Theme</label>
+                            <div class="grid grid-cols-5 gap-4 mt-2">
+                                <div class="theme-color-option">
+                                    <input type="radio" name="theme-color" id="theme-blue" value="blue" checked class="sr-only">
+                                    <label for="theme-blue" class="theme-color-label bg-blue-600">
+                                        <i class="fas fa-check text-white"></i>
+                                    </label>
+                                </div>
+                                <div class="theme-color-option">
+                                    <input type="radio" name="theme-color" id="theme-green" value="green" class="sr-only">
+                                    <label for="theme-green" class="theme-color-label bg-green-600">
+                                        <i class="fas fa-check text-white"></i>
+                                    </label>
+                                </div>
+                                <div class="theme-color-option">
+                                    <input type="radio" name="theme-color" id="theme-purple" value="purple" class="sr-only">
+                                    <label for="theme-purple" class="theme-color-label bg-purple-600">
+                                        <i class="fas fa-check text-white"></i>
+                                    </label>
+                                </div>
+                                <div class="theme-color-option">
+                                    <input type="radio" name="theme-color" id="theme-red" value="red" class="sr-only">
+                                    <label for="theme-red" class="theme-color-label bg-red-600">
+                                        <i class="fas fa-check text-white"></i>
+                                    </label>
+                                </div>
+                                <div class="theme-color-option">
+                                    <input type="radio" name="theme-color" id="theme-gray" value="gray" class="sr-only">
+                                    <label for="theme-gray" class="theme-color-label bg-gray-600">
+                                        <i class="fas fa-check text-white"></i>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <label class="form-label">Display Mode</label>
+                            <div class="grid grid-cols-2 gap-4 mt-2">
+                                <div class="theme-mode-option">
+                                    <input type="radio" name="theme-mode" id="mode-light" value="light" checked class="sr-only">
+                                    <label for="mode-light" class="theme-mode-label bg-white border border-gray-200">
+                                        <i class="fas fa-sun text-yellow-500 mr-2"></i>
+                                        <span>Light Mode</span>
+                                    </label>
+                                </div>
+                                <div class="theme-mode-option">
+                                    <input type="radio" name="theme-mode" id="mode-dark" value="dark" class="sr-only">
+                                    <label for="mode-dark" class="theme-mode-label bg-gray-800 text-white">
+                                        <i class="fas fa-moon text-blue-400 mr-2"></i>
+                                        <span>Dark Mode</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="previewThemeBtn" class="btn-preview-theme">
+                            <i class="fas fa-eye mr-2"></i>
+                            Preview Theme
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Security Section -->
+                <section id="security-section" class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="border-b border-gray-100 p-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-lock text-blue-600"></i>
+                            Security Settings
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="form-group">
+                            <label class="form-label" for="adminPassword">Admin Password</label>
+                            <div class="relative">
+                                <i class="fas fa-key absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input type="password" id="adminPassword" class="form-input pl-10" placeholder="Enter new password">
+                            </div>
+                        </div>
+                        <button id="changePasswordBtn" class="btn-change-password mt-4">
+                            <i class="fas fa-lock mr-2"></i>
+                            Change Password
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Images Section -->
+                <section id="images-section" class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="border-b border-gray-100 p-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-images text-blue-600"></i>
+                            Website Images
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <!-- Hero Image Upload -->
+                            <div class="image-upload-card">
+                                <h4 class="text-lg font-semibold mb-4">Hero Image</h4>
+                                <div id="heroDropZone" class="upload-zone">
+                                    <input type="file" id="heroImageInput" accept="image/*" class="hidden">
+                                    <div class="upload-content">
+                                        <i class="fas fa-cloud-upload-alt text-4xl mb-2"></i>
+                                        <p>Drag & drop or click to upload</p>
+                                        <span class="text-sm text-gray-500">Recommended: 1200x800px</span>
+                                    </div>
+                                </div>
+                                <div id="heroPreview" class="image-preview hidden">
+                                    <img src="" alt="Hero Preview">
+                                    <button id="removeHeroBtn" class="remove-image-btn">
+                                        <i class="fas fa-trash"></i>
                                     </button>
-                                    <div class="mt-3 flex items-center justify-center">
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">or drag and drop your image here</p>
-                                        <span class="relative group ml-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 cursor-help">
-                                                <circle cx="12" cy="12" r="10"></circle>
-                                                <line x1="12" y1="16" x2="12" y2="12"></line>
-                                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                            </svg>
-                                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-gray-800 text-xs text-white rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">Recommended size: 1200x800px</span>
-                                        </span>
-                                    </div>
-                                    <div id="heroUploadSpinner" class="hidden mt-3 flex justify-center">
-                                        <svg class="animate-spin h-5 w-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                    </div>
                                 </div>
                             </div>
-                            <div id="heroPreview" class="hidden w-full md:w-56 bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden transition-all duration-300 hover:shadow-md">
-                                <div class="relative group">
-                                    <img src="" alt="Hero Preview" class="w-full h-40 object-cover">
-                                    <div class="absolute top-2 right-2">
-                                        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full p-1.5 shadow-sm transform scale-90 hover:scale-100 transition-all duration-300">
-                                            <button id="removeHeroBtn" class="text-red-500 hover:text-red-600 transition-colors" aria-label="Remove hero image">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
-                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                                                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="p-2 text-xs text-gray-500 dark:text-gray-400 text-center">Hero Image</div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- About Image Upload -->
-                    <div class="bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm rounded-xl p-5 transition-all duration-300 hover:shadow-md">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">About Image</label>
-                        <div class="flex flex-col md:flex-row gap-4 items-start">
-                            <div class="relative flex-1">
-                                <input type="file" id="aboutImageInput" accept="image/*" class="hidden">
-                                <div id="aboutDropZone" class="border border-gray-200 dark:border-gray-600 rounded-lg p-5 transition-all duration-300 hover:border-purple-400 dark:hover:border-purple-300 cursor-pointer focus-within:ring-2 focus-within:ring-purple-400 dark:focus-within:ring-purple-300" tabindex="0" role="button" aria-label="Upload about image by clicking or dropping a file">
-                                    <button id="aboutUploadBtn" class="w-full px-5 py-2.5 border border-purple-500 dark:border-purple-400 text-purple-600 dark:text-purple-300 bg-transparent hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 group">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-1">
-                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                            <polyline points="17 8 12 3 7 8"></polyline>
-                                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                                        </svg>
-                                        <span>Upload About Image</span>
+                            <!-- About Image Upload -->
+                            <div class="image-upload-card">
+                                <h4 class="text-lg font-semibold mb-4">About Image</h4>
+                                <div id="aboutDropZone" class="upload-zone">
+                                    <input type="file" id="aboutImageInput" accept="image/*" class="hidden">
+                                    <div class="upload-content">
+                                        <i class="fas fa-cloud-upload-alt text-4xl mb-2"></i>
+                                        <p>Drag & drop or click to upload</p>
+                                        <span class="text-sm text-gray-500">Recommended: 800x800px</span>
+                                    </div>
+                                </div>
+                                <div id="aboutPreview" class="image-preview hidden">
+                                    <img src="" alt="About Preview">
+                                    <button id="removeAboutBtn" class="remove-image-btn">
+                                        <i class="fas fa-trash"></i>
                                     </button>
-                                    <div class="mt-3 flex items-center justify-center">
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">or drag and drop your image here</p>
-                                        <span class="relative group ml-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 cursor-help">
-                                                <circle cx="12" cy="12" r="10"></circle>
-                                                <line x1="12" y1="16" x2="12" y2="12"></line>
-                                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                            </svg>
-                                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-gray-800 text-xs text-white rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">Recommended size: 800x800px</span>
-                                        </span>
-                                    </div>
-                                    <div id="aboutUploadSpinner" class="hidden mt-3 flex justify-center">
-                                        <svg class="animate-spin h-5 w-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                    </div>
                                 </div>
-                            </div>
-                            <div id="aboutPreview" class="hidden w-full md:w-56 bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden transition-all duration-300 hover:shadow-md">
-                                <div class="relative group">
-                                    <img src="" alt="About Preview" class="w-full h-40 object-cover">
-                                    <div class="absolute top-2 right-2">
-                                        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full p-1.5 shadow-sm transform scale-90 hover:scale-100 transition-all duration-300">
-                                            <button id="removeAboutBtn" class="text-red-500 hover:text-red-600 transition-colors" aria-label="Remove about image">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
-                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                                                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="p-2 text-xs text-gray-500 dark:text-gray-400 text-center">About Image</div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
             </div>
 
-            <div class="flex justify-end">
-                <button id="saveChangesBtn" class="btn btn-primary">
-                    <i class="fas fa-save mr-2"></i> Save Changes
+            <!-- Save Changes Button -->
+            <div class="fixed bottom-6 right-6">
+                <button id="saveChangesBtn" class="save-changes-btn">
+                    <i class="fas fa-save mr-2"></i>
+                    Save Changes
                 </button>
             </div>
         </div>
     </div>
+
+    <style>
+    /* Admin Panel Styles */
+    .admin-nav-link {
+        @apply flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-all;
+    }
+
+    .admin-nav-link.active {
+        @apply bg-blue-50 text-blue-600 font-medium;
+    }
+
+    .admin-nav-link i {
+        @apply w-5;
+    }
+
+    .form-group {
+        @apply space-y-2;
+    }
+
+    .form-label {
+        @apply block text-sm font-medium text-gray-700;
+    }
+
+    .form-input {
+        @apply w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all;
+    }
+
+    .theme-color-label {
+        @apply flex items-center justify-center w-12 h-12 rounded-lg cursor-pointer transition-all hover:ring-2 hover:ring-offset-2;
+    }
+
+    .theme-mode-label {
+        @apply flex items-center justify-center px-4 py-3 rounded-lg cursor-pointer transition-all hover:ring-2 hover:ring-blue-500;
+    }
+
+    .btn-preview-theme {
+        @apply w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all;
+    }
+
+    .btn-change-password {
+        @apply flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all;
+    }
+
+    .upload-zone {
+        @apply border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 transition-all;
+    }
+
+    .upload-content {
+        @apply text-gray-500 space-y-2;
+    }
+
+    .image-preview {
+        @apply relative mt-4 rounded-lg overflow-hidden;
+    }
+
+    .image-preview img {
+        @apply w-full h-48 object-cover;
+    }
+
+    .remove-image-btn {
+        @apply absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all;
+    }
+
+    .save-changes-btn {
+        @apply flex items-center px-6 py-3 bg-blue-600 text-white rounded-full text-lg font-medium hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl;
+    }
+
+    /* Dark mode styles */
+    .dark .admin-nav-link {
+        @apply text-gray-400 hover:bg-gray-800 hover:text-white;
+    }
+
+    .dark .admin-nav-link.active {
+        @apply bg-gray-800 text-white;
+    }
+
+    .dark .form-input {
+        @apply bg-gray-800 border-gray-700 text-white;
+    }
+
+    .dark .theme-mode-label {
+        @apply hover:ring-blue-400;
+    }
+
+    .dark .upload-zone {
+        @apply border-gray-700 hover:border-blue-400;
+    }
+
+    .dark .upload-content {
+        @apply text-gray-400;
+    }
+    </style>
 
     <!-- Change Password Section in Admin Panel -->
     <div id="changePasswordSection" class="fixed bottom-0 left-0 right-0 bg-blue-50 border-t border-blue-200 p-4 z-[1002] hidden">
