@@ -2259,7 +2259,7 @@ function updateSiteContent(data) {
 
 // Update results chart with new data
 function updateResultsChart(subjects) {
-    console.log('📊 Attempting to update results chart with subjects:', subjects);
+    console.log('📊 Attempting to update results charts with subjects:', subjects);
     
     // Ensure we have data to work with
     if (!subjects || !Array.isArray(subjects) || subjects.length === 0) {
@@ -2272,114 +2272,106 @@ function updateResultsChart(subjects) {
         console.error('❌ Chart.js is not loaded or available');
         return;
     }
-    
-    // Get the chart canvas
-    const ctx = document.getElementById('resultsChart');
-    if (!ctx) {
-        console.error('❌ Chart canvas element not found. Make sure the element exists in the HTML.');
+
+    // Get the charts container
+    const chartsContainer = document.getElementById('charts-container');
+    if (!chartsContainer) {
+        console.error('❌ Charts container element not found');
         return;
     }
+
+    // Clear existing charts
+    chartsContainer.innerHTML = '';
     
     try {
-        // First destroy any existing chart to prevent memory leaks and conflicts
-        if (window.resultsChart && typeof window.resultsChart.destroy === 'function') {
-            try {
-                window.resultsChart.destroy();
-                window.resultsChart = null;
-                console.log('🔄 Previous chart instance destroyed');
-            } catch (e) {
-                console.error('❌ Error destroying chart during data reset:', e);
-            }
-        }
+        // Create a chart for each subject
+        subjects.forEach(subject => {
+            // Create chart container
+            const chartWrapper = document.createElement('div');
+            chartWrapper.className = 'bg-white rounded-lg shadow-lg p-6';
+            chartWrapper.style.height = '400px';
 
-        // Calculate total grades and percentages for each subject
-        const chartData = subjects.map(subject => {
+            const canvas = document.createElement('canvas');
+            canvas.id = `chart-${subject.subject.toLowerCase().replace(/\s+/g, '-')}`;
+            chartWrapper.appendChild(canvas);
+            chartsContainer.appendChild(chartWrapper);
+
+            // Calculate percentages
             const total = subject.astar + subject.a + subject.other;
-            return {
-                subject: subject.subject,
+            const data = {
                 astarPercent: ((subject.astar / total) * 100).toFixed(1),
                 aPercent: ((subject.a / total) * 100).toFixed(1),
-                otherPercent: ((subject.other / total) * 100).toFixed(1),
-                total: total
+                otherPercent: ((subject.other / total) * 100).toFixed(1)
             };
-        });
-        
-        // Log the processed data
-        console.log('📈 Creating chart with processed data:', chartData);
-        
-        // Create the new chart
-        window.resultsChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['A*', 'A', 'Other Grades'],
-                datasets: [{
-                    data: [
-                        chartData.reduce((sum, item) => sum + parseFloat(item.astarPercent), 0) / chartData.length,
-                        chartData.reduce((sum, item) => sum + parseFloat(item.aPercent), 0) / chartData.length,
-                        chartData.reduce((sum, item) => sum + parseFloat(item.otherPercent), 0) / chartData.length
-                    ],
-                    backgroundColor: [
-                        'rgba(54, 162, 235, 0.8)',  // Blue for A*
-                        'rgba(75, 192, 192, 0.8)',  // Green for A
-                        'rgba(255, 159, 64, 0.8)'   // Orange for Other
-                    ],
-                    borderColor: [
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: subjects.map(s => s.subject).join(', '),
-                        font: {
-                            size: 16,
-                            weight: 'bold',
-                            family: "'Inter', sans-serif"
-                        },
-                        padding: {
-                            bottom: 20
-                        }
-                    },
-                    legend: {
-                        position: 'right',
-                        labels: {
+
+            // Create the chart
+            new Chart(canvas, {
+                type: 'pie',
+                data: {
+                    labels: ['A*', 'A', 'Other Grades'],
+                    datasets: [{
+                        data: [
+                            parseFloat(data.astarPercent),
+                            parseFloat(data.aPercent),
+                            parseFloat(data.otherPercent)
+                        ],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.8)',  // Blue for A*
+                            'rgba(75, 192, 192, 0.8)',  // Green for A
+                            'rgba(255, 159, 64, 0.8)'   // Orange for Other
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: subject.subject,
                             font: {
+                                size: 16,
+                                weight: 'bold',
                                 family: "'Inter', sans-serif"
+                            },
+                            padding: {
+                                bottom: 20
                             }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const value = context.raw.toFixed(1);
-                                const label = context.label;
-                                const totalStudents = chartData.reduce((sum, item) => sum + item.total, 0);
-                                const gradeCount = label === 'A*' ? 
-                                    subjects.reduce((sum, item) => sum + item.astar, 0) :
-                                    label === 'A' ? 
-                                        subjects.reduce((sum, item) => sum + item.a, 0) :
-                                        subjects.reduce((sum, item) => sum + item.other, 0);
-                                return `${label}: ${value}% (${gradeCount} students)`;
+                        },
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: {
+                                    family: "'Inter', sans-serif"
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw.toFixed(1);
+                                    const label = context.label;
+                                    let count = 0;
+                                    if (label === 'A*') count = subject.astar;
+                                    else if (label === 'A') count = subject.a;
+                                    else count = subject.other;
+                                    return `${label}: ${value}% (${count} students)`;
+                                }
                             }
                         }
                     }
-                },
-                animation: {
-                    duration: 1000,
-                    easing: 'easeOutQuart'
                 }
-            }
+            });
         });
-        console.log('✅ Chart created/updated successfully');
+        console.log('✅ Charts created/updated successfully');
     } catch (error) {
-        console.error('❌ Failed to create/update chart:', error);
+        console.error('❌ Failed to create/update charts:', error);
     }
 }
 
