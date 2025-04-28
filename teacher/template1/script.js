@@ -1877,53 +1877,60 @@ function populateAdminForm(data) {
 
 // Populate results form
 function populateResultsForm(subjects) {
-    if (!adminResultsContainer) return;
+    const container = document.getElementById('admin-results-container');
+    container.innerHTML = '';
     
-    // Clear container
-    adminResultsContainer.innerHTML = '';
-    
-    // Add each subject
-    subjects.forEach((subject, index) => {
-        addResultItem(subject.name, subject.score);
-    });
-    
-    // Add an empty one if none exist
-    if (subjects.length === 0) {
-        addResultItem('', '');
+    if (subjects && subjects.length > 0) {
+        subjects.forEach(subject => {
+            addResultItem(
+                subject.subject || '',
+                subject.score || '',
+                subject.astar || '',
+                subject.a || '',
+                subject.other || ''
+            );
+        });
+    } else {
+        addResultItem();
     }
 }
 
 // Add a new result item to the form
-function addResultItem(name = '', score = '') {
-    if (!adminResultsContainer) return;
-    
+function addResultItem(name = '', score = '', astar = '', a = '', other = '') {
     const resultItem = document.createElement('div');
-    resultItem.className = 'admin-result-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-lg';
+    resultItem.className = 'result-item bg-gray-50 p-4 rounded-lg mb-4';
     resultItem.innerHTML = `
-        <div class="flex-grow">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Subject Name</label>
-            <input type="text" class="subject-name form-input w-full" value="${name}" placeholder="e.g. Mathematics">
-        </div>
-        <div class="w-24">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Score (%)</label>
-            <input type="number" class="subject-score form-input w-full" value="${score}" min="0" max="100" placeholder="0-100">
-        </div>
-        <div>
-            <button type="button" class="remove-result-btn mt-6 p-2 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors">
-                <i class="fas fa-times"></i>
-            </button>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+                <label class="form-label">Subject</label>
+                <input type="text" class="form-input subject-name" value="${name}" placeholder="e.g., Mathematics">
+            </div>
+            <div>
+                <label class="form-label">A* Students</label>
+                <input type="number" class="form-input astar-count" value="${astar}" placeholder="Number of A* students">
+            </div>
+            <div>
+                <label class="form-label">A Students</label>
+                <input type="number" class="form-input a-count" value="${a}" placeholder="Number of A students">
+            </div>
+            <div>
+                <label class="form-label">Other Grades</label>
+                <input type="number" class="form-input other-count" value="${other}" placeholder="Number of other grades">
+            </div>
+            <div class="flex items-end">
+                <button class="remove-result-btn bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition-colors">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
         </div>
     `;
-    
-    // Add event listener to remove button
+
     const removeBtn = resultItem.querySelector('.remove-result-btn');
-    if (removeBtn) {
-        removeBtn.addEventListener('click', () => {
-            resultItem.remove();
-        });
-    }
-    
-    adminResultsContainer.appendChild(resultItem);
+    removeBtn.addEventListener('click', () => {
+        resultItem.remove();
+    });
+
+    document.getElementById('admin-results-container').appendChild(resultItem);
 }
 
 // Initialize DOM elements
@@ -2546,31 +2553,28 @@ async function saveAdminChanges() {
 
 // Helper function to collect results data from form
 function collectResultsData() {
-    const resultsContainer = document.getElementById('admin-results-container');
-    const resultRows = resultsContainer.querySelectorAll('.admin-result-row');
     const results = [];
-
-    resultRows.forEach(row => {
-        const nameInput = row.querySelector('.subject-name');
-        const scoreInput = row.querySelector('.subject-score');
+    document.querySelectorAll('.result-item').forEach(item => {
+        const subject = item.querySelector('.subject-name').value;
+        const astar = parseInt(item.querySelector('.astar-count').value) || 0;
+        const a = parseInt(item.querySelector('.a-count').value) || 0;
+        const other = parseInt(item.querySelector('.other-count').value) || 0;
         
-        if (nameInput && scoreInput) {
-            const name = nameInput.value.trim();
-            const scoreVal = parseInt(scoreInput.value);
-            const score = isNaN(scoreVal) ? 0 : Math.min(Math.max(scoreVal, 0), 100);
-            
-            if (name) {
-                results.push({ name, score });
-            }
+        if (subject) {
+            results.push({
+                subject,
+                astar,
+                a,
+                other
+            });
         }
     });
-
     return results;
 }
 
 // Add new result when clicking the Add Subject button
 function addNewResult() {
-    addResultItem('', '');
+    addResultItem('', '', '', '', '');
 }
 
 // Close admin panel
