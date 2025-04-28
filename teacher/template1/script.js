@@ -2335,6 +2335,18 @@ function updateResultsChart(subjects) {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
+                    title: {
+                        display: true,
+                        text: subjects.map(s => s.subject).join(', '),
+                        font: {
+                            size: 16,
+                            weight: 'bold',
+                            family: "'Inter', sans-serif"
+                        },
+                        padding: {
+                            bottom: 20
+                        }
+                    },
                     legend: {
                         position: 'right',
                         labels: {
