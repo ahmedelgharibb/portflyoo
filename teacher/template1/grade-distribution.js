@@ -4,7 +4,7 @@ async function loadGradeDistribution() {
         const { data, error } = await supabase
             .from('grade_distribution')
             .select('*')
-            .order('subject_name');
+            .order('subject');
 
         if (error) throw error;
 
@@ -24,14 +24,14 @@ function updateGradeDistributionUI(subjects) {
 
     container.innerHTML = subjects.map(subject => `
         <div class="subject-grade-card bg-white rounded-lg shadow-lg p-6 mb-6">
-            <h3 class="text-xl font-semibold mb-4">${subject.subject_name}</h3>
+            <h3 class="text-xl font-semibold mb-4">${subject.subject}</h3>
             <div class="grid grid-cols-3 gap-4">
                 <div class="grade-input">
                     <label class="block text-sm font-medium text-gray-700 mb-1">A* Students</label>
                     <input type="number" 
                            class="a-star-input w-full px-3 py-2 border rounded-md" 
                            value="${subject.a_star_count}"
-                           data-subject="${subject.subject_name}"
+                           data-subject="${subject.subject}"
                            min="0">
                 </div>
                 <div class="grade-input">
@@ -39,7 +39,7 @@ function updateGradeDistributionUI(subjects) {
                     <input type="number" 
                            class="a-input w-full px-3 py-2 border rounded-md" 
                            value="${subject.a_count}"
-                           data-subject="${subject.subject_name}"
+                           data-subject="${subject.subject}"
                            min="0">
                 </div>
                 <div class="grade-input">
@@ -47,12 +47,12 @@ function updateGradeDistributionUI(subjects) {
                     <input type="number" 
                            class="rest-input w-full px-3 py-2 border rounded-md" 
                            value="${subject.rest_count}"
-                           data-subject="${subject.subject_name}"
+                           data-subject="${subject.subject}"
                            min="0">
                 </div>
             </div>
             <div class="mt-4" style="height: 300px;">
-                <canvas id="chart-${subject.subject_name.toLowerCase().replace(/\s+/g, '-')}"></canvas>
+                <canvas id="chart-${subject.subject.toLowerCase().replace(/\s+/g, '-')}"></canvas>
             </div>
         </div>
     `).join('');
@@ -65,7 +65,7 @@ function updateGradeDistributionUI(subjects) {
 
 function initializeSubjectCharts(subjects) {
     subjects.forEach(subject => {
-        const canvasId = `chart-${subject.subject_name.toLowerCase().replace(/\s+/g, '-')}`;
+        const canvasId = `chart-${subject.subject.toLowerCase().replace(/\s+/g, '-')}`;
         const ctx = document.getElementById(canvasId)?.getContext('2d');
         if (!ctx) return;
 
@@ -130,7 +130,7 @@ async function handleGradeInputChange(e) {
         const { error } = await supabase
             .from('grade_distribution')
             .update({ [gradeType]: value })
-            .eq('subject_name', subjectName);
+            .eq('subject', subjectName);
 
         if (error) throw error;
 
