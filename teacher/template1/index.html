@@ -1592,405 +1592,366 @@
     <!-- Admin Panel -->
     <div id="adminPanel" class="fixed inset-0 bg-gray-100/95 backdrop-blur-md z-[1000] overflow-auto hidden">
         <!-- Sidebar -->
-        <div class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-10">
-            <div class="p-6 border-b">
-                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                    <i class="fas fa-shield-alt text-blue-600"></i>
+        <div class="admin-sidebar">
+            <div class="p-6 border-b border-gray-700">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <i class="fas fa-shield-alt text-blue-400"></i>
                     Admin Panel
                 </h2>
             </div>
             <nav class="p-4">
                 <ul class="space-y-2">
                     <li>
-                        <a href="#personal-info" class="admin-nav-link active">
+                        <a href="#dashboard" class="admin-nav-link active">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#personal-info" class="admin-nav-link">
                             <i class="fas fa-user"></i>
                             <span>Personal Info</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#experience-section" class="admin-nav-link">
+                        <a href="#experience" class="admin-nav-link">
                             <i class="fas fa-briefcase"></i>
                             <span>Experience</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#results-section" class="admin-nav-link">
+                        <a href="#results" class="admin-nav-link">
                             <i class="fas fa-chart-pie"></i>
                             <span>Results</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#contact-section" class="admin-nav-link">
-                            <i class="fas fa-envelope"></i>
-                            <span>Contact</span>
+                        <a href="#subjects" class="admin-nav-link">
+                            <i class="fas fa-book"></i>
+                            <span>Subjects</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#theme-section" class="admin-nav-link">
+                        <a href="#theme" class="admin-nav-link">
                             <i class="fas fa-paint-brush"></i>
                             <span>Theme</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#security-section" class="admin-nav-link">
+                        <a href="#security" class="admin-nav-link">
                             <i class="fas fa-lock"></i>
                             <span>Security</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="#images-section" class="admin-nav-link">
-                            <i class="fas fa-images"></i>
-                            <span>Images</span>
-                        </a>
-                    </li>
                 </ul>
             </nav>
-            <div class="absolute bottom-0 left-0 right-0 p-4 border-t bg-white">
-                <button id="logoutBtn" class="w-full flex items-center justify-center gap-2 text-red-600 hover:text-red-700 transition-colors">
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700 bg-gray-800">
+                <button id="logoutBtn" class="w-full flex items-center justify-center gap-2 text-red-400 hover:text-red-300 transition-colors">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
-                </button>
+                    </button>
+                </div>
             </div>
-        </div>
-
+            
         <!-- Main Content -->
-        <div class="ml-64 p-8">
-            <div class="flex justify-between items-center mb-8">
-                <div class="flex items-center gap-4">
-                    <div class="bg-blue-600 text-white p-3 rounded-lg">
-                        <i class="fas fa-user-shield text-xl"></i>
+        <div class="admin-content">
+            <!-- Header -->
+            <div class="admin-header">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-3 rounded-xl shadow-lg">
+                            <i class="fas fa-user-shield text-xl"></i>
                     </div>
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-800">Welcome Back, Admin</h2>
-                        <p class="text-gray-600">Manage your website content</p>
+                            <h2 class="text-2xl font-bold text-gray-800">Welcome Back, Admin</h2>
+                            <p class="text-gray-600">Manage your portfolio content</p>
                     </div>
                 </div>
-                <button id="closeAdminPanel" class="bg-white p-2 rounded-full hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
+                    <button id="closeAdminPanel" class="bg-white p-3 rounded-full hover:bg-gray-50 transition-colors shadow-md">
+                        <i class="fas fa-times text-xl text-gray-600"></i>
+                    </button>
+                </div>
+                </div>
 
             <!-- Alert Container -->
             <div id="adminAlertContainer" class="mb-6"></div>
 
-            <!-- Content Sections -->
-            <div class="space-y-6">
-                <!-- Personal Information -->
-                <section id="personal-info" class="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div class="border-b border-gray-100 p-6">
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <i class="fas fa-user text-blue-600"></i>
-                            Personal Information
-                        </h3>
-                    </div>
-                    <div class="p-6 space-y-6">
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div class="form-group">
-                                <label class="form-label" for="admin-name">Name</label>
-                                <div class="relative">
-                                    <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                    <input type="text" id="admin-name" class="form-input pl-10" placeholder="Your name">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="admin-title">Title</label>
-                                <div class="relative">
-                                    <i class="fas fa-graduation-cap absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                    <input type="text" id="admin-title" class="form-input pl-10" placeholder="Your title">
-                                </div>
-                            </div>
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="space-y-6">
+                <!-- Stats Grid -->
+                <div class="admin-stats-grid">
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-icon">
+                            <i class="fas fa-users"></i>
+                </div>
+                        <div class="admin-stat-value">2,458</div>
+                        <div class="admin-stat-label">Total Students</div>
+                </div>
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-icon" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(21, 128, 61, 0.1) 100%); color: #22c55e;">
+                            <i class="fas fa-graduation-cap"></i>
+                </div>
+                        <div class="admin-stat-value">94%</div>
+                        <div class="admin-stat-label">Pass Rate</div>
+            </div>
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-icon" style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.1) 0%, rgba(194, 65, 12, 0.1) 100%); color: #f97316;">
+                            <i class="fas fa-star"></i>
+                </div>
+                        <div class="admin-stat-value">4.8</div>
+                        <div class="admin-stat-label">Average Rating</div>
+                </div>
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-icon" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(126, 34, 206, 0.1) 100%); color: #a855f7;">
+                            <i class="fas fa-book-open"></i>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label" for="admin-subtitle">Subtitle/Role</label>
-                            <div class="relative">
-                                <i class="fas fa-id-badge absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" id="admin-subtitle" class="form-input pl-10" placeholder="Your role or subtitle">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="admin-hero-heading">Hero Heading</label>
-                            <div class="relative">
-                                <i class="fas fa-heading absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" id="admin-hero-heading" class="form-input pl-10" placeholder="Main heading for hero section">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="admin-experience">Experience</label>
-                            <div class="relative">
-                                <i class="fas fa-briefcase absolute left-3 top-3 text-gray-400"></i>
-                                <textarea id="admin-experience" class="form-input pl-10" rows="3" placeholder="Your experience"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="admin-philosophy">Teaching Philosophy</label>
-                            <div class="relative">
-                                <i class="fas fa-book absolute left-3 top-3 text-gray-400"></i>
-                                <textarea id="admin-philosophy" class="form-input pl-10" rows="4" placeholder="Your teaching philosophy"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="admin-qualifications">Qualifications</label>
-                            <div class="relative">
-                                <i class="fas fa-certificate absolute left-3 top-3 text-gray-400"></i>
-                                <textarea id="admin-qualifications" class="form-input pl-10" rows="4" placeholder="One qualification per line"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                        <div class="admin-stat-value">12</div>
+                        <div class="admin-stat-label">Active Courses</div>
+                </div>
+            </div>
+            
+                <!-- Recent Activity -->
+                <div class="admin-section">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Recent Activity</h3>
+                    <div class="overflow-x-auto">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="flex items-center gap-3">
+                                        <i class="fas fa-user-plus text-blue-500"></i>
+                                        <span>New student registration</span>
+                                    </td>
+                                    <td>2 hours ago</td>
+                                    <td><span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-sm">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="flex items-center gap-3">
+                                        <i class="fas fa-chart-bar text-purple-500"></i>
+                                        <span>Results updated</span>
+                                    </td>
+                                    <td>5 hours ago</td>
+                                    <td><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">Processing</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="flex items-center gap-3">
+                                        <i class="fas fa-paint-brush text-orange-500"></i>
+                                        <span>Theme customization</span>
+                                    </td>
+                                    <td>1 day ago</td>
+                                    <td><span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-sm">Completed</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                </div>
+            </div>
+            </section>
 
-                <!-- Experience Section -->
-                <section id="experience-section" class="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div class="border-b border-gray-100 p-6">
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <i class="fas fa-briefcase text-blue-600"></i>
-                            Experience
-                        </h3>
-                    </div>
-                    <div class="p-6 space-y-6">
-                        <div class="form-group">
-                            <label class="form-label" for="admin-schools">Schools</label>
+            <!-- Personal Information Section -->
+            <section id="personal-info" class="admin-section hidden">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">Personal Information</h3>
+                <form class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="admin-form-group">
+                            <label class="admin-form-label" for="admin-name">Full Name</label>
                             <div class="relative">
-                                <i class="fas fa-school absolute left-3 top-3 text-gray-400"></i>
-                                <textarea id="admin-schools" class="form-input pl-10" rows="4" placeholder="One school per line"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="admin-centers">Centers</label>
-                            <div class="relative">
-                                <i class="fas fa-building absolute left-3 top-3 text-gray-400"></i>
-                                <textarea id="admin-centers" class="form-input pl-10" rows="4" placeholder="One center per line"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="admin-platforms">Online Platforms</label>
-                            <div class="relative">
-                                <i class="fas fa-laptop absolute left-3 top-3 text-gray-400"></i>
-                                <textarea id="admin-platforms" class="form-input pl-10" rows="4" placeholder="One platform per line"></textarea>
-                            </div>
-                        </div>
+                                <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="admin-name" class="admin-form-input pl-10" placeholder="Enter your full name">
                     </div>
-                </section>
-
-                <!-- Results Section -->
-                <section id="results-section" class="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div class="border-b border-gray-100 p-6">
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <i class="fas fa-chart-pie text-blue-600"></i>
-                            Results
-                        </h3>
                     </div>
-                    <div class="p-6">
-                        <div id="admin-results-container" class="space-y-4">
-                            <!-- Results will be dynamically generated here -->
-                        </div>
-                        <button id="addResultBtn" class="mt-4 flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors">
-                            <i class="fas fa-plus"></i>
-                            <span>Add Subject</span>
+                        <div class="admin-form-group">
+                            <label class="admin-form-label" for="admin-title">Professional Title</label>
+                            <div class="relative">
+                                <i class="fas fa-graduation-cap absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="admin-title" class="admin-form-input pl-10" placeholder="Enter your title">
+                </div>
+                    </div>
+                    </div>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label" for="admin-bio">Biography</label>
+                        <textarea id="admin-bio" class="admin-form-input" rows="4" placeholder="Write a brief biography"></textarea>
+                </div>
+                    <div class="flex justify-end gap-3">
+                        <button type="button" class="admin-btn admin-btn-secondary">
+                            <i class="fas fa-undo"></i>
+                            <span>Reset</span>
+                        </button>
+                        <button type="submit" class="admin-btn admin-btn-primary">
+                            <i class="fas fa-save"></i>
+                            <span>Save Changes</span>
                         </button>
                     </div>
-                </section>
+                </form>
+            </section>
 
-                <!-- Contact Section -->
-                <section id="contact-section" class="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div class="border-b border-gray-100 p-6">
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <i class="fas fa-envelope text-blue-600"></i>
-                            Contact Information
-                        </h3>
-                    </div>
-                    <div class="p-6">
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div class="form-group">
-                                <label class="form-label" for="admin-email">Email</label>
-                                <div class="relative">
-                                    <i class="fas fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                    <input type="email" id="admin-email" class="form-input pl-10" placeholder="Your email">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="admin-phone">Phone</label>
-                                <div class="relative">
-                                    <i class="fas fa-phone absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                    <input type="tel" id="admin-phone" class="form-input pl-10" placeholder="Your phone number">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="admin-form-url">Registration Form URL</label>
-                                <div class="relative">
-                                    <i class="fas fa-link absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                    <input type="url" id="admin-form-url" class="form-input pl-10" placeholder="Registration form URL">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="admin-assistant-form-url">Assistant Form URL</label>
-                                <div class="relative">
-                                    <i class="fas fa-user-plus absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                    <input type="url" id="admin-assistant-form-url" class="form-input pl-10" placeholder="Assistant application form URL">
-                                </div>
-                            </div>
+            <!-- Experience Section -->
+            <section id="experience" class="admin-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800">Teaching Experience</h3>
+                    <button class="admin-btn admin-btn-primary">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Experience</span>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <!-- Experience Items -->
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Senior IGCSE Teacher</h4>
+                                <p class="text-gray-600">International School</p>
+                                <p class="text-sm text-gray-500">2020 - Present</p>
+            </div>
+                        <div class="flex gap-2">
+                                <button class="admin-btn admin-btn-secondary p-2">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="admin-btn admin-btn-danger p-2">
+                                    <i class="fas fa-trash"></i>
+                            </button>
                         </div>
-                        <div class="form-group mt-6">
-                            <label class="form-label" for="admin-contact-message">Contact Message</label>
+                    </div>
+                        </div>
+                    </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="results" class="admin-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800">Student Results</h3>
+                    <button class="admin-btn admin-btn-primary">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Result</span>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <!-- Results Table -->
+                    <div class="overflow-x-auto">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>A*</th>
+                                    <th>A</th>
+                                    <th>Other</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody">
+                                <!-- Results will be populated dynamically -->
+                            </tbody>
+                        </table>
+            </div>
+                </div>
+            </section>
+
+            <!-- Theme Section -->
+            <section id="theme" class="admin-section hidden">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">Theme Customization</h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <h4 class="font-medium text-gray-700">Color Scheme</h4>
+                        <div class="grid grid-cols-4 gap-4">
+                        <div class="theme-color-option">
+                                <input type="radio" name="theme-color" id="theme-blue" class="hidden" checked>
+                                <label for="theme-blue" class="w-full h-12 rounded-lg bg-blue-500 cursor-pointer transition-transform hover:scale-105"></label>
+                        </div>
+                        <div class="theme-color-option">
+                                <input type="radio" name="theme-color" id="theme-green" class="hidden">
+                                <label for="theme-green" class="w-full h-12 rounded-lg bg-green-500 cursor-pointer transition-transform hover:scale-105"></label>
+                        </div>
+                        <div class="theme-color-option">
+                                <input type="radio" name="theme-color" id="theme-purple" class="hidden">
+                                <label for="theme-purple" class="w-full h-12 rounded-lg bg-purple-500 cursor-pointer transition-transform hover:scale-105"></label>
+                        </div>
+                        <div class="theme-color-option">
+                                <input type="radio" name="theme-color" id="theme-orange" class="hidden">
+                                <label for="theme-orange" class="w-full h-12 rounded-lg bg-orange-500 cursor-pointer transition-transform hover:scale-105"></label>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="font-medium text-gray-700">Mode</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                        <div class="theme-mode-option">
+                                <input type="radio" name="theme-mode" id="theme-light" class="hidden" checked>
+                                <label for="theme-light" class="flex items-center justify-center gap-2 p-4 rounded-lg bg-white border border-gray-200 cursor-pointer transition-all hover:border-blue-500">
+                                    <i class="fas fa-sun text-yellow-500"></i>
+                                <span>Light Mode</span>
+                            </label>
+                        </div>
+                        <div class="theme-mode-option">
+                                <input type="radio" name="theme-mode" id="theme-dark" class="hidden">
+                                <label for="theme-dark" class="flex items-center justify-center gap-2 p-4 rounded-lg bg-gray-900 text-white border border-gray-700 cursor-pointer transition-all hover:border-blue-500">
+                                    <i class="fas fa-moon text-blue-400"></i>
+                                <span>Dark Mode</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" class="admin-btn admin-btn-secondary">
+                        <i class="fas fa-undo"></i>
+                        <span>Reset</span>
+                    </button>
+                    <button type="button" class="admin-btn admin-btn-primary">
+                        <i class="fas fa-save"></i>
+                        <span>Apply Theme</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Security Section -->
+            <section id="security" class="admin-section hidden">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">Security Settings</h3>
+                <form class="space-y-6">
+                    <div class="admin-form-group">
+                        <label class="admin-form-label" for="current-password">Current Password</label>
+                        <div class="relative">
+                            <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="password" id="current-password" class="admin-form-input pl-10" placeholder="Enter current password">
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="admin-form-group">
+                            <label class="admin-form-label" for="new-password">New Password</label>
                             <div class="relative">
-                                <i class="fas fa-comment absolute left-3 top-3 text-gray-400"></i>
-                                <textarea id="admin-contact-message" class="form-input pl-10" rows="3" placeholder="Message for contact section"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Theme Section -->
-                <section id="theme-section" class="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div class="border-b border-gray-100 p-6">
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <i class="fas fa-paint-brush text-blue-600"></i>
-                            Theme Settings
-                        </h3>
-                    </div>
-                    <div class="p-6">
-                        <div class="mb-6">
-                            <label class="form-label">Color Theme</label>
-                            <div class="grid grid-cols-5 gap-4 mt-2">
-                                <div class="theme-color-option">
-                                    <input type="radio" name="theme-color" id="theme-blue" value="blue" checked class="sr-only">
-                                    <label for="theme-blue" class="theme-color-label bg-blue-600">
-                                        <i class="fas fa-check text-white"></i>
-                                    </label>
-                                </div>
-                                <div class="theme-color-option">
-                                    <input type="radio" name="theme-color" id="theme-green" value="green" class="sr-only">
-                                    <label for="theme-green" class="theme-color-label bg-green-600">
-                                        <i class="fas fa-check text-white"></i>
-                                    </label>
-                                </div>
-                                <div class="theme-color-option">
-                                    <input type="radio" name="theme-color" id="theme-purple" value="purple" class="sr-only">
-                                    <label for="theme-purple" class="theme-color-label bg-purple-600">
-                                        <i class="fas fa-check text-white"></i>
-                                    </label>
-                                </div>
-                                <div class="theme-color-option">
-                                    <input type="radio" name="theme-color" id="theme-red" value="red" class="sr-only">
-                                    <label for="theme-red" class="theme-color-label bg-red-600">
-                                        <i class="fas fa-check text-white"></i>
-                                    </label>
-                                </div>
-                                <div class="theme-color-option">
-                                    <input type="radio" name="theme-color" id="theme-gray" value="gray" class="sr-only">
-                                    <label for="theme-gray" class="theme-color-label bg-gray-600">
-                                        <i class="fas fa-check text-white"></i>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-6">
-                            <label class="form-label">Display Mode</label>
-                            <div class="grid grid-cols-2 gap-4 mt-2">
-                                <div class="theme-mode-option">
-                                    <input type="radio" name="theme-mode" id="mode-light" value="light" checked class="sr-only">
-                                    <label for="mode-light" class="theme-mode-label bg-white border border-gray-200">
-                                        <i class="fas fa-sun text-yellow-500 mr-2"></i>
-                                        <span>Light Mode</span>
-                                    </label>
-                                </div>
-                                <div class="theme-mode-option">
-                                    <input type="radio" name="theme-mode" id="mode-dark" value="dark" class="sr-only">
-                                    <label for="mode-dark" class="theme-mode-label bg-gray-800 text-white">
-                                        <i class="fas fa-moon text-blue-400 mr-2"></i>
-                                        <span>Dark Mode</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <button id="previewThemeBtn" class="btn-preview-theme">
-                            <i class="fas fa-eye mr-2"></i>
-                            Preview Theme
-                        </button>
-                    </div>
-                </section>
-
-                <!-- Security Section -->
-                <section id="security-section" class="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div class="border-b border-gray-100 p-6">
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <i class="fas fa-lock text-blue-600"></i>
-                            Security Settings
-                        </h3>
-                    </div>
-                    <div class="p-6">
-                        <div class="form-group">
-                            <label class="form-label" for="adminPassword">Admin Password</label>
+                                <i class="fas fa-key absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input type="password" id="new-password" class="admin-form-input pl-10" placeholder="Enter new password">
+                </div>
+            </div>
+                        <div class="admin-form-group">
+                            <label class="admin-form-label" for="confirm-password">Confirm Password</label>
                             <div class="relative">
-                                <i class="fas fa-key absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input type="password" id="adminPassword" class="form-input pl-10" placeholder="Enter new password">
-                            </div>
-                        </div>
-                        <button id="changePasswordBtn" class="btn-change-password mt-4">
-                            <i class="fas fa-lock mr-2"></i>
-                            Change Password
-                        </button>
-                    </div>
-                </section>
-
-                <!-- Images Section -->
-                <section id="images-section" class="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div class="border-b border-gray-100 p-6">
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <i class="fas fa-images text-blue-600"></i>
-                            Website Images
-                        </h3>
-                    </div>
-                    <div class="p-6">
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <!-- Hero Image Upload -->
-                            <div class="image-upload-card">
-                                <h4 class="text-lg font-semibold mb-4">Hero Image</h4>
-                                <div id="heroDropZone" class="upload-zone">
-                                    <input type="file" id="heroImageInput" accept="image/*" class="hidden">
-                                    <div class="upload-content">
-                                        <i class="fas fa-cloud-upload-alt text-4xl mb-2"></i>
-                                        <p>Drag & drop or click to upload</p>
-                                        <span class="text-sm text-gray-500">Recommended: 1200x800px</span>
+                                <i class="fas fa-key absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input type="password" id="confirm-password" class="admin-form-input pl-10" placeholder="Confirm new password">
+                                    </div>
                                     </div>
                                 </div>
-                                <div id="heroPreview" class="image-preview hidden">
-                                    <img src="" alt="Hero Preview">
-                                    <button id="removeHeroBtn" class="remove-image-btn">
-                                        <i class="fas fa-trash"></i>
+                    <div class="flex justify-end gap-3">
+                        <button type="button" class="admin-btn admin-btn-secondary">
+                            <i class="fas fa-undo"></i>
+                            <span>Cancel</span>
+                                            </button>
+                        <button type="submit" class="admin-btn admin-btn-primary">
+                            <i class="fas fa-save"></i>
+                            <span>Update Password</span>
                                     </button>
-                                </div>
-                            </div>
-
-                            <!-- About Image Upload -->
-                            <div class="image-upload-card">
-                                <h4 class="text-lg font-semibold mb-4">About Image</h4>
-                                <div id="aboutDropZone" class="upload-zone">
-                                    <input type="file" id="aboutImageInput" accept="image/*" class="hidden">
-                                    <div class="upload-content">
-                                        <i class="fas fa-cloud-upload-alt text-4xl mb-2"></i>
-                                        <p>Drag & drop or click to upload</p>
-                                        <span class="text-sm text-gray-500">Recommended: 800x800px</span>
                                     </div>
-                                </div>
-                                <div id="aboutPreview" class="image-preview hidden">
-                                    <img src="" alt="About Preview">
-                                    <button id="removeAboutBtn" class="remove-image-btn">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                </form>
+            </section>
             </div>
 
-            <!-- Save Changes Button -->
-            <div class="fixed bottom-6 right-6">
-                <button id="saveChangesBtn" class="save-changes-btn">
-                    <i class="fas fa-save mr-2"></i>
-                    Save Changes
-                </button>
-            </div>
+        <!-- Loading Overlay -->
+        <div id="adminLoadingOverlay" class="admin-loading-overlay hidden">
+            <div class="admin-spinner"></div>
         </div>
     </div>
 

@@ -81,7 +81,7 @@ let adminLoginModal;
 let adminLoginForm;
 let cancelLoginBtn;
 let exitLoginBtn;
-let adminPanel;
+let adminPanelElement;
 let closeAdminPanelBtn;
 let saveChangesBtn;
 let addResultBtn;
@@ -1462,16 +1462,16 @@ async function openAdminPanel() {
         return;
     }
     
-    if (!adminPanel) {
+    if (!adminPanelElement) {
         console.error('Admin panel element not found');
         return;
     }
     
     // Show the admin panel
-    adminPanel.classList.remove('hidden');
+    adminPanelElement.classList.remove('hidden');
     
     // Make sure body doesn't scroll when panel is open
-    document.body.classList.add('overflow-hidden');
+    document.body.style.overflow = 'hidden';
     
     try {
         // Load admin data
@@ -2004,6 +2004,7 @@ function initDOMElements() {
     adminLoginForm = document.getElementById('adminLoginForm');
     cancelLoginBtn = document.getElementById('cancelLogin');
     exitLoginBtn = document.getElementById('exitLoginBtn');
+    adminPanelElement = document.getElementById('adminPanel');
     adminPanel = document.getElementById('adminPanel');
     closeAdminPanelBtn = document.getElementById('closeAdminPanel');
     saveChangesBtn = document.getElementById('saveChangesBtn');
@@ -3775,6 +3776,237 @@ async function loadResults() {
         throw error;
     }
 }
+
+// Admin Panel Functionality
+const adminPanel = {
+    init() {
+        // Initialize elements
+        this.panel = document.getElementById('adminPanel');
+        this.bindEvents();
+        this.setupNavigation();
+        this.setupFormHandlers();
+    },
+
+    bindEvents() {
+        // Navigation
+        document.querySelectorAll('.admin-nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showSection(e.currentTarget.getAttribute('href').substring(1));
+            });
+        });
+
+        // Close button
+        document.getElementById('closeAdminPanel').addEventListener('click', () => {
+            this.panel.classList.add('hidden');
+            document.body.style.overflow = '';
+        });
+
+        // Logout button
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            this.handleLogout();
+        });
+    },
+
+    setupNavigation() {
+        // Show dashboard by default
+        this.showSection('dashboard');
+
+        // Mobile navigation
+        const sidebar = document.querySelector('.admin-sidebar');
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('transform', '-translate-x-full');
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('transform', '-translate-x-full');
+            } else {
+                sidebar.classList.remove('transform', '-translate-x-full');
+            }
+        });
+    },
+
+    setupFormHandlers() {
+        // Personal Info Form
+        const personalInfoForm = document.querySelector('#personal-info form');
+        if (personalInfoForm) {
+            personalInfoForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handlePersonalInfoUpdate(e.target);
+            });
+        }
+
+        // Security Form
+        const securityForm = document.querySelector('#security form');
+        if (securityForm) {
+            securityForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handlePasswordUpdate(e.target);
+            });
+        }
+
+        // Theme Settings
+        document.querySelectorAll('input[name="theme-color"], input[name="theme-mode"]').forEach(input => {
+            input.addEventListener('change', () => {
+                this.handleThemeChange();
+            });
+        });
+    },
+
+    showSection(sectionId) {
+        // Hide all sections
+        document.querySelectorAll('.admin-section').forEach(section => {
+            section.classList.add('hidden');
+        });
+
+        // Remove active class from all nav links
+        document.querySelectorAll('.admin-nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+
+        // Show selected section
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.classList.remove('hidden');
+        }
+
+        // Add active class to current nav link
+        const activeLink = document.querySelector(`.admin-nav-link[href="#${sectionId}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
+    },
+
+    showLoading() {
+        document.getElementById('adminLoadingOverlay').classList.remove('hidden');
+    },
+
+    hideLoading() {
+        document.getElementById('adminLoadingOverlay').classList.add('hidden');
+    },
+
+    showAlert(message, type = 'success') {
+        const alertContainer = document.getElementById('adminAlertContainer');
+        const alertElement = document.createElement('div');
+        alertElement.className = `admin-alert ${type === 'success' ? 'admin-alert-success' : 'admin-alert-error'}`;
+        alertElement.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+            <span>${message}</span>
+        `;
+        alertContainer.appendChild(alertElement);
+
+        // Remove alert after 5 seconds
+        setTimeout(() => {
+            alertElement.remove();
+        }, 5000);
+    },
+
+    async handlePersonalInfoUpdate(form) {
+        try {
+            this.showLoading();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Update data in Supabase
+            const { error } = await supabase
+                .from('teacher_info')
+                .update({
+                    name: data.name,
+                    title: data.title,
+                    bio: data.bio
+                })
+                .eq('id', 1);
+
+            if (error) throw error;
+
+            this.showAlert('Personal information updated successfully');
+            await updateSiteContent(); // Refresh site content
+        } catch (error) {
+            console.error('Error updating personal info:', error);
+            this.showAlert('Failed to update personal information', 'error');
+        } finally {
+            this.hideLoading();
+        }
+    },
+
+    async handlePasswordUpdate(form) {
+        try {
+            this.showLoading();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            if (data.newPassword !== data.confirmPassword) {
+                throw new Error('Passwords do not match');
+            }
+
+            // Update password in Supabase
+            const { error } = await supabase.auth.updateUser({
+                password: data.newPassword
+            });
+
+            if (error) throw error;
+
+            this.showAlert('Password updated successfully');
+            form.reset();
+        } catch (error) {
+            console.error('Error updating password:', error);
+            this.showAlert(error.message || 'Failed to update password', 'error');
+        } finally {
+            this.hideLoading();
+        }
+    },
+
+    async handleThemeChange() {
+        try {
+            this.showLoading();
+            const colorScheme = document.querySelector('input[name="theme-color"]:checked').id.replace('theme-', '');
+            const mode = document.querySelector('input[name="theme-mode"]:checked').id.replace('theme-', '');
+
+            // Update theme in Supabase
+            const { error } = await supabase
+                .from('site_settings')
+                .update({
+                    color_scheme: colorScheme,
+                    mode: mode
+                })
+                .eq('id', 1);
+
+            if (error) throw error;
+
+            this.showAlert('Theme updated successfully');
+            await updateSiteTheme(); // Refresh site theme
+        } catch (error) {
+            console.error('Error updating theme:', error);
+            this.showAlert('Failed to update theme', 'error');
+        } finally {
+            this.hideLoading();
+        }
+    },
+
+    async handleLogout() {
+        try {
+            this.showLoading();
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
+
+            this.panel.classList.add('hidden');
+            document.body.style.overflow = '';
+            window.location.reload();
+        } catch (error) {
+            console.error('Error logging out:', error);
+            this.showAlert('Failed to logout', 'error');
+        } finally {
+            this.hideLoading();
+        }
+    }
+};
+
+// Initialize admin panel when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    adminPanel.init();
+});
 
 // Call initializeApp when the document is ready
 document.addEventListener('DOMContentLoaded', initializeApp);
