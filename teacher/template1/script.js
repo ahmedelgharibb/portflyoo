@@ -1,5 +1,43 @@
 // script.js
 
+// Add at the beginning of the file
+const loadingOverlay = document.getElementById('loadingOverlay');
+
+// Function to show loading
+function showLoading() {
+    loadingOverlay.classList.remove('hidden');
+}
+
+// Function to hide loading
+function hideLoading() {
+    loadingOverlay.classList.add('hidden');
+}
+
+// Modify the initializeApp function
+async function initializeApp() {
+    try {
+        showLoading(); // Show loading at the start
+        console.log('Initializing app and loading data...');
+        
+        // Initialize Supabase client
+        const { data: { publicUrl } } = await supabase.storage.getBucket('teacher-images');
+        
+        // Load all necessary data
+        await Promise.all([
+            loadTeacherInfo(),
+            loadResults(),
+            // Add other data loading functions here
+        ]);
+        
+        console.log('All data loaded successfully');
+        hideLoading(); // Hide loading when done
+    } catch (error) {
+        console.error('Error initializing app:', error);
+        hideLoading(); // Hide loading even if there's an error
+        showAlert('error', 'Failed to load data. Please refresh the page.');
+    }
+}
+
 // Preloader
 window.addEventListener('load', () => {
     const preloader = document.querySelector('.preloader');
@@ -3686,3 +3724,49 @@ function updateSubjectsGrid(subjects) {
         </div>
     `).join('');
 }
+
+// Modify loadTeacherInfo function
+async function loadTeacherInfo() {
+    try {
+        console.log('Loading teacher information...');
+        const { data, error } = await supabase
+            .from('teacher_info')
+            .select('*')
+            .single();
+
+        if (error) throw error;
+        if (!data) throw new Error('No teacher information found');
+
+        updateSiteContent(data);
+        console.log('Teacher information loaded successfully:', data);
+    } catch (error) {
+        console.error('Error loading teacher information:', error);
+        throw error; // Propagate error to be handled by initializeApp
+    }
+}
+
+// Modify loadResults function
+async function loadResults() {
+    try {
+        console.log('Loading results data...');
+        const { data, error } = await supabase
+            .from('results')
+            .select('*');
+
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            console.warn('No results data found');
+            return [];
+        }
+
+        updateResultsCharts(data);
+        console.log('Results data loaded successfully:', data);
+        return data;
+    } catch (error) {
+        console.error('Error loading results:', error);
+        throw error; // Propagate error to be handled by initializeApp
+    }
+}
+
+// Call initializeApp when the document is ready
+document.addEventListener('DOMContentLoaded', initializeApp);
