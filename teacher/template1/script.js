@@ -6,35 +6,55 @@ const loadingOverlay = document.getElementById('loadingOverlay');
 // Function to show loading
 function showLoading() {
     loadingOverlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
 }
 
 // Function to hide loading
 function hideLoading() {
     loadingOverlay.classList.add('hidden');
+    document.body.style.overflow = '';
 }
 
 // Modify the initializeApp function
 async function initializeApp() {
     try {
         showLoading(); // Show loading at the start
-        console.log('Initializing app and loading data...');
         
         // Initialize Supabase client
-        const { data: { publicUrl } } = await supabase.storage.getBucket('teacher-images');
+        const { createClient } = supabase;
+        window.supabaseClient = createClient(
+            'https://xyzcompany.supabase.co',
+            'public-anon-key'
+        );
         
-        // Load all necessary data
-        await Promise.all([
+        // Load all necessary data concurrently
+        const [teacherInfo, results] = await Promise.all([
             loadTeacherInfo(),
-            loadResults(),
-            // Add other data loading functions here
+            loadResults()
         ]);
         
-        console.log('All data loaded successfully');
-        hideLoading(); // Hide loading when done
+        // Update the UI with the loaded data
+        if (teacherInfo) {
+            updateSiteContent(teacherInfo);
+        }
+        
+        if (results) {
+            updateResultsChart(results);
+            updateSubjectsGrid(results);
+        }
+        
+        // Initialize other components
+        setupThemeToggle();
+        loadSavedTheme();
+        initializeImageUpload();
+        setupDangerZone();
+        
+        // Hide loading when everything is done
+        hideLoading();
     } catch (error) {
         console.error('Error initializing app:', error);
-        hideLoading(); // Hide loading even if there's an error
-        showAlert('error', 'Failed to load data. Please refresh the page.');
+        hideLoading(); // Ensure loading is hidden even if there's an error
+        showAdminAlert('error', 'Failed to load website data. Please refresh the page.');
     }
 }
 
@@ -3728,43 +3748,31 @@ function updateSubjectsGrid(subjects) {
 // Modify loadTeacherInfo function
 async function loadTeacherInfo() {
     try {
-        console.log('Loading teacher information...');
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('teacher_info')
             .select('*')
             .single();
-
+            
         if (error) throw error;
-        if (!data) throw new Error('No teacher information found');
-
-        updateSiteContent(data);
-        console.log('Teacher information loaded successfully:', data);
+        return data;
     } catch (error) {
-        console.error('Error loading teacher information:', error);
-        throw error; // Propagate error to be handled by initializeApp
+        console.error('Error loading teacher info:', error);
+        throw error;
     }
 }
 
 // Modify loadResults function
 async function loadResults() {
     try {
-        console.log('Loading results data...');
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('results')
             .select('*');
-
+            
         if (error) throw error;
-        if (!data || data.length === 0) {
-            console.warn('No results data found');
-            return [];
-        }
-
-        updateResultsCharts(data);
-        console.log('Results data loaded successfully:', data);
         return data;
     } catch (error) {
         console.error('Error loading results:', error);
-        throw error; // Propagate error to be handled by initializeApp
+        throw error;
     }
 }
 
