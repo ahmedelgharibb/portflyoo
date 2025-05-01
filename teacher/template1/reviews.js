@@ -78,10 +78,32 @@ async function submitReview(event) {
     console.log('🚀 Starting review submission process...'); // Console logging
     console.log('----------------------------------------');
 
-    const form = event.target;
-    const studentName = form.querySelector('#reviewName').value.trim();
-    const reviewText = form.querySelector('#reviewText').value.trim();
+    // Get the form from the event target
+    const form = event.target.closest('form') || event.target;
+    if (!form) {
+        console.error('❌ Form not found');
+        showToast('Error: Form not found', 'error');
+        return false;
+    }
+
+    // Get form elements with error checking
+    const nameInput = form.querySelector('#reviewName');
+    const reviewTextArea = form.querySelector('#reviewText');
     const ratingContainer = form.querySelector('#ratingContainer');
+
+    // Validate form elements exist
+    if (!nameInput || !reviewTextArea || !ratingContainer) {
+        console.error('❌ Required form elements not found:');
+        console.error('- Name input found:', !!nameInput);
+        console.error('- Review text area found:', !!reviewTextArea);
+        console.error('- Rating container found:', !!ratingContainer);
+        showToast('Error: Form elements not found', 'error');
+        return false;
+    }
+
+    // Get form values
+    const studentName = nameInput.value.trim();
+    const reviewText = reviewTextArea.value.trim();
     const rating = parseInt(ratingContainer.getAttribute('data-rating')) || 0;
 
     console.log('📝 Review Data Collected:');
@@ -392,24 +414,34 @@ document.addEventListener('DOMContentLoaded', () => {
         loadAllReviews();
     }
 
-    // Initialize review form with both submit and click handlers
+    // Initialize review form
     const reviewForm = document.querySelector('#reviewForm');
     if (reviewForm) {
-        // Prevent default form submission
-        reviewForm.onsubmit = function(e) {
+        console.log('Found review form, initializing handlers...');
+        
+        // Add form submit handler
+        reviewForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            console.log('Form submit event triggered');
+            await submitReview(e);
             return false;
-        };
+        });
 
-        // Handle submission through button click
+        // Optional: Also handle submit button click
         const submitButton = reviewForm.querySelector('button[type="submit"]');
         if (submitButton) {
-            submitButton.onclick = async function(e) {
+            console.log('Found submit button, adding click handler...');
+            submitButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                await submitReview(e);
+                // The form's submit event will handle the submission
+                reviewForm.dispatchEvent(new Event('submit'));
                 return false;
-            };
+            });
+        } else {
+            console.error('Submit button not found in form');
         }
+    } else {
+        console.error('Review form not found on page');
     }
 });
 
