@@ -281,7 +281,8 @@ function displayReviews(reviews) {
 
 // Admin: Load all reviews
 async function loadAllReviews() {
-    console.log('Loading all reviews for admin...'); // Console logging
+    console.log('🔄 Loading all reviews for admin panel...');
+    console.log('----------------------------------------');
 
     try {
         const { data, error } = await window.supabaseClient
@@ -289,33 +290,71 @@ async function loadAllReviews() {
             .select('*')
             .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+            console.error('❌ Error loading admin reviews:', error);
+            console.error('Error details:', error.message);
+            console.error('----------------------------------------');
+            showToast('Failed to load reviews. Please refresh the page.', 'error');
+            return;
+        }
 
-        console.log('All reviews loaded:', data); // Console logging
+        console.log('✅ Successfully loaded all reviews:', data);
+        console.log('Number of reviews:', data.length);
+        console.log('----------------------------------------');
+
+        // Try both possible container IDs
+        const container = document.querySelector('#adminReviewsContainer') || 
+                         document.querySelector('#admin-reviews-container');
+                         
+        if (!container) {
+            console.error('❌ Admin reviews container not found!');
+            console.error('Tried selectors: #adminReviewsContainer, #admin-reviews-container');
+            console.error('----------------------------------------');
+            return;
+        }
+
         displayAdminReviews(data);
     } catch (error) {
-        console.error('Error loading admin reviews:', error); // Console logging
+        console.error('❌ Error in loadAllReviews:', error);
+        console.error('Error details:', error.message);
+        console.error('----------------------------------------');
         showToast('Failed to load reviews. Please refresh the page.', 'error');
     }
 }
 
 // Admin: Display reviews in admin panel
 function displayAdminReviews(reviews) {
-    const container = document.querySelector('#adminReviewsContainer');
-    if (!container) return;
+    console.log('📝 Displaying admin reviews...');
+    console.log('----------------------------------------');
+
+    // Try both possible container IDs
+    const container = document.querySelector('#adminReviewsContainer') || 
+                     document.querySelector('#admin-reviews-container');
+                     
+    if (!container) {
+        console.error('❌ Admin reviews container not found in displayAdminReviews!');
+        console.error('Tried selectors: #adminReviewsContainer, #admin-reviews-container');
+        console.error('----------------------------------------');
+        return;
+    }
 
     container.innerHTML = '';
 
-    if (reviews.length === 0) {
+    if (!reviews || reviews.length === 0) {
+        console.log('ℹ️ No reviews available to display');
         container.innerHTML = `
             <div class="text-center text-gray-500 py-8">
                 <p>No reviews available.</p>
             </div>
         `;
+        console.log('----------------------------------------');
         return;
     }
 
-    reviews.forEach(review => {
+    console.log(`📊 Displaying ${reviews.length} reviews`);
+
+    reviews.forEach((review, index) => {
+        console.log(`🔄 Processing review ${index + 1}/${reviews.length}`);
         const reviewElement = document.createElement('div');
         reviewElement.className = `bg-white rounded-lg shadow-md p-6 mb-4 ${
             review.is_visible ? 'border-green-500' : 'border-red-500'
@@ -358,11 +397,16 @@ function displayAdminReviews(reviews) {
             true
         );
     });
+
+    console.log('✅ Finished displaying all reviews');
+    console.log('----------------------------------------');
 }
 
 // Admin: Toggle review visibility
 async function toggleReviewVisibility(reviewId, isVisible) {
-    console.log(`Toggling review visibility: ${reviewId} to ${isVisible}`); // Console logging
+    console.log(`🔄 Toggling review visibility for ID: ${reviewId}`);
+    console.log(`New visibility status: ${isVisible ? 'Visible' : 'Hidden'}`);
+    console.log('----------------------------------------');
 
     try {
         const { data, error } = await window.supabaseClient
@@ -371,15 +415,42 @@ async function toggleReviewVisibility(reviewId, isVisible) {
                 is_visible: isVisible,
                 approved_at: isVisible ? new Date().toISOString() : null
             })
-            .eq('id', reviewId);
+            .eq('id', reviewId)
+            .select();
 
-        if (error) throw error;
+        if (error) {
+            console.error('❌ Error updating review visibility:', error);
+            console.error('Error details:', error.message);
+            console.error('----------------------------------------');
+            showToast('Failed to update review visibility', 'error');
+            return;
+        }
 
-        console.log('Review visibility updated:', data); // Console logging
+        console.log('✅ Review visibility updated successfully');
+        console.log('Updated review data:', data);
+        console.log('----------------------------------------');
+
+        // Show success message
         showToast(`Review ${isVisible ? 'shown' : 'hidden'} successfully`);
-        loadAllReviews(); // Refresh admin view
+
+        // Refresh both admin and public views
+        console.log('🔄 Refreshing review lists...');
+        
+        // Refresh admin view
+        await loadAllReviews();
+        
+        // Refresh public view if it exists
+        const publicContainer = document.querySelector('#reviewsContainer');
+        if (publicContainer) {
+            await loadApprovedReviews();
+        }
+
+        console.log('✅ Review lists refreshed successfully');
+        console.log('----------------------------------------');
     } catch (error) {
-        console.error('Error toggling review visibility:', error); // Console logging
+        console.error('❌ Error in toggleReviewVisibility:', error);
+        console.error('Error details:', error.message);
+        console.error('----------------------------------------');
         showToast('Failed to update review visibility', 'error');
     }
 }
@@ -409,36 +480,40 @@ async function deleteReview(reviewId) {
 
 // Initialize review system
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Initializing review system...'); // Console logging
+    console.log('🚀 Initializing review system...');
+    console.log('----------------------------------------');
 
     // Initialize star rating for new review form
     const ratingContainer = document.querySelector('#ratingContainer');
     if (ratingContainer) {
+        console.log('⭐ Initializing star rating component...');
         const starRating = new StarRating(ratingContainer);
         // Update data-rating attribute when rating changes
         ratingContainer.addEventListener('ratingChanged', (event) => {
             ratingContainer.setAttribute('data-rating', event.detail);
-            console.log('Rating updated:', event.detail); // Console logging
+            console.log('⭐ Rating updated:', event.detail);
         });
     }
 
-    // Load reviews
-    loadApprovedReviews();
-
-    // If admin panel is present, load all reviews
-    if (document.querySelector('#adminReviewsContainer')) {
+    // Check if we're on the admin page
+    const adminContainer = document.querySelector('#adminReviewsContainer');
+    if (adminContainer) {
+        console.log('👩‍💼 Admin panel detected, loading all reviews...');
         loadAllReviews();
+    } else {
+        console.log('👥 Public page detected, loading approved reviews...');
+        loadApprovedReviews();
     }
 
     // Initialize review form
     const reviewForm = document.querySelector('#reviewForm');
     if (reviewForm) {
-        console.log('Found review form, initializing handlers...');
+        console.log('📝 Initializing review form...');
         
         // Add form submit handler
         reviewForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            console.log('Form submit event triggered');
+            console.log('📨 Form submit event triggered');
             await submitReview(e);
             return false;
         });
@@ -446,7 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Optional: Also handle submit button click
         const submitButton = reviewForm.querySelector('button[type="submit"]');
         if (submitButton) {
-            console.log('Found submit button, adding click handler...');
+            console.log('🔘 Found submit button, adding click handler...');
             submitButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 // The form's submit event will handle the submission
@@ -454,11 +529,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
             });
         } else {
-            console.error('Submit button not found in form');
+            console.error('❌ Submit button not found in form');
         }
-    } else {
-        console.error('Review form not found on page');
     }
+
+    console.log('✅ Review system initialization complete');
+    console.log('----------------------------------------');
 });
 
 // Export functions for use in other files

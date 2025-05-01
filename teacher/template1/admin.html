@@ -2,14 +2,20 @@
 <section class="p-6 bg-white rounded-lg shadow-md mb-8">
     <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-bold">Reviews Management</h2>
-        <div class="text-sm text-gray-500">
-            Manage student reviews and testimonials
+        <div class="flex items-center gap-2">
+            <button onclick="loadAllReviews()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center">
+                <i class="fas fa-sync-alt mr-2"></i>
+                Refresh Reviews
+            </button>
         </div>
     </div>
 
     <!-- Reviews Container -->
     <div id="adminReviewsContainer" class="space-y-4">
         <!-- Reviews will be loaded here dynamically -->
+        <div class="text-center text-gray-500 py-8">
+            <p>Loading reviews...</p>
+        </div>
     </div>
 </section>
 
