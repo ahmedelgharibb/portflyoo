@@ -1,0 +1,322 @@
+// Supabase client initialization
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Star rating component
+class StarRating {
+    constructor(container, initialRating = 0, isReadOnly = false) {
+        this.container = container;
+        this.rating = initialRating;
+        this.isReadOnly = isReadOnly;
+        this.render();
+    }
+
+    render() {
+        this.container.innerHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            const star = document.createElement('span');
+            star.innerHTML = '★';
+            star.className = `star ${i <= this.rating ? 'active' : ''}`;
+            star.style.cursor = this.isReadOnly ? 'default' : 'pointer';
+            star.style.color = i <= this.rating ? '#ffd700' : '#ccc';
+            star.style.fontSize = '24px';
+            star.style.padding = '0 2px';
+
+            if (!this.isReadOnly) {
+                star.addEventListener('click', () => this.setRating(i));
+                star.addEventListener('mouseover', () => this.highlightStars(i));
+                star.addEventListener('mouseout', () => this.highlightStars(this.rating));
+            }
+
+            this.container.appendChild(star);
+        }
+    }
+
+    setRating(rating) {
+        this.rating = rating;
+        this.render();
+        this.container.dispatchEvent(new CustomEvent('ratingChanged', { detail: rating }));
+    }
+
+    highlightStars(rating) {
+        const stars = this.container.querySelectorAll('.star');
+        stars.forEach((star, index) => {
+            star.style.color = index < rating ? '#ffd700' : '#ccc';
+        });
+    }
+
+    getRating() {
+        return this.rating;
+    }
+}
+
+// Toast notification system
+const showToast = (message, type = 'success') => {
+    console.log(`${type.toUpperCase()}: ${message}`); // Console logging
+
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    } text-white z-50 animate-fade-in`;
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('animate-fade-out');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+};
+
+// Review submission handling
+async function submitReview(event) {
+    event.preventDefault();
+    console.log('Submitting review...'); // Console logging
+
+    const form = event.target;
+    const studentName = form.querySelector('#reviewName').value;
+    const reviewText = form.querySelector('#reviewText').value;
+    const rating = parseInt(form.querySelector('#ratingContainer').getAttribute('data-rating'));
+
+    try {
+        const { data, error } = await supabase
+            .from('reviews')
+            .insert([
+                {
+                    student_name: studentName,
+                    rating: rating,
+                    review_text: reviewText,
+                    is_visible: false
+                }
+            ]);
+
+        if (error) throw error;
+
+        console.log('Review submitted successfully:', data); // Console logging
+        showToast('Review submitted successfully! It will be visible after approval.');
+        form.reset();
+        form.querySelector('#ratingContainer').setAttribute('data-rating', '0');
+        new StarRating(form.querySelector('#ratingContainer'));
+    } catch (error) {
+        console.error('Error submitting review:', error); // Console logging
+        showToast('Failed to submit review. Please try again.', 'error');
+    }
+}
+
+// Fetch and display approved reviews
+async function loadApprovedReviews() {
+    console.log('Loading approved reviews...'); // Console logging
+
+    try {
+        const { data, error } = await supabase
+            .from('reviews')
+            .select('*')
+            .eq('is_visible', true)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        console.log('Approved reviews loaded:', data); // Console logging
+        displayReviews(data);
+    } catch (error) {
+        console.error('Error loading reviews:', error); // Console logging
+        showToast('Failed to load reviews. Please refresh the page.', 'error');
+    }
+}
+
+// Display reviews in the reviews container
+function displayReviews(reviews) {
+    const container = document.querySelector('#reviewsContainer');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (reviews.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-gray-500 py-8">
+                <p>No reviews yet. Be the first to review!</p>
+            </div>
+        `;
+        return;
+    }
+
+    reviews.forEach(review => {
+        const reviewElement = document.createElement('div');
+        reviewElement.className = 'bg-white rounded-lg shadow-md p-6 mb-4';
+        reviewElement.innerHTML = `
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-semibold">${review.student_name}</h4>
+                <div class="star-rating" data-rating="${review.rating}"></div>
+            </div>
+            <p class="text-gray-600">${review.review_text}</p>
+            <div class="text-sm text-gray-400 mt-2">
+                ${new Date(review.created_at).toLocaleDateString()}
+            </div>
+        `;
+
+        container.appendChild(reviewElement);
+        new StarRating(
+            reviewElement.querySelector('.star-rating'),
+            review.rating,
+            true
+        );
+    });
+}
+
+// Admin: Load all reviews
+async function loadAllReviews() {
+    console.log('Loading all reviews for admin...'); // Console logging
+
+    try {
+        const { data, error } = await supabase
+            .from('reviews')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        console.log('All reviews loaded:', data); // Console logging
+        displayAdminReviews(data);
+    } catch (error) {
+        console.error('Error loading admin reviews:', error); // Console logging
+        showToast('Failed to load reviews. Please refresh the page.', 'error');
+    }
+}
+
+// Admin: Display reviews in admin panel
+function displayAdminReviews(reviews) {
+    const container = document.querySelector('#adminReviewsContainer');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (reviews.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-gray-500 py-8">
+                <p>No reviews available.</p>
+            </div>
+        `;
+        return;
+    }
+
+    reviews.forEach(review => {
+        const reviewElement = document.createElement('div');
+        reviewElement.className = `bg-white rounded-lg shadow-md p-6 mb-4 ${
+            review.is_visible ? 'border-green-500' : 'border-red-500'
+        } border-l-4`;
+        reviewElement.innerHTML = `
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-semibold">${review.student_name}</h4>
+                <div class="star-rating" data-rating="${review.rating}"></div>
+            </div>
+            <p class="text-gray-600">${review.review_text}</p>
+            <div class="flex items-center justify-between mt-4">
+                <div class="text-sm text-gray-400">
+                    ${new Date(review.created_at).toLocaleDateString()}
+                </div>
+                <div class="flex gap-2">
+                    <button
+                        class="px-4 py-2 rounded ${
+                            review.is_visible
+                                ? 'bg-red-500 hover:bg-red-600'
+                                : 'bg-green-500 hover:bg-green-600'
+                        } text-white"
+                        onclick="toggleReviewVisibility('${review.id}', ${!review.is_visible})"
+                    >
+                        ${review.is_visible ? 'Hide' : 'Show'}
+                    </button>
+                    <button
+                        class="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white"
+                        onclick="deleteReview('${review.id}')"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(reviewElement);
+        new StarRating(
+            reviewElement.querySelector('.star-rating'),
+            review.rating,
+            true
+        );
+    });
+}
+
+// Admin: Toggle review visibility
+async function toggleReviewVisibility(reviewId, isVisible) {
+    console.log(`Toggling review visibility: ${reviewId} to ${isVisible}`); // Console logging
+
+    try {
+        const { data, error } = await supabase
+            .from('reviews')
+            .update({
+                is_visible: isVisible,
+                approved_at: isVisible ? new Date().toISOString() : null
+            })
+            .eq('id', reviewId);
+
+        if (error) throw error;
+
+        console.log('Review visibility updated:', data); // Console logging
+        showToast(`Review ${isVisible ? 'shown' : 'hidden'} successfully`);
+        loadAllReviews(); // Refresh admin view
+    } catch (error) {
+        console.error('Error toggling review visibility:', error); // Console logging
+        showToast('Failed to update review visibility', 'error');
+    }
+}
+
+// Admin: Delete review
+async function deleteReview(reviewId) {
+    if (!confirm('Are you sure you want to delete this review?')) return;
+
+    console.log(`Deleting review: ${reviewId}`); // Console logging
+
+    try {
+        const { data, error } = await supabase
+            .from('reviews')
+            .delete()
+            .eq('id', reviewId);
+
+        if (error) throw error;
+
+        console.log('Review deleted:', data); // Console logging
+        showToast('Review deleted successfully');
+        loadAllReviews(); // Refresh admin view
+    } catch (error) {
+        console.error('Error deleting review:', error); // Console logging
+        showToast('Failed to delete review', 'error');
+    }
+}
+
+// Initialize review system
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Initializing review system...'); // Console logging
+
+    // Initialize star rating for new review form
+    const ratingContainer = document.querySelector('#ratingContainer');
+    if (ratingContainer) {
+        new StarRating(ratingContainer);
+    }
+
+    // Load reviews
+    loadApprovedReviews();
+
+    // If admin panel is present, load all reviews
+    if (document.querySelector('#adminReviewsContainer')) {
+        loadAllReviews();
+    }
+
+    // Initialize review form
+    const reviewForm = document.querySelector('#reviewForm');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', submitReview);
+    }
+});
+
+// Export functions for use in other files
+window.toggleReviewVisibility = toggleReviewVisibility;
+window.deleteReview = deleteReview; 
