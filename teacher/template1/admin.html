@@ -1,24 +1,42 @@
-<!-- Reviews Management Section -->
-<section class="p-6 bg-white rounded-lg shadow-md mb-8">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold">Reviews Management</h2>
-        <div class="flex items-center gap-2">
-            <button onclick="loadAllReviews()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center">
-                <i class="fas fa-sync-alt mr-2"></i>
-                Refresh Reviews
-            </button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Reviews Management</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <!-- Reviews Management Section -->
+    <section class="p-6 bg-white rounded-lg shadow-md mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold">Reviews Management</h2>
+            <div class="flex items-center gap-2">
+                <button onclick="loadAllReviews()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center">
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Refresh Reviews
+                </button>
+            </div>
         </div>
-    </div>
 
-    <!-- Reviews Container -->
-    <div id="adminReviewsContainer" class="space-y-4">
-        <!-- Reviews will be loaded here dynamically -->
-        <div class="text-center text-gray-500 py-8">
-            <p>Loading reviews...</p>
+        <!-- Reviews Container -->
+        <div id="adminReviewsContainer" class="space-y-4">
+            <!-- Reviews will be loaded here dynamically -->
+            <div class="text-center text-gray-500 py-8">
+                <p>Loading reviews...</p>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Add this before the closing body tag -->
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="reviews.js"></script> 
+    <script src="reviews.js"></script>
+    <script>
+        // Initialize reviews on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin page loaded, initializing reviews...');
+            loadAllReviews();
+        });
+    </script>
+</body>
+</html> 

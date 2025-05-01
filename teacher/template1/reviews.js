@@ -284,6 +284,17 @@ async function loadAllReviews() {
     console.log('🔄 Loading all reviews for admin panel...');
     console.log('----------------------------------------');
 
+    // Show loading state
+    const container = document.querySelector('#adminReviewsContainer');
+    if (container) {
+        container.innerHTML = `
+            <div class="text-center text-gray-500 py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <p>Loading reviews...</p>
+            </div>
+        `;
+    }
+
     try {
         const { data, error } = await window.supabaseClient
             .from('reviews')
@@ -299,26 +310,36 @@ async function loadAllReviews() {
         }
 
         console.log('✅ Successfully loaded all reviews:', data);
-        console.log('Number of reviews:', data.length);
+        console.log('Number of reviews:', data?.length || 0);
         console.log('----------------------------------------');
 
-        // Try both possible container IDs
-        const container = document.querySelector('#adminReviewsContainer') || 
-                         document.querySelector('#admin-reviews-container');
-                         
         if (!container) {
             console.error('❌ Admin reviews container not found!');
-            console.error('Tried selectors: #adminReviewsContainer, #admin-reviews-container');
+            console.error('Tried selector: #adminReviewsContainer');
             console.error('----------------------------------------');
             return;
         }
 
-        displayAdminReviews(data);
+        // Display the reviews
+        displayAdminReviews(data || []);
+
     } catch (error) {
         console.error('❌ Error in loadAllReviews:', error);
         console.error('Error details:', error.message);
         console.error('----------------------------------------');
         showToast('Failed to load reviews. Please refresh the page.', 'error');
+        
+        // Show error state in container
+        if (container) {
+            container.innerHTML = `
+                <div class="text-center text-red-500 py-8">
+                    <p>Failed to load reviews. Please try refreshing the page.</p>
+                    <button onclick="loadAllReviews()" class="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
+                        Try Again
+                    </button>
+                </div>
+            `;
+        }
     }
 }
 
@@ -327,13 +348,9 @@ function displayAdminReviews(reviews) {
     console.log('📝 Displaying admin reviews...');
     console.log('----------------------------------------');
 
-    // Try both possible container IDs
-    const container = document.querySelector('#adminReviewsContainer') || 
-                     document.querySelector('#admin-reviews-container');
-                     
+    const container = document.querySelector('#adminReviewsContainer');
     if (!container) {
         console.error('❌ Admin reviews container not found in displayAdminReviews!');
-        console.error('Tried selectors: #adminReviewsContainer, #admin-reviews-container');
         console.error('----------------------------------------');
         return;
     }
@@ -344,7 +361,11 @@ function displayAdminReviews(reviews) {
         console.log('ℹ️ No reviews available to display');
         container.innerHTML = `
             <div class="text-center text-gray-500 py-8">
-                <p>No reviews available.</p>
+                <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+                <p class="text-xl font-semibold">No reviews available</p>
+                <p class="text-gray-500 mt-2">Reviews submitted by students will appear here.</p>
             </div>
         `;
         console.log('----------------------------------------');
