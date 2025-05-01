@@ -1,7 +1,9 @@
 // Supabase client initialization
 const SUPABASE_URL = 'https://bqpchhitrbyfleqpyydz.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Create Supabase client properly
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Star rating component
 class StarRating {
@@ -84,7 +86,7 @@ async function submitReview(event) {
     if (!studentName || !reviewText || !rating || rating < 1 || rating > 5) {
         console.error('Invalid input data:', { studentName, reviewText, rating });
         showToast('Please fill in all fields and select a rating', 'error');
-        return;
+        return false; // Add explicit return
     }
 
     // Disable submit button while processing
@@ -140,6 +142,8 @@ async function submitReview(event) {
         submitButton.disabled = false;
         submitButton.textContent = originalButtonText;
     }
+
+    return false; // Add explicit return
 }
 
 // Fetch and display approved reviews
