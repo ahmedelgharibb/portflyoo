@@ -391,10 +391,24 @@ document.addEventListener('DOMContentLoaded', () => {
         loadAllReviews();
     }
 
-    // Initialize review form
+    // Initialize review form with both submit and click handlers
     const reviewForm = document.querySelector('#reviewForm');
     if (reviewForm) {
-        reviewForm.addEventListener('submit', submitReview);
+        // Prevent default form submission
+        reviewForm.onsubmit = function(e) {
+            e.preventDefault();
+            return false;
+        };
+
+        // Handle submission through button click
+        const submitButton = reviewForm.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.onclick = async function(e) {
+                e.preventDefault();
+                await submitReview(e);
+                return false;
+            };
+        }
     }
 });
 
