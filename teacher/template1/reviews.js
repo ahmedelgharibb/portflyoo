@@ -74,7 +74,8 @@ const showToast = (message, type = 'success') => {
 // Review submission handling
 async function submitReview(event) {
     event.preventDefault(); // Prevent form submission
-    console.log('Starting review submission...'); // Console logging
+    console.log('🚀 Starting review submission process...'); // Console logging
+    console.log('----------------------------------------');
 
     const form = event.target;
     const studentName = form.querySelector('#reviewName').value.trim();
@@ -82,12 +83,25 @@ async function submitReview(event) {
     const ratingContainer = form.querySelector('#ratingContainer');
     const rating = parseInt(ratingContainer.getAttribute('data-rating')) || 0;
 
+    console.log('📝 Review Data Collected:');
+    console.log('- Student Name:', studentName);
+    console.log('- Rating:', rating, '⭐'.repeat(rating));
+    console.log('- Review Text:', reviewText);
+    console.log('----------------------------------------');
+
     // Validate input
     if (!studentName || !reviewText || !rating || rating < 1 || rating > 5) {
-        console.error('Invalid input data:', { studentName, reviewText, rating });
+        console.error('❌ Validation Failed:');
+        console.error('- Name present:', !!studentName);
+        console.error('- Review present:', !!reviewText);
+        console.error('- Valid rating:', rating >= 1 && rating <= 5);
+        console.error('----------------------------------------');
         showToast('Please fill in all fields and select a rating', 'error');
-        return false; // Add explicit return
+        return false;
     }
+
+    console.log('✅ Input validation passed');
+    console.log('----------------------------------------');
 
     // Disable submit button while processing
     const submitButton = form.querySelector('button[type="submit"]');
@@ -95,8 +109,10 @@ async function submitReview(event) {
     submitButton.disabled = true;
     submitButton.textContent = 'Submitting...';
 
+    console.log('💾 Attempting to save review to database...');
+
     try {
-        console.log('Sending review data:', { studentName, reviewText, rating }); // Console logging
+        console.log('📡 Sending request to Supabase...');
         const { data, error } = await supabase
             .from('reviews')
             .insert([
@@ -107,18 +123,25 @@ async function submitReview(event) {
                     is_visible: false
                 }
             ])
-            .select(); // Add this to get the inserted data back
+            .select();
 
         if (error) {
-            console.error('Supabase error:', error);
+            console.error('❌ Supabase Error:', error);
+            console.error('Error Code:', error.code);
+            console.error('Error Message:', error.message);
+            console.error('Error Details:', error.details);
+            console.error('----------------------------------------');
             throw error;
         }
 
-        console.log('Review submitted successfully:', data); // Console logging
+        console.log('✅ Review saved successfully!');
+        console.log('📊 Database Response:', data);
+        console.log('----------------------------------------');
         
         // Show success message
         showToast('Thank you! Your review has been submitted and will be visible after approval.');
         
+        console.log('🔄 Resetting form...');
         // Reset form
         form.reset();
         ratingContainer.setAttribute('data-rating', '0');
@@ -126,24 +149,35 @@ async function submitReview(event) {
 
         // If we're in the admin panel, refresh the reviews list
         if (document.querySelector('#adminReviewsContainer')) {
+            console.log('🔄 Refreshing admin review list...');
             loadAllReviews();
         }
 
         // Refresh the public reviews list if it exists
         if (document.querySelector('#reviewsContainer')) {
+            console.log('🔄 Refreshing public review list...');
             loadApprovedReviews();
         }
 
+        console.log('✨ Review submission process completed successfully!');
+        console.log('----------------------------------------');
+
     } catch (error) {
-        console.error('Error submitting review:', error);
+        console.error('❌ Error during review submission:');
+        console.error('- Error Type:', error.name);
+        console.error('- Error Message:', error.message);
+        console.error('- Stack Trace:', error.stack);
+        console.error('----------------------------------------');
         showToast(error.message || 'Failed to submit review. Please try again.', 'error');
     } finally {
+        console.log('🔄 Resetting submit button state...');
         // Re-enable submit button
         submitButton.disabled = false;
         submitButton.textContent = originalButtonText;
+        console.log('----------------------------------------');
     }
 
-    return false; // Add explicit return
+    return false;
 }
 
 // Fetch and display approved reviews
