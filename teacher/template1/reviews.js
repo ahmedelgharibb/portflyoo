@@ -1,9 +1,17 @@
-// Supabase client initialization
-const SUPABASE_URL = 'https://bqpchhitrbyfleqpyydz.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ';
+// Only declare Supabase variables if they haven't been declared yet
+if (typeof SUPABASE_URL === 'undefined') {
+    const SUPABASE_URL = 'https://bqpchhitrbyfleqpyydz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ';
 
-// Create Supabase client properly
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Create Supabase client properly
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Make supabase client globally available
+    window.supabaseClient = supabase;
+}
+
+// Use the global supabase client
+const supabase = window.supabaseClient;
 
 // Star rating component
 class StarRating {
