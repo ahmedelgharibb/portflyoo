@@ -2182,6 +2182,9 @@
     <script>
         // Add this to your existing script section or create a new one
         document.addEventListener('DOMContentLoaded', function() {
+            // Update footer year automatically
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+            
             const loaderContainer = document.getElementById('loaderContainer');
             
             // Function to show loader
