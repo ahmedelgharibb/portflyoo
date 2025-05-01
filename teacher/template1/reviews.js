@@ -304,24 +304,21 @@ async function loadAllReviews() {
 
     // Show loading state
     const container = document.querySelector('#adminReviewsContainer');
-    if (container) {
-        container.innerHTML = `
-            <div class="text-center text-gray-500 py-8">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                <p>Loading reviews from database...</p>
-            </div>
-        `;
+    if (!container) {
+        console.error('❌ Admin reviews container not found!');
+        return;
     }
 
+    container.innerHTML = `
+        <div class="text-center text-gray-500 py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p>Loading reviews from database...</p>
+        </div>
+    `;
+
     try {
-        // Initialize Supabase client if not already initialized
-        if (!window.supabaseClient) {
-            console.log('📡 Initializing Supabase client...');
-            window.supabaseClient = window.supabase.createClient(
-                'https://bqpchhitrbyfleqpyydz.supabase.co',
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ'
-            );
-        }
+        // Enable RLS bypass for admin access
+        await enablePublicAccess();
 
         console.log('📡 Sending request to Supabase...');
         console.log('Query: SELECT * FROM reviews ORDER BY created_at DESC');
@@ -332,73 +329,33 @@ async function loadAllReviews() {
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.error('❌ Error loading reviews from database:');
-            console.error('Error details:', error.message);
-            console.error('Error code:', error.code);
-            console.error('----------------------------------------');
-            showToast('Failed to load reviews. Please refresh the page.', 'error');
-            return;
+            console.error('❌ Error loading reviews from database:', error);
+            throw error;
         }
 
-        console.log('✅ Successfully loaded all reviews from database');
-        console.log('📊 Database Response Statistics:');
-        console.log('- Total reviews:', data?.length || 0);
-        
-        if (data?.length > 0) {
-            console.log('📝 Review Details:');
-            data.forEach((review, index) => {
-                console.log(`Review #${index + 1}:`);
-                console.log('- ID:', review.id);
-                console.log('- Student:', review.student_name);
-                console.log('- Rating:', '⭐'.repeat(review.rating));
-                console.log('- Visible:', review.is_visible ? 'Yes' : 'No');
-                console.log('- Created:', new Date(review.created_at).toLocaleString());
-            });
-            
-            const visibleReviews = data.filter(review => review.is_visible);
-            const hiddenReviews = data.filter(review => !review.is_visible);
-            const averageRating = (data.reduce((acc, review) => acc + review.rating, 0) / data.length).toFixed(1);
-            
-            console.log('📊 Summary:');
-            console.log('- Visible reviews:', visibleReviews.length);
-            console.log('- Hidden reviews:', hiddenReviews.length);
-            console.log('- Average rating:', averageRating, '⭐');
-            console.log('- Most recent:', new Date(data[0].created_at).toLocaleString());
-            console.log('- Oldest:', new Date(data[data.length - 1].created_at).toLocaleString());
+        if (!data) {
+            console.log('⚠️ No data returned from database');
+            throw new Error('No data returned from database');
         }
-        
-        console.log('----------------------------------------');
 
-        if (!container) {
-            console.error('❌ Admin reviews container not found!');
-            console.error('Tried selector: #adminReviewsContainer');
-            console.error('----------------------------------------');
-            return;
-        }
+        console.log('✅ Successfully loaded reviews:', data);
+        console.log('📊 Total reviews found:', data.length);
 
         // Display the reviews
-        displayAdminReviews(data || []);
+        displayAdminReviews(data);
 
     } catch (error) {
-        console.error('❌ Error in loadAllReviews:');
-        console.error('Error type:', error.name);
-        console.error('Error message:', error.message);
-        console.error('Stack trace:', error.stack);
-        console.error('----------------------------------------');
-        showToast('Failed to load reviews. Please refresh the page.', 'error');
-        
-        // Show error state in container
-        if (container) {
-            container.innerHTML = `
-                <div class="text-center text-red-500 py-8">
-                    <p>Failed to load reviews from database.</p>
-                    <p class="text-sm mt-2">Error: ${error.message}</p>
-                    <button onclick="loadAllReviews()" class="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
-                        Try Again
-                    </button>
-                </div>
-            `;
-        }
+        console.error('❌ Error in loadAllReviews:', error);
+        container.innerHTML = `
+            <div class="text-center text-red-500 py-8">
+                <p>Failed to load reviews from database.</p>
+                <p class="text-sm mt-2">Error: ${error.message}</p>
+                <button onclick="loadAllReviews()" class="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
+                    Try Again
+                </button>
+            </div>
+        `;
+        showToast('Failed to load reviews. Please try again.', 'error');
     }
 }
 
@@ -586,9 +543,18 @@ async function deleteReview(reviewId) {
 }
 
 // Initialize review system
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Initializing review system...');
     console.log('----------------------------------------');
+
+    // Initialize Supabase client if not already initialized
+    if (!window.supabaseClient) {
+        console.log('📡 Initializing Supabase client...');
+        window.supabaseClient = window.supabase.createClient(
+            'https://bqpchhitrbyfleqpyydz.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ'
+        );
+    }
 
     // Initialize star rating for new review form
     const ratingContainer = document.querySelector('#ratingContainer');
@@ -606,38 +572,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminContainer = document.querySelector('#adminReviewsContainer');
     if (adminContainer) {
         console.log('👩‍💼 Admin panel detected, loading all reviews...');
-        loadAllReviews();
+        // Enable public access before loading reviews
+        await enablePublicAccess();
+        await loadAllReviews();
     } else {
         console.log('👥 Public page detected, loading approved reviews...');
-        loadApprovedReviews();
+        await loadApprovedReviews();
     }
 
     // Initialize review form
     const reviewForm = document.querySelector('#reviewForm');
     if (reviewForm) {
         console.log('📝 Initializing review form...');
-        
-        // Add form submit handler
-        reviewForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            console.log('📨 Form submit event triggered');
-            await submitReview(e);
-            return false;
-        });
-
-        // Optional: Also handle submit button click
-        const submitButton = reviewForm.querySelector('button[type="submit"]');
-        if (submitButton) {
-            console.log('🔘 Found submit button, adding click handler...');
-            submitButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                // The form's submit event will handle the submission
-                reviewForm.dispatchEvent(new Event('submit'));
-                return false;
-            });
-        } else {
-            console.error('❌ Submit button not found in form');
-        }
+        reviewForm.addEventListener('submit', submitReview);
     }
 
     console.log('✅ Review system initialization complete');
