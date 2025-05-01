@@ -1,13 +1,9 @@
-// Only declare Supabase variables if they haven't been declared yet
-if (typeof SUPABASE_URL === 'undefined') {
-    const SUPABASE_URL = 'https://bqpchhitrbyfleqpyydz.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ';
-
-    // Create Supabase client properly
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    // Make supabase client globally available
-    window.supabaseClient = supabase;
+// Initialize Supabase client if not already initialized
+if (!window.supabaseClient) {
+    window.supabaseClient = window.supabase.createClient(
+        'https://bqpchhitrbyfleqpyydz.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ'
+    );
 }
 
 // Use the global supabase client
@@ -121,7 +117,7 @@ async function submitReview(event) {
 
     try {
         console.log('📡 Sending request to Supabase...');
-        const { data, error } = await supabase
+        const { data, error } = await window.supabaseClient
             .from('reviews')
             .insert([
                 {
@@ -193,7 +189,7 @@ async function loadApprovedReviews() {
     console.log('Loading approved reviews...'); // Console logging
 
     try {
-        const { data, error } = await supabase
+        const { data, error } = await window.supabaseClient
             .from('reviews')
             .select('*')
             .eq('is_visible', true)
@@ -253,7 +249,7 @@ async function loadAllReviews() {
     console.log('Loading all reviews for admin...'); // Console logging
 
     try {
-        const { data, error } = await supabase
+        const { data, error } = await window.supabaseClient
             .from('reviews')
             .select('*')
             .order('created_at', { ascending: false });
@@ -334,7 +330,7 @@ async function toggleReviewVisibility(reviewId, isVisible) {
     console.log(`Toggling review visibility: ${reviewId} to ${isVisible}`); // Console logging
 
     try {
-        const { data, error } = await supabase
+        const { data, error } = await window.supabaseClient
             .from('reviews')
             .update({
                 is_visible: isVisible,
@@ -360,7 +356,7 @@ async function deleteReview(reviewId) {
     console.log(`Deleting review: ${reviewId}`); // Console logging
 
     try {
-        const { data, error } = await supabase
+        const { data, error } = await window.supabaseClient
             .from('reviews')
             .delete()
             .eq('id', reviewId);
