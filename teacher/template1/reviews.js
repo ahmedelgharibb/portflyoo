@@ -1,6 +1,6 @@
 // Supabase client initialization
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://bqpchhitrbyfleqpyydz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ';
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Star rating component
@@ -79,6 +79,13 @@ async function submitReview(event) {
     const reviewText = form.querySelector('#reviewText').value;
     const rating = parseInt(form.querySelector('#ratingContainer').getAttribute('data-rating'));
 
+    // Validate input
+    if (!studentName || !reviewText || !rating || rating < 1 || rating > 5) {
+        console.error('Invalid input data:', { studentName, reviewText, rating });
+        showToast('Please fill in all fields and select a rating', 'error');
+        return;
+    }
+
     try {
         const { data, error } = await supabase
             .from('reviews')
@@ -91,7 +98,15 @@ async function submitReview(event) {
                 }
             ]);
 
-        if (error) throw error;
+        if (error) {
+            console.error('Supabase error:', error);
+            if (error.code === '42P07') {
+                showToast('System error: Please contact administrator', 'error');
+            } else {
+                showToast(error.message || 'Failed to submit review. Please try again.', 'error');
+            }
+            return;
+        }
 
         console.log('Review submitted successfully:', data); // Console logging
         showToast('Review submitted successfully! It will be visible after approval.');
@@ -100,7 +115,7 @@ async function submitReview(event) {
         new StarRating(form.querySelector('#ratingContainer'));
     } catch (error) {
         console.error('Error submitting review:', error); // Console logging
-        showToast('Failed to submit review. Please try again.', 'error');
+        showToast('Failed to submit review. Please try again later.', 'error');
     }
 }
 
