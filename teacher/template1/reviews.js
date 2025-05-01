@@ -314,7 +314,18 @@ async function loadAllReviews() {
     }
 
     try {
+        // Initialize Supabase client if not already initialized
+        if (!window.supabaseClient) {
+            console.log('📡 Initializing Supabase client...');
+            window.supabaseClient = window.supabase.createClient(
+                'https://bqpchhitrbyfleqpyydz.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ'
+            );
+        }
+
         console.log('📡 Sending request to Supabase...');
+        console.log('Query: SELECT * FROM reviews ORDER BY created_at DESC');
+        
         const { data, error } = await window.supabaseClient
             .from('reviews')
             .select('*')
@@ -334,15 +345,26 @@ async function loadAllReviews() {
         console.log('- Total reviews:', data?.length || 0);
         
         if (data?.length > 0) {
+            console.log('📝 Review Details:');
+            data.forEach((review, index) => {
+                console.log(`Review #${index + 1}:`);
+                console.log('- ID:', review.id);
+                console.log('- Student:', review.student_name);
+                console.log('- Rating:', '⭐'.repeat(review.rating));
+                console.log('- Visible:', review.is_visible ? 'Yes' : 'No');
+                console.log('- Created:', new Date(review.created_at).toLocaleString());
+            });
+            
             const visibleReviews = data.filter(review => review.is_visible);
             const hiddenReviews = data.filter(review => !review.is_visible);
             const averageRating = (data.reduce((acc, review) => acc + review.rating, 0) / data.length).toFixed(1);
             
+            console.log('📊 Summary:');
             console.log('- Visible reviews:', visibleReviews.length);
             console.log('- Hidden reviews:', hiddenReviews.length);
             console.log('- Average rating:', averageRating, '⭐');
-            console.log('- Most recent review:', new Date(data[0].created_at).toLocaleString());
-            console.log('- Oldest review:', new Date(data[data.length - 1].created_at).toLocaleString());
+            console.log('- Most recent:', new Date(data[0].created_at).toLocaleString());
+            console.log('- Oldest:', new Date(data[data.length - 1].created_at).toLocaleString());
         }
         
         console.log('----------------------------------------');
@@ -411,6 +433,28 @@ function displayAdminReviews(reviews) {
 
     console.log(`📊 Displaying ${reviews.length} reviews`);
 
+    // Add summary header
+    const visibleReviews = reviews.filter(review => review.is_visible);
+    const hiddenReviews = reviews.filter(review => !review.is_visible);
+    
+    container.innerHTML = `
+        <div class="bg-white rounded-lg p-4 mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-semibold">Review Statistics</h3>
+                    <p class="text-sm text-gray-600">
+                        Total Reviews: ${reviews.length} 
+                        (${visibleReviews.length} visible, ${hiddenReviews.length} hidden)
+                    </p>
+                </div>
+                <button onclick="loadAllReviews()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center">
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    `;
+
     reviews.forEach((review, index) => {
         console.log(`🔄 Processing review ${index + 1}/${reviews.length}`);
         const reviewElement = document.createElement('div');
@@ -419,13 +463,18 @@ function displayAdminReviews(reviews) {
         } border-l-4`;
         reviewElement.innerHTML = `
             <div class="flex items-center justify-between mb-4">
-                <h4 class="text-lg font-semibold">${review.student_name}</h4>
+                <div>
+                    <h4 class="text-lg font-semibold">${review.student_name}</h4>
+                    <div class="text-sm ${review.is_visible ? 'text-green-600' : 'text-red-600'} mt-1">
+                        Status: ${review.is_visible ? 'Visible' : 'Hidden'}
+                    </div>
+                </div>
                 <div class="star-rating" data-rating="${review.rating}"></div>
             </div>
             <p class="text-gray-600">${review.review_text}</p>
             <div class="flex items-center justify-between mt-4">
                 <div class="text-sm text-gray-400">
-                    ${new Date(review.created_at).toLocaleDateString()}
+                    Submitted: ${new Date(review.created_at).toLocaleString()}
                 </div>
                 <div class="flex gap-2">
                     <button
