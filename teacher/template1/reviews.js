@@ -221,21 +221,39 @@ async function submitReview(event) {
 
 // Fetch and display approved reviews
 async function loadApprovedReviews() {
-    console.log('Loading approved reviews...'); // Console logging
+    console.log('🔄 Loading approved reviews from database...');
+    console.log('----------------------------------------');
 
     try {
+        console.log('📡 Sending request to Supabase...');
         const { data, error } = await window.supabaseClient
             .from('reviews')
             .select('*')
             .eq('is_visible', true)
             .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+            console.error('❌ Error loading approved reviews:');
+            console.error('Error details:', error.message);
+            console.error('Error code:', error.code);
+            console.error('----------------------------------------');
+            throw error;
+        }
 
-        console.log('Approved reviews loaded:', data); // Console logging
-        displayReviews(data);
+        console.log('✅ Successfully loaded approved reviews');
+        console.log('📊 Number of approved reviews:', data?.length || 0);
+        if (data?.length > 0) {
+            console.log('📅 Most recent review:', new Date(data[0].created_at).toLocaleString());
+            console.log('⭐ Average rating:', (data.reduce((acc, review) => acc + review.rating, 0) / data.length).toFixed(1));
+        }
+        console.log('----------------------------------------');
+
+        displayReviews(data || []);
     } catch (error) {
-        console.error('Error loading reviews:', error); // Console logging
+        console.error('❌ Error in loadApprovedReviews:', error);
+        console.error('Error details:', error.message);
+        console.error('Stack trace:', error.stack);
+        console.error('----------------------------------------');
         showToast('Failed to load reviews. Please refresh the page.', 'error');
     }
 }
@@ -281,7 +299,7 @@ function displayReviews(reviews) {
 
 // Admin: Load all reviews
 async function loadAllReviews() {
-    console.log('🔄 Loading all reviews for admin panel...');
+    console.log('🔄 Loading all reviews from database...');
     console.log('----------------------------------------');
 
     // Show loading state
@@ -290,27 +308,43 @@ async function loadAllReviews() {
         container.innerHTML = `
             <div class="text-center text-gray-500 py-8">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                <p>Loading reviews...</p>
+                <p>Loading reviews from database...</p>
             </div>
         `;
     }
 
     try {
+        console.log('📡 Sending request to Supabase...');
         const { data, error } = await window.supabaseClient
             .from('reviews')
             .select('*')
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.error('❌ Error loading admin reviews:', error);
+            console.error('❌ Error loading reviews from database:');
             console.error('Error details:', error.message);
+            console.error('Error code:', error.code);
             console.error('----------------------------------------');
             showToast('Failed to load reviews. Please refresh the page.', 'error');
             return;
         }
 
-        console.log('✅ Successfully loaded all reviews:', data);
-        console.log('Number of reviews:', data?.length || 0);
+        console.log('✅ Successfully loaded all reviews from database');
+        console.log('📊 Database Response Statistics:');
+        console.log('- Total reviews:', data?.length || 0);
+        
+        if (data?.length > 0) {
+            const visibleReviews = data.filter(review => review.is_visible);
+            const hiddenReviews = data.filter(review => !review.is_visible);
+            const averageRating = (data.reduce((acc, review) => acc + review.rating, 0) / data.length).toFixed(1);
+            
+            console.log('- Visible reviews:', visibleReviews.length);
+            console.log('- Hidden reviews:', hiddenReviews.length);
+            console.log('- Average rating:', averageRating, '⭐');
+            console.log('- Most recent review:', new Date(data[0].created_at).toLocaleString());
+            console.log('- Oldest review:', new Date(data[data.length - 1].created_at).toLocaleString());
+        }
+        
         console.log('----------------------------------------');
 
         if (!container) {
@@ -324,8 +358,10 @@ async function loadAllReviews() {
         displayAdminReviews(data || []);
 
     } catch (error) {
-        console.error('❌ Error in loadAllReviews:', error);
-        console.error('Error details:', error.message);
+        console.error('❌ Error in loadAllReviews:');
+        console.error('Error type:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Stack trace:', error.stack);
         console.error('----------------------------------------');
         showToast('Failed to load reviews. Please refresh the page.', 'error');
         
@@ -333,7 +369,8 @@ async function loadAllReviews() {
         if (container) {
             container.innerHTML = `
                 <div class="text-center text-red-500 py-8">
-                    <p>Failed to load reviews. Please try refreshing the page.</p>
+                    <p>Failed to load reviews from database.</p>
+                    <p class="text-sm mt-2">Error: ${error.message}</p>
                     <button onclick="loadAllReviews()" class="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
                         Try Again
                     </button>
