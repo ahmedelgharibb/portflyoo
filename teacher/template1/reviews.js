@@ -6,9 +6,6 @@ if (!window.supabaseClient) {
     );
 }
 
-// Use the global supabase client
-const supabase = window.supabaseClient;
-
 // Star rating component
 class StarRating {
     constructor(container, initialRating = 0, isReadOnly = false) {
