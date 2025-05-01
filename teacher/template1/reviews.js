@@ -156,14 +156,12 @@ async function submitReview(event) {
         console.log('📡 Sending request to Supabase...');
         const { data, error } = await window.supabaseClient
             .from('reviews')
-            .insert([
-                {
-                    student_name: studentName,
-                    rating: rating,
-                    review_text: reviewText,
-                    is_visible: false
-                }
-            ])
+            .insert({
+                student_name: studentName,
+                rating: rating,
+                review_text: reviewText,
+                is_visible: false
+            })
             .select();
 
         if (error) {
