@@ -6,6 +6,21 @@ if (!window.supabaseClient) {
     );
 }
 
+// Enable RLS bypass for public access
+async function enablePublicAccess() {
+    try {
+        const { data, error } = await window.supabaseClient.rpc('enable_public_access');
+        if (error) {
+            console.error('Error enabling public access:', error);
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error('Error calling enable_public_access:', error);
+        return false;
+    }
+}
+
 // Star rating component
 class StarRating {
     constructor(container, initialRating = 0, isReadOnly = false) {
@@ -78,6 +93,9 @@ async function submitReview(event) {
     console.log('🚀 Starting review submission process...'); // Console logging
     console.log('----------------------------------------');
 
+    // Enable public access before submitting
+    await enablePublicAccess();
+
     // Get the form from the event target
     const form = event.target.closest('form') || event.target;
     if (!form) {
@@ -143,7 +161,9 @@ async function submitReview(event) {
                     student_name: studentName,
                     rating: rating,
                     review_text: reviewText,
-                    is_visible: false
+                    is_visible: false,
+                    created_by: 'public', // Add this to track the source
+                    created_at: new Date().toISOString()
                 }
             ])
             .select();
