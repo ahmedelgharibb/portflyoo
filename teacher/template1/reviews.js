@@ -71,13 +71,14 @@ const showToast = (message, type = 'success') => {
 
 // Review submission handling
 async function submitReview(event) {
-    event.preventDefault();
-    console.log('Submitting review...'); // Console logging
+    event.preventDefault(); // Prevent form submission
+    console.log('Starting review submission...'); // Console logging
 
     const form = event.target;
-    const studentName = form.querySelector('#reviewName').value;
-    const reviewText = form.querySelector('#reviewText').value;
-    const rating = parseInt(form.querySelector('#ratingContainer').getAttribute('data-rating'));
+    const studentName = form.querySelector('#reviewName').value.trim();
+    const reviewText = form.querySelector('#reviewText').value.trim();
+    const ratingContainer = form.querySelector('#ratingContainer');
+    const rating = parseInt(ratingContainer.getAttribute('data-rating')) || 0;
 
     // Validate input
     if (!studentName || !reviewText || !rating || rating < 1 || rating > 5) {
@@ -86,7 +87,14 @@ async function submitReview(event) {
         return;
     }
 
+    // Disable submit button while processing
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Submitting...';
+
     try {
+        console.log('Sending review data:', { studentName, reviewText, rating }); // Console logging
         const { data, error } = await supabase
             .from('reviews')
             .insert([
@@ -96,26 +104,41 @@ async function submitReview(event) {
                     review_text: reviewText,
                     is_visible: false
                 }
-            ]);
+            ])
+            .select(); // Add this to get the inserted data back
 
         if (error) {
             console.error('Supabase error:', error);
-            if (error.code === '42P07') {
-                showToast('System error: Please contact administrator', 'error');
-            } else {
-                showToast(error.message || 'Failed to submit review. Please try again.', 'error');
-            }
-            return;
+            throw error;
         }
 
         console.log('Review submitted successfully:', data); // Console logging
-        showToast('Review submitted successfully! It will be visible after approval.');
+        
+        // Show success message
+        showToast('Thank you! Your review has been submitted and will be visible after approval.');
+        
+        // Reset form
         form.reset();
-        form.querySelector('#ratingContainer').setAttribute('data-rating', '0');
-        new StarRating(form.querySelector('#ratingContainer'));
+        ratingContainer.setAttribute('data-rating', '0');
+        new StarRating(ratingContainer);
+
+        // If we're in the admin panel, refresh the reviews list
+        if (document.querySelector('#adminReviewsContainer')) {
+            loadAllReviews();
+        }
+
+        // Refresh the public reviews list if it exists
+        if (document.querySelector('#reviewsContainer')) {
+            loadApprovedReviews();
+        }
+
     } catch (error) {
-        console.error('Error submitting review:', error); // Console logging
-        showToast('Failed to submit review. Please try again later.', 'error');
+        console.error('Error submitting review:', error);
+        showToast(error.message || 'Failed to submit review. Please try again.', 'error');
+    } finally {
+        // Re-enable submit button
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
     }
 }
 
@@ -314,7 +337,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize star rating for new review form
     const ratingContainer = document.querySelector('#ratingContainer');
     if (ratingContainer) {
-        new StarRating(ratingContainer);
+        const starRating = new StarRating(ratingContainer);
+        // Update data-rating attribute when rating changes
+        ratingContainer.addEventListener('ratingChanged', (event) => {
+            ratingContainer.setAttribute('data-rating', event.detail);
+            console.log('Rating updated:', event.detail); // Console logging
+        });
     }
 
     // Load reviews
