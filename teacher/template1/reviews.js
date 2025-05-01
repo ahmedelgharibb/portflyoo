@@ -161,9 +161,7 @@ async function submitReview(event) {
                     student_name: studentName,
                     rating: rating,
                     review_text: reviewText,
-                    is_visible: false,
-                    created_by: 'public', // Add this to track the source
-                    created_at: new Date().toISOString()
+                    is_visible: false
                 }
             ])
             .select();
