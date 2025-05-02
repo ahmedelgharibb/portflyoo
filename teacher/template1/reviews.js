@@ -361,20 +361,15 @@ async function loadAllReviews() {
 
 // Admin: Display reviews in admin panel
 function displayAdminReviews(reviews) {
-    console.log('📝 Displaying admin reviews...');
-    console.log('----------------------------------------');
-
     const container = document.querySelector('#adminReviewsContainer');
     if (!container) {
         console.error('❌ Admin reviews container not found in displayAdminReviews!');
-        console.error('----------------------------------------');
         return;
     }
 
     container.innerHTML = '';
 
     if (!reviews || reviews.length === 0) {
-        console.log('ℹ️ No reviews available to display');
         container.innerHTML = `
             <div class="text-center text-gray-500 py-8">
                 <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -384,76 +379,28 @@ function displayAdminReviews(reviews) {
                 <p class="text-gray-500 mt-2">Reviews submitted by students will appear here.</p>
             </div>
         `;
-        console.log('----------------------------------------');
         return;
     }
 
-    console.log(`📊 Displaying ${reviews.length} reviews`);
-
-    // Add summary header
-    const visibleReviews = reviews.filter(review => review.is_visible);
-    const hiddenReviews = reviews.filter(review => !review.is_visible);
-    
-    container.innerHTML = `
-        <div class="bg-white rounded-lg p-4 mb-6">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h3 class="text-lg font-semibold">Review Statistics</h3>
-                    <p class="text-sm text-gray-600">
-                        Total Reviews: ${reviews.length} 
-                        (${visibleReviews.length} visible, ${hiddenReviews.length} hidden)
-                    </p>
-                </div>
-                <button onclick="loadAllReviews()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center">
-                    <i class="fas fa-sync-alt mr-2"></i>
-                    Refresh
-                </button>
-            </div>
-        </div>
-    `;
-
-    reviews.forEach((review, index) => {
-        console.log(`🔄 Processing review ${index + 1}/${reviews.length}`);
+    reviews.forEach((review) => {
         const reviewElement = document.createElement('div');
-        reviewElement.className = `bg-white rounded-lg shadow-md p-6 mb-4 ${
-            review.is_visible ? 'border-green-500' : 'border-red-500'
-        } border-l-4`;
+        reviewElement.className = 'bg-white rounded-lg shadow-md p-6 mb-4';
         reviewElement.innerHTML = `
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h4 class="text-lg font-semibold">${review.student_name}</h4>
-                    <div class="text-sm ${review.is_visible ? 'text-green-600' : 'text-red-600'} mt-1">
-                        Status: ${review.is_visible ? 'Visible' : 'Hidden'}
-                    </div>
-                </div>
-                <div class="star-rating" data-rating="${review.rating}"></div>
-            </div>
-            <p class="text-gray-600">${review.review_text}</p>
-            <div class="flex items-center justify-between mt-4">
-                <div class="text-sm text-gray-400">
-                    Submitted: ${new Date(review.created_at).toLocaleString()}
+                    <div class="star-rating" data-rating="${review.rating}"></div>
                 </div>
                 <div class="flex gap-2">
-                    <button
-                        class="px-4 py-2 rounded ${
-                            review.is_visible
-                                ? 'bg-red-500 hover:bg-red-600'
-                                : 'bg-green-500 hover:bg-green-600'
-                        } text-white"
-                        onclick="toggleReviewVisibility('${review.id}', ${!review.is_visible})"
-                    >
-                        ${review.is_visible ? 'Hide' : 'Show'}
-                    </button>
-                    <button
-                        class="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white"
-                        onclick="deleteReview('${review.id}')"
-                    >
-                        Delete
-                    </button>
+                    <button class="px-4 py-2 rounded bg-green-500 hover:bg-green-600 text-white" onclick="approveReview('${review.id}')">✓ Approve</button>
+                    <button class="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white" onclick="declineReview('${review.id}')">✗ Decline</button>
                 </div>
             </div>
+            <p class="text-gray-600">${review.review_text}</p>
+            <div class="text-sm text-gray-400 mt-2">
+                ${new Date(review.created_at).toLocaleDateString()}
+            </div>
         `;
-
         container.appendChild(reviewElement);
         new StarRating(
             reviewElement.querySelector('.star-rating'),
@@ -461,9 +408,6 @@ function displayAdminReviews(reviews) {
             true
         );
     });
-
-    console.log('✅ Finished displaying all reviews');
-    console.log('----------------------------------------');
 }
 
 // Admin: Toggle review visibility
@@ -604,24 +548,23 @@ async function loadAdminReviews() {
     }
 }
 
-// Function to approve a review
+// Approve review function
 async function approveReview(reviewId) {
     try {
-        const { error } = await window.supabaseClient
+        const { data, error } = await window.supabaseClient
             .from('reviews')
-            .update({ 
-                is_visible: true,
-                approved_at: new Date().toISOString()
-            })
+            .update({ is_visible: true })
             .eq('id', reviewId);
-
-        if (error) throw error;
-
-        showToast('success', 'Review approved successfully');
-        loadAdminReviews(); // Reload the reviews
-    } catch (error) {
-        console.error('Error approving review:', error);
-        showToast('error', 'Failed to approve review');
+        if (error) {
+            showToast('Failed to approve review', 'error');
+            console.error(error);
+            return;
+        }
+        showToast('Review approved!');
+        await loadAllReviews();
+    } catch (err) {
+        showToast('Failed to approve review', 'error');
+        console.error(err);
     }
 }
 
@@ -717,6 +660,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Export functions for use in other files
 window.toggleReviewVisibility = toggleReviewVisibility;
 window.deleteReview = deleteReview;
+window.approveReview = approveReview;
 
 // Function to load reviews for the public view
 async function loadReviews() {
