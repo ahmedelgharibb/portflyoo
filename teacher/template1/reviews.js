@@ -392,8 +392,9 @@ function displayAdminReviews(reviews) {
                     <div class="star-rating" data-rating="${review.rating}"></div>
                 </div>
                 <div class="flex gap-2">
-                    <button class="px-4 py-2 rounded bg-green-500 hover:bg-green-600 text-white" onclick="approveReview('${review.id}')">✓ Approve</button>
-                    <button class="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white" onclick="declineReview('${review.id}')">✗ Decline</button>
+                    <button class="px-4 py-2 rounded ${review.is_visible ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white" onclick="toggleReviewVisibility('${review.id}', ${!review.is_visible})">
+                        ${review.is_visible ? 'Hide' : 'Show'}
+                    </button>
                 </div>
             </div>
             <p class="text-gray-600">${review.review_text}</p>
@@ -410,56 +411,25 @@ function displayAdminReviews(reviews) {
     });
 }
 
-// Admin: Toggle review visibility
-async function toggleReviewVisibility(reviewId, isVisible) {
-    console.log(`🔄 Toggling review visibility for ID: ${reviewId}`);
-    console.log(`New visibility status: ${isVisible ? 'Visible' : 'Hidden'}`);
-    console.log('----------------------------------------');
-
+// Toggle review visibility (Show/Hide)
+async function toggleReviewVisibility(reviewId, makeVisible) {
     try {
         const { data, error } = await window.supabaseClient
             .from('reviews')
-            .update({
-                is_visible: isVisible,
-                approved_at: isVisible ? new Date().toISOString() : null
-            })
-            .eq('id', reviewId)
-            .select();
-
+            .update({ is_visible: makeVisible })
+            .eq('id', reviewId);
         if (error) {
-            console.error('❌ Error updating review visibility:', error);
-            console.error('Error details:', error.message);
-            console.error('----------------------------------------');
             showToast('Failed to update review visibility', 'error');
+            console.error(error);
             return;
         }
-
-        console.log('✅ Review visibility updated successfully');
-        console.log('Updated review data:', data);
-        console.log('----------------------------------------');
-
-        // Show success message
-        showToast(`Review ${isVisible ? 'shown' : 'hidden'} successfully`);
-
-        // Refresh both admin and public views
-        console.log('🔄 Refreshing review lists...');
-        
-        // Refresh admin view
-        await loadAllReviews();
-        
-        // Refresh public view if it exists
-        const publicContainer = document.querySelector('#reviewsContainer');
-        if (publicContainer) {
-            await loadApprovedReviews();
+        showToast(`Review ${makeVisible ? 'shown' : 'hidden'}!`);
+        if (document.getElementById('adminReviewsContainer')) {
+            await loadAllReviews();
         }
-
-        console.log('✅ Review lists refreshed successfully');
-        console.log('----------------------------------------');
-    } catch (error) {
-        console.error('❌ Error in toggleReviewVisibility:', error);
-        console.error('Error details:', error.message);
-        console.error('----------------------------------------');
+    } catch (err) {
         showToast('Failed to update review visibility', 'error');
+        console.error(err);
     }
 }
 
