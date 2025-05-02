@@ -542,6 +542,123 @@ async function deleteReview(reviewId) {
     }
 }
 
+// Function to load reviews in admin panel
+async function loadAdminReviews() {
+    try {
+        const { data: reviews, error } = await window.supabaseClient
+            .from('reviews')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        const reviewsContainer = document.getElementById('admin-reviews-container');
+        reviewsContainer.innerHTML = '';
+
+        if (reviews.length === 0) {
+            reviewsContainer.innerHTML = `
+                <div class="p-6 text-center text-gray-500">
+                    <i class="fas fa-comments text-gray-300 text-4xl mb-2"></i>
+                    <p>No reviews found.</p>
+                </div>
+            `;
+            return;
+        }
+
+        reviews.forEach(review => {
+            const reviewElement = document.createElement('div');
+            reviewElement.className = 'p-4 border-b border-gray-200 hover:bg-gray-50 transition-colors';
+            reviewElement.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h4 class="font-semibold text-gray-800">${review.student_name}</h4>
+                        <div class="flex items-center mt-1">
+                            ${generateStarRating(review.rating)}
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        ${review.status === 'pending' ? `
+                            <button onclick="approveReview(${review.id})" class="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">
+                                <i class="fas fa-check mr-1"></i> Approve
+                            </button>
+                            <button onclick="declineReview(${review.id})" class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">
+                                <i class="fas fa-times mr-1"></i> Decline
+                            </button>
+                        ` : `
+                            <span class="px-3 py-1 ${review.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded-md">
+                                ${review.status.charAt(0).toUpperCase() + review.status.slice(1)}
+                            </span>
+                        `}
+                    </div>
+                </div>
+                <p class="text-gray-600 mt-2">${review.review_text}</p>
+                <div class="text-sm text-gray-500 mt-2">
+                    ${new Date(review.created_at).toLocaleDateString()}
+                </div>
+            `;
+            reviewsContainer.appendChild(reviewElement);
+        });
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+        showToast('error', 'Failed to load reviews');
+    }
+}
+
+// Function to approve a review
+async function approveReview(reviewId) {
+    try {
+        const { error } = await window.supabaseClient
+            .from('reviews')
+            .update({ status: 'approved' })
+            .eq('id', reviewId);
+
+        if (error) throw error;
+
+        showToast('success', 'Review approved successfully');
+        loadAdminReviews(); // Reload the reviews
+    } catch (error) {
+        console.error('Error approving review:', error);
+        showToast('error', 'Failed to approve review');
+    }
+}
+
+// Function to decline a review
+async function declineReview(reviewId) {
+    try {
+        const { error } = await window.supabaseClient
+            .from('reviews')
+            .update({ status: 'declined' })
+            .eq('id', reviewId);
+
+        if (error) throw error;
+
+        showToast('success', 'Review declined successfully');
+        loadAdminReviews(); // Reload the reviews
+    } catch (error) {
+        console.error('Error declining review:', error);
+        showToast('error', 'Failed to decline review');
+    }
+}
+
+// Function to generate star rating HTML
+function generateStarRating(rating) {
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+        stars += `<i class="fas fa-star ${i <= rating ? 'text-yellow-400' : 'text-gray-300'}"></i>`;
+    }
+    return stars;
+}
+
+// Add event listener for refresh button
+document.getElementById('refreshReviewsBtn')?.addEventListener('click', loadAdminReviews);
+
+// Load admin reviews when admin panel is opened
+document.getElementById('adminBtn')?.addEventListener('click', () => {
+    if (isLoggedIn) {
+        loadAdminReviews();
+    }
+});
+
 // Initialize review system
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Initializing review system...');
@@ -593,4 +710,57 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Export functions for use in other files
 window.toggleReviewVisibility = toggleReviewVisibility;
-window.deleteReview = deleteReview; 
+window.deleteReview = deleteReview;
+
+// Function to load reviews for the public view
+async function loadReviews() {
+    try {
+        const { data: reviews, error } = await supabase
+            .from('reviews')
+            .select('*')
+            .eq('status', 'approved')  // Only fetch approved reviews
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        const reviewsContainer = document.getElementById('reviewsContainer');
+        reviewsContainer.innerHTML = '';
+
+        if (reviews.length === 0) {
+            reviewsContainer.innerHTML = `
+                <div class="text-center text-gray-500">
+                    <p>No reviews yet. Be the first to leave a review!</p>
+                </div>
+            `;
+            return;
+        }
+
+        const reviewsGrid = document.createElement('div');
+        reviewsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+
+        reviews.forEach(review => {
+            const reviewCard = document.createElement('div');
+            reviewCard.className = 'bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow';
+            reviewCard.innerHTML = `
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h4 class="font-semibold text-gray-800">${review.name}</h4>
+                        <div class="flex items-center mt-1">
+                            ${generateStarRating(review.rating)}
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        ${new Date(review.created_at).toLocaleDateString()}
+                    </div>
+                </div>
+                <p class="text-gray-600">${review.review_text}</p>
+            `;
+            reviewsGrid.appendChild(reviewCard);
+        });
+
+        reviewsContainer.appendChild(reviewsGrid);
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+        showAlert('error', 'Failed to load reviews');
+    }
+} 

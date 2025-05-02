@@ -80,3 +80,57 @@ CREATE POLICY site_data_delete_policy
 -- Note: In production, you would want more restrictive policies
 -- The above policies allow anyone to modify the data for simplicity
 -- and because this is a demo/educational site 
+
+-- Create reviews table
+CREATE TABLE reviews (
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    review_text TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'declined')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- Create a function to automatically update updated_at
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = TIMEZONE('utc', NOW());
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Create a trigger to call the function before each update
+CREATE TRIGGER update_reviews_updated_at
+    BEFORE UPDATE ON reviews
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Create RLS policies for reviews
+ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+
+-- Allow anyone to create a review
+CREATE POLICY "Allow anyone to create reviews"
+ON reviews FOR INSERT
+TO public
+WITH CHECK (true);
+
+-- Allow anyone to read approved reviews
+CREATE POLICY "Allow anyone to read approved reviews"
+ON reviews FOR SELECT
+TO public
+USING (status = 'approved');
+
+-- Allow authenticated users to read all reviews
+CREATE POLICY "Allow authenticated users to read all reviews"
+ON reviews FOR SELECT
+TO authenticated
+USING (true);
+
+-- Allow authenticated users to update review status
+CREATE POLICY "Allow authenticated users to update review status"
+ON reviews FOR UPDATE
+TO authenticated
+USING (true)
+WITH CHECK (true); 
