@@ -1,0 +1,2282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Igcse Teacher Portfolio Website</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="template1/styles.css">
+    
+    <style>
+        /* Theme CSS Variables */
+        :root {
+            /* Default theme colors - Blue */
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #60a5fa;
+            --gradient-from: rgba(30, 58, 138, 0.9);
+            --gradient-to: rgba(37, 99, 235, 0.8);
+            
+            /* Default light mode colors */
+            --bg-color: #f9fafb;
+            --text-color: #1f2937;
+            --text-light: #6b7280;
+            --card-bg: #ffffff;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --border-color: #e5e7eb;
+            --nav-bg: #ffffff;
+            --btn-text: #ffffff;
+            --footer-bg: #1f2937;
+            --footer-text: #f9fafb;
+        }
+        
+        /* Updated Navigation Styles */
+        header {
+            background-color: var(--nav-bg);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .nav-brand-name {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: #333333;
+            line-height: 1.2;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-brand-name:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-brand-subtitle {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        
+        .nav-link {
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.938rem;
+            color: #333333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+            opacity: 0;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+            opacity: 1;
+        }
+        
+        .admin-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            border: 1.5px solid #E5E7EB;
+            background-color: transparent;
+            color: #6B7280;
+            transition: all 0.3s ease;
+            margin-left: 1.5rem;
+        }
+        
+        .admin-btn:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Mobile Menu Styles */
+        #mobileMenu {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--nav-bg);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 40;
+            padding: 1.5rem;
+        }
+        
+        #mobileMenu.active {
+            transform: translateX(0);
+        }
+        
+        .mobile-nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        
+        .mobile-nav-brand {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .mobile-nav-link {
+            display: block;
+            padding: 1rem 0;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            color: #333333;
+            border-bottom: 1px solid #E5E7EB;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-nav-link:hover {
+            color: #4B5563;
+            padding-left: 0.5rem;
+        }
+        
+        #menuBtn {
+            display: none;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            border: 1.5px solid #E5E7EB;
+            background-color: transparent;
+            color: #6B7280;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+        }
+        
+        #menuBtn:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        
+        #closeMenuBtn {
+            width: 2.25rem;
+            height: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 1px solid #E5E7EB;
+            color: #6B7280;
+            transition: all 0.3s ease;
+        }
+        
+        #closeMenuBtn:hover {
+            background-color: #F9FAFB;
+            border-color: #D1D5DB;
+            color: #4B5563;
+        }
+        
+        @media (max-width: 768px) {
+            #menuBtn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .admin-btn {
+                margin-left: 0;
+            }
+        }
+        
+        /* Dark mode navigation styles */
+        .dark-mode header {
+            background-color: var(--nav-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .dark-mode .nav-brand-name {
+            color: #f3f4f6;
+        }
+        
+        .dark-mode .nav-brand-subtitle {
+            color: #9ca3af;
+        }
+        
+        .dark-mode .nav-link {
+            color: #f3f4f6;
+        }
+        
+        .dark-mode .admin-btn {
+            border-color: #4b5563;
+            color: #e5e7eb;
+        }
+        
+        .dark-mode #mobileMenu {
+            background-color: var(--nav-bg);
+        }
+        
+        .dark-mode .mobile-nav-link {
+            border-color: var(--border-color);
+        }
+        
+        /* Modern Hero Section Styles */
+        .bg-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .hero-title {
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: -0.025em;
+        }
+        
+        /* Modern button styles */
+        .btn-modern {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.75rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-modern:hover {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+        }
+        
+        /* Responsive Hero Styles */
+        @media (max-width: 768px) {
+            #hero {
+                padding-top: 6rem;
+                padding-bottom: 4rem;
+                text-align: center;
+                position: relative;
+            }
+            
+            #hero .hero-content {
+                text-align: center;
+                padding: 0;
+            }
+            
+            #hero .inline-block {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            #hero .flex.flex-wrap {
+                justify-content: center;
+            }
+            
+            .btn-modern {
+                padding: 0.625rem 1.5rem;
+                font-size: 0.938rem;
+            }
+            
+            /* Mobile-specific arrow positioning */
+            #hero a[href="#about"].absolute {
+                bottom: 2rem;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                width: 3rem;
+                height: 3rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                background-color: rgba(255, 255, 255, 0.9);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 30;
+            }
+            
+            /* Ensure mobile hero image is properly displayed */
+            #heroImageMobile {
+                height: 320px;
+                display: block;
+                object-position: center top;
+            }
+            
+            /* Add proper spacing below image container */
+            #hero .relative.block.md\:hidden {
+                margin-bottom: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            #hero h1 {
+                font-size: 2.25rem;
+            }
+            
+            #hero p {
+                font-size: 1rem;
+            }
+            
+            /* Fine-tune arrow position for small mobile devices */
+            #hero a[href="#about"].absolute {
+                bottom: 1.5rem;
+                width: 2.75rem;
+                height: 2.75rem;
+            }
+        }
+        
+        /* Fix for mobile layout issues */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            position: relative;
+        }
+        
+        .overflow-fix {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        section {
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        
+        /* Ensure images don't cause overflow */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Fix container widths */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+        }
+        
+        /* Prevent unwanted margins */
+        section + section {
+            margin-top: 0;
+        }
+        
+        /* Dark mode enhancements for new hero section */
+        .dark-mode .hero-title {
+            color: var(--text-color);
+        }
+        
+        .dark-mode #hero {
+            background: linear-gradient(to bottom right, #111827, #1f2937);
+        }
+        
+        .dark-mode #hero p {
+            color: var(--text-light);
+        }
+        
+        .dark-mode .inline-block.px-4.py-2 {
+            background-color: rgba(59, 130, 246, 0.2);
+        }
+        
+        .dark-mode .inline-block.px-4.py-2 span {
+            color: var(--primary-light);
+        }
+        
+        .dark-mode .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .dark-mode .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+        
+        /* Fix for iOS devices */
+        @supports (-webkit-touch-callout: none) {
+            body, html {
+                width: 100%;
+                overflow-x: hidden;
+            }
+            
+            section {
+                width: 100%;
+                max-width: 100%;
+                overflow: hidden;
+            }
+        }
+        
+        /* Dark mode color modifiers */
+        .dark-mode {
+            --bg-color: #0f172a;
+            --text-color: #f3f4f6;
+            --text-light: #d1d5db;
+            --card-bg: #1e293b;
+            --card-shadow: rgba(0, 0, 0, 0.25);
+            --border-color: #334155;
+            --nav-bg: #07091a; /* Even darker navy for dark mode */
+            --btn-text: #f9fafb;
+            --footer-bg: #030712;
+            --footer-text: #f9fafb;
+        }
+        
+        /* Dark mode enhanced styling */
+        .dark-mode body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .dark-mode .bg-white {
+            background-color: var(--card-bg) !important;
+        }
+        
+        .dark-mode .bg-gray-50 {
+            background-color: var(--bg-color) !important;
+        }
+        
+        .dark-mode .text-gray-600, 
+        .dark-mode .text-gray-700, 
+        .dark-mode .text-gray-800 {
+            color: var(--text-light) !important;
+        }
+        
+        .dark-mode header {
+            background-color: var(--nav-bg);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dark-mode .btn-primary {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .dark-mode .nav-link {
+            color: var(--text-color);
+        }
+        
+        .dark-mode .nav-link:hover {
+            text-shadow: 0 0 8px var(--primary-color);
+        }
+        
+        .dark-mode .experience-card,
+        .dark-mode .subject-card,
+        .dark-mode .feature-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dark-mode .form-input {
+            background-color: rgba(31, 41, 55, 0.8);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+        
+        .dark-mode .form-input:focus {
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+        
+        .dark-mode .section-title::after {
+            background-color: var(--primary-color);
+            box-shadow: 0 0 8px var(--primary-color);
+        }
+        
+        .dark-mode #hero .absolute.inset-0.bg-gradient-to-r {
+            opacity: 0.9;
+        }
+        
+        .dark-mode #adminPanel {
+            background-color: var(--bg-color);
+        }
+        
+        .dark-mode #adminLoginModal .bg-white {
+            background-color: var(--card-bg);
+        }
+        
+        /* Icon glow effect in dark mode */
+        .dark-mode .fas {
+            filter: drop-shadow(0 0 2px currentColor);
+        }
+        
+        /* Theme color modifiers */
+        .theme-blue {
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #60a5fa;
+            --gradient-from: rgba(30, 58, 138, 0.9);
+            --gradient-to: rgba(37, 99, 235, 0.8);
+        }
+        
+        .theme-green {
+            --primary-color: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #34d399;
+            --gradient-from: rgba(6, 78, 59, 0.9);
+            --gradient-to: rgba(5, 150, 105, 0.8);
+        }
+        
+        .theme-purple {
+            --primary-color: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --primary-light: #a78bfa;
+            --gradient-from: rgba(76, 29, 149, 0.9);
+            --gradient-to: rgba(124, 58, 237, 0.8);
+        }
+        
+        .theme-red {
+            --primary-color: #ef4444;
+            --primary-dark: #dc2626;
+            --primary-light: #f87171;
+            --gradient-from: rgba(153, 27, 27, 0.9);
+            --gradient-to: rgba(220, 38, 38, 0.8);
+        }
+        
+        .theme-gray {
+            --primary-color: #6b7280;
+            --primary-dark: #4b5563;
+            --primary-light: #9ca3af;
+            --gradient-from: rgba(55, 65, 81, 0.9);
+            --gradient-to: rgba(75, 85, 99, 0.8);
+        }
+        
+        /* Theme mode modifiers */
+        .dark-mode {
+            --bg-color: #111827;
+            --text-color: #f9fafb;
+            --text-light: #d1d5db;
+            --card-bg: #1f2937;
+            --card-shadow: rgba(0, 0, 0, 0.25);
+            --border-color: #374151;
+            --nav-bg: rgba(17, 24, 39, 0.95);
+            --btn-text: #f9fafb;
+            --footer-bg: #030712;
+            --footer-text: #f9fafb;
+        }
+        
+        /* Apply theme to elements */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Navigation theming */
+        header {
+            background-color: var(--nav-bg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+        
+        /* Navigation padding adjustment */
+        header nav {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        
+        /* Logo styling */
+        header nav a.text-2xl {
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            transition: all 0.3s ease;
+        }
+        
+        header nav a.text-2xl:hover {
+            transform: translateY(-2px);
+            text-shadow: 0 10px 20px rgba(var(--primary-color-rgb), 0.4);
+        }
+        
+        /* Desktop navigation links */
+        .nav-link {
+            color: #e2e8f0;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            padding: 0.5rem 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        /* Underline effect for nav links */
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            transform: translateY(3px);
+        }
+        
+        .nav-link:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+            opacity: 1;
+            transform: translateY(0);
+            box-shadow: 0 0 8px var(--primary-color);
+        }
+        
+        /* Admin button styling */
+        .admin-btn {
+            display: flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .admin-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Improve desktop navigation spacing */
+        header ul.md\:flex {
+            gap: 1.75rem;
+        }
+        
+        /* Mobile menu improvements */
+        #mobileMenu {
+            background-color: var(--nav-bg);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #closeMenuBtn {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        #closeMenuBtn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Mobile navigation links */
+        .mobile-nav-link {
+            color: #e2e8f0;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 1.125rem;
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            border-left: 3px solid transparent;
+        }
+        
+        .mobile-nav-link:hover {
+            color: white;
+            background-color: rgba(var(--primary-color-rgb), 0.15);
+            border-left: 3px solid var(--primary-color);
+            padding-left: 1.5rem;
+        }
+        
+        /* Mobile menu buttons */
+        #menuBtn, #adminBtnMobile {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        #menuBtn:hover, #adminBtnMobile:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        #menuBtn i, #adminBtnMobile i {
+            color: white;
+        }
+        
+        /* Keyboard navigation focus styles */
+        .nav-link:focus-visible, 
+        .mobile-nav-link:focus-visible,
+        #menuBtn:focus-visible, 
+        #adminBtnMobile:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+        
+        /* Active link styling */
+        .nav-link.active::after {
+            width: 100%;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .mobile-nav-link.active {
+            background-color: rgba(var(--primary-color-rgb), 0.15);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        /* Card theming */
+        .bg-white, .experience-card, .subject-card, .feature-card {
+            background-color: var(--card-bg);
+            box-shadow: 0 4px 6px var(--card-shadow);
+        }
+        
+        /* Text theming */
+        .text-gray-600, .text-gray-700, .text-gray-800 {
+            color: var(--text-color);
+        }
+        
+        p.text-gray-600 {
+            color: var(--text-light);
+        }
+        
+        /* Hero section gradient overlay */
+        .bg-gradient-to-r {
+            background-image: linear-gradient(to right, var(--gradient-from), var(--gradient-to));
+        }
+        
+        /* Primary color elements */
+        .bg-blue-600, .btn-primary, .text-blue-600 .experience-card i {
+            background-color: var(--primary-color);
+            color: var(--btn-text);
+        }
+        
+        .text-blue-600, .nav-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        /* Footer theming */
+        footer.bg-gray-900 {
+            background-color: var(--footer-bg);
+            color: var(--footer-text);
+        }
+        
+        /* Form inputs theming */
+        .form-input {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+        
+        /* Icon theming */
+        .fa-graduation-cap, .fa-check, .section-title::after,
+        .fa-star, .fa-money-bill-wave, .fa-calendar-alt, 
+        .fa-clock, .fa-video, .fa-users {
+            color: var(--primary-color);
+        }
+        
+        /* Theme change animation */
+        @keyframes theme-fade {
+            0% { opacity: 0.8; filter: blur(2px); }
+            100% { opacity: 1; filter: blur(0); }
+        }
+        
+        .theme-transition {
+            animation: theme-fade 0.5s ease-in-out;
+        }
+        
+        /* Loading spinner for admin actions */
+        .admin-loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: admin-spin 0.8s linear infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes admin-spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Theme option selectors enhanced styling */
+        .theme-color-option:checked + label,
+        .theme-mode-option:checked + label {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px var(--primary-color);
+            transition: all 0.2s ease;
+        }
+        
+        #previewThemeBtn {
+            background-size: 200% auto;
+            transition: all 0.3s ease;
+        }
+        
+        #previewThemeBtn:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        #previewThemeBtn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Section depth effect classes */
+        .section-depth-even {
+            position: relative;
+            z-index: 1;
+            transition: all 0.5s ease;
+        }
+        
+        .section-depth-odd {
+            position: relative;
+            z-index: 1;
+            transition: all 0.5s ease;
+        }
+        
+        /* Theme preview button animation */
+        #previewThemeBtn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: all 0.6s ease;
+        }
+        
+        #previewThemeBtn:hover::before {
+            left: 100%;
+        }
+        
+        /* Enhanced theme option selectors */
+        .theme-color-option label,
+        .theme-mode-option label {
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+        
+        .theme-color-option input:checked + label,
+        .theme-mode-option input:checked + label {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Custom styles for admin components */
+        #showDangerBtn {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        #dangerZone {
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .dark-mode .hero-title {
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6);
+            }
+        }
+        
+        .dark-mode .text-yellow-400 {
+            color: #fcd34d;
+            text-shadow: 0 0 10px rgba(252, 211, 77, 0.6);
+        }
+        
+        .dark-mode #hero .absolute.inset-0.bg-gradient-to-r {
+            opacity: 0.9;
+        }
+        
+        /* Mobile menu dark mode enhancements */
+        .dark-mode #mobileMenu {
+            background-color: var(--card-bg);
+            border-left: 1px solid var(--border-color);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dark-mode .mobile-nav-link {
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .dark-mode .mobile-nav-link:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .dark-mode #closeMenuBtn,
+        .dark-mode #menuBtn,
+        .dark-mode #adminBtnMobile {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dark-mode #adminBtnMobileNav {
+            color: var(--primary-color);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        /* Touch ripple effect for mobile navigation */
+        .touch-ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        /* Additional navigation improvements */
+        header.scrolled {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        
+        /* Add a subtle background hover effect on desktop links */
+        .nav-link {
+            border-radius: 0.25rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Update mobile menu design */
+        #mobileMenu {
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Style for the close menu button in mobile nav */
+        #closeMenuBtn:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+        
+        /* Mobile menu branding */
+        .mobile-menu-header {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .mobile-menu-header .logo {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white;
+            margin-right: auto;
+        }
+        
+        /* Responsive fixes */
+        @media (max-width: 768px) {
+            header nav {
+                padding-top: 0.75rem;
+                padding-bottom: 0.75rem;
+            }
+            
+            header nav a.text-2xl {
+                font-size: 1.25rem;
+            }
+        }
+        
+        /* Dark mode styles for password change section */
+        .dark-mode #changePasswordSection {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+        }
+        
+        .dark-mode #changePasswordSection h3 {
+            color: var(--primary-color);
+        }
+        
+        .dark-mode #changePasswordSection input {
+            background-color: var(--bg-color);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+        
+        .dark-mode #changePasswordSection input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+        }
+        
+        .dark-mode #changePasswordSection button[type="submit"] {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .dark-mode #changePasswordSection button[type="submit"]:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Years of Experience Box Styles */
+        .experience-card .bg-gradient-to-br {
+            background-image: linear-gradient(to bottom right, var(--primary-color), var(--primary-dark));
+        }
+
+        .experience-card .text-blue-600 {
+            color: var(--primary-color);
+        }
+
+        .dark-mode .experience-card .text-gray-800 {
+            color: var(--text-color);
+        }
+
+        .dark-mode .experience-card .text-gray-600 {
+            color: var(--text-light);
+        }
+
+        .dark-mode .experience-card .bg-gradient-to-br {
+            opacity: 0.15;
+        }
+
+        /* Loader Styles */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+        }
+
+        .loader-container.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        .loader-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: var(--text-color);
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .loader-subtext {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Dark mode loader styles */
+        .dark-mode .loader-container {
+            background: rgba(17, 24, 39, 0.98);
+        }
+
+        .dark-mode .loader {
+            border-color: var(--border-color);
+            border-top-color: var(--primary-color);
+        }
+
+        .dark-mode .loader-text {
+            color: var(--card-bg);
+        }
+
+        .dark-mode .loader-subtext {
+            color: var(--text-light);
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        /* Experience card styles */
+        .experience-card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .experience-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Feature card styles */
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Admin panel section styles */
+        .bg-white.rounded-lg.shadow-lg {
+            transition: all 0.3s ease;
+        }
+
+        .bg-white.rounded-lg.shadow-lg:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Admin panel section headings and text */
+        .bg-white.dark\:bg-gray-800.rounded-lg h3,
+        .backdrop-blur-sm h3,
+        .bg-white.rounded-lg.shadow-lg h3 {
+            color: #ffffff;
+        }
+
+        /* Security Settings section */
+        .bg-white.dark\:bg-gray-800 h3.text-lg {
+            color: #ffffff;
+        }
+
+        /* Admin Password label */
+        .text-gray-700.dark\:text-gray-300 {
+            color: #ffffff !important;
+        }
+
+        /* Website Images section */
+        .backdrop-blur-sm.bg-white\/70 h3,
+        .backdrop-blur-sm.bg-white\/70 label,
+        .backdrop-blur-sm.bg-white\/70 .text-gray-500 {
+            color: #ffffff;
+        }
+
+        /* Upload text and drag-drop text */
+        #heroDropZone .text-xs,
+        #aboutDropZone .text-xs,
+        .text-gray-500.dark\:text-gray-400 {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        /* Section titles */
+        .text-red-500,
+        .text-red-600,
+        #securitySettings h3,
+        #websiteImages h3,
+        .admin-section-title {
+            color: #ffffff !important;
+        }
+
+        /* Security Settings text */
+        #securitySettings .text-gray-700,
+        #securitySettings label,
+        #securitySettings .text-sm {
+            color: #ffffff !important;
+        }
+
+        /* Website Images section text */
+        #websiteImages label,
+        #websiteImages .text-sm {
+            color: #ffffff !important;
+        }
+
+        /* Drag and drop text */
+        .text-center.text-gray-500,
+        .text-center.text-red-500 {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+    </style>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="overflow-fix">
+    <!-- Loader Component -->
+    <div id="loaderContainer" class="loader-container">
+        <div class="loader"></div>
+        <div class="loader-text">Loading your data...</div>
+        <div class="loader-subtext">Please wait while we fetch the latest information</div>
+    </div>
+    
+    <!-- Header -->
+    <header class="fixed w-full z-50 transition-all duration-300">
+        <nav class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand -->
+                <div class="nav-brand">
+                    <a href="#hero" class="nav-brand-name">Teacher Name</a>
+                    <span class="nav-brand-subtitle">Teacher Title</span>
+                </div>
+                
+                <div class="flex items-center">
+                    <!-- Desktop Navigation -->
+                    <ul class="nav-links">
+                        <li><a href="#about" class="nav-link">About</a></li>
+                        <li><a href="#subjects" class="nav-link">Subjects</a></li>
+                        <li><a href="#results" class="nav-link">Results</a></li>
+                        <li><a href="#experience" class="nav-link">Experience</a></li>
+                        <li><a href="#register" class="nav-link">Register</a></li>
+                        <li><a href="#contact" class="nav-link">Contact</a></li>
+                    </ul>
+                    
+                    <!-- Lock Icon Button -->
+                    <button id="adminBtn" class="admin-btn ml-6">
+                        <i class="fas fa-lock text-lg"></i>
+                    </button>
+                    
+                    <!-- Mobile Menu Button -->
+                    <button id="menuBtn" aria-label="Toggle Menu" class="md:hidden ml-4">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu Backdrop -->
+    <div id="mobileMenuBackdrop" class="mobile-menu-backdrop"></div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu">
+        <div class="mobile-nav-header">
+            <div class="mobile-nav-title">
+                <i class="fas fa-bars"></i> Menu
+            </div>
+            <button id="closeMenuBtn" class="close-menu-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="mobile-nav-links">
+            <li><a href="#about" class="mobile-nav-link"><span>About</span></a></li>
+            <li><a href="#results" class="mobile-nav-link"><span>Results</span></a></li>
+            <li><a href="#experience" class="mobile-nav-link"><span>Experience</span></a></li>
+            <li><a href="#register" class="mobile-nav-link"><span>Register</span></a></li>
+            <li><a href="#contact" class="mobile-nav-link"><span>Contact</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
+        <div class="absolute inset-0 z-0 bg-gradient-to-br from-gray-50 to-blue-50">
+            <div class="absolute inset-0 bg-pattern opacity-5"></div>
+        </div>
+        
+        <div class="container mx-auto px-4 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div class="text-left hero-content md:pr-8">
+                    <div class="inline-block px-4 py-2 bg-blue-100 rounded-full mb-4 md:mb-6">
+                        <span class="text-blue-700 font-medium text-sm md:text-base">Passionate Educator</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight hero-title">
+                        Inspiring Minds Through 
+                        <span class="text-blue-600">Subject</span>
+                    </h1>
+                    <p class="text-base md:text-lg text-gray-600 mb-6 md:mb-8 max-w-xl">
+                        Experience
+                    </p>
+                    <div class="flex flex-wrap gap-3 md:gap-4">
+                        <a href="#about" class="btn-modern btn-primary transition-all duration-300 transform hover:-translate-y-1">
+                            <span>Learn More</span>
+                        </a>
+                        <a href="#contact" class="btn-modern btn-secondary transition-all duration-300 transform hover:-translate-y-1">
+                            <span>Contact Me</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="relative hidden md:block lg:block mt-8 md:mt-0">
+                    <div class="relative z-10 overflow-hidden rounded-2xl shadow-xl">
+                        <img id="heroImage" src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" 
+                            alt="Teacher Picture" 
+                            class="w-full h-full object-cover object-center">
+                   <!-- </div>
+                     <div class="absolute bottom-4 md:bottom-8 right-4 md:right-8 bg-white p-4 md:p-6 rounded-xl shadow-lg z-20 max-w-xs">
+                        <p class="text-gray-800 italic font-medium text-sm md:text-base mb-2">
+                            "Education is the most powerful weapon which you can use to change the world."
+                        </p>
+                        <p class="text-gray-500 text-xs md:text-sm text-right">- Nelson Mandela</p>
+                    </div>
+                    <div class="absolute -bottom-6 -left-6 w-32 md:w-48 h-32 md:h-48 bg-blue-100 rounded-full opacity-70 z-0"></div>
+                    <div class="absolute -top-6 -right-6 w-24 md:w-32 h-24 md:h-32 bg-yellow-100 rounded-full opacity-70 z-0"></div>
+                </div> -->
+                
+                <!-- Mobile Teacher Image -->
+                <div class="relative block md:hidden mt-8">
+                    <div class="relative z-10 overflow-hidden rounded-xl shadow-lg mx-auto max-w-xs">
+                        <img id="heroImageMobile" src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" 
+                            alt="Teacher Picture" 
+                            class="w-full h-64 object-cover object-center">
+                    </div>
+                    <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-100 rounded-full opacity-70 z-0"></div>
+                    <div class="absolute -top-4 -left-4 w-20 h-20 bg-yellow-100 rounded-full opacity-70 z-0"></div>
+                </div>
+            </div>
+        </div>
+        
+        <a href="#about" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-blue-600 animate-bounce z-10 flex items-center justify-center w-12 h-12 bg-white bg-opacity-80 rounded-full shadow-md">
+            <i class="fas fa-chevron-down text-xl"></i>
+        </a>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-white w-full overflow-hidden">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-12 section-title">About Me</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="relative">
+                    <img id="aboutImage" src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" 
+                         alt="Teacher Picture" 
+                         class="rounded-lg shadow-xl w-full">
+                    <!-- <div class="absolute -bottom-6 -right-6 bg-blue-600 text-white p-4 rounded-lg">
+                        <p class="text-2xl font-bold">15+</p>
+                        <p class="text-sm">Years Experience</p>
+                    </div> -->
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Qualifications</h3>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
+                            <span>Qualifications</span>
+                        </li>
+                    </ul>
+                    
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Teaching Philosophy</h3>
+                    <p class="text-gray-600 mb-8">
+                        Teaching Philosophy
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subjects Section -->
+    <section id="subjects" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">Subjects Taught</h2>
+            <div id="subjects-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- Subjects will be dynamically added here from the results data -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">Student Performance</h2>
+            <div id="charts-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Individual charts will be dynamically added here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">Teaching Experience</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Years of Experience Box -->
+                <div class="experience-card relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800 opacity-10"></div>
+                    <div class="relative z-10">
+                        <div class="text-blue-600 mb-4">
+                            <i class="fas fa-calendar-alt text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Years of Experience</h3>
+                        <div class="flex items-center justify-center">
+                            <div class="text-4xl font-bold text-blue-600 mr-2">15+</div>
+                            <div class="text-gray-600">Years</div>
+                        </div>
+                        <p class="text-gray-600 mt-4 text-center">
+                            Dedicated to excellence in mathematics education
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="experience-card">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-school text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Schools</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>International School of Mathematics</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Elite Academy</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Science High School</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="experience-card">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-chalkboard-teacher text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Centers</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Math Excellence Center</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Advanced Learning Institute</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>STEM Education Hub</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="experience-card">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-laptop text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Online Platforms</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>MathPro Online</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>EduTech Academy</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Virtual Learning Center</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration Section -->
+    <section id="register" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">Register for Classes</h2>
+            <div class="max-w-2xl mx-auto">
+                <div class="text-center mb-8">
+                    <i class="fas fa-user-plus text-5xl text-blue-600 mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Join Our Learning Community</h3>
+                    <p class="text-gray-600 mb-6">
+                        Take the first step towards academic excellence. Register for our classes and get personalized attention from experienced educators.
+                    </p>
+                    <a href="https://forms.gle/your-form-id" target="_blank" class="btn btn-primary">
+                        <span>Register Now</span>
+                    </a>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6 mt-12">
+                    <div class="feature-card">
+                        <h4 class="text-xl font-bold text-gray-800 mb-3">What You'll Get</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span>Personalized Learning Plan</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span>Regular Progress Reports</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span>24/7 Support</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4 class="text-xl font-bold text-gray-800 mb-3">Class Schedule</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-center">
+                                <i class="fas fa-clock text-blue-600 mr-2"></i>
+                                <span>Flexible Timing</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-video text-blue-600 mr-2"></i>
+                                <span>Online & Offline Options</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-users text-blue-600 mr-2"></i>
+                                <span>Small Group Sessions</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Assistant Application Section -->
+    <section id="assistant" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">Become an Assistant</h2>
+            <div class="max-w-2xl mx-auto">
+                <div class="text-center mb-8">
+                    <i class="fas fa-user-graduate text-5xl text-blue-600 mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Join Our Teaching Team</h3>
+                    <p class="text-gray-600 mb-6">
+                        Are you passionate about education? Apply to become a teaching assistant and help shape the future of mathematics education.
+                    </p>
+                    <a href="https://forms.gle/assistant-form-id" target="_blank" class="btn btn-primary btn-assistant-apply">
+                        <span>Apply Now</span>
+                    </a>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6 mt-12">
+                    <div class="feature-card">
+                        <h4 class="text-xl font-bold text-gray-800 mb-3">Qualifications</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span>Strong Mathematics Background</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span>Teaching Experience Preferred</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span>Excellent Communication Skills</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4 class="text-xl font-bold text-gray-800 mb-3">Benefits</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-center">
+                                <i class="fas fa-star text-blue-600 mr-2"></i>
+                                <span>Professional Development</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-money-bill-wave text-blue-600 mr-2"></i>
+                                <span>Competitive Compensation</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
+                                <span>Flexible Schedule</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">Contact Me</h2>
+            <div class="max-w-2xl mx-auto">
+                <form id="contactForm" class="space-y-6">
+                    <div>
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" id="name" name="name" required class="form-input">
+                    </div>
+                    <div>
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" id="email" name="email" required class="form-input">
+                    </div>
+                    <div>
+                        <label for="message" class="form-label">Message</label>
+                        <textarea id="message" name="message" required rows="4" class="form-input"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full">
+                        <span>Send Message</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="text-center footer-bottom">
+                <p>&copy; <span id="current-year">2024</span> Dr. Ahmed Mahmoud. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] hidden">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-800">Admin Login</h2>
+                <button type="button" id="exitLoginBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <!-- Alert container for the login form -->
+            <div id="loginAlertContainer" class="mb-4"></div>
+            <form id="adminLoginForm" class="space-y-4">
+                <div>
+                    <label for="adminPassword" class="form-label">Password</label>
+                    <input type="password" id="adminPassword" class="form-input" placeholder="Enter password" required>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancelLogin" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="fixed inset-0 bg-gray-100 z-[1000] overflow-auto hidden">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">Admin Panel</h2>
+                <div class="flex gap-4">
+                    <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                    </button>
+                    <button id="closeAdminPanel" class="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Alert container for messages -->
+            <div id="adminAlertContainer"></div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Personal Information</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="form-label">Name</label>
+                        <input type="text" id="admin-name" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Title</label>
+                        <input type="text" id="admin-title" class="form-input">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="form-label">Subtitle/Role</label>
+                    <input type="text" id="admin-subtitle" class="form-input" placeholder="History Teacher">
+                </div>
+                <div class="mt-4">
+                    <label class="form-label">Hero Heading</label>
+                    <input type="text" id="admin-hero-heading" class="form-input" placeholder="Inspiring Minds Through Mathematics">
+                </div>
+                <div class="mt-4">
+                    <label class="form-label">Experience</label>
+                    <input type="text" id="admin-experience" class="form-input">
+                </div>
+                <div class="mt-4">
+                    <label class="form-label">Teaching Philosophy</label>
+                    <textarea id="admin-philosophy" class="form-input" rows="4" placeholder="I believe in creating an engaging and supportive learning environment..."></textarea>
+                </div>
+                <div class="mt-4">
+                    <label class="form-label">Qualifications (one per line)</label>
+                    <textarea id="admin-qualifications" class="form-input" rows="4"></textarea>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Experience</h3>
+                
+                <div class="mb-6">
+                    <label class="form-label">Schools (one per line)</label>
+                    <textarea id="admin-schools" class="form-input" rows="4"></textarea>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="form-label">Centers (one per line)</label>
+                    <textarea id="admin-centers" class="form-input" rows="4"></textarea>
+                </div>
+                
+                <div>
+                    <label class="form-label">Online Platforms (one per line)</label>
+                    <textarea id="admin-platforms" class="form-input" rows="4"></textarea>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Results</h3>
+                <div id="admin-results-container">
+                    <!-- Results will be dynamically generated here -->
+                </div>
+                <button id="addResultBtn" class="btn btn-secondary mt-4">
+                    <i class="fas fa-plus mr-2"></i> Add Subject
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Contact</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="form-label">Email</label>
+                        <input type="email" id="admin-email" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Form URL</label>
+                        <input type="url" id="admin-form-url" class="form-input">
+                    </div>
+                </div>
+                
+                <div class="mt-4 grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="form-label">Assistant Form URL</label>
+                        <input type="url" id="admin-assistant-form-url" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" id="admin-phone" class="form-input">
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <label class="form-label">Contact Message</label>
+                    <textarea id="admin-contact-message" class="form-input" rows="3"></textarea>
+                </div>
+            </div>
+            
+            <!-- Reviews Management Section -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Reviews Management</h3>
+                
+                <div class="mb-4">
+                    <p class="text-gray-600 mb-4">Manage student reviews that appear on your website.</p>
+                    
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-lg font-semibold text-gray-700">All Reviews</h4>
+                        <div class="flex gap-2">
+                            <button id="refreshReviewsBtn" class="btn btn-secondary">
+                                <i class="fas fa-sync-alt mr-2"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="admin-reviews-container" class="border border-gray-200 rounded-lg divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                        <!-- Reviews will be loaded here -->
+                        <div class="p-6 text-center text-gray-500">
+                            <i class="fas fa-comments text-gray-300 text-4xl mb-2"></i>
+                            <p>No reviews found.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Theme Settings</h3>
+                
+                <div class="mb-6">
+                    <label class="form-label">Primary Color Theme</label>
+                    <div class="grid grid-cols-5 gap-3 mt-2">
+                        <div class="theme-color-option">
+                            <input type="radio" name="theme-color" id="theme-blue" value="blue" checked class="sr-only">
+                            <label for="theme-blue" class="flex items-center justify-center h-12 bg-blue-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all">
+                                <span>Blue</span>
+                            </label>
+                        </div>
+                        <div class="theme-color-option">
+                            <input type="radio" name="theme-color" id="theme-green" value="green" class="sr-only">
+                            <label for="theme-green" class="flex items-center justify-center h-12 bg-green-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-green-500 transition-all">
+                                <span>Green</span>
+                            </label>
+                        </div>
+                        <div class="theme-color-option">
+                            <input type="radio" name="theme-color" id="theme-purple" value="purple" class="sr-only">
+                            <label for="theme-purple" class="flex items-center justify-center h-12 bg-purple-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all">
+                                <span>Purple</span>
+                            </label>
+                        </div>
+                        <div class="theme-color-option">
+                            <input type="radio" name="theme-color" id="theme-red" value="red" class="sr-only">
+                            <label for="theme-red" class="flex items-center justify-center h-12 bg-red-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-red-500 transition-all">
+                                <span>Red</span>
+                            </label>
+                        </div>
+                        <div class="theme-color-option">
+                            <input type="radio" name="theme-color" id="theme-gray" value="gray" class="sr-only">
+                            <label for="theme-gray" class="flex items-center justify-center h-12 bg-gray-600 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-gray-500 transition-all">
+                                <span>Gray</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="form-label">Display Mode</label>
+                    <div class="grid grid-cols-2 gap-3 mt-2">
+                        <div class="theme-mode-option">
+                            <input type="radio" name="theme-mode" id="mode-light" value="light" checked class="sr-only">
+                            <label for="mode-light" class="flex items-center justify-center h-12 bg-white text-gray-800 border border-gray-200 rounded-lg cursor-pointer hover:ring-2 hover:ring-gray-300 transition-all">
+                                <i class="fas fa-sun mr-2"></i>
+                                <span>Light Mode</span>
+                            </label>
+                        </div>
+                        <div class="theme-mode-option">
+                            <input type="radio" name="theme-mode" id="mode-dark" value="dark" class="sr-only">
+                            <label for="mode-dark" class="flex items-center justify-center h-12 bg-gray-800 text-white rounded-lg cursor-pointer hover:ring-2 hover:ring-gray-600 transition-all">
+                                <i class="fas fa-moon mr-2"></i>
+                                <span>Dark Mode</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <button id="previewThemeBtn" class="btn btn-secondary">
+                        <i class="fas fa-eye mr-2"></i> Preview Theme
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Security Settings -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Security Settings</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Admin Password</label>
+                        <div class="flex gap-2">
+                            <input type="password" id="adminPassword" class="form-input flex-1" placeholder="Enter new password">
+                            <button id="changePasswordBtn" class="btn-primary">Change Password</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Upload Section -->
+            <div class="backdrop-blur-sm bg-white/70 dark:bg-gray-800/80 rounded-xl shadow-lg p-6 mb-6 transition-all duration-300">
+                <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-6">Website Images</h3>
+                <div class="space-y-6">
+                    <!-- Hero Image Upload -->
+                    <div class="bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm rounded-xl p-5 transition-all duration-300 hover:shadow-md">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Hero Image</label>
+                        <div class="flex flex-col md:flex-row gap-4 items-start">
+                            <div class="relative flex-1">
+                                <input type="file" id="heroImageInput" accept="image/*" class="hidden">
+                                <div id="heroDropZone" class="border border-gray-200 dark:border-gray-600 rounded-lg p-5 transition-all duration-300 hover:border-purple-400 dark:hover:border-purple-300 cursor-pointer focus-within:ring-2 focus-within:ring-purple-400 dark:focus-within:ring-purple-300" tabindex="0" role="button" aria-label="Upload hero image by clicking or dropping a file">
+                                    <button id="heroUploadBtn" class="w-full px-5 py-2.5 border border-purple-500 dark:border-purple-400 text-purple-600 dark:text-purple-300 bg-transparent hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 group">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-1">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                        <span>Upload Hero Image</span>
+                                    </button>
+                                    <div class="mt-3 flex items-center justify-center">
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">or drag and drop your image here</p>
+                                        <span class="relative group ml-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 cursor-help">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                            </svg>
+                                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-gray-800 text-xs text-white rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">Recommended size: 1200x800px</span>
+                                        </span>
+                                    </div>
+                                    <div id="heroUploadSpinner" class="hidden mt-3 flex justify-center">
+                                        <svg class="animate-spin h-5 w-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="heroPreview" class="hidden w-full md:w-56 bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden transition-all duration-300 hover:shadow-md">
+                                <div class="relative group">
+                                    <img src="" alt="Hero Preview" class="w-full h-40 object-cover">
+                                    <div class="absolute top-2 right-2">
+                                        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full p-1.5 shadow-sm transform scale-90 hover:scale-100 transition-all duration-300">
+                                            <button id="removeHeroBtn" class="text-red-500 hover:text-red-600 transition-colors" aria-label="Remove hero image">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-2 text-xs text-gray-500 dark:text-gray-400 text-center">Hero Image</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- About Image Upload -->
+                    <div class="bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm rounded-xl p-5 transition-all duration-300 hover:shadow-md">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">About Image</label>
+                        <div class="flex flex-col md:flex-row gap-4 items-start">
+                            <div class="relative flex-1">
+                                <input type="file" id="aboutImageInput" accept="image/*" class="hidden">
+                                <div id="aboutDropZone" class="border border-gray-200 dark:border-gray-600 rounded-lg p-5 transition-all duration-300 hover:border-purple-400 dark:hover:border-purple-300 cursor-pointer focus-within:ring-2 focus-within:ring-purple-400 dark:focus-within:ring-purple-300" tabindex="0" role="button" aria-label="Upload about image by clicking or dropping a file">
+                                    <button id="aboutUploadBtn" class="w-full px-5 py-2.5 border border-purple-500 dark:border-purple-400 text-purple-600 dark:text-purple-300 bg-transparent hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 group">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-1">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                        <span>Upload About Image</span>
+                                    </button>
+                                    <div class="mt-3 flex items-center justify-center">
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">or drag and drop your image here</p>
+                                        <span class="relative group ml-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 cursor-help">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                            </svg>
+                                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-gray-800 text-xs text-white rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">Recommended size: 800x800px</span>
+                                        </span>
+                                    </div>
+                                    <div id="aboutUploadSpinner" class="hidden mt-3 flex justify-center">
+                                        <svg class="animate-spin h-5 w-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="aboutPreview" class="hidden w-full md:w-56 bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden transition-all duration-300 hover:shadow-md">
+                                <div class="relative group">
+                                    <img src="" alt="About Preview" class="w-full h-40 object-cover">
+                                    <div class="absolute top-2 right-2">
+                                        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full p-1.5 shadow-sm transform scale-90 hover:scale-100 transition-all duration-300">
+                                            <button id="removeAboutBtn" class="text-red-500 hover:text-red-600 transition-colors" aria-label="Remove about image">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-2 text-xs text-gray-500 dark:text-gray-400 text-center">About Image</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button id="saveChangesBtn" class="btn btn-primary">
+                    <i class="fas fa-save mr-2"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Section in Admin Panel -->
+    <div id="changePasswordSection" class="fixed bottom-0 left-0 right-0 bg-blue-50 border-t border-blue-200 p-4 z-[1002] hidden">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div class="flex-grow">
+                    <h3 class="text-lg font-bold text-blue-700 mb-2">Change Admin Password</h3>
+                    <form id="changePasswordForm" class="max-w-md">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <input type="password" id="currentPassword" placeholder="Current Password" 
+                                    class="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <input type="password" id="newPassword" placeholder="New Password" 
+                                    class="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                        <div class="mt-3 flex justify-end gap-3">
+                            <button type="button" id="hidePasswordSection" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
+                                <i class="fas fa-times mr-2"></i>Cancel
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-key mr-2"></i>Change Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Change Password Button to Theme Settings -->
+   <!-- <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h3 class="text-xl font-bold mb-4 text-gray-800">Security Settings</h3>
+        <button id="showChangePasswordBtn" class="btn btn-secondary">
+            <i class="fas fa-key mr-2"></i> Change Admin Password
+        </button>
+    </div> -->
+
+    <!-- Danger Zone Section in Admin Panel -->
+    <div id="dangerZone" class="fixed bottom-0 left-0 right-0 bg-red-50 border-t border-red-200 p-4 z-[1001] hidden">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-red-700">Danger Zone</h3>
+                    <p class="text-sm text-red-600">These actions cannot be undone</p>
+                </div>
+                <div class="flex gap-4">
+                    <button id="toggleDangerBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-300 transition-colors">
+                        <i class="fas fa-times mr-2"></i> Hide
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="template1/grade-distribution.js"></script>
+    <script src="template1/script.js"></script>
+
+    <script>
+        // Add this to your existing script section or create a new one
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update footer year automatically
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+            
+            const loaderContainer = document.getElementById('loaderContainer');
+            
+            // Function to show loader
+            window.showLoader = function() {
+                loaderContainer.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling while loading
+            };
+            
+            // Function to hide loader
+            window.hideLoader = function() {
+                loaderContainer.classList.add('hidden');
+                document.body.style.overflow = ''; // Restore scrolling
+            };
+            
+            // Example usage: Hide loader when all content is loaded
+            window.addEventListener('load', function() {
+                // Add a small delay to ensure smooth animation
+                setTimeout(hideLoader, 500);
+            });
+            
+            // Show loader before making any AJAX requests
+            const originalFetch = window.fetch;
+            window.fetch = function() {
+                showLoader();
+                return originalFetch.apply(this, arguments)
+                    .then(function(response) {
+                        hideLoader();
+                        return response;
+                    })
+                    .catch(function(error) {
+                        hideLoader();
+                        throw error;
+                    });
+            };
+        });
+    </script>
+
+    <!-- Reviews Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Student Reviews</h2>
+            
+            <!-- Reviews Display -->
+            <div id="reviewsContainer" class="mb-12">
+                <!-- Reviews will be loaded here dynamically -->
+            </div>
+
+            <!-- Review Form -->
+            <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
+                <h3 class="text-2xl font-semibold mb-6">Leave a Review</h3>
+                <form id="reviewForm" class="space-y-6">
+                    <div>
+                        <label for="reviewName" class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+                        <input
+                            type="text"
+                            id="reviewName"
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter your name"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                        <div id="ratingContainer" class="flex items-center space-x-1" data-rating="0"></div>
+                        <p class="text-sm text-gray-500 mt-1">Click on the stars to rate</p>
+                    </div>
+
+                    <div>
+                        <label for="reviewText" class="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
+                        <textarea
+                            id="reviewText"
+                            required
+                            rows="4"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Share your experience..."
+                        ></textarea>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="w-full bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Submit Review
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Add this before the closing body tag -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="template1/reviews.js"></script>
+</body>
+</html>
