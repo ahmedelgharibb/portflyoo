@@ -274,7 +274,9 @@ function displayReviews(reviews) {
         return;
     }
 
-    reviews.forEach(review => {
+    // Show only the latest 3 reviews
+    const reviewsToShow = reviews.slice(0, 3);
+    reviewsToShow.forEach(review => {
         const reviewElement = document.createElement('div');
         reviewElement.className = 'bg-white rounded-lg shadow-md p-6 mb-4';
         reviewElement.innerHTML = `
@@ -287,7 +289,6 @@ function displayReviews(reviews) {
                 ${new Date(review.created_at).toLocaleDateString()}
             </div>
         `;
-
         container.appendChild(reviewElement);
         new StarRating(
             reviewElement.querySelector('.star-rating'),
@@ -295,6 +296,20 @@ function displayReviews(reviews) {
             true
         );
     });
+
+    // Add 'See All Reviews' button if there are more than 3 reviews
+    if (reviews.length > 3) {
+        const seeAllBtn = document.createElement('button');
+        seeAllBtn.className = 'w-full mt-4 py-3 px-6 rounded-md text-white transition duration-200';
+        seeAllBtn.style.background = 'var(--primary-color)';
+        seeAllBtn.onmouseover = function() { this.style.background = 'var(--primary-dark)'; };
+        seeAllBtn.onmouseout = function() { this.style.background = 'var(--primary-color)'; };
+        seeAllBtn.textContent = 'See All Reviews';
+        seeAllBtn.onclick = function() {
+            window.location.href = 'all-reviews.html';
+        };
+        container.appendChild(seeAllBtn);
+    }
 }
 
 // Admin: Load all reviews
@@ -632,4 +647,59 @@ async function loadReviews() {
         console.error('Error loading reviews:', error);
         showAlert('error', 'Failed to load reviews');
     }
-} 
+}
+
+// Export a function to load all reviews for the new page
+window.loadAllPublicReviews = async function(sortBy = 'latest') {
+    try {
+        let query = window.supabaseClient
+            .from('reviews')
+            .select('*')
+            .eq('is_visible', true);
+        if (sortBy === 'highest') {
+            query = query.order('rating', { ascending: false });
+        } else {
+            query = query.order('created_at', { ascending: false });
+        }
+        const { data, error } = await query;
+        if (error) throw error;
+        window.displayAllReviews(data || []);
+    } catch (error) {
+        console.error('Error loading all public reviews:', error);
+        const container = document.getElementById('allReviewsContainer');
+        if (container) {
+            container.innerHTML = '<div class="text-center text-red-500 py-8">Failed to load reviews.</div>';
+        }
+    }
+};
+
+// Export display function for all reviews page
+window.displayAllReviews = function(reviews) {
+    const container = document.getElementById('allReviewsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    if (reviews.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">No reviews found.</div>';
+        return;
+    }
+    reviews.forEach(review => {
+        const reviewElement = document.createElement('div');
+        reviewElement.className = 'bg-white rounded-lg shadow-md p-6 mb-4';
+        reviewElement.innerHTML = `
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-semibold">${review.student_name}</h4>
+                <div class="star-rating" data-rating="${review.rating}"></div>
+            </div>
+            <p class="text-gray-600">${review.review_text}</p>
+            <div class="text-sm text-gray-400 mt-2">
+                ${new Date(review.created_at).toLocaleDateString()}
+            </div>
+        `;
+        container.appendChild(reviewElement);
+        new StarRating(
+            reviewElement.querySelector('.star-rating'),
+            review.rating,
+            true
+        );
+    });
+}; 
