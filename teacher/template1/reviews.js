@@ -306,7 +306,7 @@ function displayReviews(reviews) {
         seeAllBtn.onmouseout = function() { this.style.background = 'var(--primary-color)'; };
         seeAllBtn.textContent = 'See All Reviews';
         seeAllBtn.onclick = function() {
-            window.location.href = '../all-reviews.html';
+            window.location.href = '/teacher/all-reviews.html';
         };
         container.appendChild(seeAllBtn);
     }
