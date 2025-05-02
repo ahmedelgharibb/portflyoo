@@ -571,13 +571,13 @@ async function loadAdminReviews() {
             reviewElement.innerHTML = `
                 <div class="flex justify-between items-start mb-2">
                     <div>
-                        <h4 class="font-semibold text-gray-800">${review.student_name}</h4>
+                        <h4 class="font-semibold text-gray-800">${review.student_name || 'Anonymous'}</h4>
                         <div class="flex items-center mt-1">
                             ${generateStarRating(review.rating)}
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        ${review.status === 'pending' ? `
+                        ${!review.is_visible ? `
                             <button onclick="approveReview(${review.id})" class="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">
                                 <i class="fas fa-check mr-1"></i> Approve
                             </button>
@@ -585,8 +585,8 @@ async function loadAdminReviews() {
                                 <i class="fas fa-times mr-1"></i> Decline
                             </button>
                         ` : `
-                            <span class="px-3 py-1 ${review.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded-md">
-                                ${review.status.charAt(0).toUpperCase() + review.status.slice(1)}
+                            <span class="px-3 py-1 ${review.is_visible ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded-md">
+                                ${review.is_visible ? 'Approved' : 'Declined'}
                             </span>
                         `}
                     </div>
@@ -609,7 +609,10 @@ async function approveReview(reviewId) {
     try {
         const { error } = await window.supabaseClient
             .from('reviews')
-            .update({ status: 'approved' })
+            .update({ 
+                is_visible: true,
+                approved_at: new Date().toISOString()
+            })
             .eq('id', reviewId);
 
         if (error) throw error;
@@ -627,7 +630,10 @@ async function declineReview(reviewId) {
     try {
         const { error } = await window.supabaseClient
             .from('reviews')
-            .update({ status: 'declined' })
+            .update({ 
+                is_visible: false,
+                approved_at: null
+            })
             .eq('id', reviewId);
 
         if (error) throw error;
