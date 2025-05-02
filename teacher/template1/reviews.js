@@ -561,7 +561,10 @@ async function approveReview(reviewId) {
             return;
         }
         showToast('Review approved!');
-        await loadAllReviews();
+        // Only refresh admin reviews if the container exists
+        if (document.getElementById('adminReviewsContainer')) {
+            await loadAllReviews();
+        }
     } catch (err) {
         showToast('Failed to approve review', 'error');
         console.error(err);
