@@ -491,18 +491,9 @@ async function loadAdminReviews() {
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        ${!review.is_visible ? `
-                            <button onclick="approveReview('${review.id}')" class="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">
-                                <i class="fas fa-check mr-1"></i> Approve
-                            </button>
-                            <button onclick="declineReview('${review.id}')" class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">
-                                <i class="fas fa-times mr-1"></i> Decline
-                            </button>
-                        ` : `
-                            <span class="px-3 py-1 ${review.is_visible ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded-md">
-                                ${review.is_visible ? 'Approved' : 'Declined'}
-                            </span>
-                        `}
+                        <button onclick="toggleReviewVisibility('${review.id}', ${!review.is_visible})" class="px-3 py-1 ${review.is_visible ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-md transition-colors">
+                            ${review.is_visible ? 'Hide' : 'Show'}
+                        </button>
                     </div>
                 </div>
                 <p class="text-gray-600 mt-2">${review.review_text}</p>
