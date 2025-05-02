@@ -518,50 +518,6 @@ async function loadAdminReviews() {
     }
 }
 
-// Approve review function
-async function approveReview(reviewId) {
-    try {
-        const { data, error } = await window.supabaseClient
-            .from('reviews')
-            .update({ is_visible: true })
-            .eq('id', reviewId);
-        if (error) {
-            showToast('Failed to approve review', 'error');
-            console.error(error);
-            return;
-        }
-        showToast('Review approved!');
-        // Only refresh admin reviews if the container exists
-        if (document.getElementById('adminReviewsContainer')) {
-            await loadAllReviews();
-        }
-    } catch (err) {
-        showToast('Failed to approve review', 'error');
-        console.error(err);
-    }
-}
-
-// Function to decline a review
-async function declineReview(reviewId) {
-    try {
-        const { error } = await window.supabaseClient
-            .from('reviews')
-            .update({ 
-                is_visible: false,
-                approved_at: null
-            })
-            .eq('id', reviewId);
-
-        if (error) throw error;
-
-        showToast('success', 'Review declined successfully');
-        loadAdminReviews(); // Reload the reviews
-    } catch (error) {
-        console.error('Error declining review:', error);
-        showToast('error', 'Failed to decline review');
-    }
-}
-
 // Function to generate star rating HTML
 function generateStarRating(rating) {
     let stars = '';
@@ -633,7 +589,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Export functions for use in other files
 window.toggleReviewVisibility = toggleReviewVisibility;
 window.deleteReview = deleteReview;
-window.approveReview = approveReview;
 
 // Function to load reviews for the public view
 async function loadReviews() {
