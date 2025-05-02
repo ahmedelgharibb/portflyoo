@@ -578,10 +578,10 @@ async function loadAdminReviews() {
                     </div>
                     <div class="flex gap-2">
                         ${!review.is_visible ? `
-                            <button onclick="approveReview(${review.id})" class="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">
+                            <button onclick="approveReview('${review.id}')" class="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">
                                 <i class="fas fa-check mr-1"></i> Approve
                             </button>
-                            <button onclick="declineReview(${review.id})" class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">
+                            <button onclick="declineReview('${review.id}')" class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">
                                 <i class="fas fa-times mr-1"></i> Decline
                             </button>
                         ` : `
@@ -600,7 +600,7 @@ async function loadAdminReviews() {
         });
     } catch (error) {
         console.error('Error loading reviews:', error);
-        showToast('error', 'Failed to load reviews');
+        showToast('Failed to load reviews', 'error');
     }
 }
 
