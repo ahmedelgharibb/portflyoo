@@ -714,6 +714,10 @@ function setActiveSortModal(btnId) {
 }
 
 window.loadAllPublicReviewsModal = async function(sortBy = 'latest') {
+    const container = document.getElementById('allReviewsModalContainer');
+    if (container) {
+        container.innerHTML = '<div class="flex flex-col items-center justify-center py-12"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-4"></div><p class="text-gray-500">Loading reviews...</p></div>';
+    }
     try {
         let query = window.supabaseClient
             .from('reviews')
@@ -729,7 +733,6 @@ window.loadAllPublicReviewsModal = async function(sortBy = 'latest') {
         displayAllReviewsModal(data || []);
     } catch (error) {
         console.error('Error loading all public reviews (modal):', error);
-        const container = document.getElementById('allReviewsModalContainer');
         if (container) {
             container.innerHTML = '<div class="text-center text-red-500 py-8">Failed to load reviews.</div>';
         }
