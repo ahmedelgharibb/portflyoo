@@ -2276,5 +2276,18 @@
     <!-- Add this before the closing body tag -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="reviews.js"></script>
+
+    <!-- All Reviews Modal -->
+    <div id="allReviewsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+      <div class="bg-white rounded-lg p-8 max-w-2xl w-full relative">
+        <button id="closeAllReviewsModal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        <h2 class="text-2xl font-bold mb-6 text-center">All Student Reviews</h2>
+        <div class="flex justify-center gap-4 mb-8">
+          <button id="sortLatestModal" class="sort-btn px-4 py-2 rounded-md text-white" style="background: var(--primary-color); color: #fff; border: none;">Latest</button>
+          <button id="sortHighestModal" class="sort-btn px-4 py-2 rounded-md text-white" style="background: var(--primary-color); color: #fff; border: none;">Highest Rated</button>
+        </div>
+        <div id="allReviewsModalContainer"></div>
+      </div>
+    </div>
 </body>
 </html>

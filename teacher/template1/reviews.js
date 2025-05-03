@@ -306,7 +306,9 @@ function displayReviews(reviews) {
         seeAllBtn.onmouseout = function() { this.style.background = 'var(--primary-color)'; };
         seeAllBtn.textContent = 'See All Reviews';
         seeAllBtn.onclick = function() {
-            window.location.href = '/teacher/all-reviews.html';
+            document.getElementById('allReviewsModal').classList.remove('hidden');
+            setActiveSortModal('sortLatestModal');
+            loadAllPublicReviewsModal('latest');
         };
         container.appendChild(seeAllBtn);
     }
@@ -702,4 +704,86 @@ window.displayAllReviews = function(reviews) {
             true
         );
     });
-}; 
+};
+
+// Modal logic for all reviews
+function setActiveSortModal(btnId) {
+    document.getElementById('sortLatestModal').classList.remove('active');
+    document.getElementById('sortHighestModal').classList.remove('active');
+    document.getElementById(btnId).classList.add('active');
+}
+
+window.loadAllPublicReviewsModal = async function(sortBy = 'latest') {
+    try {
+        let query = window.supabaseClient
+            .from('reviews')
+            .select('*')
+            .eq('is_visible', true);
+        if (sortBy === 'highest') {
+            query = query.order('rating', { ascending: false });
+        } else {
+            query = query.order('created_at', { ascending: false });
+        }
+        const { data, error } = await query;
+        if (error) throw error;
+        displayAllReviewsModal(data || []);
+    } catch (error) {
+        console.error('Error loading all public reviews (modal):', error);
+        const container = document.getElementById('allReviewsModalContainer');
+        if (container) {
+            container.innerHTML = '<div class="text-center text-red-500 py-8">Failed to load reviews.</div>';
+        }
+    }
+};
+
+function displayAllReviewsModal(reviews) {
+    const container = document.getElementById('allReviewsModalContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    if (reviews.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">No reviews found.</div>';
+        return;
+    }
+    reviews.forEach(review => {
+        const reviewElement = document.createElement('div');
+        reviewElement.className = 'bg-white rounded-lg shadow-md p-6 mb-4';
+        reviewElement.innerHTML = `
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-semibold">${review.student_name}</h4>
+                <div class="star-rating" data-rating="${review.rating}"></div>
+            </div>
+            <p class="text-gray-600">${review.review_text}</p>
+            <div class="text-sm text-gray-400 mt-2">
+                ${new Date(review.created_at).toLocaleDateString()}
+            </div>
+        `;
+        container.appendChild(reviewElement);
+        new StarRating(
+            reviewElement.querySelector('.star-rating'),
+            review.rating,
+            true
+        );
+    });
+}
+
+// Modal event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const closeModalBtn = document.getElementById('closeAllReviewsModal');
+    if (closeModalBtn) {
+        closeModalBtn.onclick = function() {
+            document.getElementById('allReviewsModal').classList.add('hidden');
+        };
+    }
+    const sortLatestBtn = document.getElementById('sortLatestModal');
+    const sortHighestBtn = document.getElementById('sortHighestModal');
+    if (sortLatestBtn && sortHighestBtn) {
+        sortLatestBtn.onclick = function() {
+            setActiveSortModal('sortLatestModal');
+            window.loadAllPublicReviewsModal('latest');
+        };
+        sortHighestBtn.onclick = function() {
+            setActiveSortModal('sortHighestModal');
+            window.loadAllPublicReviewsModal('highest');
+        };
+    }
+}); 
