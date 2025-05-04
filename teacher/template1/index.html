@@ -1602,6 +1602,56 @@
             </div>
         </div>
     </section>
+    <!-- Reviews Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Student Reviews</h2>
+            <!-- Reviews Display -->
+            <div id="reviewsContainer" class="mb-12">
+                <!-- Reviews will be loaded here dynamically -->
+            </div>
+            <!-- Review Form -->
+            <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
+                <h3 class="text-2xl font-semibold mb-6">Leave a Review</h3>
+                <form id="reviewForm" class="space-y-6">
+                    <div>
+                        <label for="reviewName" class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+                        <input
+                            type="text"
+                            id="reviewName"
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter your name"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                        <div id="ratingContainer" class="flex items-center space-x-1" data-rating="0"></div>
+                        <p class="text-sm text-gray-500 mt-1">Click on the stars to rate</p>
+                    </div>
+                    <div>
+                        <label for="reviewText" class="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
+                        <textarea
+                            id="reviewText"
+                            required
+                            rows="4"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Share your experience..."
+                        ></textarea>
+                    </div>
+                    <button
+                        type="submit"
+                        class="w-full text-white py-3 px-6 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        style="background: var(--primary-color);"
+                        onmouseover="this.style.background= 'var(--primary-dark)'"
+                        onmouseout="this.style.background= 'var(--primary-color)'"
+                    >
+                        Submit Review
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
 
     <!-- Registration Section -->
     <section id="register" class="py-20 bg-white">
@@ -1717,56 +1767,6 @@
         </div>
     </section>
 
-    <!-- Reviews Section -->
-    <section class="py-16 bg-gray-50">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-12">Student Reviews</h2>
-            <!-- Reviews Display -->
-            <div id="reviewsContainer" class="mb-12">
-                <!-- Reviews will be loaded here dynamically -->
-            </div>
-            <!-- Review Form -->
-            <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
-                <h3 class="text-2xl font-semibold mb-6">Leave a Review</h3>
-                <form id="reviewForm" class="space-y-6">
-                    <div>
-                        <label for="reviewName" class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
-                        <input
-                            type="text"
-                            id="reviewName"
-                            required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Enter your name"
-                        >
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
-                        <div id="ratingContainer" class="flex items-center space-x-1" data-rating="0"></div>
-                        <p class="text-sm text-gray-500 mt-1">Click on the stars to rate</p>
-                    </div>
-                    <div>
-                        <label for="reviewText" class="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
-                        <textarea
-                            id="reviewText"
-                            required
-                            rows="4"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Share your experience..."
-                        ></textarea>
-                    </div>
-                    <button
-                        type="submit"
-                        class="w-full text-white py-3 px-6 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        style="background: var(--primary-color);"
-                        onmouseover="this.style.background= 'var(--primary-dark)'"
-                        onmouseout="this.style.background= 'var(--primary-color)'"
-                    >
-                        Submit Review
-                    </button>
-                </form>
-            </div>
-        </div>
-    </section>
 
     <!-- Contact Section -->
     <section id="contact" class="py-20 bg-gray-50">
