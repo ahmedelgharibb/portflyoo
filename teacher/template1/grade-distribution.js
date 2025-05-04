@@ -1,4 +1,12 @@
 // Grade Distribution Functions
+
+// Helper to get current grade categories (from global variable)
+function getCurrentGradeCategories() {
+    return Array.isArray(window.gradeCategories) && window.gradeCategories.length > 0
+        ? window.gradeCategories
+        : ['A*', 'A', 'Other'];
+}
+
 async function loadGradeDistribution() {
     try {
         const { data, error } = await supabase
@@ -21,70 +29,68 @@ async function loadGradeDistribution() {
 function updateGradeDistributionUI(subjects) {
     const container = document.getElementById('gradeDistributionContainer');
     if (!container) return;
-
-    container.innerHTML = subjects.map(subject => `
+    const categories = getCurrentGradeCategories();
+    container.innerHTML = subjects.map(subject => {
+        const gradeCounts = subject.grade_counts || {};
+        return `
         <div class="subject-grade-card bg-white rounded-lg shadow-lg p-6 mb-6">
             <h3 class="text-xl font-semibold mb-4">${subject.subject}</h3>
-            <div class="grid grid-cols-3 gap-4">
-                <div class="grade-input">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">A* Students</label>
-                    <input type="number" 
-                           class="a-star-input w-full px-3 py-2 border rounded-md" 
-                           value="${subject.a_star_count}"
-                           data-subject="${subject.subject}"
-                           min="0">
-                </div>
-                <div class="grade-input">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">A Students</label>
-                    <input type="number" 
-                           class="a-input w-full px-3 py-2 border rounded-md" 
-                           value="${subject.a_count}"
-                           data-subject="${subject.subject}"
-                           min="0">
-                </div>
-                <div class="grade-input">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Other Grades</label>
-                    <input type="number" 
-                           class="rest-input w-full px-3 py-2 border rounded-md" 
-                           value="${subject.rest_count}"
-                           data-subject="${subject.subject}"
-                           min="0">
-                </div>
+            <div class="grid grid-cols-${categories.length} gap-4">
+                ${categories.map(cat => `
+                    <div class="grade-input">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">${cat} Students</label>
+                        <input type="number" 
+                               class="grade-input-field w-full px-3 py-2 border rounded-md" 
+                               value="${gradeCounts[cat] || 0}"
+                               data-subject="${subject.subject}"
+                               data-grade="${cat}"
+                               min="0">
+                    </div>
+                `).join('')}
             </div>
             <div class="mt-4" style="height: 300px;">
                 <canvas id="chart-${subject.subject.toLowerCase().replace(/\s+/g, '-')}"></canvas>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 
     // Add event listeners to inputs
-    document.querySelectorAll('.a-star-input, .a-input, .rest-input').forEach(input => {
+    document.querySelectorAll('.grade-input-field').forEach(input => {
         input.addEventListener('change', handleGradeInputChange);
     });
 }
 
 function initializeSubjectCharts(subjects) {
+    const categories = getCurrentGradeCategories();
     subjects.forEach(subject => {
+        const gradeCounts = subject.grade_counts || {};
         const canvasId = `chart-${subject.subject.toLowerCase().replace(/\s+/g, '-')}`;
         const ctx = document.getElementById(canvasId)?.getContext('2d');
         if (!ctx) return;
-
-        const chart = new Chart(ctx, {
+        const dataArr = categories.map(cat => gradeCounts[cat] || 0);
+        new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: ['A*', 'A', 'Other Grades'],
+                labels: categories,
                 datasets: [{
-                    data: [subject.a_star_count, subject.a_count, subject.rest_count],
-                    backgroundColor: [
-                        'rgba(59, 130, 246, 0.8)',  // Blue for A*
-                        'rgba(16, 185, 129, 0.8)',  // Green for A
-                        'rgba(245, 158, 11, 0.8)'   // Yellow for rest
-                    ],
-                    borderColor: [
+                    data: dataArr,
+                    backgroundColor: categories.map((_, i) => [
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(139, 92, 246, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(255, 99, 132, 0.8)'][i % 7]),
+                    borderColor: categories.map((_, i) => [
                         'rgba(59, 130, 246, 1)',
                         'rgba(16, 185, 129, 1)',
-                        'rgba(245, 158, 11, 1)'
-                    ],
+                        'rgba(245, 158, 11, 1)',
+                        'rgba(239, 68, 68, 1)',
+                        'rgba(139, 92, 246, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)'][i % 7]),
                     borderWidth: 1
                 }]
             },
@@ -105,7 +111,7 @@ function initializeSubjectCharts(subjects) {
                         callbacks: {
                             label: function(context) {
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = ((context.raw / total) * 100).toFixed(1);
+                                const percentage = total ? ((context.raw / total) * 100).toFixed(1) : 0;
                                 return `${context.label}: ${context.raw} students (${percentage}%)`;
                             }
                         }
@@ -122,30 +128,32 @@ function initializeSubjectCharts(subjects) {
 
 async function handleGradeInputChange(e) {
     const subjectName = e.target.dataset.subject;
-    const gradeType = e.target.classList.contains('a-star-input') ? 'a_star_count' :
-                     e.target.classList.contains('a-input') ? 'a_count' : 'rest_count';
+    const grade = e.target.dataset.grade;
     const value = parseInt(e.target.value) || 0;
-
     try {
+        // Fetch the current grade_counts for this subject
+        const { data, error: fetchError } = await supabase
+            .from('grade_distribution')
+            .select('grade_counts')
+            .eq('subject', subjectName)
+            .single();
+        if (fetchError) throw fetchError;
+        const gradeCounts = data.grade_counts || {};
+        gradeCounts[grade] = value;
+        // Update in Supabase
         const { error } = await supabase
             .from('grade_distribution')
-            .update({ [gradeType]: value })
+            .update({ grade_counts: gradeCounts })
             .eq('subject', subjectName);
-
         if (error) throw error;
-
         // Update the chart
         const canvasId = `chart-${subjectName.toLowerCase().replace(/\s+/g, '-')}`;
         const ctx = document.getElementById(canvasId)?.getContext('2d');
         if (!ctx) return;
-
         const chart = Chart.getChart(ctx);
         if (!chart) return;
-
-        const dataIndex = gradeType === 'a_star_count' ? 0 :
-                         gradeType === 'a_count' ? 1 : 2;
-        
-        chart.data.datasets[0].data[dataIndex] = value;
+        const categories = getCurrentGradeCategories();
+        chart.data.datasets[0].data = categories.map(cat => gradeCounts[cat] || 0);
         chart.update();
     } catch (error) {
         console.error('Error updating grade distribution:', error);
