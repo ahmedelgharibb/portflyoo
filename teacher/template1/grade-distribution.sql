@@ -39,4 +39,31 @@ CREATE POLICY "Allow authenticated updates" ON public.grade_distribution
     FOR UPDATE
     TO authenticated
     USING (true)
-    WITH CHECK (true); 
+    WITH CHECK (true);
+
+-- Create grade_categories table for global grade categories
+CREATE TABLE IF NOT EXISTS public.grade_categories (
+    id SERIAL PRIMARY KEY,
+    categories TEXT[] NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert default categories if not present
+INSERT INTO public.grade_categories (categories)
+SELECT ARRAY['A*', 'A', 'Other']
+WHERE NOT EXISTS (SELECT 1 FROM public.grade_categories);
+
+-- Enable RLS (Row Level Security)
+ALTER TABLE public.grade_categories ENABLE ROW LEVEL SECURITY;
+
+-- Allow anonymous read access
+CREATE POLICY "Allow anonymous read access" ON public.grade_categories
+    FOR SELECT
+    TO anon
+    USING (true);
+
+-- Allow authenticated updates
+CREATE POLICY "Allow authenticated updates" ON public.grade_categories
+    FOR UPDATE
+    TO authenticated
+    USING (true); 

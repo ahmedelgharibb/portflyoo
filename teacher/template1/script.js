@@ -3686,3 +3686,126 @@ function updateSubjectsGrid(subjects) {
         </div>
     `).join('');
 }
+
+// === Dynamic Grade Categories Logic (Supabase) ===
+const DEFAULT_GRADE_CATEGORIES = ['A*', 'A', 'Other'];
+let gradeCategories = [...DEFAULT_GRADE_CATEGORIES];
+let gradeCategoriesId = null; // id of the row in grade_categories table
+
+async function fetchGradeCategories() {
+    const { data, error } = await supabase
+        .from('grade_categories')
+        .select('*')
+        .limit(1)
+        .single();
+    if (error || !data) {
+        gradeCategories = [...DEFAULT_GRADE_CATEGORIES];
+        gradeCategoriesId = null;
+        return gradeCategories;
+    }
+    gradeCategories = data.categories;
+    gradeCategoriesId = data.id;
+    return gradeCategories;
+}
+
+async function updateGradeCategoriesInSupabase(categories) {
+    if (!gradeCategoriesId) {
+        // Insert if not exists
+        const { data, error } = await supabase
+            .from('grade_categories')
+            .insert([{ categories }])
+            .select()
+            .single();
+        if (!error && data) {
+            gradeCategoriesId = data.id;
+            gradeCategories = data.categories;
+        }
+    } else {
+        // Update existing row
+        const { data, error } = await supabase
+            .from('grade_categories')
+            .update({ categories, updated_at: new Date().toISOString() })
+            .eq('id', gradeCategoriesId)
+            .select()
+            .single();
+        if (!error && data) {
+            gradeCategories = data.categories;
+        }
+    }
+}
+
+function renderGradeCategoriesAdmin() {
+    const container = document.getElementById('admin-grade-categories-container');
+    if (!container) return;
+    container.innerHTML = '';
+    gradeCategories.forEach((cat, idx) => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center gap-1';
+        div.innerHTML = `
+            <input type="text" value="${cat}" class="form-input grade-category-input" data-idx="${idx}" style="width: 80px;">
+            <button class="remove-grade-category-btn text-red-500" data-idx="${idx}">&times;</button>
+        `;
+        container.appendChild(div);
+    });
+    // Remove button event
+    container.querySelectorAll('.remove-grade-category-btn').forEach(btn => {
+        btn.onclick = async function() {
+            const idx = parseInt(this.dataset.idx);
+            gradeCategories.splice(idx, 1);
+            await updateGradeCategoriesInSupabase(gradeCategories);
+            renderGradeCategoriesAdmin();
+            updateResultsChartWithCategories();
+        };
+    });
+    // Edit input event
+    container.querySelectorAll('.grade-category-input').forEach(input => {
+        input.onchange = async function() {
+            const idx = parseInt(this.dataset.idx);
+            gradeCategories[idx] = this.value;
+            await updateGradeCategoriesInSupabase(gradeCategories);
+            updateResultsChartWithCategories();
+        };
+    });
+}
+
+document.getElementById('addGradeCategoryBtn')?.addEventListener('click', async () => {
+    const input = document.getElementById('newGradeCategoryInput');
+    if (!input) return;
+    const val = input.value.trim();
+    if (!val) return;
+    gradeCategories.push(val);
+    await updateGradeCategoriesInSupabase(gradeCategories);
+    input.value = '';
+    renderGradeCategoriesAdmin();
+    updateResultsChartWithCategories();
+});
+
+document.getElementById('saveGradeCategoriesBtn')?.addEventListener('click', async () => {
+    await updateGradeCategoriesInSupabase(gradeCategories);
+    showAdminAlert('success', 'Grade categories saved!');
+});
+
+async function updateResultsChartWithCategories() {
+    // Re-render the results chart with the current categories
+    if (typeof updateResultsChart === 'function') {
+        updateResultsChart(window.currentSubjects || []);
+    }
+}
+
+async function initializeGradeCategories() {
+    // Show loading spinner/message in admin panel
+    const container = document.getElementById('admin-grade-categories-container');
+    if (container) {
+        container.innerHTML = `<div class="flex flex-col items-center justify-center py-4">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mb-2"></div>
+            <p class="text-gray-500">Loading categories...</p>
+        </div>`;
+    }
+    await fetchGradeCategories();
+    renderGradeCategoriesAdmin();
+    updateResultsChartWithCategories();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeGradeCategories();
+});
