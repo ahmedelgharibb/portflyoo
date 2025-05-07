@@ -435,19 +435,12 @@ async function deleteReview(reviewId) {
     }
 }
 
-// Function to load reviews in admin panel
+// Function to load reviews in admin panel (now uses teachers_websites.data.reviews)
 async function loadAdminReviews() {
     try {
-        const { data: reviews, error } = await window.supabaseClient
-            .from('reviews')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
+        const reviews = await fetchAllReviewsFromTeachersWebsites();
         const reviewsContainer = document.getElementById('admin-reviews-container');
         reviewsContainer.innerHTML = '';
-
         if (reviews.length === 0) {
             reviewsContainer.innerHTML = `
                 <div class="p-6 text-center text-gray-500">
@@ -457,7 +450,6 @@ async function loadAdminReviews() {
             `;
             return;
         }
-
         reviews.forEach(review => {
             const reviewElement = document.createElement('div');
             reviewElement.className = 'p-4 border-b border-gray-200 hover:bg-gray-50 transition-colors';
@@ -560,21 +552,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 window.toggleReviewVisibility = toggleReviewVisibility;
 window.deleteReview = deleteReview;
 
-// Function to load reviews for the public view
+// Function to load reviews for the public view (now uses teachers_websites.data.reviews)
 async function loadReviews() {
     try {
-        const { data: reviews, error } = await supabase
-            .from('reviews')
-            .select('*')
-            .eq('status', 'approved')  // Only fetch approved reviews
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
+        const reviews = await fetchAllReviewsFromTeachersWebsites();
+        const approved = reviews.filter(r => r.is_visible);
         const reviewsContainer = document.getElementById('reviewsContainer');
         reviewsContainer.innerHTML = '';
-
-        if (reviews.length === 0) {
+        if (approved.length === 0) {
             reviewsContainer.innerHTML = `
                 <div class="text-center text-gray-500">
                     <p>No reviews yet. Be the first to leave a review!</p>
@@ -582,17 +567,15 @@ async function loadReviews() {
             `;
             return;
         }
-
         const reviewsGrid = document.createElement('div');
         reviewsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
-
-        reviews.forEach(review => {
+        approved.forEach(review => {
             const reviewCard = document.createElement('div');
             reviewCard.className = 'bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow';
             reviewCard.innerHTML = `
                 <div class="flex items-start justify-between mb-4">
                     <div>
-                        <h4 class="font-semibold text-gray-800">${review.name}</h4>
+                        <h4 class="font-semibold text-gray-800">${review.student_name}</h4>
                         <div class="flex items-center mt-1">
                             ${generateStarRating(review.rating)}
                         </div>
@@ -605,7 +588,6 @@ async function loadReviews() {
             `;
             reviewsGrid.appendChild(reviewCard);
         });
-
         reviewsContainer.appendChild(reviewsGrid);
     } catch (error) {
         console.error('Error loading reviews:', error);
@@ -613,21 +595,17 @@ async function loadReviews() {
     }
 }
 
-// Export a function to load all reviews for the new page
+// Export a function to load all reviews for the new page (now uses teachers_websites.data.reviews)
 window.loadAllPublicReviews = async function(sortBy = 'latest') {
     try {
-        let query = window.supabaseClient
-            .from('reviews')
-            .select('*')
-            .eq('is_visible', true);
+        let reviews = await fetchAllReviewsFromTeachersWebsites();
+        reviews = reviews.filter(r => r.is_visible);
         if (sortBy === 'highest') {
-            query = query.order('rating', { ascending: false });
+            reviews = reviews.sort((a, b) => b.rating - a.rating);
         } else {
-            query = query.order('created_at', { ascending: false });
+            reviews = reviews.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         }
-        const { data, error } = await query;
-        if (error) throw error;
-        window.displayAllReviews(data || []);
+        window.displayAllReviews(reviews || []);
     } catch (error) {
         console.error('Error loading all public reviews:', error);
         const container = document.getElementById('allReviewsContainer');
@@ -668,31 +646,21 @@ window.displayAllReviews = function(reviews) {
     });
 };
 
-// Modal logic for all reviews
-function setActiveSortModal(btnId) {
-    document.getElementById('sortLatestModal').classList.remove('active');
-    document.getElementById('sortHighestModal').classList.remove('active');
-    document.getElementById(btnId).classList.add('active');
-}
-
+// Modal logic for all reviews (now uses teachers_websites.data.reviews)
 window.loadAllPublicReviewsModal = async function(sortBy = 'latest') {
     const container = document.getElementById('allReviewsModalContainer');
     if (container) {
         container.innerHTML = '<div class="flex flex-col items-center justify-center py-12"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-4"></div><p class="text-gray-500">Loading reviews...</p></div>';
     }
     try {
-        let query = window.supabaseClient
-            .from('reviews')
-            .select('*')
-            .eq('is_visible', true);
+        let reviews = await fetchAllReviewsFromTeachersWebsites();
+        reviews = reviews.filter(r => r.is_visible);
         if (sortBy === 'highest') {
-            query = query.order('rating', { ascending: false });
+            reviews = reviews.sort((a, b) => b.rating - a.rating);
         } else {
-            query = query.order('created_at', { ascending: false });
+            reviews = reviews.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         }
-        const { data, error } = await query;
-        if (error) throw error;
-        displayAllReviewsModal(data || []);
+        displayAllReviewsModal(reviews || []);
     } catch (error) {
         console.error('Error loading all public reviews (modal):', error);
         if (container) {
@@ -751,4 +719,11 @@ document.addEventListener('DOMContentLoaded', function() {
             window.loadAllPublicReviewsModal('highest');
         };
     }
-}); 
+});
+
+// Modal logic for all reviews
+function setActiveSortModal(btnId) {
+    document.getElementById('sortLatestModal').classList.remove('active');
+    document.getElementById('sortHighestModal').classList.remove('active');
+    document.getElementById(btnId).classList.add('active');
+} 
