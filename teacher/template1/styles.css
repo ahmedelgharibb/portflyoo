@@ -410,58 +410,66 @@ header {
   margin-top: 1.5rem;
 }
 
-/* --- Admin Panel Personal Info Card Styles --- */
-.admin-section-card {
+/* --- Minimal & Creative Admin Panel Styles --- */
+.admin-panel-card {
   background: #fff;
-  border-radius: 1.25rem;
-  box-shadow: 0 4px 24px rgba(31, 38, 135, 0.07);
-  padding: 2.5rem 2rem;
-  margin-bottom: 2.5rem;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
+  border-radius: 1rem;
+  box-shadow: 0 2px 16px rgba(30, 41, 59, 0.08);
+  padding: 2rem 1.5rem;
+  max-width: 480px;
+  margin: 2.5rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
-.admin-form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem 2.5rem;
-  align-items: start;
-}
-@media (max-width: 900px) {
-  .admin-form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-.admin-form-label {
-  font-weight: 600;
+.admin-panel-label {
+  font-size: 1rem;
+  font-weight: 500;
   color: var(--primary-dark);
   margin-bottom: 0.5rem;
-  display: block;
-  text-align: left;
+  letter-spacing: 0.01em;
 }
-.admin-form-input, .admin-form-textarea {
+.admin-panel-input, .admin-panel-textarea {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.7rem 1rem;
   border: 1.5px solid var(--gray-200);
   border-radius: 0.5rem;
   background: #f8fafc;
   color: var(--gray-800);
   font-size: 1rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.5rem;
   transition: border 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+  resize: vertical;
 }
-.admin-form-input:focus, .admin-form-textarea:focus {
+.admin-panel-input:focus, .admin-panel-textarea:focus {
   border: 1.5px solid var(--primary);
   outline: none;
   box-shadow: 0 0 0 2px var(--primary);
   background: #fff;
 }
-.admin-section-card h3 {
-  color: var(--primary-dark);
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
-  text-align: left;
+.admin-panel-btn {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.85rem 2rem;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+.admin-panel-btn:hover {
+  background: var(--primary-dark);
+  box-shadow: 0 4px 16px rgba(37,99,235,0.10);
+}
+@media (max-width: 600px) {
+  .admin-panel-card {
+    padding: 1.25rem 0.5rem;
+    max-width: 98vw;
+  }
 }
   
   
