@@ -352,31 +352,31 @@ header {
 
 /* --- Enhanced Contact Section Styles --- */
 #contact {
-  background: linear-gradient(120deg, var(--primary) 0%, var(--primary-dark) 100%);
-  color: #fff;
+  background: #f8fafc;
+  color: var(--gray-800);
   padding: 5rem 0;
 }
 #contact .container {
   max-width: 600px;
-  background: rgba(255,255,255,0.07);
+  background: #fff;
   border-radius: 1.5rem;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
   padding: 2.5rem 2rem;
   margin: 0 auto;
 }
 #contact .section-title {
-  color: #fff;
+  color: var(--primary-dark);
   margin-bottom: 2rem;
 }
 #contact .form-label {
-  color: #fff;
+  color: var(--gray-800);
   font-weight: 500;
   margin-bottom: 0.5rem;
 }
 #contact .form-input, #contact textarea.form-input {
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-  border: 1.5px solid var(--primary-light);
+  background: #f1f5f9;
+  color: var(--gray-800);
+  border: 1.5px solid var(--gray-200);
   border-radius: 0.5rem;
   padding: 0.75rem 1rem;
   margin-bottom: 1.25rem;
@@ -384,26 +384,26 @@ header {
   transition: border 0.2s, box-shadow 0.2s;
 }
 #contact .form-input:focus, #contact textarea.form-input:focus {
-  border: 1.5px solid var(--accent);
+  border: 1.5px solid var(--primary);
   outline: none;
-  box-shadow: 0 0 0 2px var(--accent);
-  background: rgba(255,255,255,0.22);
+  box-shadow: 0 0 0 2px var(--primary);
+  background: #fff;
 }
 #contact .btn-primary {
-  background: var(--accent);
-  color: var(--primary-dark);
+  background: var(--primary);
+  color: #fff;
   font-weight: 700;
   border: none;
   border-radius: 0.5rem;
   padding: 1rem 2.5rem;
   font-size: 1.1rem;
-  box-shadow: 0 4px 16px rgba(251,191,36,0.15);
+  box-shadow: 0 4px 16px rgba(59,130,246,0.10);
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 #contact .btn-primary:hover {
   background: var(--primary-dark);
   color: #fff;
-  box-shadow: 0 8px 24px rgba(37,99,235,0.18);
+  box-shadow: 0 8px 24px rgba(37,99,235,0.12);
 }
 #contact .btn {
   width: 100%;
