@@ -5,7 +5,7 @@
 
 // Schema information - Run this to see the database structure
 const SCHEMA_INFO = `
--- Get table structure for site_data table
+-- Get table structure for teachers_websites table
 SELECT 
     table_schema,
     table_name, 
@@ -16,36 +16,36 @@ SELECT
 FROM 
     information_schema.columns
 WHERE 
-    table_name = 'site_data'
+    table_name = 'teachers_websites'
 ORDER BY 
     ordinal_position;
 `;
 
-// Basic site_data queries
+// Basic teachers_websites queries
 const REVIEW_QUERIES = {
-    // Get all site_data
+    // Get all teachers_websites
     getAllReviews: `
-SELECT * FROM site_data 
+SELECT * FROM teachers_websites 
 WHERE id = 1;`,
 
-    // Get site_data count
+    // Get teachers_websites count
     getReviewStats: `
 SELECT 
-    COUNT(*) AS site_data_count
-FROM site_data;`
+    COUNT(*) AS teachers_websites_count
+FROM teachers_websites;`
 };
 
-// Site data queries
+// Teachers_websites queries
 const SITE_DATA_QUERIES = {
-    // Get site data with reviews
+    // Get teachers_websites data with reviews
     getSiteData: `
-SELECT * FROM site_data
+SELECT * FROM teachers_websites
 WHERE id = 1;`,
 
-    // Get just the reviews array from site data
+    // Get just the reviews array from teachers_websites data
     getReviewsFromSiteData: `
 SELECT data->'reviews' AS reviews
-FROM site_data
+FROM teachers_websites
 WHERE id = 1;`
 };
 
@@ -54,40 +54,40 @@ const UPDATE_OPERATIONS = {
     // Dummy operations - these are for reference only, not for direct execution
     approveReview: `
 -- This operation should be performed using JavaScript, not SQL
--- Example of how to update a specific review in the site_data.reviews array:
+-- Example of how to update a specific review in the teachers_websites.reviews array:
 
--- 1. Get the current site_data
--- 2. Find the review by ID in the site_data.data.reviews array
+-- 1. Get the current teachers_websites
+-- 2. Find the review by ID in the teachers_websites.data.reviews array
 -- 3. Update the approved status to true
--- 4. Save the updated site_data back to the database`,
+-- 4. Save the updated teachers_websites back to the database`,
 
     // Delete a review - reference only
     deleteReview: `
 -- This operation should be performed using JavaScript, not SQL
--- Example of how to delete a review from the site_data.reviews array:
+-- Example of how to delete a review from the teachers_websites.reviews array:
 
--- 1. Get the current site_data
--- 2. Filter out the review with the specified ID from site_data.data.reviews
--- 3. Save the updated site_data back to the database`
+-- 1. Get the current teachers_websites
+-- 2. Filter out the review with the specified ID from teachers_websites.data.reviews
+-- 3. Save the updated teachers_websites back to the database`
 };
 
-// JSON queries - for reviews stored in site_data.data.reviews
+// JSON queries - for reviews stored in teachers_websites.data.reviews
 const JSON_REVIEW_QUERIES = {
-    // Get all reviews from site_data JSON
+    // Get all reviews from teachers_websites JSON
     getAllJsonReviews: `
 SELECT 
     data->'reviews' as reviews
 FROM 
-    site_data
+    teachers_websites
 WHERE 
     id = 1;`,
 
-    // Get review count from site_data
+    // Get review count from teachers_websites
     getJsonReviewCount: `
 SELECT 
     jsonb_array_length(data->'reviews') as review_count
 FROM 
-    site_data
+    teachers_websites
 WHERE 
     id = 1;`,
 
@@ -96,7 +96,7 @@ WHERE
 SELECT 
     jsonb_array_elements(data->'reviews') as review
 FROM 
-    site_data
+    teachers_websites
 WHERE 
     id = 1;`,
 
@@ -105,7 +105,7 @@ WHERE
 SELECT 
     jsonb_array_elements(data->'reviews') as review
 FROM 
-    site_data
+    teachers_websites
 WHERE 
     id = 1
     AND (jsonb_array_elements(data->'reviews')->>'approved')::boolean = true;`,
@@ -115,7 +115,7 @@ WHERE
 SELECT 
     jsonb_array_elements(data->'reviews') as review
 FROM 
-    site_data
+    teachers_websites
 WHERE 
     id = 1
     AND (jsonb_array_elements(data->'reviews')->>'approved')::boolean = false;`,
@@ -126,7 +126,7 @@ WITH reviews AS (
     SELECT 
         jsonb_array_elements(data->'reviews') as review
     FROM 
-        site_data
+        teachers_websites
     WHERE 
         id = 1
 )
@@ -141,7 +141,7 @@ WITH reviews AS (
     SELECT 
         jsonb_array_elements(data->'reviews') as review
     FROM 
-        site_data
+        teachers_websites
     WHERE 
         id = 1
 )
@@ -156,10 +156,10 @@ ORDER BY
     rating DESC;`
 };
 
-// Create site_data table if it doesn't exist
+// Create teachers_websites table if it doesn't exist
 const CREATE_SITE_DATA_SQL = `
--- Create site_data table if it doesn't exist
-CREATE TABLE IF NOT EXISTS site_data (
+-- Create teachers_websites table if it doesn't exist
+CREATE TABLE IF NOT EXISTS teachers_websites (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -167,7 +167,7 @@ CREATE TABLE IF NOT EXISTS site_data (
 );
 
 -- Insert default row if not exists
-INSERT INTO site_data (id, data)
+INSERT INTO teachers_websites (id, data)
 VALUES (1, '{"reviews": []}'::jsonb)
 ON CONFLICT (id) DO NOTHING;
 `;
@@ -175,7 +175,7 @@ ON CONFLICT (id) DO NOTHING;
 // Add a review example
 const ADD_REVIEW_TO_SITE_DATA = `
 -- Example: Add a review to the reviews array
-UPDATE site_data
+UPDATE teachers_websites
 SET 
     data = jsonb_set(
         CASE 

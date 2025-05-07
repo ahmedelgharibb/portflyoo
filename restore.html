@@ -205,7 +205,7 @@
             try {
                 // First try DELETE to ensure clean state
                 console.log('Attempting to delete existing data first...');
-                const deleteResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_data?id=eq.1`, {
+                const deleteResponse = await fetch(`${SUPABASE_URL}/rest/v1/teachers_websites?id=eq.1`, {
                     method: 'DELETE',
                     headers: {
                         'apikey': SUPABASE_KEY,
@@ -217,7 +217,7 @@
                 
                 // Now insert the new data
                 console.log('Inserting default data...');
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/site_data`, {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/teachers_websites`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -239,7 +239,7 @@
                 
                 // Verify the data was saved by fetching it back
                 console.log('Verifying data was saved correctly...');
-                const verifyResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_data?id=eq.1`, {
+                const verifyResponse = await fetch(`${SUPABASE_URL}/rest/v1/teachers_websites?id=eq.1`, {
                     method: 'GET',
                     headers: {
                         'apikey': SUPABASE_KEY

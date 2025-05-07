@@ -53,7 +53,7 @@ async function restoreDataToSupabase() {
   
   try {
     // Make the API call to Supabase using fetch
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/site_data`, {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/teachers_websites`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

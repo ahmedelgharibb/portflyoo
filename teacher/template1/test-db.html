@@ -119,7 +119,7 @@
             resultElement.innerHTML = 'Testing connection...';
             
             try {
-                const { data, error } = await supabase.from('site_data').select('count(*)', { count: 'exact' });
+                const { data, error } = await supabase.from('teachers_websites').select('count(*)', { count: 'exact' });
                 
                 if (error) {
                     throw error;
@@ -132,7 +132,7 @@
                 resultElement.innerHTML += '\n\nPossible solutions:';
                 resultElement.innerHTML += '\n1. Check your internet connection';
                 resultElement.innerHTML += '\n2. Verify your Supabase credentials are correct';
-                resultElement.innerHTML += '\n3. Make sure the site_data table exists (run reset-database.sql)';
+                resultElement.innerHTML += '\n3. Make sure the teachers_websites table exists (run reset-database.sql)';
             }
         });
         
@@ -142,9 +142,9 @@
             resultElement.innerHTML = 'Verifying database structure...';
             
             try {
-                // Check site_data table
+                // Check teachers_websites table
                 const { data: tableData, error: tableError } = await supabase
-                    .from('site_data')
+                    .from('teachers_websites')
                     .select('id, created_at')
                     .limit(1);
                 
@@ -176,7 +176,7 @@
             try {
                 // First get current data
                 const { data: currentData, error: fetchError } = await supabase
-                    .from('site_data')
+                    .from('teachers_websites')
                     .select('*')
                     .eq('id', 1)
                     .single();
@@ -194,14 +194,14 @@
                 
                 // Try to save
                 const { error: saveError } = await supabase
-                    .from('site_data')
+                    .from('teachers_websites')
                     .upsert({ id: 1, data: testData }, { onConflict: 'id' });
                 
                 if (saveError) throw new Error(`Save operation failed: ${saveError.message}`);
                 
                 // Verify save
                 const { data: verifyData, error: verifyError } = await supabase
-                    .from('site_data')
+                    .from('teachers_websites')
                     .select('data')
                     .eq('id', 1)
                     .single();
@@ -211,7 +211,7 @@
                 // Clean up (remove test flag)
                 delete currentData.data._test;
                 await supabase
-                    .from('site_data')
+                    .from('teachers_websites')
                     .upsert({ id: 1, data: currentData.data }, { onConflict: 'id' });
                 
                 resultElement.innerHTML = '<span class="success">✅ Save functionality works correctly!</span>';
@@ -220,7 +220,7 @@
             } catch (error) {
                 resultElement.innerHTML = `<span class="error">❌ Save test failed: ${error.message}</span>`;
                 resultElement.innerHTML += '\n\nPossible issues:';
-                resultElement.innerHTML += '\n1. The site_data table may not exist or have the correct structure';
+                resultElement.innerHTML += '\n1. The teachers_websites table may not exist or have the correct structure';
                 resultElement.innerHTML += '\n2. Row Level Security (RLS) policies may be too restrictive';
                 resultElement.innerHTML += '\n3. There might be network issues';
                 resultElement.innerHTML += '\n\nRecommendation: Run the reset-database.sql script.';

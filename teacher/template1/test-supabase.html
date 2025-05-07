@@ -68,7 +68,7 @@
                 
                 // Test a basic query to see if we can connect
                 const { data, error } = await supabase
-                    .from('site_data')
+                    .from('teachers_websites')
                     .select('id, site_id')
                     .limit(1);
                 
@@ -76,7 +76,7 @@
                     if (error.code === '42P01') {
                         resultDiv.innerHTML = `
                             <div class="error">
-                                <p>Error: Table 'site_data' does not exist. You need to create it first.</p>
+                                <p>Error: Table 'teachers_websites' does not exist. You need to create it first.</p>
                                 <p>See the setup instructions for creating the right table structure.</p>
                             </div>
                         `;
@@ -123,7 +123,7 @@
             
             try {
                 const { data, error } = await supabase
-                    .from('site_data')
+                    .from('teachers_websites')
                     .select('*')
                     .order('id', { ascending: true });
                 
@@ -190,7 +190,7 @@
                 };
                 
                 const { data, error } = await supabase
-                    .from('site_data')
+                    .from('teachers_websites')
                     .upsert({ 
                         id: 1, 
                         site_id: '11111111-1111-1111-1111-111111111111',
@@ -204,7 +204,7 @@
                 resultDiv.innerHTML = `
                     <div class="success">
                         <p>✅ Sample data saved successfully!</p>
-                        <p>You can now check the "site_data" table in your Supabase dashboard.</p>
+                        <p>You can now check the "teachers_websites" table in your Supabase dashboard.</p>
                     </div>
                 `;
             } catch (error) {
@@ -233,7 +233,7 @@
             
             try {
                 const { data, error } = await supabase
-                    .from('site_data')
+                    .from('teachers_websites')
                     .delete()
                     .eq('id', 1)
                     .eq('site_id', '11111111-1111-1111-1111-111111111111');

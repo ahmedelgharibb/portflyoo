@@ -47,7 +47,7 @@ function callSupabase($endpoint, $method = 'GET', $data = null) {
 // Get tables information
 function getTables() {
     // Query the information_schema to get table information
-    return callSupabase('site_data?select=id,created_at&limit=1');
+    return callSupabase('teachers_websites?select=id,created_at&limit=1');
 }
 
 // Get table schemas
@@ -68,17 +68,17 @@ $result = [
     'checks' => []
 ];
 
-// Check site_data table
+// Check teachers_websites table
 $tableCheck = getTables();
-$result['checks']['site_data_table'] = [
+$result['checks']['teachers_websites_table'] = [
     'status' => $tableCheck['status'],
     'exists' => $tableCheck['status'] === 200,
     'data' => $tableCheck['data']
 ];
 
-// Check site_data schema
-$schemaCheck = getTableSchema('site_data');
-$result['checks']['site_data_schema'] = [
+// Check teachers_websites schema
+$schemaCheck = getTableSchema('teachers_websites');
+$result['checks']['teachers_websites_schema'] = [
     'status' => $schemaCheck['status'],
     'accessible' => $schemaCheck['status'] === 200,
     'data' => $schemaCheck['data']
