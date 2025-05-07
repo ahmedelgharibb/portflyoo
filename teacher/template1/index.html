@@ -17,6 +17,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles.css">
+
+    
     
     <style>
         /* Theme CSS Variables */
@@ -1386,6 +1388,19 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
+        /* Security Settings */
+        .admin-security-card {
+          <h3 class="admin-security-title">Security Settings</h3>
+          <form id="changePasswordForm" autocomplete="off">
+            <label for="adminPasswordNew" class="admin-security-label">Admin Password</label>
+            <div class="admin-security-row">
+              <input type="password" id="adminPasswordNew" class="admin-security-input" placeholder="Enter new password" required />
+              <button id="changePasswordBtn" class="admin-btn-secondary" type="submit">Change Password</button>
+            </div>
+            <div id="adminPasswordSuccess" class="admin-success-msg" style="display:none;">Password updated successfully.</div>
+          </form>
+        </div>
     </style>
     
     <!-- Chart.js -->
@@ -2090,17 +2105,16 @@
             </div>
             
             <!-- Security Settings -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Security Settings</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Admin Password</label>
-                        <div class="flex gap-2">
-                            <input type="password" id="adminPasswordNew" class="form-input flex-1" placeholder="Enter new password">
-                            <button id="changePasswordBtn" class="btn-primary">Change Password</button>
-                        </div>
-                    </div>
+            <div class="admin-security-card">
+              <h3 class="admin-security-title">Security Settings</h3>
+              <form id="changePasswordForm" autocomplete="off">
+                <label for="adminPasswordNew" class="admin-security-label">Admin Password</label>
+                <div class="admin-security-row">
+                  <input type="password" id="adminPasswordNew" class="admin-security-input" placeholder="Enter new password" required />
+                  <button id="changePasswordBtn" class="admin-btn-secondary" type="submit">Change Password</button>
                 </div>
+                <div id="adminPasswordSuccess" class="admin-success-msg" style="display:none;">Password updated successfully.</div>
+              </form>
             </div>
 
             <!-- Image Upload Section -->
