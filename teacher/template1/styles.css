@@ -415,74 +415,72 @@ header {
   background: #fff;
   border-radius: 1rem;
   box-shadow: 0 2px 16px rgba(30, 41, 59, 0.08);
-  padding: 2rem 1.5rem;
-  max-width: 480px;
+  padding: 3rem 2.5rem;
+  max-width: 896px;
   margin: 2.5rem auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2.5rem;
 }
 .admin-panel-label {
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 1.08rem;
+  font-weight: 600;
   color: var(--primary-dark);
   margin-bottom: 0.5rem;
   letter-spacing: 0.01em;
 }
 .admin-panel-input, .admin-panel-textarea {
-  border: 2px solid #3b82f6; /* Modern blue border */
+  border: 2px solid #3b82f6;
   outline: none;
   background: var(--bg-color);
   color: var(--text-color);
   border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
+  padding: 1rem 1.25rem;
   width: 100%;
-  font-size: 1rem;
+  max-width: 100%;
+  font-size: 1.08rem;
   margin-top: 0.25rem;
   margin-bottom: 0.5rem;
   transition: border-color 0.2s, box-shadow 0.2s;
-}
-.admin-panel-input:focus, .admin-panel-textarea:focus {
-  border-color: #2563eb; /* Darker blue on focus */
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-}
-.admin-panel-label {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 1rem;
-  color: #2563eb;
-  margin-bottom: 0.25rem;
   display: block;
 }
-#admin-personal-info-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+.admin-panel-input:focus, .admin-panel-textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
 }
-.admin-panel-btn {
-  background: var(--primary);
-  color: #fff;
-  font-weight: 600;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.85rem 2rem;
-  font-size: 1rem;
-  box-shadow: 0 2px 8px rgba(59,130,246,0.08);
-  transition: background 0.2s, box-shadow 0.2s;
-  cursor: pointer;
-  margin-top: 0.5rem;
+.admin-panel-section-title, .admin-panel-card h3 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #14509e;
+  margin-bottom: 2.2rem;
+  letter-spacing: -0.5px;
 }
-.admin-panel-btn:hover {
-  background: var(--primary-dark);
-  box-shadow: 0 4px 16px rgba(37,99,235,0.10);
+.admin-panel-form, #admin-personal-info-form, #admin-experience-form, #admin-contact-form, #admin-results-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
 }
-@media (max-width: 600px) {
+@media (min-width: 900px) {
+  .admin-panel-form, #admin-personal-info-form, #admin-experience-form, #admin-contact-form {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem 2rem;
+  }
+  .admin-panel-card {
+    padding: 3.5rem 3rem;
+  }
+}
+@media (max-width: 700px) {
   .admin-panel-card {
     padding: 1.25rem 0.5rem;
+    max-width: 99vw;
   }
   .admin-panel-input, .admin-panel-textarea {
-    font-size: 0.95rem;
-    padding: 0.6rem 0.75rem;
+    font-size: 0.98rem;
+    padding: 0.7rem 0.75rem;
+  }
+  .admin-panel-section-title, .admin-panel-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1.2rem;
   }
 }
   
