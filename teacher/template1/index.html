@@ -1906,38 +1906,38 @@
             <!-- Alert container for messages -->
             <div id="adminAlertContainer"></div>
             
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8 admin-panel-card">
                 <h3 class="text-xl font-bold mb-4 text-gray-800">Personal Information</h3>
-                <div class="grid md:grid-cols-2 gap-4">
+                <form id="admin-personal-info-form" class="flex flex-col gap-5">
                     <div>
-                        <label class="form-label">Name</label>
-                        <input type="text" id="admin-name" class="form-input">
+                        <label for="admin-name" class="admin-panel-label">Name</label>
+                        <input type="text" id="admin-name" class="admin-panel-input" />
                     </div>
                     <div>
-                        <label class="form-label">Title</label>
-                        <input type="text" id="admin-title" class="form-input">
+                        <label for="admin-title" class="admin-panel-label">Title</label>
+                        <input type="text" id="admin-title" class="admin-panel-input" />
                     </div>
-                </div>
-                <div class="mt-4">
-                    <label class="form-label">Subtitle/Role</label>
-                    <input type="text" id="admin-subtitle" class="form-input" placeholder="History Teacher">
-                </div>
-                <div class="mt-4">
-                    <label class="form-label">Hero Heading</label>
-                    <input type="text" id="admin-hero-heading" class="form-input" placeholder="Inspiring Minds Through Mathematics">
-                </div>
-                <div class="mt-4">
-                    <label class="form-label">Experience</label>
-                    <input type="text" id="admin-experience" class="form-input">
-                </div>
-                <div class="mt-4">
-                    <label class="form-label">Teaching Philosophy</label>
-                    <textarea id="admin-philosophy" class="form-input" rows="4" placeholder="I believe in creating an engaging and supportive learning environment..."></textarea>
-                </div>
-                <div class="mt-4">
-                    <label class="form-label">Qualifications (one per line)</label>
-                    <textarea id="admin-qualifications" class="form-input" rows="4"></textarea>
-                </div>
+                    <div>
+                        <label for="admin-subtitle" class="admin-panel-label">Subtitle/Role</label>
+                        <input type="text" id="admin-subtitle" class="admin-panel-input" placeholder="History Teacher" />
+                    </div>
+                    <div>
+                        <label for="admin-hero-heading" class="admin-panel-label">Hero Heading</label>
+                        <input type="text" id="admin-hero-heading" class="admin-panel-input" placeholder="Inspiring Minds Through Mathematics" />
+                    </div>
+                    <div>
+                        <label for="admin-experience" class="admin-panel-label">Experience</label>
+                        <input type="text" id="admin-experience" class="admin-panel-input" />
+                    </div>
+                    <div>
+                        <label for="admin-philosophy" class="admin-panel-label">Teaching Philosophy</label>
+                        <textarea id="admin-philosophy" class="admin-panel-input" rows="3" placeholder="I believe in creating an engaging and supportive learning environment..."></textarea>
+                    </div>
+                    <div>
+                        <label for="admin-qualifications" class="admin-panel-label">Qualifications (one per line)</label>
+                        <textarea id="admin-qualifications" class="admin-panel-input" rows="3"></textarea>
+                    </div>
+                </form>
             </div>
             
             <div class="bg-white rounded-lg shadow-lg p-6 mb-8">

@@ -430,23 +430,34 @@ header {
   letter-spacing: 0.01em;
 }
 .admin-panel-input, .admin-panel-textarea {
-  width: 100%;
-  padding: 0.7rem 1rem;
-  border: 1.5px solid var(--gray-200);
+  border: 2px solid #3b82f6; /* Modern blue border */
+  outline: none;
+  background: var(--bg-color);
+  color: var(--text-color);
   border-radius: 0.5rem;
-  background: #f8fafc;
-  color: var(--gray-800);
+  padding: 0.75rem 1rem;
+  width: 100%;
   font-size: 1rem;
+  margin-top: 0.25rem;
   margin-bottom: 0.5rem;
-  transition: border 0.2s, box-shadow 0.2s;
-  font-family: inherit;
-  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 .admin-panel-input:focus, .admin-panel-textarea:focus {
-  border: 1.5px solid var(--primary);
-  outline: none;
-  box-shadow: 0 0 0 2px var(--primary);
-  background: #fff;
+  border-color: #2563eb; /* Darker blue on focus */
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+.admin-panel-label {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #2563eb;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+#admin-personal-info-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 .admin-panel-btn {
   background: var(--primary);
@@ -468,7 +479,10 @@ header {
 @media (max-width: 600px) {
   .admin-panel-card {
     padding: 1.25rem 0.5rem;
-    max-width: 98vw;
+  }
+  .admin-panel-input, .admin-panel-textarea {
+    font-size: 0.95rem;
+    padding: 0.6rem 0.75rem;
   }
 }
   
