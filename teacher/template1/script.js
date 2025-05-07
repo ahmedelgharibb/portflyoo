@@ -3166,7 +3166,8 @@ function applyModeTheme(mode) {
     
     if (mode === 'dark') {
         // Apply dark mode colors
-        root.style.setProperty('--bg-color', '#0f172a'); // Deep blue-black like Burger House
+        root.style.setProperty('--bg-color', '#0f172a');
+        document.body.style.backgroundColor = '#0f172a'; // Ensure body bg is dark
         root.style.setProperty('--text-color', '#f3f4f6');
         root.style.setProperty('--text-light', '#d1d5db');
         root.style.setProperty('--card-bg', '#1e293b');
@@ -3362,6 +3363,7 @@ function applyModeTheme(mode) {
     } else {
         // Apply light mode colors
         root.style.setProperty('--bg-color', '#f9fafb');
+        document.body.style.backgroundColor = '#f9fafb'; // Ensure body bg is light
         root.style.setProperty('--text-color', '#1f2937');
         root.style.setProperty('--text-light', '#6b7280');
         root.style.setProperty('--card-bg', '#ffffff');
