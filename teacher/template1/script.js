@@ -3687,51 +3687,37 @@ function updateSubjectsGrid(subjects) {
     `).join('');
 }
 
-// === Dynamic Grade Categories Logic (Supabase) ===
+// === MIGRATED GRADE CATEGORIES LOGIC: Use teachers_websites.data.grade_categories instead of grade_categories table ===
 const DEFAULT_GRADE_CATEGORIES = ['A*', 'A', 'Other'];
 let gradeCategories = [...DEFAULT_GRADE_CATEGORIES];
-let gradeCategoriesId = null; // id of the row in grade_categories table
 
 async function fetchGradeCategories() {
     const { data, error } = await supabase
-        .from('grade_categories')
-        .select('*')
-        .limit(1)
+        .from('teachers_websites')
+        .select('data')
+        .eq('id', 1)
         .single();
     if (error || !data) {
         gradeCategories = [...DEFAULT_GRADE_CATEGORIES];
-        gradeCategoriesId = null;
         return gradeCategories;
     }
-    gradeCategories = data.categories;
-    gradeCategoriesId = data.id;
+    gradeCategories = (data.data && Array.isArray(data.data.grade_categories)) ? data.data.grade_categories : [...DEFAULT_GRADE_CATEGORIES];
     return gradeCategories;
 }
 
 async function updateGradeCategoriesInSupabase(categories) {
-    if (!gradeCategoriesId) {
-        // Insert if not exists
-        const { data, error } = await supabase
-            .from('grade_categories')
-            .insert([{ categories }])
-            .select()
-            .single();
-        if (!error && data) {
-            gradeCategoriesId = data.id;
-            gradeCategories = data.categories;
-        }
-    } else {
-        // Update existing row
-        const { data, error } = await supabase
-            .from('grade_categories')
-            .update({ categories, updated_at: new Date().toISOString() })
-            .eq('id', gradeCategoriesId)
-            .select()
-            .single();
-        if (!error && data) {
-            gradeCategories = data.categories;
-        }
-    }
+    const { data: row, error: fetchError } = await supabase
+        .from('teachers_websites')
+        .select('data')
+        .eq('id', 1)
+        .single();
+    if (fetchError) throw fetchError;
+    const newData = { ...(row?.data || {}), grade_categories: categories };
+    const { error } = await supabase
+        .from('teachers_websites')
+        .upsert({ id: 1, data: newData }, { onConflict: 'id' });
+    if (error) throw error;
+    gradeCategories = categories;
 }
 
 function renderGradeCategoriesAdmin() {

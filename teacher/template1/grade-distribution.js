@@ -7,19 +7,37 @@ function getCurrentGradeCategories() {
         : ['A*', 'A', 'Other'];
 }
 
+// Helper to fetch all grade distributions from teachers_websites
+async function fetchAllGradeDistributions() {
+    const { data, error } = await supabase
+        .from('teachers_websites')
+        .select('data')
+        .eq('id', 1)
+        .single();
+    if (error) throw error;
+    return (data && data.data && Array.isArray(data.data.grade_distribution)) ? data.data.grade_distribution : [];
+}
+
+// Helper to save all grade distributions to teachers_websites
+async function saveAllGradeDistributions(gradeDistributions) {
+    const { data: row, error: fetchError } = await supabase
+        .from('teachers_websites')
+        .select('data')
+        .eq('id', 1)
+        .single();
+    if (fetchError) throw fetchError;
+    const newData = { ...(row?.data || {}), grade_distribution: gradeDistributions };
+    const { error } = await supabase
+        .from('teachers_websites')
+        .upsert({ id: 1, data: newData }, { onConflict: 'id' });
+    if (error) throw error;
+}
+
 async function loadGradeDistribution() {
     try {
-        const { data, error } = await supabase
-            .from('grade_distribution')
-            .select('*')
-            .order('subject');
-
-        if (error) throw error;
-
-        if (data) {
-            updateGradeDistributionUI(data);
-            initializeSubjectCharts(data);
-        }
+        const data = await fetchAllGradeDistributions();
+        updateGradeDistributionUI(data);
+        initializeSubjectCharts(data);
     } catch (error) {
         console.error('Error loading grade distribution:', error);
         showAdminAlert('error', 'Failed to load grade distribution data');
@@ -131,21 +149,15 @@ async function handleGradeInputChange(e) {
     const grade = e.target.dataset.grade;
     const value = parseInt(e.target.value) || 0;
     try {
-        // Fetch the current grade_counts for this subject
-        const { data, error: fetchError } = await supabase
-            .from('grade_distribution')
-            .select('grade_counts')
-            .eq('subject', subjectName)
-            .single();
-        if (fetchError) throw fetchError;
-        const gradeCounts = data.grade_counts || {};
-        gradeCounts[grade] = value;
-        // Update in Supabase
-        const { error } = await supabase
-            .from('grade_distribution')
-            .update({ grade_counts: gradeCounts })
-            .eq('subject', subjectName);
-        if (error) throw error;
+        let gradeDistributions = await fetchAllGradeDistributions();
+        let subject = gradeDistributions.find(s => s.subject === subjectName);
+        if (!subject) {
+            subject = { subject: subjectName, grade_counts: {} };
+            gradeDistributions.push(subject);
+        }
+        subject.grade_counts = subject.grade_counts || {};
+        subject.grade_counts[grade] = value;
+        await saveAllGradeDistributions(gradeDistributions);
         // Update the chart
         const canvasId = `chart-${subjectName.toLowerCase().replace(/\s+/g, '-')}`;
         const ctx = document.getElementById(canvasId)?.getContext('2d');
@@ -153,7 +165,7 @@ async function handleGradeInputChange(e) {
         const chart = Chart.getChart(ctx);
         if (!chart) return;
         const categories = getCurrentGradeCategories();
-        chart.data.datasets[0].data = categories.map(cat => gradeCounts[cat] || 0);
+        chart.data.datasets[0].data = categories.map(cat => subject.grade_counts[cat] || 0);
         chart.update();
     } catch (error) {
         console.error('Error updating grade distribution:', error);

@@ -87,9 +87,35 @@ const showToast = (message, type = 'success') => {
     }, 3000);
 };
 
-// Review submission handling
+// Helper to fetch all reviews from teachers_websites
+async function fetchAllReviewsFromTeachersWebsites() {
+    const { data, error } = await window.supabaseClient
+        .from('teachers_websites')
+        .select('data')
+        .eq('id', 1)
+        .single();
+    if (error) throw error;
+    return (data && data.data && Array.isArray(data.data.reviews)) ? data.data.reviews : [];
+}
+
+// Helper to save all reviews to teachers_websites
+async function saveAllReviewsToTeachersWebsites(reviews) {
+    const { data: row, error: fetchError } = await window.supabaseClient
+        .from('teachers_websites')
+        .select('data')
+        .eq('id', 1)
+        .single();
+    if (fetchError) throw fetchError;
+    const newData = { ...(row?.data || {}), reviews };
+    const { error } = await window.supabaseClient
+        .from('teachers_websites')
+        .upsert({ id: 1, data: newData }, { onConflict: 'id' });
+    if (error) throw error;
+}
+
+// Submit review (add to reviews array)
 async function submitReview(event) {
-    event.preventDefault(); // Prevent form submission
+    event.preventDefault();
     console.log('🚀 Starting review submission process...'); // Console logging
     console.log('----------------------------------------');
 
@@ -154,27 +180,19 @@ async function submitReview(event) {
 
     try {
         console.log('📡 Sending request to Supabase...');
-        const { data, error } = await window.supabaseClient
-            .from('reviews')
-            .insert({
-                student_name: studentName,
-                rating: rating,
-                review_text: reviewText,
-                is_visible: false
-            })
-            .select();
-
-        if (error) {
-            console.error('❌ Supabase Error:', error);
-            console.error('Error Code:', error.code);
-            console.error('Error Message:', error.message);
-            console.error('Error Details:', error.details);
-            console.error('----------------------------------------');
-            throw error;
-        }
-
+        let reviews = await fetchAllReviewsFromTeachersWebsites();
+        const newReview = {
+            id: crypto.randomUUID(),
+            student_name: studentName,
+            rating: rating,
+            review_text: reviewText,
+            is_visible: false,
+            created_at: new Date().toISOString()
+        };
+        reviews.unshift(newReview);
+        await saveAllReviewsToTeachersWebsites(reviews);
         console.log('✅ Review saved successfully!');
-        console.log('📊 Database Response:', data);
+        console.log('📊 Database Response:', reviews);
         console.log('----------------------------------------');
         
         // Show success message
@@ -219,36 +237,12 @@ async function submitReview(event) {
     return false;
 }
 
-// Fetch and display approved reviews
+// Load approved reviews (public)
 async function loadApprovedReviews() {
-    console.log('🔄 Loading approved reviews from database...');
-    console.log('----------------------------------------');
-
     try {
-        console.log('📡 Sending request to Supabase...');
-        const { data, error } = await window.supabaseClient
-            .from('reviews')
-            .select('*')
-            .eq('is_visible', true)
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error('❌ Error loading approved reviews:');
-            console.error('Error details:', error.message);
-            console.error('Error code:', error.code);
-            console.error('----------------------------------------');
-            throw error;
-        }
-
-        console.log('✅ Successfully loaded approved reviews');
-        console.log('📊 Number of approved reviews:', data?.length || 0);
-        if (data?.length > 0) {
-            console.log('📅 Most recent review:', new Date(data[0].created_at).toLocaleString());
-            console.log('⭐ Average rating:', (data.reduce((acc, review) => acc + review.rating, 0) / data.length).toFixed(1));
-        }
-        console.log('----------------------------------------');
-
-        displayReviews(data || []);
+        const reviews = await fetchAllReviewsFromTeachersWebsites();
+        const approved = reviews.filter(r => r.is_visible);
+        displayReviews(approved);
     } catch (error) {
         console.error('❌ Error in loadApprovedReviews:', error);
         console.error('Error details:', error.message);
@@ -314,7 +308,7 @@ function displayReviews(reviews) {
     }
 }
 
-// Admin: Load all reviews
+// Load all reviews (admin)
 async function loadAllReviews() {
     console.log('🔄 Loading all reviews from database...');
     console.log('----------------------------------------');
@@ -340,26 +334,8 @@ async function loadAllReviews() {
         console.log('📡 Sending request to Supabase...');
         console.log('Query: SELECT * FROM reviews ORDER BY created_at DESC');
         
-        const { data, error } = await window.supabaseClient
-            .from('reviews')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error('❌ Error loading reviews from database:', error);
-            throw error;
-        }
-
-        if (!data) {
-            console.log('⚠️ No data returned from database');
-            throw new Error('No data returned from database');
-        }
-
-        console.log('✅ Successfully loaded reviews:', data);
-        console.log('📊 Total reviews found:', data.length);
-
-        // Display the reviews
-        displayAdminReviews(data);
+        const reviews = await fetchAllReviewsFromTeachersWebsites();
+        displayAdminReviews(reviews);
 
     } catch (error) {
         console.error('❌ Error in loadAllReviews:', error);
@@ -428,47 +404,31 @@ function displayAdminReviews(reviews) {
     });
 }
 
-// Toggle review visibility (Show/Hide)
+// Toggle review visibility (admin)
 async function toggleReviewVisibility(reviewId, makeVisible) {
     try {
-        const { data, error } = await window.supabaseClient
-            .from('reviews')
-            .update({ is_visible: makeVisible })
-            .eq('id', reviewId);
-        if (error) {
-            showToast('Failed to update review visibility', 'error');
-            console.error(error);
-            return;
-        }
+        let reviews = await fetchAllReviewsFromTeachersWebsites();
+        reviews = reviews.map(r => r.id === reviewId ? { ...r, is_visible: makeVisible } : r);
+        await saveAllReviewsToTeachersWebsites(reviews);
         showToast(`Review ${makeVisible ? 'shown' : 'hidden'}!`);
         if (document.getElementById('adminReviewsContainer')) {
             await loadAllReviews();
         }
     } catch (err) {
         showToast('Failed to update review visibility', 'error');
-        console.error(err);
     }
 }
 
-// Admin: Delete review
+// Delete review (admin)
 async function deleteReview(reviewId) {
     if (!confirm('Are you sure you want to delete this review?')) return;
-
-    console.log(`Deleting review: ${reviewId}`); // Console logging
-
     try {
-        const { data, error } = await window.supabaseClient
-            .from('reviews')
-            .delete()
-            .eq('id', reviewId);
-
-        if (error) throw error;
-
-        console.log('Review deleted:', data); // Console logging
+        let reviews = await fetchAllReviewsFromTeachersWebsites();
+        reviews = reviews.filter(r => r.id !== reviewId);
+        await saveAllReviewsToTeachersWebsites(reviews);
         showToast('Review deleted successfully');
-        loadAllReviews(); // Refresh admin view
+        loadAllReviews();
     } catch (error) {
-        console.error('Error deleting review:', error); // Console logging
         showToast('Failed to delete review', 'error');
     }
 }
