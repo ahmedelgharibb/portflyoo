@@ -125,9 +125,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         // Try to load from Supabase
         try {
-            console.log('Fetching from table: site_data [operation: select]');
             const { data, error } = await supabase
-                .from('site_data')
+                .from('teachers_websites')
                 .select('data')
                 .eq('id', 1)
                 .single();
@@ -193,7 +192,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     async function initializeImageUpload() {
         try {
             const { data, error } = await supabase
-                .from('website_data')
+                .from('teachers_websites')
                 .select('*')
                 .order('created_at', { ascending: false })
                 .limit(1);
@@ -342,7 +341,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         try {
             // Get current data
             const { data: currentData, error: fetchError } = await supabase
-                .from('site_data')
+                .from('teachers_websites')
                 .select('*')
                 .order('created_at', { ascending: false })
                 .limit(1);
@@ -364,7 +363,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             // Update the database
             const { error: updateError } = await supabase
-                .from('site_data')
+                .from('teachers_websites')
                 .upsert([{ data: websiteData }]);
 
             if (updateError) throw updateError;
@@ -432,7 +431,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (document.getElementById('adminPanel')) {
             try {
                 const { data: currentData, error: fetchError } = await supabase
-                    .from('site_data')
+                    .from('teachers_websites')
                     .select('*')
                     .order('created_at', { ascending: false })
                     .limit(1);
@@ -477,7 +476,7 @@ async function restoreDataToSupabase() {
     try {
         // Use upsert with onConflict to handle existing records
         const { data, error } = await supabase
-            .from('site_data')
+            .from('teachers_websites')
             .upsert({ 
                 id: 1, 
                 data: siteData 
@@ -493,7 +492,7 @@ async function restoreDataToSupabase() {
         
         // Verify the data was saved by fetching it back
         const { data: verifyData, error: verifyError } = await supabase
-            .from('site_data')
+            .from('teachers_websites')
             .select('data')
             .eq('id', 1)
             .single();
@@ -1425,7 +1424,7 @@ async function openAdminPanel() {
         try {
             console.log('Attempting to load data from Supabase');
             const { data, error } = await supabase
-                .from('site_data')
+                .from('teachers_websites')
                 .select('*')
                 .eq('id', 1)
                 .single();
@@ -2396,7 +2395,7 @@ async function saveAdminChanges() {
         console.log('Fetching current data from Supabase...');
         // Get current data to preserve existing values
         const { data: currentData, error: fetchError } = await supabase
-            .from('site_data')
+            .from('teachers_websites')
             .select('*')
             .eq('id', 1)
             .single();
@@ -2507,7 +2506,7 @@ async function saveAdminChanges() {
         try {
             console.log('Attempting to save to Supabase...');
             const { error } = await supabase
-                .from('site_data')
+                .from('teachers_websites')
                 .upsert({ id: 1, data: newData }, { onConflict: 'id' });
 
             if (error) {
@@ -2518,7 +2517,7 @@ async function saveAdminChanges() {
             // Verify the data was saved correctly
             console.log('Verifying Supabase data after save...');
             const { data: verifyData, error: verifyError } = await supabase
-                .from('site_data')
+                .from('teachers_websites')
                 .select('data')
                 .eq('id', 1)
                 .single();
@@ -3639,7 +3638,7 @@ async function saveWebsiteData() {
     try {
         // First get current data to make sure we don't overwrite other fields
         const { data: currentData, error: fetchError } = await supabase
-            .from('site_data')
+            .from('teachers_websites')
             .select('*')
             .eq('id', 1)
             .single();
@@ -3656,7 +3655,7 @@ async function saveWebsiteData() {
 
         // Save to Supabase
         const { error: saveError } = await supabase
-            .from('site_data')
+            .from('teachers_websites')
             .upsert({ 
                 id: 1, 
                 data: dataToSave 
@@ -3688,39 +3687,51 @@ function updateSubjectsGrid(subjects) {
     `).join('');
 }
 
-// === MIGRATED GRADE CATEGORIES LOGIC: Use teachers_websites.data.grade_categories instead of grade_categories table ===
+// === Dynamic Grade Categories Logic (Supabase) ===
 const DEFAULT_GRADE_CATEGORIES = ['A*', 'A', 'Other'];
 let gradeCategories = [...DEFAULT_GRADE_CATEGORIES];
+let gradeCategoriesId = null; // id of the row in grade_categories table
 
 async function fetchGradeCategories() {
-    console.log('Fetching from table: teachers_websites [operation: select]');
     const { data, error } = await supabase
-        .from('teachers_websites')
-        .select('data')
-        .eq('id', 1)
+        .from('grade_categories')
+        .select('*')
+        .limit(1)
         .single();
     if (error || !data) {
         gradeCategories = [...DEFAULT_GRADE_CATEGORIES];
+        gradeCategoriesId = null;
         return gradeCategories;
     }
-    gradeCategories = (data.data && Array.isArray(data.data.grade_categories)) ? data.data.grade_categories : [...DEFAULT_GRADE_CATEGORIES];
+    gradeCategories = data.categories;
+    gradeCategoriesId = data.id;
     return gradeCategories;
 }
 
 async function updateGradeCategoriesInSupabase(categories) {
-    const { data: row, error: fetchError } = await supabase
-        .from('teachers_websites')
-        .select('data')
-        .eq('id', 1)
-        .single();
-    if (fetchError) throw fetchError;
-    const newData = { ...(row?.data || {}), grade_categories: categories };
-    console.log('Upserting to table: teachers_websites [operation: upsert]');
-    const { error } = await supabase
-        .from('teachers_websites')
-        .upsert({ id: 1, data: newData }, { onConflict: 'id' });
-    if (error) throw error;
-    gradeCategories = categories;
+    if (!gradeCategoriesId) {
+        // Insert if not exists
+        const { data, error } = await supabase
+            .from('grade_categories')
+            .insert([{ categories }])
+            .select()
+            .single();
+        if (!error && data) {
+            gradeCategoriesId = data.id;
+            gradeCategories = data.categories;
+        }
+    } else {
+        // Update existing row
+        const { data, error } = await supabase
+            .from('grade_categories')
+            .update({ categories, updated_at: new Date().toISOString() })
+            .eq('id', gradeCategoriesId)
+            .select()
+            .single();
+        if (!error && data) {
+            gradeCategories = data.categories;
+        }
+    }
 }
 
 function renderGradeCategoriesAdmin() {
@@ -3798,3 +3809,31 @@ async function initializeGradeCategories() {
 document.addEventListener('DOMContentLoaded', () => {
     initializeGradeCategories();
 });
+
+// === MIGRATED: All personal info, experience, and grades/results now use teachers_websites.data (id: 1) ===
+// Helper to fetch all site data from teachers_websites
+async function fetchAllSiteData() {
+    console.log('Fetching from table: teachers_websites [operation: select]');
+    const { data, error } = await supabase
+        .from('teachers_websites')
+        .select('data')
+        .eq('id', 1)
+        .single();
+    if (error) throw error;
+    return data && data.data ? data.data : {};
+}
+
+// Helper to save all site data to teachers_websites
+async function saveAllSiteData(newData) {
+    console.log('Upserting to table: teachers_websites [operation: upsert]');
+    const { error } = await supabase
+        .from('teachers_websites')
+        .upsert({ id: 1, data: newData }, { onConflict: 'id' });
+    if (error) throw error;
+}
+
+// Replace all site_data fetches/updates with teachers_websites.data
+// Example usage in DOMContentLoaded and saveAdminChanges:
+// Instead of fetching from site_data, use fetchAllSiteData()
+// Instead of upserting to site_data, use saveAllSiteData(newData)
+// ... existing code ...
