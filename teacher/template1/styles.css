@@ -321,5 +321,9 @@ header {
     overflow: visible !important;
   }
 }
+
+.dark-mode #hero .bg-gradient-to-br {
+  background: linear-gradient(to bottom right, #111827, #1f2937) !important;
+}
   
   
