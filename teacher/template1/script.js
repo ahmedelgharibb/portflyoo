@@ -3840,3 +3840,18 @@ async function saveAllSiteData(newData) {
 // Instead of fetching from site_data, use fetchAllSiteData()
 // Instead of upserting to site_data, use saveAllSiteData(newData)
 // ... existing code ...
+
+// Hide contact section if site owner email is not set
+window.addEventListener('DOMContentLoaded', function() {
+  // Replace this with your actual logic to get the site owner email
+  // For example, from Supabase, a global variable, or a hidden input
+  var siteOwnerEmail = window.siteOwnerEmail || '';
+  var contactSection = document.getElementById('contactSection');
+  if (contactSection) {
+    if (!siteOwnerEmail || siteOwnerEmail.trim() === '') {
+      contactSection.style.display = 'none';
+    } else {
+      contactSection.style.display = '';
+    }
+  }
+});
