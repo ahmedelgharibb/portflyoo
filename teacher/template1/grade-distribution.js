@@ -9,6 +9,7 @@ function getCurrentGradeCategories() {
 
 // Helper to fetch all grade distributions from teachers_websites
 async function fetchAllGradeDistributions() {
+    console.log('Fetching from table: teachers_websites [operation: select]');
     const { data, error } = await supabase
         .from('teachers_websites')
         .select('data')
@@ -27,6 +28,7 @@ async function saveAllGradeDistributions(gradeDistributions) {
         .single();
     if (fetchError) throw fetchError;
     const newData = { ...(row?.data || {}), grade_distribution: gradeDistributions };
+    console.log('Upserting to table: teachers_websites [operation: upsert]');
     const { error } = await supabase
         .from('teachers_websites')
         .upsert({ id: 1, data: newData }, { onConflict: 'id' });

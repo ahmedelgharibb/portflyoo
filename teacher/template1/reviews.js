@@ -89,6 +89,7 @@ const showToast = (message, type = 'success') => {
 
 // Helper to fetch all reviews from teachers_websites
 async function fetchAllReviewsFromTeachersWebsites() {
+    console.log('Fetching from table: teachers_websites [operation: select]');
     const { data, error } = await window.supabaseClient
         .from('teachers_websites')
         .select('data')
@@ -107,6 +108,7 @@ async function saveAllReviewsToTeachersWebsites(reviews) {
         .single();
     if (fetchError) throw fetchError;
     const newData = { ...(row?.data || {}), reviews };
+    console.log('Upserting to table: teachers_websites [operation: upsert]');
     const { error } = await window.supabaseClient
         .from('teachers_websites')
         .upsert({ id: 1, data: newData }, { onConflict: 'id' });

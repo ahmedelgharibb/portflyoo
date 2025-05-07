@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         // Try to load from Supabase
         try {
+            console.log('Fetching from table: site_data [operation: select]');
             const { data, error } = await supabase
                 .from('site_data')
                 .select('data')
@@ -3692,6 +3693,7 @@ const DEFAULT_GRADE_CATEGORIES = ['A*', 'A', 'Other'];
 let gradeCategories = [...DEFAULT_GRADE_CATEGORIES];
 
 async function fetchGradeCategories() {
+    console.log('Fetching from table: teachers_websites [operation: select]');
     const { data, error } = await supabase
         .from('teachers_websites')
         .select('data')
@@ -3713,6 +3715,7 @@ async function updateGradeCategoriesInSupabase(categories) {
         .single();
     if (fetchError) throw fetchError;
     const newData = { ...(row?.data || {}), grade_categories: categories };
+    console.log('Upserting to table: teachers_websites [operation: upsert]');
     const { error } = await supabase
         .from('teachers_websites')
         .upsert({ id: 1, data: newData }, { onConflict: 'id' });
