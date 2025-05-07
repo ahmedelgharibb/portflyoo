@@ -561,11 +561,12 @@ function initializeWithDefaultData() {
                 'YouTube Math Channel'
             ]
         },
+        // FIXED: Use correct structure for results
         results: [
-            {name: 'Mathematics', score: 85},
-            {name: 'Physics', score: 78},
-            {name: 'Chemistry', score: 82},
-            {name: 'Biology', score: 75}
+            { subject: 'Mathematics', astar: 10, a: 15, other: 5 },
+            { subject: 'Physics', astar: 8, a: 12, other: 7 },
+            { subject: 'Chemistry', astar: 6, a: 10, other: 9 },
+            { subject: 'Biology', astar: 5, a: 8, other: 12 }
         ],
         contact: {
             email: 'ahmed.mahmoud@mathseducator.com',
