@@ -42,6 +42,24 @@ const SUPABASE_URL = 'https://bqpchhitrbyfleqpyydz.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Helper to load site_id from site.config.json
+async function getCurrentSiteId() {
+    try {
+        const response = await fetch('site.config.json');
+        if (!response.ok) throw new Error('Failed to load site.config.json');
+        const config = await response.json();
+        if (config.site_id && Number.isInteger(config.site_id)) {
+            return config.site_id;
+        } else {
+            console.error('site_id missing or invalid in site.config.json, defaulting to 1');
+            return 1;
+        }
+    } catch (err) {
+        console.error('Error loading site.config.json:', err);
+        return 1;
+    }
+}
+
 // Once the document is ready
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Document ready, initializing...');
@@ -123,12 +141,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Initialize Supabase client
     try {
+        // Get the current site id from config
+        const currentSiteId = await getCurrentSiteId();
+        console.log('Fetching data for id:', currentSiteId);
         // Try to load from Supabase
         try {
             const { data, error } = await supabase
                 .from('teachers_websites')
                 .select('data')
-                .eq('id', 1)
+                .eq('id', currentSiteId)
                 .single();
             
             if (error) {
@@ -1417,15 +1438,15 @@ async function openAdminPanel() {
     try {
         // Load admin data
         let dataSource = 'unknown';
-        
         // Try to load from Supabase
         let adminData;
         try {
-            console.log('Attempting to load data from Supabase');
+            const currentSiteId = await getCurrentSiteId();
+            console.log('Fetching data for id:', currentSiteId);
             const { data, error } = await supabase
                 .from('teachers_websites')
                 .select('*')
-                .eq('id', 1)
+                .eq('id', currentSiteId)
                 .single();
                 
             console.log('Supabase query response:', data, error);
@@ -3814,11 +3835,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // === MIGRATED: All personal info, experience, and grades/results now use teachers_websites.data (id: 1) ===
 // Helper to fetch all site data from teachers_websites
 async function fetchAllSiteData() {
-    console.log('Fetching from table: teachers_websites [operation: select]');
+    const currentSiteId = await getCurrentSiteId();
+    console.log('Fetching from table: teachers_websites [operation: select], id:', currentSiteId);
     const { data, error } = await supabase
         .from('teachers_websites')
         .select('data')
-        .eq('id', 1)
+        .eq('id', currentSiteId)
         .single();
     if (error) throw error;
     return data && data.data ? data.data : {};

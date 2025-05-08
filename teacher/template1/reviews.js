@@ -87,13 +87,32 @@ const showToast = (message, type = 'success') => {
     }, 3000);
 };
 
+// Helper to load site_id from site.config.json
+async function getCurrentSiteId() {
+    try {
+        const response = await fetch('site.config.json');
+        if (!response.ok) throw new Error('Failed to load site.config.json');
+        const config = await response.json();
+        if (config.site_id && Number.isInteger(config.site_id)) {
+            return config.site_id;
+        } else {
+            console.error('site_id missing or invalid in site.config.json, defaulting to 1');
+            return 1;
+        }
+    } catch (err) {
+        console.error('Error loading site.config.json:', err);
+        return 1;
+    }
+}
+
 // Helper to fetch all reviews from teachers_websites
 async function fetchAllReviewsFromTeachersWebsites() {
-    console.log('Fetching from table: teachers_websites [operation: select]');
+    const currentSiteId = await getCurrentSiteId();
+    console.log('Fetching reviews for id:', currentSiteId);
     const { data, error } = await window.supabaseClient
         .from('teachers_websites')
         .select('data')
-        .eq('id', 1)
+        .eq('id', currentSiteId)
         .single();
     if (error) throw error;
     return (data && data.data && Array.isArray(data.data.reviews)) ? data.data.reviews : [];
