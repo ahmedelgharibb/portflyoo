@@ -58,7 +58,7 @@ function copyRecursiveSync(src, dest) {
 }
 
 async function getNextSiteId() {
-  const url = `${SUPABASE_URL}/rest/v1/websites?select=site_id&order=site_id.desc&limit=20`;
+  const url = `${SUPABASE_URL}/rest/v1/teacher_websites?select=site_id&order=site_id.desc&limit=20`;
   const res = await fetch(url, {
     method: 'GET',
     headers: {
@@ -121,7 +121,7 @@ async function getNextSiteId() {
 // To insert more fields with default values, add them to the body object below.
 // Example: const body = { site_id: newSiteId, theme: 'default', owner_email: '' };
 async function createSupabaseRow(newSiteId) {
-  const url = `${SUPABASE_URL}/rest/v1/websites`;
+  const url = `${SUPABASE_URL}/rest/v1/teacher_websites`;
   const body = {
     site_id: newSiteId
     // Add more fields here if needed, e.g. theme: 'default', owner_email: ''
