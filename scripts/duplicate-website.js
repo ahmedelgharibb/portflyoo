@@ -108,6 +108,7 @@ async function getNextSiteId() {
   config.site_id = newId;
   config.directory = websiteName;
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+  console.log('Wrote new site.config.json:', configPath, config);
 
   // 4. Create a new row in Supabase
   await createSupabaseRow(newId);
