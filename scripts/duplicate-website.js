@@ -73,7 +73,6 @@ async function getNextSiteId() {
     process.exit(1);
   }
   const data = await res.json();
-  console.log('DEBUG: Supabase response for max site_id:', data);
   // Filter out non-numeric site_id values
   const numericIds = data
     .map(row => Number(row.site_id))
@@ -95,7 +94,6 @@ async function getNextSiteId() {
 
   // 2. Find the next available site_id from Supabase
   const newSiteId = await getNextSiteId();
-  console.log('Next site_id to use:', newSiteId);
   if (!Number.isInteger(newSiteId) || newSiteId < 1) {
     console.error('Error: Invalid newSiteId:', newSiteId);
     process.exit(1);
@@ -120,10 +118,13 @@ async function getNextSiteId() {
   process.exit(1);
 });
 
+// To insert more fields with default values, add them to the body object below.
+// Example: const body = { site_id: newSiteId, theme: 'default', owner_email: '' };
 async function createSupabaseRow(newSiteId) {
   const url = `${SUPABASE_URL}/rest/v1/websites`;
   const body = {
     site_id: newSiteId
+    // Add more fields here if needed, e.g. theme: 'default', owner_email: ''
   };
   const res = await fetch(url, {
     method: 'POST',
