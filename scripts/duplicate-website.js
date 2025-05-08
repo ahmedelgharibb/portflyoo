@@ -80,8 +80,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 async function createSupabaseRow() {
   const url = `${SUPABASE_URL}/rest/v1/websites`;
   const body = {
-    site_id: newSiteId,
-    directory: websiteName
+    site_id: newSiteId
   };
   const res = await fetch(url, {
     method: 'POST',
