@@ -1393,6 +1393,25 @@
         .admin-security-card {
             /* Add any needed CSS here, or leave empty if not used */
         }
+
+        /* --- Bulletproof mobile hero centering fix --- */
+        @media (max-width: 768px) {
+          #hero .hero-content {
+            align-items: center !important;
+            text-align: center !important;
+            justify-content: center !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            width: 100% !important;
+          }
+          #hero .hero-content > * {
+            margin-left: auto !important;
+            margin-right: auto !important;
+          }
+          #hero .flex, #hero .flex.flex-wrap {
+            justify-content: center !important;
+          }
+        }
     </style>
     
     <!-- Chart.js -->
