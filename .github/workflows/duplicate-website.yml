@@ -8,6 +8,9 @@ on:
         required: true
         default: 'website3'
 
+permissions:
+  contents: write
+
 jobs:
   duplicate:
     runs-on: ubuntu-latest
