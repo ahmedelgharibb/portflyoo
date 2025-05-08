@@ -1,0 +1,34 @@
+name: Duplicate Website
+
+on:
+  workflow_dispatch:
+    inputs:
+      website_name:
+        description: 'New website directory name (e.g., website3)'
+        required: true
+        default: 'website3'
+
+jobs:
+  duplicate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install
+      - name: Duplicate website
+        run: node scripts/duplicate-website.js --name ${{ github.event.inputs.website_name }}
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      - name: Commit and push new website
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add public/websites/${{ github.event.inputs.website_name }}
+          git commit -m "Add new website: ${{ github.event.inputs.website_name }}"
+          git push 
