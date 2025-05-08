@@ -58,7 +58,7 @@ function copyRecursiveSync(src, dest) {
 }
 
 async function getNextSiteId() {
-  const url = `${SUPABASE_URL}/rest/v1/websites?select=site_id&order=site_id.desc&limit=1`;
+  const url = `${SUPABASE_URL}/rest/v1/websites?select=site_id&order=site_id.desc&limit=20`;
   const res = await fetch(url, {
     method: 'GET',
     headers: {
@@ -74,9 +74,13 @@ async function getNextSiteId() {
   }
   const data = await res.json();
   console.log('DEBUG: Supabase response for max site_id:', data);
+  // Filter out non-numeric site_id values
+  const numericIds = data
+    .map(row => Number(row.site_id))
+    .filter(id => Number.isInteger(id) && id > 0);
   let nextId = 1;
-  if (data.length > 0 && data[0].site_id !== null && !isNaN(Number(data[0].site_id))) {
-    nextId = Number(data[0].site_id) + 1;
+  if (numericIds.length > 0) {
+    nextId = Math.max(...numericIds) + 1;
   }
   if (!Number.isInteger(nextId) || nextId < 1) {
     console.error('Error: Could not determine a valid next site_id.');
