@@ -1,8 +1,12 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
-const fetch = require('node-fetch');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+import fetch from 'node-fetch';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const TEMPLATE_DIR = path.join(__dirname, '../teacher/template1');
 const WEBSITES_DIR = path.join(__dirname, '../public/websites');
