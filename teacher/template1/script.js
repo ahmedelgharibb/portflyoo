@@ -3842,10 +3842,7 @@ async function saveAllSiteData(newData) {
 // ... existing code ...
 
 // Hide contact section if site owner email is not set
-window.addEventListener('DOMContentLoaded', function() {
-  // Replace this with your actual logic to get the site owner email
-  // For example, from Supabase, a global variable, or a hidden input
-  var siteOwnerEmail = window.siteOwnerEmail || '';
+function showOrHideContactSection(siteOwnerEmail) {
   var contactSection = document.getElementById('contactSection');
   if (contactSection) {
     if (!siteOwnerEmail || siteOwnerEmail.trim() === '') {
@@ -3854,4 +3851,16 @@ window.addEventListener('DOMContentLoaded', function() {
       contactSection.style.display = '';
     }
   }
+}
+
+// Example: After fetching site data, call this with the email
+// If you fetch from Supabase, call this after you have the email value
+// Example usage:
+// showOrHideContactSection(siteData?.contact?.email);
+
+// If you want to run it on DOMContentLoaded with a global variable:
+document.addEventListener('DOMContentLoaded', function() {
+  // Replace this with your actual logic to get the site owner email
+  var siteOwnerEmail = (window.siteData && window.siteData.contact && window.siteData.contact.email) || '';
+  showOrHideContactSection(siteOwnerEmail);
 });
