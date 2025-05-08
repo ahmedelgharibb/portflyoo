@@ -81,8 +81,7 @@ async function createSupabaseRow() {
   const url = `${SUPABASE_URL}/rest/v1/websites`;
   const body = {
     site_id: newSiteId,
-    directory: websiteName,
-    config: config
+    directory: websiteName
   };
   const res = await fetch(url, {
     method: 'POST',
