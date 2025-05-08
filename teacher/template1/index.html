@@ -1428,6 +1428,52 @@
             line-height: 1.2;
           }
         }
+
+        /* --- Responsive Layout Enhancements --- */
+        html, body {
+          width: 100%;
+          max-width: 100vw;
+          overflow-x: hidden;
+        }
+        body {
+          box-sizing: border-box;
+        }
+        .container {
+          width: 100%;
+          max-width: 1200px;
+          margin-left: auto;
+          margin-right: auto;
+          padding-left: 1rem;
+          padding-right: 1rem;
+          box-sizing: border-box;
+        }
+        section {
+          width: 100%;
+          max-width: 100vw;
+          overflow-x: hidden;
+          box-sizing: border-box;
+        }
+        @media (max-width: 1200px) {
+          .container { max-width: 1000px; }
+        }
+        @media (max-width: 992px) {
+          .container { max-width: 900px; }
+          .nav-links { display: none !important; }
+          #menuBtn { display: flex !important; }
+        }
+        @media (max-width: 768px) {
+          .container { max-width: 100%; padding-left: 0.75rem; padding-right: 0.75rem; }
+        }
+        @media (max-width: 576px) {
+          .container { max-width: 100%; padding-left: 0.5rem; padding-right: 0.5rem; }
+        }
+        /* Ensure nav/menu never overlaps or breaks */
+        header nav .flex { flex-wrap: wrap; }
+        .nav-links, .mobile-nav-links { flex-wrap: wrap; }
+        /* Hide horizontal scrollbars on all elements */
+        * { box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 8px; background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
     </style>
     
     <!-- Chart.js -->
