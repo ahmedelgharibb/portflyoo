@@ -58,7 +58,7 @@ function copyRecursiveSync(src, dest) {
 }
 
 async function getNextSiteId() {
-  const url = `${SUPABASE_URL}/rest/v1/teachers_websites?select=site_id&order=site_id.desc&limit=20`;
+  const url = `${SUPABASE_URL}/rest/v1/teachers_websites?select=id&order=id.desc&limit=20`;
   const res = await fetch(url, {
     method: 'GET',
     headers: {
@@ -69,20 +69,20 @@ async function getNextSiteId() {
   });
   if (!res.ok) {
     const text = await res.text();
-    console.error('Supabase error (fetching max site_id):', text);
+    console.error('Supabase error (fetching max id):', text);
     process.exit(1);
   }
   const data = await res.json();
-  // Filter out non-numeric site_id values
+  // Filter out non-numeric id values
   const numericIds = data
-    .map(row => Number(row.site_id))
+    .map(row => Number(row.id))
     .filter(id => Number.isInteger(id) && id > 0);
   let nextId = 1;
   if (numericIds.length > 0) {
     nextId = Math.max(...numericIds) + 1;
   }
   if (!Number.isInteger(nextId) || nextId < 1) {
-    console.error('Error: Could not determine a valid next site_id.');
+    console.error('Error: Could not determine a valid next id.');
     process.exit(1);
   }
   return nextId;
@@ -92,10 +92,10 @@ async function getNextSiteId() {
   // 1. Duplicate the template folder
   copyRecursiveSync(TEMPLATE_DIR, newWebsiteDir);
 
-  // 2. Find the next available site_id from Supabase
-  const newSiteId = await getNextSiteId();
-  if (!Number.isInteger(newSiteId) || newSiteId < 1) {
-    console.error('Error: Invalid newSiteId:', newSiteId);
+  // 2. Find the next available id from Supabase
+  const newId = await getNextSiteId();
+  if (!Number.isInteger(newId) || newId < 1) {
+    console.error('Error: Invalid newId:', newId);
     process.exit(1);
   }
 
@@ -105,25 +105,25 @@ async function getNextSiteId() {
   if (fs.existsSync(configPath)) {
     config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
   }
-  config.site_id = newSiteId;
+  config.site_id = newId;
   config.directory = websiteName;
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
 
   // 4. Create a new row in Supabase
-  await createSupabaseRow(newSiteId);
+  await createSupabaseRow(newId);
 
-  console.log('Website duplicated and registered successfully:', websiteName, '(site_id:', newSiteId, ')');
+  console.log('Website duplicated and registered successfully:', websiteName, '(id:', newId, ')');
 })().catch(e => {
   console.error('Error:', e);
   process.exit(1);
 });
 
 // To insert more fields with default values, add them to the body object below.
-// Example: const body = { site_id: newSiteId, theme: 'default', owner_email: '' };
-async function createSupabaseRow(newSiteId) {
+// Example: const body = { id: newId, theme: 'default', owner_email: '' };
+async function createSupabaseRow(newId) {
   const url = `${SUPABASE_URL}/rest/v1/teachers_websites`;
   const body = {
-    site_id: newSiteId
+    id: newId
     // Add more fields here if needed, e.g. theme: 'default', owner_email: ''
   };
   const res = await fetch(url, {
@@ -141,5 +141,5 @@ async function createSupabaseRow(newSiteId) {
     console.error('Supabase error:', text);
     process.exit(1);
   }
-  console.log('Supabase row created for site_id', newSiteId);
+  console.log('Supabase row created for id', newId);
 } 
