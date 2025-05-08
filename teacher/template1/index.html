@@ -1412,6 +1412,22 @@
             justify-content: center !important;
           }
         }
+
+        /* --- Ensure hero section is never overlapped by the fixed menu --- */
+        #hero {
+          padding-top: 120px; /* Adjust to match your header height */
+        }
+        @media (max-width: 768px) {
+          #hero {
+            padding-top: 90px; /* Slightly less for mobile if menu is smaller */
+          }
+        }
+        @media (max-width: 640px) {
+          #hero h1 {
+            font-size: 2rem;
+            line-height: 1.2;
+          }
+        }
     </style>
     
     <!-- Chart.js -->
