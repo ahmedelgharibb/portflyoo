@@ -123,7 +123,8 @@ async function getNextSiteId() {
 async function createSupabaseRow(newId) {
   const url = `${SUPABASE_URL}/rest/v1/teachers_websites`;
   const body = {
-    id: newId
+    id: newId,
+    data: {} // Default value for NOT NULL data column
     // Add more fields here if needed, e.g. theme: 'default', owner_email: ''
   };
   const res = await fetch(url, {
