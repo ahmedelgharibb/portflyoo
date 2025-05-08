@@ -8,6 +8,18 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function envCheck(key) {
+  if (!process.env[key]) {
+    console.error(`Error: ${key} is not set in environment.`);
+    process.exit(1);
+  }
+}
+
+envCheck('SUPABASE_SERVICE_ROLE_KEY');
+envCheck('SUPABASE_URL');
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+
 const TEMPLATE_DIR = path.join(__dirname, '../teacher/template1');
 const WEBSITES_DIR = path.join(__dirname, '../public/websites');
 
@@ -112,16 +124,4 @@ async function createSupabaseRow(newSiteId) {
     process.exit(1);
   }
   console.log('Supabase row created for site_id', newSiteId);
-}
-
-function envCheck(key) {
-  if (!process.env[key]) {
-    console.error(`Error: ${key} is not set in environment.`);
-    process.exit(1);
-  }
-}
-
-envCheck('SUPABASE_SERVICE_ROLE_KEY');
-envCheck('SUPABASE_URL');
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const SUPABASE_URL = process.env.SUPABASE_URL; 
+} 
