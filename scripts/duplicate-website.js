@@ -73,6 +73,7 @@ async function getNextSiteId() {
     process.exit(1);
   }
   const data = await res.json();
+  console.log('DEBUG: Supabase response for max site_id:', data);
   let nextId = 1;
   if (data.length > 0 && data[0].site_id !== null && !isNaN(Number(data[0].site_id))) {
     nextId = Number(data[0].site_id) + 1;
