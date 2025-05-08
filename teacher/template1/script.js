@@ -133,25 +133,23 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             if (error) {
                 console.error('Error loading initial data from Supabase:', error);
-                // Data doesn't exist or there was an error, restore it
-                console.log('Attempting to restore data to Supabase...');
-                await restoreDataToSupabase();
+                // Data doesn't exist or there was an error, just show an error and do not restore default data
+                alert('Error loading data from database. Please check your connection or contact support.');
             } else if (data && data.data) {
                 siteData = data.data;
                 console.log('✅ Initial data loaded from Supabase successfully');
                 updateSiteContent(siteData);
             } else {
                 console.log('No initial data found in Supabase');
-                console.log('Attempting to restore data to Supabase...');
-                await restoreDataToSupabase();
+                alert('No data found in the database. Please set up your site data.');
             }
         } catch (error) {
             console.error('Error during initialization:', error);
-            await restoreDataToSupabase();
+            alert('Error during initialization. Please check your connection or contact support.');
         }
     } catch (error) {
         console.error('Error during initialization:', error);
-        initializeWithDefaultData();
+        alert('Critical error during initialization.');
     }
     
     // Apply the saved theme
