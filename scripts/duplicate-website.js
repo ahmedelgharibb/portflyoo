@@ -73,8 +73,15 @@ async function getNextSiteId() {
     process.exit(1);
   }
   const data = await res.json();
-  if (data.length === 0) return 1;
-  return Number(data[0].site_id) + 1;
+  let nextId = 1;
+  if (data.length > 0 && data[0].site_id !== null && !isNaN(Number(data[0].site_id))) {
+    nextId = Number(data[0].site_id) + 1;
+  }
+  if (!Number.isInteger(nextId) || nextId < 1) {
+    console.error('Error: Could not determine a valid next site_id.');
+    process.exit(1);
+  }
+  return nextId;
 }
 
 (async () => {
@@ -83,6 +90,11 @@ async function getNextSiteId() {
 
   // 2. Find the next available site_id from Supabase
   const newSiteId = await getNextSiteId();
+  console.log('Next site_id to use:', newSiteId);
+  if (!Number.isInteger(newSiteId) || newSiteId < 1) {
+    console.error('Error: Invalid newSiteId:', newSiteId);
+    process.exit(1);
+  }
 
   // 3. Update the new site's site.config.json
   const configPath = path.join(newWebsiteDir, 'site.config.json');
