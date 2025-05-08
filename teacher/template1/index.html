@@ -1474,6 +1474,17 @@
         * { box-sizing: border-box; }
         ::-webkit-scrollbar { width: 8px; background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+
+        /* --- Navigation Fix: Prevent wrapping and always show lock/hamburger --- */
+        @media (max-width: 1100px) {
+          .nav-links { display: none !important; }
+          #menuBtn { display: flex !important; }
+        }
+        header nav .flex { flex-wrap: nowrap !important; }
+        .nav-links, .mobile-nav-links { flex-wrap: wrap; }
+        .admin-btn, #menuBtn {
+          flex-shrink: 0;
+        }
     </style>
     
     <!-- Chart.js -->
