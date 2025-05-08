@@ -45,39 +45,53 @@ function copyRecursiveSync(src, dest) {
   }
 }
 
-copyRecursiveSync(TEMPLATE_DIR, newWebsiteDir);
-
-// 2. Find the next available site_id
-const websiteFolders = fs.readdirSync(WEBSITES_DIR).filter(f => fs.existsSync(path.join(WEBSITES_DIR, f, 'site.config.json')));
-let maxSiteId = 0;
-websiteFolders.forEach(folder => {
-  const configPath = path.join(WEBSITES_DIR, folder, 'site.config.json');
-  try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    if (config.site_id && Number(config.site_id) > maxSiteId) {
-      maxSiteId = Number(config.site_id);
+async function getNextSiteId() {
+  const url = `${SUPABASE_URL}/rest/v1/websites?select=site_id&order=site_id.desc&limit=1`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'apikey': SUPABASE_SERVICE_ROLE_KEY,
+      'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+      'Content-Type': 'application/json'
     }
-  } catch (e) {}
-});
-const newSiteId = maxSiteId + 1;
-
-// 3. Update the new site's site.config.json
-const configPath = path.join(newWebsiteDir, 'site.config.json');
-let config = {};
-if (fs.existsSync(configPath)) {
-  config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('Supabase error (fetching max site_id):', text);
+    process.exit(1);
+  }
+  const data = await res.json();
+  if (data.length === 0) return 1;
+  return Number(data[0].site_id) + 1;
 }
-config.site_id = newSiteId;
-config.directory = websiteName;
-fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
 
-// 4. Create a new row in Supabase
-envCheck('SUPABASE_SERVICE_ROLE_KEY');
-envCheck('SUPABASE_URL');
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const SUPABASE_URL = process.env.SUPABASE_URL;
+(async () => {
+  // 1. Duplicate the template folder
+  copyRecursiveSync(TEMPLATE_DIR, newWebsiteDir);
 
-async function createSupabaseRow() {
+  // 2. Find the next available site_id from Supabase
+  const newSiteId = await getNextSiteId();
+
+  // 3. Update the new site's site.config.json
+  const configPath = path.join(newWebsiteDir, 'site.config.json');
+  let config = {};
+  if (fs.existsSync(configPath)) {
+    config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  }
+  config.site_id = newSiteId;
+  config.directory = websiteName;
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+  // 4. Create a new row in Supabase
+  await createSupabaseRow(newSiteId);
+
+  console.log('Website duplicated and registered successfully:', websiteName, '(site_id:', newSiteId, ')');
+})().catch(e => {
+  console.error('Error:', e);
+  process.exit(1);
+});
+
+async function createSupabaseRow(newSiteId) {
   const url = `${SUPABASE_URL}/rest/v1/websites`;
   const body = {
     site_id: newSiteId
@@ -107,9 +121,7 @@ function envCheck(key) {
   }
 }
 
-createSupabaseRow().then(() => {
-  console.log('Website duplicated and registered successfully:', websiteName, '(site_id:', newSiteId, ')');
-}).catch(e => {
-  console.error('Error:', e);
-  process.exit(1);
-}); 
+envCheck('SUPABASE_SERVICE_ROLE_KEY');
+envCheck('SUPABASE_URL');
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL; 
