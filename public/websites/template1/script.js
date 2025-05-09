@@ -2067,22 +2067,18 @@ function updateSiteContent(data) {
         document.querySelectorAll('.nav-brand-subtitle').forEach(el => {
             el.textContent = personalData.title || 'Teacher Title';
         });
-        
         // Update hero section
         const heroHeading = document.querySelector('.hero-title');
         if (heroHeading) {
             heroHeading.innerHTML = data.heroHeading || 'Inspiring Minds Through <span class="text-blue-600">Education</span>';
         }
-
         // Handle results data
         try {
             const resultsData = data.results || [];
-            
             if (resultsData.length === 0) {
                 console.warn('⚠️ Results data array is empty, skipping updates');
                 return;
             }
-            
             // Validate the structure of results data
             const validResults = resultsData.every(item => 
                 item && 
@@ -2092,7 +2088,6 @@ function updateSiteContent(data) {
                 'a' in item && 
                 'other' in item
             );
-                
             if (!validResults) {
                 console.error('❌ Invalid results data structure:', resultsData);
                 // Try to fix the data if possible
@@ -2104,7 +2099,6 @@ function updateSiteContent(data) {
                     'a' in item && 
                     'other' in item
                 );
-                
                 if (fixedResults.length > 0) {
                     console.log('🔧 Using fixed results data:', fixedResults);
                     updateResultsChart(fixedResults);
@@ -2112,14 +2106,33 @@ function updateSiteContent(data) {
                 }
                 return;
             }
-            
             console.log('✅ Valid results data found, updating chart and subjects grid:', resultsData);
             updateResultsChart(resultsData);
             updateSubjectsGrid(resultsData);
         } catch (updateError) {
             console.error('❌ Error updating results:', updateError);
         }
-
+        // --- Always set hero and about image src, with fallback and logging ---
+        const heroImg = document.querySelector('#heroImage');
+        const heroImgMobile = document.querySelector('#heroImageMobile');
+        const aboutImg = document.querySelector('#aboutImage');
+        const heroImageUrl = data.heroImage || 'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg';
+        const aboutImageUrl = data.aboutImage || 'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg';
+        if (heroImg) {
+            heroImg.src = heroImageUrl;
+            heroImg.classList.remove('hidden');
+            console.log('[Image] Set #heroImage to:', heroImageUrl);
+        }
+        if (heroImgMobile) {
+            heroImgMobile.src = heroImageUrl;
+            heroImgMobile.classList.remove('hidden');
+            console.log('[Image] Set #heroImageMobile to:', heroImageUrl);
+        }
+        if (aboutImg) {
+            aboutImg.src = aboutImageUrl;
+            aboutImg.classList.remove('hidden');
+            console.log('[Image] Set #aboutImage to:', aboutImageUrl);
+        }
         // Update hero images if they exist
         if (data.heroImage) {
             const heroImg = document.querySelector('#heroImage');
