@@ -2412,12 +2412,13 @@ async function saveAdminChanges() {
     saveBtn.disabled = true;
 
     try {
+        const currentSiteId = await getCurrentSiteId();
         console.log('Fetching current data from Supabase...');
         // Get current data to preserve existing values
         const { data: currentData, error: fetchError } = await supabase
             .from('teachers_websites')
             .select('*')
-            .eq('id', 1)
+            .eq('id', currentSiteId)
             .single();
 
         if (fetchError) {
@@ -2527,7 +2528,7 @@ async function saveAdminChanges() {
             console.log('Attempting to save to Supabase...');
             const { error } = await supabase
                 .from('teachers_websites')
-                .upsert({ id: 1, data: newData }, { onConflict: 'id' });
+                .upsert({ id: currentSiteId, data: newData }, { onConflict: 'id' });
 
             if (error) {
                 console.error('Supabase upsert error:', error);
@@ -2539,7 +2540,7 @@ async function saveAdminChanges() {
             const { data: verifyData, error: verifyError } = await supabase
                 .from('teachers_websites')
                 .select('data')
-                .eq('id', 1)
+                .eq('id', currentSiteId)
                 .single();
                 
             if (verifyError) {
@@ -3658,33 +3659,28 @@ aboutDropZone.dataset.type = 'about';
 // Save website data to Supabase
 async function saveWebsiteData() {
     try {
+        const currentSiteId = await getCurrentSiteId();
         // First get current data to make sure we don't overwrite other fields
         const { data: currentData, error: fetchError } = await supabase
             .from('teachers_websites')
             .select('*')
-            .eq('id', 1)
+            .eq('id', currentSiteId)
             .single();
-
         if (fetchError) throw fetchError;
-
         // Prepare new data object, preserving existing data
         const dataToSave = {
             ...(currentData?.data || {}),
-            // Ensure images are preserved in the data
             heroImage: websiteData.heroImage || currentData?.data?.heroImage,
             aboutImage: websiteData.aboutImage || currentData?.data?.aboutImage
         };
-
         // Save to Supabase
         const { error: saveError } = await supabase
             .from('teachers_websites')
             .upsert({ 
-                id: 1, 
+                id: currentSiteId, 
                 data: dataToSave 
             }, { onConflict: 'id' });
-
         if (saveError) throw saveError;
-
         console.log('Website data saved successfully');
         return true;
     } catch (error) {
@@ -3848,10 +3844,11 @@ async function fetchAllSiteData() {
 
 // Helper to save all site data to teachers_websites
 async function saveAllSiteData(newData) {
+    const currentSiteId = await getCurrentSiteId();
     console.log('Upserting to table: teachers_websites [operation: upsert]');
     const { error } = await supabase
         .from('teachers_websites')
-        .upsert({ id: 1, data: newData }, { onConflict: 'id' });
+        .upsert({ id: currentSiteId, data: newData }, { onConflict: 'id' });
     if (error) throw error;
 }
 
