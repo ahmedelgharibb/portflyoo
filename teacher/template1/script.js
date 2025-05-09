@@ -2058,14 +2058,14 @@ async function handlePasswordChange(e) {
 function updateSiteContent(data) {
     try {
         console.log('Updating site content with data:', data);
-        
+        // Use personal data for name and title
+        const personalData = data.personal || data.personalInfo || {};
         // Update name and title
         document.querySelectorAll('.nav-brand-name').forEach(el => {
-            el.textContent = data.name || 'Teacher Name';
+            el.textContent = personalData.name || 'Teacher Name';
         });
-        
         document.querySelectorAll('.nav-brand-subtitle').forEach(el => {
-            el.textContent = data.title || 'Teacher Title';
+            el.textContent = personalData.title || 'Teacher Title';
         });
         
         // Update hero section
@@ -2144,7 +2144,7 @@ function updateSiteContent(data) {
         }
         
         // For compatibility, check both personal and personalInfo
-        const personalData = data.personal || data.personalInfo || {};
+        // const personalData = data.personal || data.personalInfo || {}; // REMOVE THIS LINE
         
         // Update page title
         if (personalData.name && personalData.title) {
