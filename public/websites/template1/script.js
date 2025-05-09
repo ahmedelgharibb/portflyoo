@@ -3881,3 +3881,38 @@ document.addEventListener('DOMContentLoaded', function() {
   var siteOwnerEmail = (window.siteData && window.siteData.contact && window.siteData.contact.email) || '';
   showOrHideContactSection(siteOwnerEmail);
 });
+
+// Helper function to set image src with fallback and logging
+function setImageSrc(imgId, url, fallback) {
+    const img = document.getElementById(imgId);
+    if (img) {
+        if (url) {
+            img.src = url;
+            img.classList.remove('hidden');
+            console.log(`[Image] Set #${imgId} to:`, url);
+        } else {
+            img.src = fallback;
+            img.classList.remove('hidden');
+            console.log(`[Image] Set #${imgId} to default:`, fallback);
+        }
+    }
+}
+
+// After loading website data (replace this with your actual data loading logic)
+function updateImagesFromData(data) {
+    setImageSrc(
+        'heroImage',
+        data.heroImage,
+        'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg'
+    );
+    setImageSrc(
+        'aboutImage',
+        data.aboutImage,
+        'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg'
+    );
+}
+// ... existing code ...
+// Wherever you load your website data, call updateImagesFromData(data)
+// For example, after fetching data:
+// updateImagesFromData(websiteData);
+// ... existing code ...
