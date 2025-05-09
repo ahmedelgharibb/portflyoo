@@ -20,7 +20,7 @@ envCheck('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 
-const TEMPLATE_DIR = path.join(__dirname, '../teacher/template1');
+const TEMPLATE_DIR = path.join(__dirname, '../public/websites/template1');
 const WEBSITES_DIR = path.join(__dirname, '../public/websites');
 
 // Parse --name argument
