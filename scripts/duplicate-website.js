@@ -88,6 +88,30 @@ async function getNextSiteId() {
   return nextId;
 }
 
+// Fetch default data from id=1
+async function getDefaultDataAndOwner() {
+  const url = `${SUPABASE_URL}/rest/v1/teachers_websites?id=eq.1&select=data,owner_name`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'apikey': SUPABASE_SERVICE_ROLE_KEY,
+      'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('Supabase error (fetching default data):', text);
+    process.exit(1);
+  }
+  const data = await res.json();
+  if (!data[0]) {
+    console.error('No default data found for id=1');
+    process.exit(1);
+  }
+  return { data: data[0].data, owner_name: data[0].owner_name };
+}
+
 (async () => {
   // 1. Duplicate the template folder
   copyRecursiveSync(TEMPLATE_DIR, newWebsiteDir);
@@ -119,14 +143,14 @@ async function getNextSiteId() {
   process.exit(1);
 });
 
-// To insert more fields with default values, add them to the body object below.
-// Example: const body = { id: newId, theme: 'default', owner_email: '' };
+// Update createSupabaseRow to use default data
 async function createSupabaseRow(newId) {
+  const { data: defaultData, owner_name: defaultOwnerName } = await getDefaultDataAndOwner();
   const url = `${SUPABASE_URL}/rest/v1/teachers_websites`;
   const body = {
     id: newId,
-    data: {} // Default value for NOT NULL data column
-    // Add more fields here if needed, e.g. theme: 'default', owner_email: ''
+    data: defaultData,
+    owner_name: defaultOwnerName
   };
   const res = await fetch(url, {
     method: 'POST',
