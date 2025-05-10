@@ -1493,6 +1493,69 @@
         .dark-mode .mobile-nav-link {
           color: var(--text-color) !important;
         }
+
+        /* --- Admin Login Modal Modern Style --- */
+        #adminLoginModal .bg-white {
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            border: 1px solid var(--border-color);
+            padding: 2.5rem 2rem;
+            background: var(--card-bg);
+            max-width: 400px;
+        }
+        #adminLoginModal h2 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+        #adminLoginModal .form-label {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+        #adminLoginModal .form-input {
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            width: 100%;
+            font-size: 1rem;
+        }
+        #adminLoginModal button[type="submit"] {
+            background: var(--primary-color);
+            color: #fff;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        #adminLoginModal button[type="submit"]:hover {
+            background: var(--primary-dark);
+        }
+        #adminLoginModal input:focus, #adminLoginModal button:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+        #adminLoginModal .text-gray-500 {
+            color: var(--text-light) !important;
+        }
+        #adminLoginModal .rounded-lg {
+            border-radius: 1rem !important;
+        }
+        #adminLoginModal .max-w-md {
+            max-width: 400px !important;
+        }
+        /* --- End Admin Login Modal Modern Style --- */
+
+        /* --- Menu Icon Theme Color in Light Mode --- */
+        #menuBtn i {
+            color: var(--primary-color) !important;
+            transition: color 0.2s;
+        }
+        .dark-mode #menuBtn i {
+            color: #fff !important;
+        }
+        /* --- End Menu Icon Theme Color --- */
     </style>
     
     <!-- Chart.js -->
