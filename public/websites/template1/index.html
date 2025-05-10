@@ -1599,6 +1599,39 @@
             color: #fff !important;
         }
         /* --- End Menu Icon Centering --- */
+
+        /* Hero Section Responsive Redesign */
+        #hero {
+          padding-top: 120px;
+          padding-bottom: 60px;
+        }
+        @media (max-width: 1024px) {
+          #hero { padding-top: 100px; padding-bottom: 40px; }
+        }
+        @media (max-width: 768px) {
+          #hero { padding-top: 80px; padding-bottom: 24px; }
+          .hero-grid { grid-template-columns: 1fr !important; }
+          .hero-image { margin-bottom: 2rem; }
+          .hero-content { align-items: center !important; text-align: center !important; }
+          .hero-title { font-size: 2.25rem; }
+          .btn-modern { width: 100% !important; }
+        }
+        @media (max-width: 480px) {
+          #hero { padding-top: 60px; padding-bottom: 12px; }
+          .hero-title { font-size: 1.5rem; }
+        }
+        .hero-content h1, .hero-content p { margin-left: 0; margin-right: 0; }
+        .hero-content .btn-modern { min-width: 140px; }
+        .hero-image img { box-shadow: 0 8px 32px rgba(0,0,0,0.10); border-radius: 1.5rem; }
+        .btn-modern { min-width: 140px; }
+        .btn-primary { background: var(--primary-color); color: #fff; }
+        .btn-secondary { background: #fff; color: var(--primary-color); border: 1.5px solid var(--primary-color); }
+        .btn-primary:hover, .btn-secondary:hover { filter: brightness(0.95); }
+        .btn-modern { padding: 0.75rem 1.75rem; border-radius: 0.5rem; font-weight: 500; font-size: 1rem; transition: all 0.2s; }
+        .hero-content .btn-modern + .btn-modern { margin-left: 0; margin-top: 0.5rem; }
+        @media (min-width: 640px) {
+          .hero-content .btn-modern + .btn-modern { margin-left: 1rem; margin-top: 0; }
+        }
     </style>
     
     <!-- Chart.js -->
@@ -1676,18 +1709,16 @@
     </div>
 
     <!-- Hero Section -->
-    <section id="hero" class="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
-        <div class="absolute inset-0 z-0 bg-gradient-to-br from-gray-50 to-blue-50">
-            <div class="absolute inset-0 bg-pattern opacity-5"></div>
-        </div>
-        
-        <div class="container mx-auto px-4 lg:px-8 relative z-10">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                <div class="hero-content flex flex-col items-center text-center md:items-start md:text-left md:pr-8">
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight hero-title">
-                        Inspiring Minds Through 
-                        <span class="text-blue-600">Subject</span>
-                    </h1>
+    <section id="hero" class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 overflow-hidden py-12">
+      <div class="container mx-auto px-4 lg:px-8 relative z-10">
+        <div class="hero-grid grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <!-- Left Side: Text & Buttons -->
+          <div class="hero-content flex flex-col justify-center items-start text-left w-full h-full">
+            <h1 class="hero-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+              Inspiring Minds Through <span class="text-blue-600">Education</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-600 mb-8 font-medium">Mathematics Educator</p>
+            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                     <p class="text-base md:text-lg text-gray-600 mb-6 md:mb-8 max-w-xl">
                         Experience
                     </p>
