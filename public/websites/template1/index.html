@@ -1556,6 +1556,49 @@
             color: #fff !important;
         }
         /* --- End Menu Icon Theme Color --- */
+
+        /* --- Menu Icon Centering and Sizing --- */
+        #menuBtn {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            border: 1.5px solid #E5E7EB;
+            background-color: transparent;
+            color: var(--primary-color);
+            margin-left: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        #menuBtn i {
+            font-size: 1.25rem;
+            color: var(--primary-color) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.25rem;
+            height: 1.25rem;
+            margin: 0;
+            position: relative;
+        }
+        .dark-mode #menuBtn {
+            color: #fff;
+            border-color: #444;
+        }
+        .dark-mode #menuBtn i {
+            color: #fff !important;
+        }
+        #menuBtn:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+        #menuBtn:hover i {
+            color: #fff !important;
+        }
+        /* --- End Menu Icon Centering --- */
     </style>
     
     <!-- Chart.js -->
