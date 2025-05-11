@@ -88,6 +88,30 @@ header {
   z-index: 1000;
   border-bottom: 1.5px solid #e5e7eb;
 }
+header nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.nav-brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  height: 64px;
+  margin: 0;
+}
+@media (max-width: 768px) {
+  header nav {
+    height: 56px;
+  }
+  .nav-brand {
+    height: 56px;
+  }
+}
 .nav-links {
   display: flex;
   align-items: center;
