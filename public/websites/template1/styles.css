@@ -240,6 +240,7 @@ header {
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    background: transparent;
   }
   .hero-image {
     width: auto;
