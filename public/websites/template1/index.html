@@ -1600,18 +1600,37 @@
         }
         /* --- End Menu Icon Centering --- */
 
-        @media (max-width: 900px) {
-          #hero, .hero-grid, .hero-content, .hero-image, #heroImage, #heroImageMobile {
-            display: none !important;
-          }
-          .mobile-header, .mobile-hero {
-            display: block !important;
-          }
+        /* Hero Section Responsive Redesign */
+        #hero {
+          padding-top: 120px;
+          padding-bottom: 60px;
         }
-        @media (min-width: 901px) {
-          .mobile-header, .mobile-hero {
-            display: none !important;
-          }
+        @media (max-width: 1024px) {
+          #hero { padding-top: 100px; padding-bottom: 40px; }
+        }
+        @media (max-width: 768px) {
+          #hero { padding-top: 80px; padding-bottom: 24px; }
+          .hero-grid { grid-template-columns: 1fr !important; }
+          .hero-image { margin-bottom: 2rem; }
+          .hero-content { align-items: center !important; text-align: center !important; }
+          .hero-title { font-size: 2.25rem; }
+          .btn-modern { width: 100% !important; }
+        }
+        @media (max-width: 480px) {
+          #hero { padding-top: 60px; padding-bottom: 12px; }
+          .hero-title { font-size: 1.5rem; }
+        }
+        .hero-content h1, .hero-content p { margin-left: 0; margin-right: 0; }
+        .hero-content .btn-modern { min-width: 140px; }
+        .hero-image img { box-shadow: 0 8px 32px rgba(0,0,0,0.10); border-radius: 1.5rem; }
+        .btn-modern { min-width: 140px; }
+        .btn-primary { background: var(--primary-color); color: #fff; }
+        .btn-secondary { background: #fff; color: var(--primary-color); border: 1.5px solid var(--primary-color); }
+        .btn-primary:hover, .btn-secondary:hover { filter: brightness(0.95); }
+        .btn-modern { padding: 0.75rem 1.75rem; border-radius: 0.5rem; font-weight: 500; font-size: 1rem; transition: all 0.2s; }
+        .hero-content .btn-modern + .btn-modern { margin-left: 0; margin-top: 0.5rem; }
+        @media (min-width: 640px) {
+          .hero-content .btn-modern + .btn-modern { margin-left: 1rem; margin-top: 0; }
         }
     </style>
     
@@ -1629,97 +1648,41 @@
         <div class="loader-subtext">Please wait while we fetch the latest information</div>
     </div>
     
-    <!-- Header (Responsive) -->
-    <header class="main-header">
-      <div class="container flex items-center justify-between py-6">
-        <div class="flex items-center gap-4">
-          <span class="teacher-name" style="font-weight: 700; font-size: 1.4rem; color: #18181b; font-family: 'Inter', sans-serif;">Jane Smith</span>
-          <span class="teacher-title" style="color: #6b7280; font-size: 1rem;">History Teacher</span>
-        </div>
-        <nav class="desktop-nav hidden md:flex gap-8 items-center">
-          <a href="#" class="nav-link">Home</a>
-          <a href="#about" class="nav-link">About</a>
-          <a href="#expertise" class="nav-link">Expertise</a>
-          <a href="#locations" class="nav-link">Locations</a>
-          <a href="#contact" class="nav-link">Contact</a>
+    <!-- Header -->
+    <header class="fixed w-full z-50 transition-all duration-300">
+        <nav class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand -->
+                <div class="nav-brand">
+                    <a href="#hero" class="nav-brand-name">Teacher Name</a>
+                    <span class="nav-brand-subtitle">Teacher Title</span>
+                </div>
+                
+                <div class="flex items-center">
+                    <!-- Desktop Navigation -->
+                    <ul class="nav-links">
+                        <li><a href="#about" class="nav-link">About</a></li>
+                        <li><a href="#subjects" class="nav-link">Subjects</a></li>
+                        <li><a href="#results" class="nav-link">Results</a></li>
+                        <li><a href="#experience" class="nav-link">Experience</a></li>
+                        <li><a href="#reviews" class="nav-link">Reviews</a></li>
+                        <li><a href="#register" class="nav-link">Register</a></li>
+                        <li><a href="#contact" class="nav-link">Contact</a></li>
+                    </ul>
+                    
+                    <!-- Lock Icon Button -->
+                    <button id="adminBtn" class="admin-btn ml-6">
+                        <i class="fas fa-lock text-lg"></i>
+                    </button>
+                    
+                    <!-- Mobile Menu Button -->
+                    <button id="menuBtn" aria-label="Toggle Menu" class="md:hidden ml-4">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
         </nav>
-        <div class="flex items-center gap-3">
-          <button class="icon-btn"><i class="fas fa-lock"></i></button>
-          <button id="menuBtn" class="icon-btn md:hidden"><i class="fas fa-bars"></i></button>
-        </div>
-      </div>
     </header>
-
-    <!-- Hero Section (Responsive) -->
-    <section class="hero-section">
-      <div class="container hero-grid">
-        <!-- Left: Text -->
-        <div class="hero-text">
-          <span class="hero-badge">Passionate Educator</span>
-          <h1 class="hero-title">Inspiring Young Minds<br>Through Education</h1>
-          <p class="hero-desc">Empowering students with knowledge, critical thinking skills, and a passion for lifelong learning.</p>
-          <div class="hero-btns">
-            <a href="#" class="btn btn-primary">Book Consultation <span>→</span></a>
-            <a href="#" class="btn btn-secondary">Learn More</a>
-          </div>
-        </div>
-        <!-- Right: Image & Floating Button/Quote -->
-        <div class="hero-image-wrap">
-          <img class="hero-image" src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=facearea&w=600&q=80" alt="Teacher">
-          <a href="#" class="floating-btn"><i class="fas fa-external-link-alt"></i> Join Portflyo</a>
-          <div class="hero-quote">
-            <div class="quote-text">Education is the most powerful weapon which you can use to change the world.</div>
-            <div class="quote-author">- Nelson Mandela</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <style>
-      .main-header { background: #fff; border-bottom: 1px solid #f1f1f1; position: sticky; top: 0; z-index: 100; }
-      .icon-btn { width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1.5px solid #eee; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #222; transition: background 0.2s, color 0.2s; }
-      .icon-btn:hover { background: #f3f4f6; color: #2563eb; }
-      .desktop-nav .nav-link { color: #222; font-weight: 500; font-size: 1.05rem; text-decoration: none; transition: color 0.2s; }
-      .desktop-nav .nav-link:hover { color: #2563eb; }
-      .hero-section { background: #fafbfc; padding: 3.5rem 0 2.5rem 0; }
-      .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: center; }
-      .hero-text { display: flex; flex-direction: column; align-items: flex-start; }
-      .hero-badge { display: inline-block; background: #e8f0fe; color: #2563eb; font-weight: 500; font-size: 1rem; border-radius: 999px; padding: 0.4rem 1.1rem; margin-bottom: 1.2rem; }
-      .hero-title { font-size: 3rem; font-weight: 800; line-height: 1.1; color: #18181b; margin-bottom: 1.1rem; font-family: 'Inter', sans-serif; }
-      .hero-desc { color: #6b7280; font-size: 1.15rem; margin-bottom: 2.1rem; max-width: 32rem; }
-      .hero-btns { display: flex; gap: 1.1rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
-      .btn { border-radius: 2rem; padding: 0.95rem 2.1rem; font-size: 1.08rem; font-weight: 500; text-decoration: none; display: inline-block; transition: background 0.2s, color 0.2s; }
-      .btn-primary { background: #2563eb; color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,0.08); }
-      .btn-primary:hover { background: #1746a2; }
-      .btn-secondary { background: #fff; color: #222; border: 1.5px solid #e5e7eb; }
-      .btn-secondary:hover { background: #f3f4f6; color: #2563eb; }
-      .hero-image-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
-      .hero-image { width: 100%; max-width: 400px; border-radius: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.10); }
-      .floating-btn { position: absolute; left: 50%; bottom: 1.1rem; transform: translateX(-50%); background: #fff; color: #18181b; font-weight: 500; border-radius: 2rem; padding: 0.7rem 1.3rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 1.05rem; border: 1.5px solid #e5e7eb; }
-      .floating-btn i { font-size: 1em; }
-      .hero-quote { position: absolute; right: 0.5rem; bottom: 4.5rem; background: #fff; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.10); padding: 1.1rem 1.3rem; max-width: 270px; font-size: 1.05rem; color: #222; }
-      .quote-text { font-style: italic; margin-bottom: 0.5rem; }
-      .quote-author { color: #6b7280; font-size: 0.95rem; text-align: right; }
-      @media (max-width: 900px) {
-        .main-header .container { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-        .desktop-nav { display: none !important; }
-        .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; }
-        .hero-section { padding: 2.5rem 0 1.5rem 0; }
-        .hero-title { font-size: 2.1rem; }
-        .hero-image { max-width: 100%; }
-        .hero-image-wrap { margin-top: 2.2rem; }
-        .floating-btn { position: static; transform: none; margin: 1.2rem auto 0 auto; display: flex; justify-content: center; }
-        .hero-quote { position: static; margin: 1.2rem auto 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.10); }
-        .hero-text, .hero-btns { align-items: center; text-align: center; }
-      }
-      @media (max-width: 600px) {
-        .main-header .container { padding: 1.2rem 0.7rem; }
-        .hero-section { padding: 1.2rem 0 0.7rem 0; }
-        .hero-title { font-size: 1.5rem; }
-        .btn, .btn-primary, .btn-secondary { width: 100%; text-align: center; padding: 0.85rem 0; }
-        .hero-btns { flex-direction: column; gap: 0.7rem; }
-      }
-    </style>
 
     <!-- Mobile Menu Backdrop -->
     <div id="mobileMenuBackdrop" class="mobile-menu-backdrop"></div>
@@ -1744,6 +1707,64 @@
             <li><a href="#contact" class="mobile-nav-link"><span>Contact</span></a></li>
         </ul>
     </div>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 overflow-hidden py-12">
+      <div class="container mx-auto px-4 lg:px-8 relative z-10">
+        <div class="hero-grid grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <!-- Left Side: Text & Buttons -->
+          <div class="hero-content flex flex-col justify-center items-start text-left w-full h-full">
+            <h1 class="hero-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+              Inspiring Minds Through <span class="text-blue-600">Education</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-600 mb-8 font-medium">Mathematics Educator</p>
+            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                    <p class="text-base md:text-lg text-gray-600 mb-6 md:mb-8 max-w-xl">
+                        Experience
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3 md:gap-4 w-full sm:w-auto justify-center md:justify-start items-center md:items-start">
+                        <a href="#about" class="btn-modern btn-primary transition-all duration-300 transform hover:-translate-y-1">
+                            <span>Learn More</span>
+                        </a>
+                        <a href="#contact" class="btn-modern btn-secondary transition-all duration-300 transform hover:-translate-y-1">
+                            <span>Contact Me</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="relative hidden md:block lg:block mt-8 md:mt-0">
+                    <div class="relative z-10 overflow-hidden rounded-2xl shadow-xl">
+                        <img id="heroImage" src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" 
+                            alt="Teacher Picture" 
+                            class="w-full h-full object-cover object-center">
+                   <!-- </div>
+                     <div class="absolute bottom-4 md:bottom-8 right-4 md:right-8 bg-white p-4 md:p-6 rounded-xl shadow-lg z-20 max-w-xs">
+                        <p class="text-gray-800 italic font-medium text-sm md:text-base mb-2">
+                            "Education is the most powerful weapon which you can use to change the world."
+                        </p>
+                        <p class="text-gray-500 text-xs md:text-sm text-right">- Nelson Mandela</p>
+                    </div>
+                    <div class="absolute -bottom-6 -left-6 w-32 md:w-48 h-32 md:h-48 bg-blue-100 rounded-full opacity-70 z-0"></div>
+                    <div class="absolute -top-6 -right-6 w-24 md:w-32 h-24 md:h-32 bg-yellow-100 rounded-full opacity-70 z-0"></div>
+                </div> -->
+                
+                <!-- Mobile Teacher Image -->
+                <div class="relative block md:hidden mt-8">
+                    <div class="relative z-10 overflow-hidden rounded-xl shadow-lg mx-auto max-w-xs">
+                        <img id="heroImageMobile" src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" 
+                            alt="Teacher Picture" 
+                            class="w-full h-64 object-cover object-center">
+                    </div>
+                    <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-100 rounded-full opacity-70 z-0"></div>
+                    <div class="absolute -top-4 -left-4 w-20 h-20 bg-yellow-100 rounded-full opacity-70 z-0"></div>
+                </div>
+            </div>
+        </div>
+        
+        <a href="#about" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-blue-600 animate-bounce z-10 flex items-center justify-center w-12 h-12 bg-white bg-opacity-80 rounded-full shadow-md">
+            <i class="fas fa-chevron-down text-xl"></i>
+        </a>
+    </section>
 
     <!-- About Section -->
     <section id="about" class="py-20 bg-white w-full overflow-hidden">
