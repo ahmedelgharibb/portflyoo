@@ -228,6 +228,15 @@ header {
   .hero-title {
     margin-top: 2.5rem;
   }
+  #hero .hero-arrow {
+    position: static !important;
+    display: flex;
+    margin: 2.2rem auto 0 auto;
+    left: unset !important;
+    bottom: unset !important;
+    transform: none !important;
+    justify-content: center;
+  }
 }
 @media (max-width: 768px) {
   #hero { padding-top: 80px; padding-bottom: 24px; flex-direction: column; }
