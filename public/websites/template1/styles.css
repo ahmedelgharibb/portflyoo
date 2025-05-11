@@ -1,3 +1,7 @@
+/* ===============================================
+   SPORTS PLAYER PORTFOLIO - AGGRESSIVE CLEAN CSS
+   =============================================== */
+
 :root {
   --primary: #3b82f6;
   --primary-dark: #2563eb;
@@ -604,7 +608,5 @@ header {
   box-shadow: 0 4px 16px rgba(37,99,235,0.10);
   text-decoration: none;
 }
-
-/* All CSS from <style> blocks in index.html is appended here for centralization. */
-
+  
   
