@@ -1599,6 +1599,20 @@
             color: #fff !important;
         }
         /* --- End Menu Icon Centering --- */
+
+        @media (max-width: 900px) {
+          #hero, .hero-grid, .hero-content, .hero-image, #heroImage, #heroImageMobile {
+            display: none !important;
+          }
+          .mobile-header, .mobile-hero {
+            display: block !important;
+          }
+        }
+        @media (min-width: 901px) {
+          .mobile-header, .mobile-hero {
+            display: none !important;
+          }
+        }
     </style>
     
     <!-- Chart.js -->
@@ -1615,41 +1629,31 @@
         <div class="loader-subtext">Please wait while we fetch the latest information</div>
     </div>
     
-    <!-- Header -->
-    <header class="fixed w-full z-50 transition-all duration-300">
-        <nav class="container mx-auto px-4">
-            <div class="flex items-center justify-between h-16">
-                <!-- Brand -->
-                <div class="nav-brand">
-                    <a href="#hero" class="nav-brand-name">Teacher Name</a>
-                    <span class="nav-brand-subtitle">Teacher Title</span>
-                </div>
-                
-                <div class="flex items-center">
-                    <!-- Desktop Navigation -->
-                    <ul class="nav-links">
-                        <li><a href="#about" class="nav-link">About</a></li>
-                        <li><a href="#subjects" class="nav-link">Subjects</a></li>
-                        <li><a href="#results" class="nav-link">Results</a></li>
-                        <li><a href="#experience" class="nav-link">Experience</a></li>
-                        <li><a href="#reviews" class="nav-link">Reviews</a></li>
-                        <li><a href="#register" class="nav-link">Register</a></li>
-                        <li><a href="#contact" class="nav-link">Contact</a></li>
-                    </ul>
-                    
-                    <!-- Lock Icon Button -->
-                    <button id="adminBtn" class="admin-btn ml-6">
-                        <i class="fas fa-lock text-lg"></i>
-                    </button>
-                    
-                    <!-- Mobile Menu Button -->
-                    <button id="menuBtn" aria-label="Toggle Menu" class="md:hidden ml-4">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                </div>
-            </div>
-        </nav>
+    <!-- Header (Top Bar) -->
+    <header class="mobile-header" style="display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1rem 0.5rem 1rem; background: #fff; box-shadow: none; border-bottom: none;">
+      <span class="teacher-name" style="font-weight: 600; font-size: 1.25rem; color: #222; font-family: 'Inter', sans-serif;">Jane Smith</span>
+      <div style="display: flex; gap: 0.75rem;">
+        <button style="width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1.5px solid #eee; background: #fff; display: flex; align-items: center; justify-content: center;"><i class="fas fa-lock" style="font-size: 1.1rem; color: #222;"></i></button>
+        <button style="width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1.5px solid #eee; background: #fff; display: flex; align-items: center; justify-content: center;"><i class="fas fa-bars" style="font-size: 1.1rem; color: #222;"></i></button>
+      </div>
     </header>
+
+    <!-- Hero Section (Mobile) -->
+    <section class="mobile-hero" style="padding: 2.5rem 1rem 0 1rem; background: #fafbfc;">
+      <span style="display: inline-block; background: #e8f0fe; color: #2563eb; font-weight: 500; font-size: 1rem; border-radius: 999px; padding: 0.4rem 1.1rem; margin-bottom: 1.2rem;">Passionate Educator</span>
+      <h1 style="font-size: 2.1rem; font-weight: 700; line-height: 1.15; color: #18181b; margin-bottom: 1.1rem; font-family: 'Inter', sans-serif;">Inspiring Young Minds<br>Through Education</h1>
+      <p style="color: #6b7280; font-size: 1.08rem; margin-bottom: 1.7rem; font-family: 'Inter', sans-serif;">Empowering students with knowledge, critical thinking skills, and a passion for lifelong learning.</p>
+      <div style="display: flex; gap: 0.7rem; margin-bottom: 2.1rem; flex-wrap: wrap;">
+        <a href="#" style="flex: 1 1 0; background: #2563eb; color: #fff; font-weight: 500; border-radius: 2rem; padding: 0.85rem 0; text-align: center; font-size: 1.08rem; text-decoration: none; box-shadow: 0 2px 8px rgba(37,99,235,0.08);">Book Consultation <span style="margin-left: 0.3rem; font-size: 1.1em;">→</span></a>
+        <a href="#" style="flex: 1 1 0; background: #fff; color: #222; font-weight: 500; border-radius: 2rem; padding: 0.85rem 0; text-align: center; font-size: 1.08rem; border: 1.5px solid #e5e7eb; text-decoration: none;">Learn More</a>
+      </div>
+      <div style="position: relative; width: 100%; max-width: 370px; margin: 0 auto;">
+        <img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=facearea&w=600&q=80" alt="Teacher" style="width: 100%; border-radius: 1.5rem; display: block;">
+        <a href="#" style="position: absolute; left: 50%; bottom: 1.1rem; transform: translateX(-50%); background: #fff; color: #18181b; font-weight: 500; border-radius: 2rem; padding: 0.7rem 1.3rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 1.05rem; border: 1.5px solid #e5e7eb;">
+          <i class="fas fa-external-link-alt" style="font-size: 1em;"></i> Join Portflyo
+        </a>
+      </div>
+    </section>
 
     <!-- Mobile Menu Backdrop -->
     <div id="mobileMenuBackdrop" class="mobile-menu-backdrop"></div>
@@ -1674,66 +1678,6 @@
             <li><a href="#contact" class="mobile-nav-link"><span>Contact</span></a></li>
         </ul>
     </div>
-
-    <!-- Hero Section -->
-    <section id="hero" class="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
-        <div class="absolute inset-0 z-0 bg-gradient-to-br from-gray-50 to-blue-50">
-            <div class="absolute inset-0 bg-pattern opacity-5"></div>
-        </div>
-        
-        <div class="container mx-auto px-4 lg:px-8 relative z-10">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                <div class="hero-content flex flex-col items-center text-center md:items-start md:text-left md:pr-8">
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight hero-title">
-                        Inspiring Minds Through 
-                        <span class="text-blue-600">Subject</span>
-                    </h1>
-                    <p class="text-base md:text-lg text-gray-600 mb-6 md:mb-8 max-w-xl">
-                        Experience
-                    </p>
-                    <div class="flex flex-col sm:flex-row gap-3 md:gap-4 w-full sm:w-auto justify-center md:justify-start items-center md:items-start">
-                        <a href="#about" class="btn-modern btn-primary transition-all duration-300 transform hover:-translate-y-1">
-                            <span>Learn More</span>
-                        </a>
-                        <a href="#contact" class="btn-modern btn-secondary transition-all duration-300 transform hover:-translate-y-1">
-                            <span>Contact Me</span>
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="relative hidden md:block lg:block mt-8 md:mt-0">
-                    <div class="relative z-10 overflow-hidden rounded-2xl shadow-xl">
-                        <img id="heroImage" src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" 
-                            alt="Teacher Picture" 
-                            class="w-full h-full object-cover object-center">
-                   <!-- </div>
-                     <div class="absolute bottom-4 md:bottom-8 right-4 md:right-8 bg-white p-4 md:p-6 rounded-xl shadow-lg z-20 max-w-xs">
-                        <p class="text-gray-800 italic font-medium text-sm md:text-base mb-2">
-                            "Education is the most powerful weapon which you can use to change the world."
-                        </p>
-                        <p class="text-gray-500 text-xs md:text-sm text-right">- Nelson Mandela</p>
-                    </div>
-                    <div class="absolute -bottom-6 -left-6 w-32 md:w-48 h-32 md:h-48 bg-blue-100 rounded-full opacity-70 z-0"></div>
-                    <div class="absolute -top-6 -right-6 w-24 md:w-32 h-24 md:h-32 bg-yellow-100 rounded-full opacity-70 z-0"></div>
-                </div> -->
-                
-                <!-- Mobile Teacher Image -->
-                <div class="relative block md:hidden mt-8">
-                    <div class="relative z-10 overflow-hidden rounded-xl shadow-lg mx-auto max-w-xs">
-                        <img id="heroImageMobile" src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" 
-                            alt="Teacher Picture" 
-                            class="w-full h-64 object-cover object-center">
-                    </div>
-                    <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-100 rounded-full opacity-70 z-0"></div>
-                    <div class="absolute -top-4 -left-4 w-20 h-20 bg-yellow-100 rounded-full opacity-70 z-0"></div>
-                </div>
-            </div>
-        </div>
-        
-        <a href="#about" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-blue-600 animate-bounce z-10 flex items-center justify-center w-12 h-12 bg-white bg-opacity-80 rounded-full shadow-md">
-            <i class="fas fa-chevron-down text-xl"></i>
-        </a>
-    </section>
 
     <!-- About Section -->
     <section id="about" class="py-20 bg-white w-full overflow-hidden">
