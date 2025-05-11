@@ -1629,31 +1629,107 @@
         <div class="loader-subtext">Please wait while we fetch the latest information</div>
     </div>
     
-    <!-- Header (Top Bar) -->
-    <header class="mobile-header" style="display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1rem 0.5rem 1rem; background: #fff; box-shadow: none; border-bottom: none;">
-      <span class="teacher-name" style="font-weight: 600; font-size: 1.25rem; color: #222; font-family: 'Inter', sans-serif;">Jane Smith</span>
-      <div style="display: flex; gap: 0.75rem;">
-        <button style="width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1.5px solid #eee; background: #fff; display: flex; align-items: center; justify-content: center;"><i class="fas fa-lock" style="font-size: 1.1rem; color: #222;"></i></button>
-        <button style="width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1.5px solid #eee; background: #fff; display: flex; align-items: center; justify-content: center;"><i class="fas fa-bars" style="font-size: 1.1rem; color: #222;"></i></button>
+    <!-- Header (Responsive) -->
+    <header class="main-header">
+      <div class="container flex items-center justify-between py-6">
+        <div class="flex items-center gap-4">
+          <span class="teacher-name" style="font-weight: 700; font-size: 1.4rem; color: #18181b; font-family: 'Inter', sans-serif;">Jane Smith</span>
+          <span class="teacher-title" style="color: #6b7280; font-size: 1rem;">History Teacher</span>
+        </div>
+        <nav class="desktop-nav hidden md:flex gap-8 items-center">
+          <a href="#" class="nav-link">Home</a>
+          <a href="#about" class="nav-link">About</a>
+          <a href="#expertise" class="nav-link">Expertise</a>
+          <a href="#locations" class="nav-link">Locations</a>
+          <a href="#contact" class="nav-link">Contact</a>
+        </nav>
+        <div class="flex items-center gap-3">
+          <button class="icon-btn"><i class="fas fa-lock"></i></button>
+          <button id="menuBtn" class="icon-btn md:hidden"><i class="fas fa-bars"></i></button>
+        </div>
       </div>
     </header>
 
-    <!-- Hero Section (Mobile) -->
-    <section class="mobile-hero" style="padding: 2.5rem 1rem 0 1rem; background: #fafbfc;">
-      <span style="display: inline-block; background: #e8f0fe; color: #2563eb; font-weight: 500; font-size: 1rem; border-radius: 999px; padding: 0.4rem 1.1rem; margin-bottom: 1.2rem;">Passionate Educator</span>
-      <h1 style="font-size: 2.1rem; font-weight: 700; line-height: 1.15; color: #18181b; margin-bottom: 1.1rem; font-family: 'Inter', sans-serif;">Inspiring Young Minds<br>Through Education</h1>
-      <p style="color: #6b7280; font-size: 1.08rem; margin-bottom: 1.7rem; font-family: 'Inter', sans-serif;">Empowering students with knowledge, critical thinking skills, and a passion for lifelong learning.</p>
-      <div style="display: flex; gap: 0.7rem; margin-bottom: 2.1rem; flex-wrap: wrap;">
-        <a href="#" style="flex: 1 1 0; background: #2563eb; color: #fff; font-weight: 500; border-radius: 2rem; padding: 0.85rem 0; text-align: center; font-size: 1.08rem; text-decoration: none; box-shadow: 0 2px 8px rgba(37,99,235,0.08);">Book Consultation <span style="margin-left: 0.3rem; font-size: 1.1em;">→</span></a>
-        <a href="#" style="flex: 1 1 0; background: #fff; color: #222; font-weight: 500; border-radius: 2rem; padding: 0.85rem 0; text-align: center; font-size: 1.08rem; border: 1.5px solid #e5e7eb; text-decoration: none;">Learn More</a>
-      </div>
-      <div style="position: relative; width: 100%; max-width: 370px; margin: 0 auto;">
-        <img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=facearea&w=600&q=80" alt="Teacher" style="width: 100%; border-radius: 1.5rem; display: block;">
-        <a href="#" style="position: absolute; left: 50%; bottom: 1.1rem; transform: translateX(-50%); background: #fff; color: #18181b; font-weight: 500; border-radius: 2rem; padding: 0.7rem 1.3rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 1.05rem; border: 1.5px solid #e5e7eb;">
-          <i class="fas fa-external-link-alt" style="font-size: 1em;"></i> Join Portflyo
-        </a>
+    <!-- Hero Section (Responsive) -->
+    <section class="hero-section">
+      <div class="container hero-grid">
+        <!-- Left: Text -->
+        <div class="hero-text">
+          <span class="hero-badge">Passionate Educator</span>
+          <h1 class="hero-title">Inspiring Young Minds<br>Through Education</h1>
+          <p class="hero-desc">Empowering students with knowledge, critical thinking skills, and a passion for lifelong learning.</p>
+          <div class="hero-btns">
+            <a href="#" class="btn btn-primary">Book Consultation <span>→</span></a>
+            <a href="#" class="btn btn-secondary">Learn More</a>
+          </div>
+        </div>
+        <!-- Right: Image & Floating Button/Quote -->
+        <div class="hero-image-wrap">
+          <img class="hero-image" src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=facearea&w=600&q=80" alt="Teacher">
+          <a href="#" class="floating-btn"><i class="fas fa-external-link-alt"></i> Join Portflyo</a>
+          <div class="hero-quote">
+            <div class="quote-text">Education is the most powerful weapon which you can use to change the world.</div>
+            <div class="quote-author">- Nelson Mandela</div>
+          </div>
+        </div>
       </div>
     </section>
+
+    <style>
+      .main-header {
+        background: #fff;
+        border-bottom: 1px solid #f1f1f1;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .icon-btn {
+        width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1.5px solid #eee; background: #fff;
+        display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #222;
+        transition: background 0.2s, color 0.2s;
+      }
+      .icon-btn:hover { background: #f3f4f6; color: #2563eb; }
+      .desktop-nav .nav-link { color: #222; font-weight: 500; font-size: 1.05rem; text-decoration: none; transition: color 0.2s; }
+      .desktop-nav .nav-link:hover { color: #2563eb; }
+      .hero-section { background: #fafbfc; padding: 3.5rem 0 2.5rem 0; }
+      .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: center; }
+      .hero-text { display: flex; flex-direction: column; align-items: flex-start; }
+      .hero-badge { display: inline-block; background: #e8f0fe; color: #2563eb; font-weight: 500; font-size: 1rem; border-radius: 999px; padding: 0.4rem 1.1rem; margin-bottom: 1.2rem; }
+      .hero-title { font-size: 3rem; font-weight: 800; line-height: 1.1; color: #18181b; margin-bottom: 1.1rem; font-family: 'Inter', sans-serif; }
+      .hero-desc { color: #6b7280; font-size: 1.15rem; margin-bottom: 2.1rem; max-width: 32rem; }
+      .hero-btns { display: flex; gap: 1.1rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+      .btn { border-radius: 2rem; padding: 0.95rem 2.1rem; font-size: 1.08rem; font-weight: 500; text-decoration: none; display: inline-block; transition: background 0.2s, color 0.2s; }
+      .btn-primary { background: #2563eb; color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,0.08); }
+      .btn-primary:hover { background: #1746a2; }
+      .btn-secondary { background: #fff; color: #222; border: 1.5px solid #e5e7eb; }
+      .btn-secondary:hover { background: #f3f4f6; color: #2563eb; }
+      .hero-image-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
+      .hero-image { width: 100%; max-width: 400px; border-radius: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.10); }
+      .floating-btn { position: absolute; left: 50%; bottom: 1.1rem; transform: translateX(-50%); background: #fff; color: #18181b; font-weight: 500; border-radius: 2rem; padding: 0.7rem 1.3rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 1.05rem; border: 1.5px solid #e5e7eb; }
+      .floating-btn i { font-size: 1em; }
+      .hero-quote { position: absolute; right: 0.5rem; bottom: 4.5rem; background: #fff; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.10); padding: 1.1rem 1.3rem; max-width: 270px; font-size: 1.05rem; color: #222; }
+      .quote-text { font-style: italic; margin-bottom: 0.5rem; }
+      .quote-author { color: #6b7280; font-size: 0.95rem; text-align: right; }
+      @media (max-width: 900px) {
+        .main-header .container { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        .desktop-nav { display: none !important; }
+        .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+        .hero-section { padding: 2.5rem 0 1.5rem 0; }
+        .hero-title { font-size: 2.1rem; }
+        .hero-image { max-width: 100%; }
+        .hero-image-wrap { margin-top: 2.2rem; }
+        .floating-btn { position: static; transform: none; margin: 1.2rem auto 0 auto; display: flex; justify-content: center; }
+        .hero-quote { position: static; margin: 1.2rem auto 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.10); }
+        .hero-text, .hero-btns { align-items: center; text-align: center; }
+      }
+      @media (max-width: 600px) {
+        .main-header .container { padding: 1.2rem 0.7rem; }
+        .hero-section { padding: 1.2rem 0 0.7rem 0; }
+        .hero-title { font-size: 1.5rem; }
+        .btn, .btn-primary, .btn-secondary { width: 100%; text-align: center; padding: 0.85rem 0; }
+        .hero-btns { flex-direction: column; gap: 0.7rem; }
+      }
+    </style>
 
     <!-- Mobile Menu Backdrop -->
     <div id="mobileMenuBackdrop" class="mobile-menu-backdrop"></div>
