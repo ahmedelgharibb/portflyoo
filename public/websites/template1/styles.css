@@ -761,5 +761,13 @@ header nav {
     background: #f1f5f9;
   }
 }
+
+@media (max-width: 600px) {
+  .admin-security-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+}
   
   
