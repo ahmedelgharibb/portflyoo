@@ -2204,7 +2204,6 @@ function updateSiteContent(data) {
         
         // Update experience section
         const experienceData = data.experience || {};
-        
         const schoolsList = document.querySelector('#experience .experience-card:nth-child(1) ul');
         if (schoolsList && Array.isArray(experienceData.schools)) {
             schoolsList.innerHTML = experienceData.schools.map(school => `
@@ -2213,8 +2212,8 @@ function updateSiteContent(data) {
                     <span>${school}</span>
                 </li>
             `).join('');
+            console.log('Schools loaded:', experienceData.schools);
         }
-        
         const centersList = document.querySelector('#experience .experience-card:nth-child(2) ul');
         if (centersList && Array.isArray(experienceData.centers)) {
             centersList.innerHTML = experienceData.centers.map(center => `
@@ -2223,8 +2222,8 @@ function updateSiteContent(data) {
                     <span>${center}</span>
                 </li>
             `).join('');
+            console.log('Centers loaded:', experienceData.centers);
         }
-        
         const platformsList = document.querySelector('#experience .experience-card:nth-child(3) ul');
         const platformsArr = experienceData.platforms || experienceData.onlinePlatforms || [];
         if (platformsList && Array.isArray(platformsArr)) {
@@ -2234,6 +2233,7 @@ function updateSiteContent(data) {
                     <span>${platform}</span>
                 </li>
             `).join('');
+            console.log('Platforms loaded:', platformsArr);
         }
         
         // Update contact form
