@@ -2205,40 +2205,35 @@ function updateSiteContent(data) {
         // Update experience section
         const experienceData = data.experience || {};
         console.log('Experience data:', experienceData);
+        
+        // Update schools
         const schoolsList = document.querySelector('#experience .experience-card:nth-child(1) ul');
-        // Define schoolsArray based on whether experienceData.schools is an array
-        const schoolsArray = Array.isArray(experienceData.schools) ? experienceData.schools : [];
-
-        // Update the inner HTML of the schools list with a mapped list of schools
         if (schoolsList) {
+            const schoolsArray = Array.isArray(experienceData.schools) ? experienceData.schools : [];
             schoolsList.innerHTML = schoolsArray.map(school => `<li>${school}</li>`).join('');
+            console.log('Schools updated:', schoolsArray);
         } else {
             console.warn('Schools list element not found');
         }
+        
+        // Update centers
         const centersList = document.querySelector('#experience .experience-card:nth-child(2) ul');
-        if (centersList && Array.isArray(experienceData.centers)) {
-            centersList.innerHTML = experienceData.centers.map(center => `
-                <li class="flex items-center">
-                    <i class="fas fa-check text-green-500 mr-2"></i>
-                    <span>${center}</span>
-                </li>
-            `).join('');
-            console.log('Centers loaded:', experienceData.centers);
+        if (centersList) {
+            const centersArray = Array.isArray(experienceData.centers) ? experienceData.centers : [];
+            centersList.innerHTML = centersArray.map(center => `<li>${center}</li>`).join('');
+            console.log('Centers updated:', centersArray);
         } else {
-            console.error('Centers list element not found or data is not an array');
+            console.warn('Centers list element not found');
         }
+        
+        // Update platforms
         const platformsList = document.querySelector('#experience .experience-card:nth-child(3) ul');
-        const platformsArr = experienceData.platforms || experienceData.onlinePlatforms || [];
-        if (platformsList && Array.isArray(platformsArr)) {
-            platformsList.innerHTML = platformsArr.map(platform => `
-                <li class="flex items-center">
-                    <i class="fas fa-check text-green-500 mr-2"></i>
-                    <span>${platform}</span>
-                </li>
-            `).join('');
-            console.log('Platforms loaded:', platformsArr);
+        if (platformsList) {
+            const platformsArray = Array.isArray(experienceData.platforms) ? experienceData.platforms : [];
+            platformsList.innerHTML = platformsArray.map(platform => `<li>${platform}</li>`).join('');
+            console.log('Platforms updated:', platformsArray);
         } else {
-            console.error('Platforms list element not found or data is not an array');
+            console.warn('Platforms list element not found');
         }
         
         // Update contact form
