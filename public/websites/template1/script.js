@@ -2206,16 +2206,14 @@ function updateSiteContent(data) {
         const experienceData = data.experience || {};
         console.log('Experience data:', experienceData);
         const schoolsList = document.querySelector('#experience .experience-card:nth-child(1) ul');
-        if (schoolsList && Array.isArray(experienceData.schools)) {
-            schoolsList.innerHTML = experienceData.schools.map(school => `
-                <li class="flex items-center">
-                    <i class="fas fa-check text-green-500 mr-2"></i>
-                    <span>${school}</span>
-                </li>
-            `).join('');
-            console.log('Schools loaded:', experienceData.schools);
+        // Define schoolsArray based on whether experienceData.schools is an array
+        const schoolsArray = Array.isArray(experienceData.schools) ? experienceData.schools : [];
+
+        // Update the inner HTML of the schools list with a mapped list of schools
+        if (schoolsList) {
+            schoolsList.innerHTML = schoolsArray.map(school => `<li>${school}</li>`).join('');
         } else {
-            console.error('Schools list element not found or data is not an array');
+            console.warn('Schools list element not found');
         }
         const centersList = document.querySelector('#experience .experience-card:nth-child(2) ul');
         if (centersList && Array.isArray(experienceData.centers)) {
