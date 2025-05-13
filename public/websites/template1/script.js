@@ -2212,6 +2212,11 @@ function updateSiteContent(data) {
             const schoolsArray = Array.isArray(experienceData.schools) ? experienceData.schools : [];
             schoolsList.innerHTML = schoolsArray.map(school => `<li>${school}</li>`).join('');
             console.log('Schools updated:', schoolsArray);
+            if (schoolsArray.length > 0) {
+                console.log('✅ Schools data displayed successfully:', schoolsArray);
+            } else {
+                console.error('❌ No schools data available to display.');
+            }
         } else {
             console.warn('Schools list element not found');
         }
