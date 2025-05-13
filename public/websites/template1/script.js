@@ -1781,7 +1781,7 @@ function populateAdminForm(data) {
         }
         
         if (platformsInput) {
-            const platforms = experienceData.platforms || [];
+            const platforms = experienceData.platforms || experienceData.onlinePlatforms || [];
             const platformsText = Array.isArray(platforms) ? platforms.join('\n') : '';
             platformsInput.value = platformsText;
             console.log(`Set platforms input to "${platformsText}"`);
@@ -2226,8 +2226,9 @@ function updateSiteContent(data) {
         }
         
         const platformsList = document.querySelector('#experience .experience-card:nth-child(3) ul');
-        if (platformsList && Array.isArray(experienceData.platforms)) {
-            platformsList.innerHTML = experienceData.platforms.map(platform => `
+        const platformsArr = experienceData.platforms || experienceData.onlinePlatforms || [];
+        if (platformsList && Array.isArray(platformsArr)) {
+            platformsList.innerHTML = platformsArr.map(platform => `
                 <li class="flex items-center">
                     <i class="fas fa-check text-green-500 mr-2"></i>
                     <span>${platform}</span>
