@@ -2207,7 +2207,7 @@ function updateSiteContent(data) {
         console.log('Experience data:', experienceData);
         
         // Update schools
-        const schoolsList = document.querySelector('#experience .experience-card:nth-child(1) ul');
+        const schoolsList = document.querySelector('#experience .experience-card:nth-child(2) ul');
         if (schoolsList) {
             const schoolsArray = Array.isArray(experienceData.schools) ? experienceData.schools : [];
             schoolsList.innerHTML = schoolsArray.map(school => `<li>${school}</li>`).join('');
@@ -2222,7 +2222,7 @@ function updateSiteContent(data) {
         }
         
         // Update centers
-        const centersList = document.querySelector('#experience .experience-card:nth-child(2) ul');
+        const centersList = document.querySelector('#experience .experience-card:nth-child(3) ul');
         if (centersList) {
             const centersArray = Array.isArray(experienceData.centers) ? experienceData.centers : [];
             centersList.innerHTML = centersArray.map(center => `<li>${center}</li>`).join('');
@@ -2232,7 +2232,7 @@ function updateSiteContent(data) {
         }
         
         // Update platforms
-        const platformsList = document.querySelector('#experience .experience-card:nth-child(3) ul');
+        const platformsList = document.querySelector('#experience .experience-card:nth-child(4) ul');
         if (platformsList) {
             const platformsArray = Array.isArray(experienceData.platforms) ? experienceData.platforms : [];
             platformsList.innerHTML = platformsArray.map(platform => `<li>${platform}</li>`).join('');
