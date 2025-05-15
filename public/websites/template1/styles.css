@@ -170,8 +170,15 @@ header nav {
   color: #fff;
 }
 @media (max-width: 768px) {
-  #menuBtn { display: flex; }
-  .admin-btn { margin-left: 0; }
+  .admin-btn, #menuBtn {
+    margin-left: 0;
+    margin-right: auto;
+  }
+}
+@media (min-width: 769px) {
+  #menuBtn {
+    display: none;
+  }
 }
 
 /* Mobile Menu */
