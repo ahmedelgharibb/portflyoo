@@ -304,6 +304,10 @@ header nav {
   .hero-title {
     margin-top: 2.2rem;
   }
+  .about-image {
+    max-width: 80%; /* Adjust the percentage as needed */
+    height: auto;
+  }
 }
 .hero-content {
   display: flex;
