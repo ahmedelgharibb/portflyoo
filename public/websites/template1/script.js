@@ -3951,6 +3951,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const hasContent = Array.from(qualificationsList.children).some(li => li.textContent.trim() !== '');
         if (!hasContent) {
             qualificationsTitle.style.display = 'none';
+            console.log('Qualifications title hidden: No qualifications data found in the database.');
         }
     }
     // ... existing code ...
