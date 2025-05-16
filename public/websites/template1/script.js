@@ -2195,6 +2195,14 @@ function updateSiteContent(data) {
         if (philosophyText && personalData.philosophy) {
             philosophyText.textContent = personalData.philosophy;
         }
+        // Hide Teaching Philosophy title if there is no philosophy or the content is empty/whitespace
+        const philosophyTitle = document.querySelector('#about h2, #about h3 + h2');
+        if (philosophyText && philosophyTitle) {
+            if (!personalData.philosophy || !personalData.philosophy.trim()) {
+                philosophyTitle.style.display = 'none';
+                console.log('Teaching Philosophy title hidden: No teaching philosophy data found in the database.');
+            }
+        }
         
         // Update about section qualifications
         const qualsList = document.querySelector('#about ul');
