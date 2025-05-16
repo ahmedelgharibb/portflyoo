@@ -3948,7 +3948,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const qualificationsList = document.querySelector('#about ul');
     const qualificationsTitle = document.querySelector('#about h3');
     if (qualificationsList && qualificationsTitle) {
-        if (!qualificationsList.children.length) {
+        const hasContent = Array.from(qualificationsList.children).some(li => li.textContent.trim() !== '');
+        if (!hasContent) {
             qualificationsTitle.style.display = 'none';
         }
     }
