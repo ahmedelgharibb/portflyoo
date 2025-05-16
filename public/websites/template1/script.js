@@ -1735,8 +1735,11 @@ function populateAdminForm(data) {
         }
         
         if (philosophyInput) {
-            philosophyInput.value = personalData.philosophy || 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.';
-            console.log(`Set philosophy input to "${personalData.philosophy || 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.'}"`);
+            // Use the value from the database if present, otherwise fallback to default
+            philosophyInput.value = (typeof personalData.philosophy === 'string' && personalData.philosophy.trim())
+                ? personalData.philosophy
+                : '';
+            console.log(`Set philosophy input to "${philosophyInput.value}"`);
         } else {
             console.error('admin-philosophy input not found in DOM');
         }
