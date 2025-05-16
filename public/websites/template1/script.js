@@ -2527,7 +2527,7 @@ async function saveAdminChanges() {
                 subtitle: subtitleInput?.value || currentData?.data?.personal?.subtitle || 'History Teacher',
                 heroHeading: heroHeadingInput?.value || currentData?.data?.personal?.heroHeading || 'Inspiring Minds Through Mathematics',
                 experience: experienceInput?.value || currentData?.data?.personal?.experience || '',
-                philosophy: philosophyInput?.value || currentData?.data?.personal?.philosophy || 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.',
+                philosophy: philosophyInput ? philosophyInput.value : '', // Always use the current input value, even if empty
                 qualifications: qualificationsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
                              currentData?.data?.personal?.qualifications || []
             },
