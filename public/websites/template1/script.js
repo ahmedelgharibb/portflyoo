@@ -3941,3 +3941,16 @@ function updateImagesFromData(data) {
 // For example, after fetching data:
 // updateImagesFromData(websiteData);
 // ... existing code ...
+
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+    // Hide Qualifications title if there are no qualifications
+    const qualificationsList = document.querySelector('#about ul');
+    const qualificationsTitle = document.querySelector('#about h3');
+    if (qualificationsList && qualificationsTitle) {
+        if (!qualificationsList.children.length) {
+            qualificationsTitle.style.display = 'none';
+        }
+    }
+    // ... existing code ...
+});
