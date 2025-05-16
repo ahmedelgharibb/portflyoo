@@ -2199,8 +2199,9 @@ function updateSiteContent(data) {
             philosophyText.textContent = personalData.philosophy;
         }
         // Hide Teaching Philosophy title if there is no philosophy or the content is empty/whitespace
-        const philosophyTitle = document.querySelector('#about h2, #about h3 + h2');
-        if (philosophyText && philosophyTitle) {
+        // Try to match h2 or h3 with text 'Teaching Philosophy' under #about
+        const philosophyTitle = Array.from(document.querySelectorAll('#about h2, #about h3')).find(el => el.textContent.trim().toLowerCase() === 'teaching philosophy');
+        if (philosophyTitle) {
             if (!personalData.philosophy || !personalData.philosophy.trim()) {
                 philosophyTitle.style.display = 'none';
                 console.log('Teaching Philosophy title hidden: No teaching philosophy data found in the database.');
