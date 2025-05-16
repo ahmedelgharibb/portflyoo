@@ -2206,6 +2206,15 @@ function updateSiteContent(data) {
                 </li>
             `).join('');
         }
+        // Hide Qualifications title if there are no qualifications or the list is empty/whitespace
+        const qualificationsTitle = document.querySelector('#about h3');
+        if (qualsList && qualificationsTitle) {
+            const hasContent = Array.from(qualsList.children).some(li => li.textContent.trim() !== '');
+            if (!hasContent) {
+                qualificationsTitle.style.display = 'none';
+                console.log('Qualifications title hidden: No qualifications data found in the database.');
+            }
+        }
         
         // Update experience section
         const experienceData = data.experience || {};
