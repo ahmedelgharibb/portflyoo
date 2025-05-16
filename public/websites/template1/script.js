@@ -2195,16 +2195,22 @@ function updateSiteContent(data) {
         
         // Update teaching philosophy text
         const philosophyText = document.querySelector('#about p.text-gray-600, #about p.mb-8');
-        if (philosophyText && personalData.philosophy) {
-            philosophyText.textContent = personalData.philosophy;
+        if (philosophyText) {
+            if (personalData.philosophy && personalData.philosophy.trim()) {
+                philosophyText.textContent = personalData.philosophy;
+                philosophyText.style.display = '';
+            } else {
+                philosophyText.style.display = 'none';
+            }
         }
         // Hide Teaching Philosophy title if there is no philosophy or the content is empty/whitespace
-        // Try to match h2 or h3 with text 'Teaching Philosophy' under #about
         const philosophyTitle = Array.from(document.querySelectorAll('#about h2, #about h3')).find(el => el.textContent.trim().toLowerCase() === 'teaching philosophy');
         if (philosophyTitle) {
             if (!personalData.philosophy || !personalData.philosophy.trim()) {
                 philosophyTitle.style.display = 'none';
                 console.log('Teaching Philosophy title hidden: No teaching philosophy data found in the database.');
+            } else {
+                philosophyTitle.style.display = '';
             }
         }
         
