@@ -186,7 +186,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Logout button
         const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) logoutBtn.addEventListener('click', adminLogout);
+        if (logoutBtn) {
+            // Remove previous event listeners by cloning
+            const newLogoutBtn = logoutBtn.cloneNode(true);
+            logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
+            newLogoutBtn.addEventListener('click', adminLogout);
+        }
     }
     
     // Set up danger zone functionality
