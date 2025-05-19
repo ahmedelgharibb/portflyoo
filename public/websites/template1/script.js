@@ -2105,11 +2105,22 @@ function updateSiteContent(data) {
         try {
             const resultsData = data.results || [];
             if (resultsData.length === 0) {
-                console.warn('⚠️ Results data array is empty, skipping results/subjects updates');
-                // Do NOT return here; just skip updating results/subjects
-            } else {
-                // Validate the structure of results data
-                const validResults = resultsData.every(item => 
+                console.warn('⚠️ Results data array is empty, skipping updates');
+                return;
+            }
+            // Validate the structure of results data
+            const validResults = resultsData.every(item => 
+                item && 
+                typeof item === 'object' && 
+                'subject' in item && 
+                'astar' in item && 
+                'a' in item && 
+                'other' in item
+            );
+            if (!validResults) {
+                console.error('❌ Invalid results data structure:', resultsData);
+                // Try to fix the data if possible
+                const fixedResults = resultsData.filter(item => 
                     item && 
                     typeof item === 'object' && 
                     'subject' in item && 
@@ -2117,28 +2128,16 @@ function updateSiteContent(data) {
                     'a' in item && 
                     'other' in item
                 );
-                if (!validResults) {
-                    console.error('❌ Invalid results data structure:', resultsData);
-                    // Try to fix the data if possible
-                    const fixedResults = resultsData.filter(item => 
-                        item && 
-                        typeof item === 'object' && 
-                        'subject' in item && 
-                        'astar' in item && 
-                        'a' in item && 
-                        'other' in item
-                    );
-                    if (fixedResults.length > 0) {
-                        console.log('🔧 Using fixed results data:', fixedResults);
-                        updateResultsChart(fixedResults);
-                        updateSubjectsGrid(fixedResults);
-                    }
-                } else {
-                    console.log('✅ Valid results data found, updating chart and subjects grid:', resultsData);
-                    updateResultsChart(resultsData);
-                    updateSubjectsGrid(resultsData);
+                if (fixedResults.length > 0) {
+                    console.log('🔧 Using fixed results data:', fixedResults);
+                    updateResultsChart(fixedResults);
+                    updateSubjectsGrid(fixedResults);
                 }
+                return;
             }
+            console.log('✅ Valid results data found, updating chart and subjects grid:', resultsData);
+            updateResultsChart(resultsData);
+            updateSubjectsGrid(resultsData);
         } catch (updateError) {
             console.error('❌ Error updating results:', updateError);
         }
@@ -2326,38 +2325,6 @@ function updateSiteContent(data) {
         
         console.log('✅ Site content updated successfully');
         console.log('✅ All data loaded and shown to the user successfully.');
-        // Hide Results (Student Performance) section title and container if no results data
-        const resultsSectionTitle = document.querySelector('#results .section-title');
-        const resultsSection = document.getElementById('results');
-        if (!Array.isArray(data.results) || data.results.length === 0) {
-            if (resultsSectionTitle) {
-                resultsSectionTitle.style.display = 'none';
-                console.log('Results section title hidden: No results data found.');
-            }
-            if (resultsSection) {
-                resultsSection.style.display = 'none';
-                console.log('Results section container hidden: No results data found.');
-            }
-        } else {
-            if (resultsSectionTitle) resultsSectionTitle.style.display = '';
-            if (resultsSection) resultsSection.style.display = '';
-        }
-        // Hide Subjects Taught section title and container if no results data
-        const subjectsSectionTitle = document.querySelector('#subjects .section-title');
-        const subjectsSection = document.getElementById('subjects');
-        if (!Array.isArray(data.results) || data.results.length === 0) {
-            if (subjectsSectionTitle) {
-                subjectsSectionTitle.style.display = 'none';
-                console.log('Subjects Taught section title hidden: No subjects data found.');
-            }
-            if (subjectsSection) {
-                subjectsSection.style.display = 'none';
-                console.log('Subjects Taught section container hidden: No subjects data found.');
-            }
-        } else {
-            if (subjectsSectionTitle) subjectsSectionTitle.style.display = '';
-            if (subjectsSection) subjectsSection.style.display = '';
-        }
     } catch (error) {
         console.error('Error updating site content:', error);
     }
