@@ -2326,25 +2326,37 @@ function updateSiteContent(data) {
         
         console.log('✅ Site content updated successfully');
         console.log('✅ All data loaded and shown to the user successfully.');
-        // Hide Results (Student Performance) section title if no results data
+        // Hide Results (Student Performance) section title and container if no results data
         const resultsSectionTitle = document.querySelector('#results .section-title');
-        if (resultsSectionTitle) {
-            if (!Array.isArray(data.results) || data.results.length === 0) {
+        const resultsSection = document.getElementById('results');
+        if (!Array.isArray(data.results) || data.results.length === 0) {
+            if (resultsSectionTitle) {
                 resultsSectionTitle.style.display = 'none';
                 console.log('Results section title hidden: No results data found.');
-            } else {
-                resultsSectionTitle.style.display = '';
             }
+            if (resultsSection) {
+                resultsSection.style.display = 'none';
+                console.log('Results section container hidden: No results data found.');
+            }
+        } else {
+            if (resultsSectionTitle) resultsSectionTitle.style.display = '';
+            if (resultsSection) resultsSection.style.display = '';
         }
-        // Hide Subjects Taught section title if no results data
+        // Hide Subjects Taught section title and container if no results data
         const subjectsSectionTitle = document.querySelector('#subjects .section-title');
-        if (subjectsSectionTitle) {
-            if (!Array.isArray(data.results) || data.results.length === 0) {
+        const subjectsSection = document.getElementById('subjects');
+        if (!Array.isArray(data.results) || data.results.length === 0) {
+            if (subjectsSectionTitle) {
                 subjectsSectionTitle.style.display = 'none';
                 console.log('Subjects Taught section title hidden: No subjects data found.');
-            } else {
-                subjectsSectionTitle.style.display = '';
             }
+            if (subjectsSection) {
+                subjectsSection.style.display = 'none';
+                console.log('Subjects Taught section container hidden: No subjects data found.');
+            }
+        } else {
+            if (subjectsSectionTitle) subjectsSectionTitle.style.display = '';
+            if (subjectsSection) subjectsSection.style.display = '';
         }
     } catch (error) {
         console.error('Error updating site content:', error);
