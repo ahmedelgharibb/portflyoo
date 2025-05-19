@@ -2195,42 +2195,35 @@ function updateSiteContent(data) {
         
         // Update teaching philosophy text
         const philosophyText = document.querySelector('#about p.text-gray-600, #about p.mb-8');
-        if (philosophyText) {
-            if (personalData.philosophy && personalData.philosophy.trim()) {
+        const philosophyTitle = Array.from(document.querySelectorAll('#about h2, #about h3')).find(el => el.textContent.trim().toLowerCase() === 'teaching philosophy');
+        if (philosophyText && philosophyTitle) {
+            if (!personalData.philosophy || !personalData.philosophy.trim()) {
+                philosophyText.style.display = 'none';
+                philosophyTitle.style.display = 'none';
+                console.log('Teaching Philosophy section hidden: No teaching philosophy data found in the database.');
+            } else {
                 philosophyText.textContent = personalData.philosophy;
                 philosophyText.style.display = '';
-            } else {
-                philosophyText.style.display = 'none';
-            }
-        }
-        // Hide Teaching Philosophy title if there is no philosophy or the content is empty/whitespace
-        const philosophyTitle = Array.from(document.querySelectorAll('#about h2, #about h3')).find(el => el.textContent.trim().toLowerCase() === 'teaching philosophy');
-        if (philosophyTitle) {
-            if (!personalData.philosophy || !personalData.philosophy.trim()) {
-                philosophyTitle.style.display = 'none';
-                console.log('Teaching Philosophy title hidden: No teaching philosophy data found in the database.');
-            } else {
                 philosophyTitle.style.display = '';
             }
         }
-        
         // Update about section qualifications
         const qualsList = document.querySelector('#about ul');
-        if (qualsList && Array.isArray(personalData.qualifications)) {
-            qualsList.innerHTML = personalData.qualifications.map(qual => `
-                <li class="flex items-center">
-                    <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
-                    <span>${qual}</span>
-                </li>
-            `).join('');
-        }
-        // Hide Qualifications title if there are no qualifications or the list is empty/whitespace
-        const qualificationsTitle = document.querySelector('#about h3');
+        const qualificationsTitle = Array.from(document.querySelectorAll('#about h2, #about h3')).find(el => el.textContent.trim().toLowerCase() === 'qualifications');
         if (qualsList && qualificationsTitle) {
-            const hasContent = Array.from(qualsList.children).some(li => li.textContent.trim() !== '');
-            if (!hasContent) {
+            if (!Array.isArray(personalData.qualifications) || personalData.qualifications.length === 0 || personalData.qualifications.every(q => !q.trim())) {
+                qualsList.style.display = 'none';
                 qualificationsTitle.style.display = 'none';
-                console.log('Qualifications title hidden: No qualifications data found in the database.');
+                console.log('Qualifications section hidden: No qualifications data found in the database.');
+            } else {
+                qualsList.innerHTML = personalData.qualifications.map(qual => `
+                    <li class="flex items-center">
+                        <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
+                        <span>${qual}</span>
+                    </li>
+                `).join('');
+                qualsList.style.display = '';
+                qualificationsTitle.style.display = '';
             }
         }
         
