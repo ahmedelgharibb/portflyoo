@@ -186,12 +186,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Logout button
         const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            // Remove previous event listeners by cloning
-            const newLogoutBtn = logoutBtn.cloneNode(true);
-            logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
-            newLogoutBtn.addEventListener('click', adminLogout);
-        }
+        if (logoutBtn) logoutBtn.addEventListener('click', adminLogout);
     }
     
     // Set up danger zone functionality
@@ -1786,7 +1781,7 @@ function populateAdminForm(data) {
         }
         
         if (platformsInput) {
-            const platforms = experienceData.platforms || experienceData.onlinePlatforms || [];
+            const platforms = experienceData.platforms || [];
             const platformsText = Array.isArray(platforms) ? platforms.join('\n') : '';
             platformsInput.value = platformsText;
             console.log(`Set platforms input to "${platformsText}"`);
@@ -2072,39 +2067,22 @@ function updateSiteContent(data) {
         document.querySelectorAll('.nav-brand-subtitle').forEach(el => {
             el.textContent = personalData.title || 'Teacher Title';
         });
+        
         // Update hero section
         const heroHeading = document.querySelector('.hero-title');
         if (heroHeading) {
             heroHeading.innerHTML = data.heroHeading || 'Inspiring Minds Through <span class="text-blue-600">Education</span>';
         }
-        // --- Always set hero and about image src, with fallback and logging ---
-        const heroImg = document.querySelector('#heroImage');
-        const heroImgMobile = document.querySelector('#heroImageMobile');
-        const aboutImg = document.querySelector('#aboutImage');
-        const heroImageUrl = data.heroImage || 'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg';
-        const aboutImageUrl = data.aboutImage || 'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg';
-        if (heroImg) {
-            heroImg.src = heroImageUrl;
-            heroImg.classList.remove('hidden');
-            console.log('[Image] Set #heroImage to:', heroImageUrl);
-        }
-        if (heroImgMobile) {
-            heroImgMobile.src = heroImageUrl;
-            heroImgMobile.classList.remove('hidden');
-            console.log('[Image] Set #heroImageMobile to:', heroImageUrl);
-        }
-        if (aboutImg) {
-            aboutImg.src = aboutImageUrl;
-            aboutImg.classList.remove('hidden');
-            console.log('[Image] Set #aboutImage to:', aboutImageUrl);
-        }
+
         // Handle results data
         try {
             const resultsData = data.results || [];
+            
             if (resultsData.length === 0) {
                 console.warn('⚠️ Results data array is empty, skipping updates');
                 return;
             }
+            
             // Validate the structure of results data
             const validResults = resultsData.every(item => 
                 item && 
@@ -2114,6 +2092,7 @@ function updateSiteContent(data) {
                 'a' in item && 
                 'other' in item
             );
+                
             if (!validResults) {
                 console.error('❌ Invalid results data structure:', resultsData);
                 // Try to fix the data if possible
@@ -2125,6 +2104,7 @@ function updateSiteContent(data) {
                     'a' in item && 
                     'other' in item
                 );
+                
                 if (fixedResults.length > 0) {
                     console.log('🔧 Using fixed results data:', fixedResults);
                     updateResultsChart(fixedResults);
@@ -2132,13 +2112,14 @@ function updateSiteContent(data) {
                 }
                 return;
             }
+            
             console.log('✅ Valid results data found, updating chart and subjects grid:', resultsData);
             updateResultsChart(resultsData);
             updateSubjectsGrid(resultsData);
         } catch (updateError) {
             console.error('❌ Error updating results:', updateError);
         }
-        // ... rest of updateSiteContent ...
+
         // Update hero images if they exist
         if (data.heroImage) {
             const heroImg = document.querySelector('#heroImage');
@@ -2209,41 +2190,35 @@ function updateSiteContent(data) {
         
         // Update experience section
         const experienceData = data.experience || {};
-        console.log('Experience data:', experienceData);
         
-        // Update schools
-        const schoolsList = document.querySelector('#experience .experience-card:nth-child(2) ul');
-        if (schoolsList) {
-            const schoolsArray = Array.isArray(experienceData.schools) ? experienceData.schools : [];
-            schoolsList.innerHTML = schoolsArray.map(school => `<li>${school}</li>`).join('');
-            console.log('Schools updated:', schoolsArray);
-            if (schoolsArray.length > 0) {
-                console.log('✅ Schools data displayed successfully:', schoolsArray);
-            } else {
-                console.error('❌ No schools data available to display.');
-            }
-        } else {
-            console.warn('Schools list element not found');
+        const schoolsList = document.querySelector('#experience .experience-card:nth-child(1) ul');
+        if (schoolsList && Array.isArray(experienceData.schools)) {
+            schoolsList.innerHTML = experienceData.schools.map(school => `
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    <span>${school}</span>
+                </li>
+            `).join('');
         }
         
-        // Update centers
-        const centersList = document.querySelector('#experience .experience-card:nth-child(3) ul');
-        if (centersList) {
-            const centersArray = Array.isArray(experienceData.centers) ? experienceData.centers : [];
-            centersList.innerHTML = centersArray.map(center => `<li>${center}</li>`).join('');
-            console.log('Centers updated:', centersArray);
-        } else {
-            console.warn('Centers list element not found');
+        const centersList = document.querySelector('#experience .experience-card:nth-child(2) ul');
+        if (centersList && Array.isArray(experienceData.centers)) {
+            centersList.innerHTML = experienceData.centers.map(center => `
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    <span>${center}</span>
+                </li>
+            `).join('');
         }
         
-        // Update platforms
-        const platformsList = document.querySelector('#experience .experience-card:nth-child(4) ul');
-        if (platformsList) {
-            const platformsArray = Array.isArray(experienceData.platforms) ? experienceData.platforms : [];
-            platformsList.innerHTML = platformsArray.map(platform => `<li>${platform}</li>`).join('');
-            console.log('Platforms updated:', platformsArray);
-        } else {
-            console.warn('Platforms list element not found');
+        const platformsList = document.querySelector('#experience .experience-card:nth-child(3) ul');
+        if (platformsList && Array.isArray(experienceData.platforms)) {
+            platformsList.innerHTML = experienceData.platforms.map(platform => `
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    <span>${platform}</span>
+                </li>
+            `).join('');
         }
         
         // Update contact form
@@ -3905,52 +3880,4 @@ document.addEventListener('DOMContentLoaded', function() {
   // Replace this with your actual logic to get the site owner email
   var siteOwnerEmail = (window.siteData && window.siteData.contact && window.siteData.contact.email) || '';
   showOrHideContactSection(siteOwnerEmail);
-});
-
-// Helper function to set image src with fallback and logging
-function setImageSrc(imgId, url, fallback) {
-    const img = document.getElementById(imgId);
-    if (img) {
-        if (url) {
-            img.src = url;
-            img.classList.remove('hidden');
-            console.log(`[Image] Set #${imgId} to:`, url);
-        } else {
-            img.src = fallback;
-            img.classList.remove('hidden');
-            console.log(`[Image] Set #${imgId} to default:`, fallback);
-        }
-    }
-}
-
-// After loading website data (replace this with your actual data loading logic)
-function updateImagesFromData(data) {
-    setImageSrc(
-        'heroImage',
-        data.heroImage,
-        'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg'
-    );
-    setImageSrc(
-        'aboutImage',
-        data.aboutImage,
-        'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg'
-    );
-}
-// ... existing code ...
-// Wherever you load your website data, call updateImagesFromData(data)
-// For example, after fetching data:
-// updateImagesFromData(websiteData);
-// ... existing code ...
-
-document.addEventListener('DOMContentLoaded', function() {
-    // ... existing code ...
-    // Hide Qualifications title if there are no qualifications
-    const qualificationsList = document.querySelector('#about ul');
-    const qualificationsTitle = document.querySelector('#about h3');
-    if (qualificationsList && qualificationsTitle) {
-        if (!qualificationsList.children.length) {
-            qualificationsTitle.style.display = 'none';
-        }
-    }
-    // ... existing code ...
 });
