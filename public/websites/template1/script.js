@@ -2105,22 +2105,11 @@ function updateSiteContent(data) {
         try {
             const resultsData = data.results || [];
             if (resultsData.length === 0) {
-                console.warn('⚠️ Results data array is empty, skipping updates');
-                return;
-            }
-            // Validate the structure of results data
-            const validResults = resultsData.every(item => 
-                item && 
-                typeof item === 'object' && 
-                'subject' in item && 
-                'astar' in item && 
-                'a' in item && 
-                'other' in item
-            );
-            if (!validResults) {
-                console.error('❌ Invalid results data structure:', resultsData);
-                // Try to fix the data if possible
-                const fixedResults = resultsData.filter(item => 
+                console.warn('⚠️ Results data array is empty, skipping results/subjects updates');
+                // Do NOT return here; just skip updating results/subjects
+            } else {
+                // Validate the structure of results data
+                const validResults = resultsData.every(item => 
                     item && 
                     typeof item === 'object' && 
                     'subject' in item && 
@@ -2128,16 +2117,28 @@ function updateSiteContent(data) {
                     'a' in item && 
                     'other' in item
                 );
-                if (fixedResults.length > 0) {
-                    console.log('🔧 Using fixed results data:', fixedResults);
-                    updateResultsChart(fixedResults);
-                    updateSubjectsGrid(fixedResults);
+                if (!validResults) {
+                    console.error('❌ Invalid results data structure:', resultsData);
+                    // Try to fix the data if possible
+                    const fixedResults = resultsData.filter(item => 
+                        item && 
+                        typeof item === 'object' && 
+                        'subject' in item && 
+                        'astar' in item && 
+                        'a' in item && 
+                        'other' in item
+                    );
+                    if (fixedResults.length > 0) {
+                        console.log('🔧 Using fixed results data:', fixedResults);
+                        updateResultsChart(fixedResults);
+                        updateSubjectsGrid(fixedResults);
+                    }
+                } else {
+                    console.log('✅ Valid results data found, updating chart and subjects grid:', resultsData);
+                    updateResultsChart(resultsData);
+                    updateSubjectsGrid(resultsData);
                 }
-                return;
             }
-            console.log('✅ Valid results data found, updating chart and subjects grid:', resultsData);
-            updateResultsChart(resultsData);
-            updateSubjectsGrid(resultsData);
         } catch (updateError) {
             console.error('❌ Error updating results:', updateError);
         }
