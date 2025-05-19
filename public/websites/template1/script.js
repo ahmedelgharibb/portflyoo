@@ -1735,8 +1735,11 @@ function populateAdminForm(data) {
         }
         
         if (philosophyInput) {
-            philosophyInput.value = personalData.philosophy || 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.';
-            console.log(`Set philosophy input to "${personalData.philosophy || 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.'}"`);
+            // Use the value from the database if present, otherwise fallback to default
+            philosophyInput.value = (typeof personalData.philosophy === 'string' && personalData.philosophy.trim())
+                ? personalData.philosophy
+                : '';
+            console.log(`Set philosophy input to "${philosophyInput.value}"`);
         } else {
             console.error('admin-philosophy input not found in DOM');
         }
@@ -2192,8 +2195,23 @@ function updateSiteContent(data) {
         
         // Update teaching philosophy text
         const philosophyText = document.querySelector('#about p.text-gray-600, #about p.mb-8');
-        if (philosophyText && personalData.philosophy) {
-            philosophyText.textContent = personalData.philosophy;
+        if (philosophyText) {
+            if (personalData.philosophy && personalData.philosophy.trim()) {
+                philosophyText.textContent = personalData.philosophy;
+                philosophyText.style.display = '';
+            } else {
+                philosophyText.style.display = 'none';
+            }
+        }
+        // Hide Teaching Philosophy title if there is no philosophy or the content is empty/whitespace
+        const philosophyTitle = Array.from(document.querySelectorAll('#about h2, #about h3')).find(el => el.textContent.trim().toLowerCase() === 'teaching philosophy');
+        if (philosophyTitle) {
+            if (!personalData.philosophy || !personalData.philosophy.trim()) {
+                philosophyTitle.style.display = 'none';
+                console.log('Teaching Philosophy title hidden: No teaching philosophy data found in the database.');
+            } else {
+                philosophyTitle.style.display = '';
+            }
         }
         
         // Update about section qualifications
@@ -2205,6 +2223,15 @@ function updateSiteContent(data) {
                     <span>${qual}</span>
                 </li>
             `).join('');
+        }
+        // Hide Qualifications title if there are no qualifications or the list is empty/whitespace
+        const qualificationsTitle = document.querySelector('#about h3');
+        if (qualsList && qualificationsTitle) {
+            const hasContent = Array.from(qualsList.children).some(li => li.textContent.trim() !== '');
+            if (!hasContent) {
+                qualificationsTitle.style.display = 'none';
+                console.log('Qualifications title hidden: No qualifications data found in the database.');
+            }
         }
         
         // Update experience section
@@ -2507,7 +2534,7 @@ async function saveAdminChanges() {
                 subtitle: subtitleInput?.value || currentData?.data?.personal?.subtitle || 'History Teacher',
                 heroHeading: heroHeadingInput?.value || currentData?.data?.personal?.heroHeading || 'Inspiring Minds Through Mathematics',
                 experience: experienceInput?.value || currentData?.data?.personal?.experience || '',
-                philosophy: philosophyInput?.value || currentData?.data?.personal?.philosophy || 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.',
+                philosophy: philosophyInput ? philosophyInput.value : '', // Always use the current input value, even if empty
                 qualifications: qualificationsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
                              currentData?.data?.personal?.qualifications || []
             },
@@ -3948,8 +3975,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const qualificationsList = document.querySelector('#about ul');
     const qualificationsTitle = document.querySelector('#about h3');
     if (qualificationsList && qualificationsTitle) {
-        if (!qualificationsList.children.length) {
+        const hasContent = Array.from(qualificationsList.children).some(li => li.textContent.trim() !== '');
+        if (!hasContent) {
             qualificationsTitle.style.display = 'none';
+            console.log('Qualifications title hidden: No qualifications data found in the database.');
         }
     }
     // ... existing code ...
