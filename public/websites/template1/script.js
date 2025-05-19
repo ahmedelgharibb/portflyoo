@@ -2324,6 +2324,7 @@ function updateSiteContent(data) {
         }
         
         console.log('✅ Site content updated successfully');
+        console.log('✅ All data loaded and shown to the user successfully.');
     } catch (error) {
         console.error('Error updating site content:', error);
     }
