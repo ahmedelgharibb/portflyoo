@@ -2336,6 +2336,7 @@ function updateSiteContent(data) {
         }
         // Hide Register for Classes section if Form URL is empty
         const registerSection = document.getElementById('register');
+        const registerBtn = registerSection ? registerSection.querySelector('a.btn-primary') : null;
         const formUrl = data.contact && data.contact.formUrl ? data.contact.formUrl.trim() : '';
         if (registerSection) {
             if (!formUrl) {
