@@ -2320,6 +2320,24 @@ function updateSiteContent(data) {
         console.log('✅ All data loaded and shown to the user successfully.');
         window.mainDataLoaded = true;
         maybeHidePreloader();
+        // Hide Subjects Taught section if no subjects
+        const subjectsSection = document.getElementById('subjects');
+        if (subjectsSection) {
+            if (!data.subjects || data.subjects.length === 0) {
+                subjectsSection.style.display = 'none';
+            } else {
+                subjectsSection.style.display = '';
+            }
+        }
+        // Hide Student Performance section if no results
+        const resultsSection = document.getElementById('results');
+        if (resultsSection) {
+            if (!data.results || data.results.length === 0) {
+                resultsSection.style.display = 'none';
+            } else {
+                resultsSection.style.display = '';
+            }
+        }
     } catch (error) {
         console.error('Error updating site content:', error);
     }
