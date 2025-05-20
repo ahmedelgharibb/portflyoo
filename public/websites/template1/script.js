@@ -2313,9 +2313,8 @@ function updateSiteContent(data) {
         
         console.log('✅ Site content updated successfully');
         console.log('✅ All data loaded and shown to the user successfully.');
-        requestAnimationFrame(() => {
-            setTimeout(() => hidePreloader(), 0);
-        });
+        document.body.offsetHeight; // Force reflow
+        Promise.resolve().then(() => hidePreloader());
     } catch (error) {
         console.error('Error updating site content:', error);
     }
