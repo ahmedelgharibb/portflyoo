@@ -563,6 +563,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         reviewForm.addEventListener('submit', submitReview);
     }
 
+    // Hide the site loader when review system is initialized
+    const siteLoader = document.getElementById('siteLoader');
+    if (siteLoader) {
+        siteLoader.classList.add('hide');
+    }
     console.log('✅ Review system initialization complete');
     console.log('----------------------------------------');
 });
