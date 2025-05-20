@@ -2166,9 +2166,6 @@ function updateSiteContent(data) {
             }
         }
         
-        // For compatibility, check both personal and personalInfo
-        // const personalData = data.personal || data.personalInfo || {}; // REMOVE THIS LINE
-        
         // Update page title
         if (personalData.name && personalData.title) {
             document.title = `${personalData.name} - ${personalData.title}`;
@@ -2276,32 +2273,24 @@ function updateSiteContent(data) {
         
         // Update contact form
         const contactData = data.contact || {};
-        
-        // Ensure all contact fields have default values if missing
         contactData.email = contactData.email || 'ahmed.mahmoud@mathseducator.com';
         contactData.formUrl = contactData.formUrl || 'https://forms.google.com/your-form-link';
         contactData.assistantFormUrl = contactData.assistantFormUrl || 'https://forms.google.com/assistant-form-link';
         contactData.phone = contactData.phone || '+1 123-456-7890';
         contactData.contactMessage = contactData.contactMessage || 'Thank you for your interest in my teaching services.';
         
-        // Update register button with form URL
         const registerBtn = document.querySelector('#register a.btn');
         if (registerBtn && contactData && contactData.formUrl) {
             registerBtn.href = contactData.formUrl;
         }
-        
-        // Update assistant application button with form URL if it exists
         const assistantBtn = document.querySelector('#assistant a.btn');
         if (assistantBtn && contactData && contactData.assistantFormUrl) {
             assistantBtn.href = contactData.assistantFormUrl;
         }
-        
-        // Update contact information if it exists
         const contactPhoneEl = document.querySelector('.contact-phone');
         if (contactPhoneEl && contactData && contactData.phone) {
             contactPhoneEl.textContent = contactData.phone;
         }
-        
         const contactMessageEl = document.querySelector('.contact-message');
         if (contactMessageEl && contactData && contactData.contactMessage) {
             contactMessageEl.textContent = contactData.contactMessage;
@@ -2313,19 +2302,41 @@ function updateSiteContent(data) {
             console.log(`Applying theme from content update: ${color} color, ${mode} mode`);
             applyTheme(color, mode);
         } else {
-            // If no theme data, try to get it from radio buttons
             const colorRadio = document.querySelector('input[name="theme-color"]:checked');
             const modeRadio = document.querySelector('input[name="theme-mode"]:checked');
-            
             const currentColor = colorRadio ? colorRadio.value : 'blue';
             const currentMode = modeRadio ? modeRadio.value : 'light';
-            
             console.log(`No theme data found, using current radio button values: ${currentColor} color, ${currentMode} mode`);
             applyTheme(currentColor, currentMode);
         }
         
         console.log('✅ Site content updated successfully');
         console.log('✅ All data loaded and shown to the user successfully.');
+
+        // --- HIDE EMPTY SECTIONS LOGIC ---
+        // Hide Results (Student Performance) section title and container if no results data
+        const resultsSectionTitle = document.querySelector('#results .section-title');
+        const resultsSection = document.getElementById('results');
+        if (!Array.isArray(data.results) || data.results.length === 0) {
+            if (resultsSectionTitle) resultsSectionTitle.style.display = 'none';
+            if (resultsSection) resultsSection.style.display = 'none';
+            console.log('Results section hidden: No results data found.');
+        } else {
+            if (resultsSectionTitle) resultsSectionTitle.style.display = '';
+            if (resultsSection) resultsSection.style.display = '';
+        }
+
+        // Hide Subjects Taught section title and container if no results data
+        const subjectsSectionTitle = document.querySelector('#subjects .section-title');
+        const subjectsSection = document.getElementById('subjects');
+        if (!Array.isArray(data.results) || data.results.length === 0) {
+            if (subjectsSectionTitle) subjectsSectionTitle.style.display = 'none';
+            if (subjectsSection) subjectsSection.style.display = 'none';
+            console.log('Subjects Taught section hidden: No subjects data found.');
+        } else {
+            if (subjectsSectionTitle) subjectsSectionTitle.style.display = '';
+            if (subjectsSection) subjectsSection.style.display = '';
+        }
     } catch (error) {
         console.error('Error updating site content:', error);
     }
