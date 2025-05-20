@@ -2338,6 +2338,15 @@ function updateSiteContent(data) {
                 resultsSection.style.display = '';
             }
         }
+        // Hide Register for Classes section if Form URL is empty
+        const registerSection = document.getElementById('register');
+        if (registerSection) {
+            if (!data.contact || !data.contact.formUrl || data.contact.formUrl.trim() === '') {
+                registerSection.style.display = 'none';
+            } else {
+                registerSection.style.display = '';
+            }
+        }
     } catch (error) {
         console.error('Error updating site content:', error);
     }
