@@ -564,8 +564,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     console.log('✅ Review system initialization complete');
-    window.reviewsLoaded = true;
-    if (typeof maybeHidePreloader === 'function') maybeHidePreloader();
     console.log('----------------------------------------');
 });
 
