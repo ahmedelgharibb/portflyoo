@@ -2572,8 +2572,8 @@ async function saveAdminChanges() {
             results: collectResultsData(),
             contact: {
                 email: emailInput?.value || currentData?.data?.contact?.email || '',
-                formUrl: formUrlInput?.value || currentData?.data?.contact?.formUrl || '',
-                assistantFormUrl: assistantFormUrlInput?.value || currentData?.data?.contact?.assistantFormUrl || '',
+                formUrl: formUrlInput ? formUrlInput.value : (currentData?.data?.contact?.formUrl || ''),
+                assistantFormUrl: assistantFormUrlInput ? assistantFormUrlInput.value : (currentData?.data?.contact?.assistantFormUrl || ''),
                 phone: phoneInput?.value || currentData?.data?.contact?.phone || '',
                 contactMessage: contactMessageInput?.value || currentData?.data?.contact?.contactMessage || ''
             },
