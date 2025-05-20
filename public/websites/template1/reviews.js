@@ -275,6 +275,14 @@ async function loadApprovedReviews() {
 
 // Display reviews in the reviews container
 function displayReviews(reviews) {
+    const reviewsSection = document.getElementById('reviews');
+    if (reviewsSection) {
+        if (!reviews || reviews.length === 0) {
+            reviewsSection.style.display = 'none';
+        } else {
+            reviewsSection.style.display = '';
+        }
+    }
     const container = document.querySelector('#reviewsContainer');
     if (!container) return;
 
