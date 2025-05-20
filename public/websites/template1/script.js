@@ -2285,10 +2285,6 @@ function updateSiteContent(data) {
         contactData.phone = contactData.phone || '+1 123-456-7890';
         contactData.contactMessage = contactData.contactMessage || 'Thank you for your interest in my teaching services.';
         
-        const registerBtn = document.querySelector('#register a.btn');
-        if (registerBtn && contactData && contactData.formUrl) {
-            registerBtn.href = contactData.formUrl;
-        }
         const assistantBtn = document.querySelector('#assistant a.btn');
         if (assistantBtn && contactData && contactData.assistantFormUrl) {
             assistantBtn.href = contactData.assistantFormUrl;
@@ -2340,11 +2336,16 @@ function updateSiteContent(data) {
         }
         // Hide Register for Classes section if Form URL is empty
         const registerSection = document.getElementById('register');
+        const formUrl = data.contact && data.contact.formUrl ? data.contact.formUrl.trim() : '';
         if (registerSection) {
-            if (!data.contact || !data.contact.formUrl || data.contact.formUrl.trim() === '') {
+            if (!formUrl) {
                 registerSection.style.display = 'none';
             } else {
                 registerSection.style.display = '';
+                if (registerBtn) {
+                    registerBtn.href = formUrl;
+                    registerBtn.style.display = '';
+                }
             }
         }
     } catch (error) {
