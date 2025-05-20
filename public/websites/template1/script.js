@@ -1,15 +1,15 @@
 // script.js
 
 // Preloader
-window.addEventListener('load', () => {
-    const preloader = document.querySelector('.preloader');
-    if (preloader) {
-        preloader.classList.add('fade-out');
-        setTimeout(() => {
-            preloader.style.display = 'none';
-        }, 600);
-    }
-});
+// window.addEventListener('load', () => {
+//     const preloader = document.querySelector('.preloader');
+//     if (preloader) {
+//         preloader.classList.add('fade-out');
+//         setTimeout(() => {
+//             preloader.style.display = 'none';
+//         }, 600);
+//     }
+// });
 
 // DOM Elements - using let for all variables so they can be reassigned in DOMContentLoaded
 let menuBtn;
