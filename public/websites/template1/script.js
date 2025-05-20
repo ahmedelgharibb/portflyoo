@@ -3979,9 +3979,14 @@ document.addEventListener('DOMContentLoaded', function() {
 function hidePreloader() {
     const preloader = document.querySelector('.preloader');
     if (preloader) {
-        preloader.classList.add('fade-out');
-        setTimeout(() => {
-            preloader.style.display = 'none';
-        }, 600);
+        // Force a reflow to ensure the log is painted
+        void preloader.offsetWidth;
+        // Use requestAnimationFrame to start fade-out after paint
+        requestAnimationFrame(() => {
+            preloader.classList.add('fade-out');
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 600); // Match your CSS transition duration
+        });
     }
 }
