@@ -2342,6 +2342,10 @@ function updateSiteContent(data) {
         if (registerSection) {
             if (!formUrl) {
                 registerSection.style.display = 'none';
+                if (registerBtn) {
+                    registerBtn.href = '#';
+                    registerBtn.style.display = 'none';
+                }
             } else {
                 registerSection.style.display = '';
                 if (registerBtn) {
