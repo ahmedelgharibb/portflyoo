@@ -2334,10 +2334,10 @@ function updateSiteContent(data) {
                 resultsSection.style.display = '';
             }
         }
+        // Remove fallback for formUrl
         // Hide Register for Classes section if Form URL is empty (do not use fallback)
         const registerSection = document.getElementById('register');
         const registerBtn = registerSection ? registerSection.querySelector('a.btn-primary') : null;
-        // Use the actual value from data.contact.formUrl, do not fallback to default
         const formUrl = (data.contact && typeof data.contact.formUrl === 'string') ? data.contact.formUrl.trim() : '';
         if (registerSection) {
             if (!formUrl) {
