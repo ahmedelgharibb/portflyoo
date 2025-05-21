@@ -2334,8 +2334,7 @@ function updateSiteContent(data) {
                 resultsSection.style.display = '';
             }
         }
-        // Remove fallback for formUrl
-        // Hide Register for Classes section if Form URL is empty (do not use fallback)
+        // Hide Register for Classes section if Form URL is empty
         const registerSection = document.getElementById('register');
         const registerBtn = registerSection ? registerSection.querySelector('a.btn-primary') : null;
         const formUrl = (data.contact && typeof data.contact.formUrl === 'string') ? data.contact.formUrl.trim() : '';
@@ -2351,6 +2350,25 @@ function updateSiteContent(data) {
                 if (registerBtn) {
                     registerBtn.href = formUrl;
                     registerBtn.style.display = '';
+                }
+            }
+        }
+        // Hide Assistant Application section if Assistant Form URL is empty
+        const assistantSection = document.getElementById('assistant');
+        const assistantBtn = assistantSection ? assistantSection.querySelector('a.btn-assistant-apply') : null;
+        const assistantFormUrl = (data.contact && typeof data.contact.assistantFormUrl === 'string') ? data.contact.assistantFormUrl.trim() : '';
+        if (assistantSection) {
+            if (!assistantFormUrl) {
+                assistantSection.style.display = 'none';
+                if (assistantBtn) {
+                    assistantBtn.href = '#';
+                    assistantBtn.style.display = 'none';
+                }
+            } else {
+                assistantSection.style.display = '';
+                if (assistantBtn) {
+                    assistantBtn.href = assistantFormUrl;
+                    assistantBtn.style.display = '';
                 }
             }
         }
