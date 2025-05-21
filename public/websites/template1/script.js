@@ -2285,10 +2285,6 @@ function updateSiteContent(data) {
         contactData.phone = contactData.phone || '+1 123-456-7890';
         contactData.contactMessage = contactData.contactMessage || 'Thank you for your interest in my teaching services.';
         
-        const assistantBtn = document.querySelector('#assistant a.btn');
-        if (assistantBtn && contactData && contactData.assistantFormUrl) {
-            assistantBtn.href = contactData.assistantFormUrl;
-        }
         const contactPhoneEl = document.querySelector('.contact-phone');
         if (contactPhoneEl && contactData && contactData.phone) {
             contactPhoneEl.textContent = contactData.phone;
