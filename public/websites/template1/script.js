@@ -2330,7 +2330,7 @@ function updateSiteContent(data) {
                 resultsSection.style.display = '';
             }
         }
-        // Hide Register for Classes section if Form URL is empty
+        // Hide Register for Classes section if Form URL is empty (no fallback)
         const registerSection = document.getElementById('register');
         const registerBtn = registerSection ? registerSection.querySelector('a.btn-primary') : null;
         const formUrl = (data.contact && typeof data.contact.formUrl === 'string') ? data.contact.formUrl.trim() : '';
@@ -2349,7 +2349,7 @@ function updateSiteContent(data) {
                 }
             }
         }
-        // Hide Assistant Application section if Assistant Form URL is empty
+        // Hide Assistant Application section if Assistant Form URL is empty (no fallback)
         const assistantSection = document.getElementById('assistant');
         const assistantBtn = assistantSection ? assistantSection.querySelector('a.btn-assistant-apply') : null;
         const assistantFormUrl = (data.contact && typeof data.contact.assistantFormUrl === 'string') ? data.contact.assistantFormUrl.trim() : '';
