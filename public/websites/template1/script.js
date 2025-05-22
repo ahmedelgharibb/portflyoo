@@ -2335,10 +2335,10 @@ function updateSiteContent(data) {
         const registerBtn = registerSection ? registerSection.querySelector('a.btn-primary') : null;
         const formUrl = (data.contact && typeof data.contact.formUrl === 'string') ? data.contact.formUrl.trim() : '';
         if (registerSection) {
-            if (!formUrl) {
+            if (!formUrl || formUrl === '') {
                 registerSection.style.display = 'none';
                 console.log('Register for Classes section hidden: No form URL provided.');
-            } else if (formUrl.length > 0) {
+            } else {
                 registerSection.style.display = '';
                 if (registerBtn) {
                     registerBtn.href = formUrl;
@@ -2352,10 +2352,10 @@ function updateSiteContent(data) {
         const assistantBtn = assistantSection ? assistantSection.querySelector('a.btn-assistant-apply') : null;
         const assistantFormUrl = (data.contact && typeof data.contact.assistantFormUrl === 'string') ? data.contact.assistantFormUrl.trim() : '';
         if (assistantSection) {
-            if (!assistantFormUrl) {
+            if (!assistantFormUrl || assistantFormUrl === '') {
                 assistantSection.style.display = 'none';
                 console.log('Assistant Application section hidden: No assistant form URL provided.');
-            } else if (assistantFormUrl.length > 0) {
+            } else {
                 assistantSection.style.display = '';
                 if (assistantBtn) {
                     assistantBtn.href = assistantFormUrl;
