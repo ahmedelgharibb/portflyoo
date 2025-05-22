@@ -2337,12 +2337,18 @@ function updateSiteContent(data) {
         if (registerSection) {
             if (!formUrl || formUrl === '') {
                 registerSection.style.display = 'none';
+                if (registerBtn) {
+                    registerBtn.href = '#';
+                    registerBtn.setAttribute('tabindex', '-1');
+                    registerBtn.style.pointerEvents = 'none';
+                }
                 console.log('Register for Classes section hidden: No form URL provided.');
             } else {
                 registerSection.style.display = '';
                 if (registerBtn) {
                     registerBtn.href = formUrl;
-                    registerBtn.style.display = '';
+                    registerBtn.removeAttribute('tabindex');
+                    registerBtn.style.pointerEvents = '';
                 }
                 console.log('Register for Classes section shown: Valid form URL provided.');
             }
@@ -2354,12 +2360,18 @@ function updateSiteContent(data) {
         if (assistantSection) {
             if (!assistantFormUrl || assistantFormUrl === '') {
                 assistantSection.style.display = 'none';
+                if (assistantBtn) {
+                    assistantBtn.href = '#';
+                    assistantBtn.setAttribute('tabindex', '-1');
+                    assistantBtn.style.pointerEvents = 'none';
+                }
                 console.log('Assistant Application section hidden: No assistant form URL provided.');
             } else {
                 assistantSection.style.display = '';
                 if (assistantBtn) {
                     assistantBtn.href = assistantFormUrl;
-                    assistantBtn.style.display = '';
+                    assistantBtn.removeAttribute('tabindex');
+                    assistantBtn.style.pointerEvents = '';
                 }
                 console.log('Assistant Application section shown: Valid assistant form URL provided.');
             }
