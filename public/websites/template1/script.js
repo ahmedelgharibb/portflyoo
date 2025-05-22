@@ -2337,12 +2337,14 @@ function updateSiteContent(data) {
         if (registerSection) {
             if (!formUrl) {
                 registerSection.style.display = 'none';
+                console.log('Register for Classes section hidden: No form URL provided.');
             } else {
                 registerSection.style.display = '';
                 if (registerBtn) {
                     registerBtn.href = formUrl;
                     registerBtn.style.display = '';
                 }
+                console.log('Register for Classes section shown: Valid form URL provided.');
             }
         }
         // Assistant Application section: hide section if assistantFormUrl is empty
@@ -2352,12 +2354,14 @@ function updateSiteContent(data) {
         if (assistantSection) {
             if (!assistantFormUrl) {
                 assistantSection.style.display = 'none';
+                console.log('Assistant Application section hidden: No assistant form URL provided.');
             } else {
                 assistantSection.style.display = '';
                 if (assistantBtn) {
                     assistantBtn.href = assistantFormUrl;
                     assistantBtn.style.display = '';
                 }
+                console.log('Assistant Application section shown: Valid assistant form URL provided.');
             }
         }
     } catch (error) {
