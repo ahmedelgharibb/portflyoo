@@ -2338,7 +2338,7 @@ function updateSiteContent(data) {
             if (!formUrl) {
                 registerSection.style.display = 'none';
                 console.log('Register for Classes section hidden: No form URL provided.');
-            } else {
+            } else if (formUrl.length > 0) {
                 registerSection.style.display = '';
                 if (registerBtn) {
                     registerBtn.href = formUrl;
@@ -2355,7 +2355,7 @@ function updateSiteContent(data) {
             if (!assistantFormUrl) {
                 assistantSection.style.display = 'none';
                 console.log('Assistant Application section hidden: No assistant form URL provided.');
-            } else {
+            } else if (assistantFormUrl.length > 0) {
                 assistantSection.style.display = '';
                 if (assistantBtn) {
                     assistantBtn.href = assistantFormUrl;
