@@ -2330,33 +2330,31 @@ function updateSiteContent(data) {
                 resultsSection.style.display = '';
             }
         }
-        // Register for Classes section: always show section, only update button
+        // Register for Classes section: hide section if formUrl is empty
         const registerSection = document.getElementById('register');
         const registerBtn = registerSection ? registerSection.querySelector('a.btn-primary') : null;
         const formUrl = (data.contact && typeof data.contact.formUrl === 'string') ? data.contact.formUrl.trim() : '';
         if (registerSection) {
-            registerSection.style.display = '';
-            if (registerBtn) {
-                if (!formUrl) {
-                    registerBtn.href = '#';
-                    registerBtn.style.display = 'none';
-                } else {
+            if (!formUrl) {
+                registerSection.style.display = 'none';
+            } else {
+                registerSection.style.display = '';
+                if (registerBtn) {
                     registerBtn.href = formUrl;
                     registerBtn.style.display = '';
                 }
             }
         }
-        // Assistant Application section: always show section, only update button
+        // Assistant Application section: hide section if assistantFormUrl is empty
         const assistantSection = document.getElementById('assistant');
         const assistantBtn = assistantSection ? assistantSection.querySelector('a.btn-assistant-apply') : null;
         const assistantFormUrl = (data.contact && typeof data.contact.assistantFormUrl === 'string') ? data.contact.assistantFormUrl.trim() : '';
         if (assistantSection) {
-            assistantSection.style.display = '';
-            if (assistantBtn) {
-                if (!assistantFormUrl) {
-                    assistantBtn.href = '#';
-                    assistantBtn.style.display = 'none';
-                } else {
+            if (!assistantFormUrl) {
+                assistantSection.style.display = 'none';
+            } else {
+                assistantSection.style.display = '';
+                if (assistantBtn) {
                     assistantBtn.href = assistantFormUrl;
                     assistantBtn.style.display = '';
                 }
