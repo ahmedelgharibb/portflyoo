@@ -410,8 +410,10 @@ function displayAdminReviews(reviews) {
         reviewElement.innerHTML = `
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h4 class="text-lg font-semibold">${review.student_name}</h4>
-                    <div class="star-rating" data-rating="${review.rating}"></div>
+                    <h4 class="text-lg font-semibold">${review.student_name || 'Anonymous'}</h4>
+                    <div class="flex items-center mt-1">
+                        ${generateStarRating(review.rating)}
+                    </div>
                 </div>
                 <div class="flex gap-2 items-center">
                     <label class="switch">
@@ -423,8 +425,8 @@ function displayAdminReviews(reviews) {
                     </button>
                 </div>
             </div>
-            <p class="text-gray-600">${review.review_text}</p>
-            <div class="text-sm text-gray-400 mt-2">
+            <p class="text-gray-600 mt-2">${review.review_text}</p>
+            <div class="text-sm text-gray-500 mt-2">
                 ${new Date(review.created_at).toLocaleDateString()}
             </div>
         `;
@@ -580,16 +582,20 @@ async function loadAdminReviews() {
             const reviewElement = document.createElement('div');
             reviewElement.className = 'bg-white rounded-lg shadow-md p-6 mb-4';
             reviewElement.innerHTML = `
-                <div class="flex justify-between items-start mb-2">
+                <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h4 class="font-semibold text-gray-800">${review.student_name || 'Anonymous'}</h4>
+                        <h4 class="text-lg font-semibold">${review.student_name || 'Anonymous'}</h4>
                         <div class="flex items-center mt-1">
                             ${generateStarRating(review.rating)}
                         </div>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="toggleReviewVisibility('${review.id}', ${!review.is_visible})" class="px-3 py-1 ${review.is_visible ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-md transition-colors">
-                            ${review.is_visible ? 'Hide' : 'Show'}
+                    <div class="flex gap-2 items-center">
+                        <label class="switch">
+                            <input type="checkbox" class="review-switch" data-review-id="${review.id}" ${review.is_visible ? 'checked' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                        <button class="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white toggle-btn" data-review-id="${review.id}" data-visible="${review.is_visible}">
+                            Toggle
                         </button>
                     </div>
                 </div>
