@@ -2613,7 +2613,7 @@ async function saveAdminChanges() {
             },
             results: collectResultsData(),
             contact: {
-                email: emailInput?.value || currentData?.data?.contact?.email || '',
+                email: emailInput ? emailInput.value.trim() : '',
                 formUrl: formUrlInput ? formUrlInput.value : (currentData?.data?.contact?.formUrl || ''),
                 assistantFormUrl: assistantFormUrlInput ? assistantFormUrlInput.value : (currentData?.data?.contact?.assistantFormUrl || ''),
                 phone: phoneInput?.value || currentData?.data?.contact?.phone || '',
