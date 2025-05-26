@@ -170,9 +170,19 @@ header nav {
   color: #fff;
 }
 @media (max-width: 768px) {
-  .admin-btn, #menuBtn {
-    margin-left: 0;
-    margin-right: auto;
+  header nav .flex.items-center {
+    width: 100%;
+    justify-content: space-between !important;
+  }
+  .nav-brand {
+    flex: 1 1 auto;
+    align-items: flex-start;
+  }
+  .flex.items-center > .admin-btn,
+  .flex.items-center > #menuBtn {
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    order: 2;
   }
 }
 @media (min-width: 769px) {
