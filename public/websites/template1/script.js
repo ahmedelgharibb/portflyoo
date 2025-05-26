@@ -2242,39 +2242,35 @@ function updateSiteContent(data) {
         const experienceData = data.experience || {};
         console.log('Experience data:', experienceData);
         
+        // Experience cards
+        const experienceCards = document.querySelectorAll('#experience .experience-card');
+        // 0: Years of Experience, 1: Schools, 2: Centers, 3: Online Platforms
+
         // Update schools
-        const schoolsList = document.querySelector('#experience .experience-card:nth-child(2) ul');
+        const schoolsList = experienceCards[1]?.querySelector('ul');
+        const schoolsArray = Array.isArray(experienceData.schools) ? experienceData.schools : [];
         if (schoolsList) {
-            const schoolsArray = Array.isArray(experienceData.schools) ? experienceData.schools : [];
             schoolsList.innerHTML = schoolsArray.map(school => `<li>${school}</li>`).join('');
-            console.log('Schools updated:', schoolsArray);
-            if (schoolsArray.length > 0) {
-                console.log('✅ Schools data displayed successfully:', schoolsArray);
-            } else {
-                console.error('❌ No schools data available to display.');
-            }
-        } else {
-            console.warn('Schools list element not found');
+            // Hide card if empty
+            experienceCards[1].style.display = schoolsArray.length === 0 ? 'none' : '';
         }
-        
+
         // Update centers
-        const centersList = document.querySelector('#experience .experience-card:nth-child(3) ul');
+        const centersList = experienceCards[2]?.querySelector('ul');
+        const centersArray = Array.isArray(experienceData.centers) ? experienceData.centers : [];
         if (centersList) {
-            const centersArray = Array.isArray(experienceData.centers) ? experienceData.centers : [];
             centersList.innerHTML = centersArray.map(center => `<li>${center}</li>`).join('');
-            console.log('Centers updated:', centersArray);
-        } else {
-            console.warn('Centers list element not found');
+            // Hide card if empty
+            experienceCards[2].style.display = centersArray.length === 0 ? 'none' : '';
         }
-        
+
         // Update platforms
-        const platformsList = document.querySelector('#experience .experience-card:nth-child(4) ul');
+        const platformsList = experienceCards[3]?.querySelector('ul');
+        const platformsArray = Array.isArray(experienceData.platforms) ? experienceData.platforms : [];
         if (platformsList) {
-            const platformsArray = Array.isArray(experienceData.platforms) ? experienceData.platforms : [];
             platformsList.innerHTML = platformsArray.map(platform => `<li>${platform}</li>`).join('');
-            console.log('Platforms updated:', platformsArray);
-        } else {
-            console.warn('Platforms list element not found');
+            // Hide card if empty
+            experienceCards[3].style.display = platformsArray.length === 0 ? 'none' : '';
         }
         
         // Update contact form
