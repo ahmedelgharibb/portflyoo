@@ -417,6 +417,9 @@ function displayAdminReviews(reviews) {
                     <button class="px-4 py-2 rounded ${review.is_visible ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white" onclick="toggleReviewVisibility('${review.id}', ${!review.is_visible})">
                         ${review.is_visible ? 'Hide' : 'Show'}
                     </button>
+                    <button class="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white toggle-btn" data-review-id="${review.id}" data-visible="${review.is_visible}">
+                        Toggle
+                    </button>
                 </div>
             </div>
             <p class="text-gray-600">${review.review_text}</p>
@@ -430,6 +433,45 @@ function displayAdminReviews(reviews) {
             review.rating,
             true
         );
+    });
+    // Add event listeners for new Toggle buttons
+    const toggleBtns = container.querySelectorAll('.toggle-btn');
+    toggleBtns.forEach(btn => {
+        btn.onclick = async function() {
+            const reviewId = btn.getAttribute('data-review-id');
+            const isVisible = btn.getAttribute('data-visible') === 'true';
+            btn.disabled = true;
+            btn.textContent = 'Toggling...';
+            btn.classList.add('opacity-60', 'pointer-events-none');
+            const card = btn.closest('.bg-white.rounded-lg.shadow-md.p-6.mb-4');
+            try {
+                // Optimistically update UI
+                setTimeout(() => {
+                    btn.textContent = isVisible ? 'Show' : 'Hide';
+                    btn.className = `px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white toggle-btn`;
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-60', 'pointer-events-none');
+                    btn.setAttribute('data-visible', (!isVisible).toString());
+                    // Animate out if hiding
+                    if (isVisible && card) {
+                        card.style.transition = 'opacity 0.4s, transform 0.4s';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.95)';
+                        setTimeout(() => card.remove(), 400);
+                    }
+                }, 400);
+                // Update in database
+                let reviews = await fetchAllReviewsFromTeachersWebsites();
+                reviews = reviews.map(r => r.id === reviewId ? { ...r, is_visible: !isVisible } : r);
+                await saveAllReviewsToTeachersWebsites(reviews);
+                showToast(`Review ${!isVisible ? 'shown' : 'hidden'}!`);
+            } catch (err) {
+                showToast('Failed to toggle review visibility', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Toggle';
+                btn.classList.remove('opacity-60', 'pointer-events-none');
+            }
+        };
     });
 }
 
