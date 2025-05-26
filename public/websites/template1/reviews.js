@@ -435,6 +435,16 @@ function displayAdminReviews(reviews) {
 
 // Toggle review visibility (admin)
 async function toggleReviewVisibility(reviewId, makeVisible) {
+    // Optimistically update the button UI immediately
+    const container = document.querySelector('#adminReviewsContainer');
+    if (container) {
+        const btn = container.querySelector(`button[onclick*="toggleReviewVisibility('${reviewId}'"]`);
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = makeVisible ? 'Show...' : 'Hide...';
+            btn.classList.add('opacity-60', 'pointer-events-none');
+        }
+    }
     try {
         let reviews = await fetchAllReviewsFromTeachersWebsites();
         reviews = reviews.map(r => r.id === reviewId ? { ...r, is_visible: makeVisible } : r);
@@ -445,6 +455,15 @@ async function toggleReviewVisibility(reviewId, makeVisible) {
         }
     } catch (err) {
         showToast('Failed to update review visibility', 'error');
+        // Re-enable the button if error
+        if (container) {
+            const btn = container.querySelector(`button[onclick*="toggleReviewVisibility('${reviewId}'"]`);
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = makeVisible ? 'Show' : 'Hide';
+                btn.classList.remove('opacity-60', 'pointer-events-none');
+            }
+        }
     }
 }
 
