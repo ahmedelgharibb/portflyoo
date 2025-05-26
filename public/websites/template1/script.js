@@ -2613,6 +2613,11 @@ async function saveAdminChanges() {
             }
         };
 
+        // Ensure empty arrays for empty textarea fields
+        if (schoolsInput && schoolsInput.value.trim() === '') newData.experience.schools = [];
+        if (centersInput && centersInput.value.trim() === '') newData.experience.centers = [];
+        if (platformsInput && platformsInput.value.trim() === '') newData.experience.platforms = [];
+
         console.log('Saving data:', JSON.stringify(newData, null, 2));
         
         // Update our global state
