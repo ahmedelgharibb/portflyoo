@@ -435,14 +435,19 @@ function displayAdminReviews(reviews) {
 
 // Toggle review visibility (admin)
 async function toggleReviewVisibility(reviewId, makeVisible) {
-    // Optimistically update the button UI immediately
     const container = document.querySelector('#adminReviewsContainer');
     if (container) {
         const btn = container.querySelector(`button[onclick*="toggleReviewVisibility('${reviewId}'"]`);
+        const card = btn ? btn.closest('.bg-white.rounded-lg.shadow-md.p-6.mb-4') : null;
         if (btn) {
             btn.disabled = true;
             btn.textContent = makeVisible ? 'Show...' : 'Hide...';
             btn.classList.add('opacity-60', 'pointer-events-none');
+        }
+        if (card) {
+            card.style.transition = 'opacity 0.4s, transform 0.4s';
+            card.style.opacity = '0.5';
+            card.style.transform = 'scale(0.98)';
         }
     }
     try {
@@ -450,12 +455,26 @@ async function toggleReviewVisibility(reviewId, makeVisible) {
         reviews = reviews.map(r => r.id === reviewId ? { ...r, is_visible: makeVisible } : r);
         await saveAllReviewsToTeachersWebsites(reviews);
         showToast(`Review ${makeVisible ? 'shown' : 'hidden'}!`);
-        if (document.getElementById('adminReviewsContainer')) {
-            await loadAllReviews();
+        // Animate out the card, then reload just the reviews list
+        if (container) {
+            const btn = container.querySelector(`button[onclick*="toggleReviewVisibility('${reviewId}'"]`);
+            const card = btn ? btn.closest('.bg-white.rounded-lg.shadow-md.p-6.mb-4') : null;
+            if (card) {
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    // Remove the card from DOM
+                    card.remove();
+                    // Reload the reviews list in place (no full refresh)
+                    fetchAllReviewsFromTeachersWebsites().then(displayAdminReviews);
+                }, 400);
+            } else {
+                // Fallback: reload reviews list
+                fetchAllReviewsFromTeachersWebsites().then(displayAdminReviews);
+            }
         }
     } catch (err) {
         showToast('Failed to update review visibility', 'error');
-        // Re-enable the button if error
         if (container) {
             const btn = container.querySelector(`button[onclick*="toggleReviewVisibility('${reviewId}'"]`);
             if (btn) {
