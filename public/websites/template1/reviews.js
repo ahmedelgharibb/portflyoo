@@ -413,10 +413,11 @@ function displayAdminReviews(reviews) {
                     <h4 class="text-lg font-semibold">${review.student_name}</h4>
                     <div class="star-rating" data-rating="${review.rating}"></div>
                 </div>
-                <div class="flex gap-2">
-                    <button class="px-4 py-2 rounded ${review.is_visible ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white" onclick="toggleReviewVisibility('${review.id}', ${!review.is_visible})">
-                        ${review.is_visible ? 'Hide' : 'Show'}
-                    </button>
+                <div class="flex gap-2 items-center">
+                    <label class="switch">
+                        <input type="checkbox" class="review-switch" data-review-id="${review.id}" ${review.is_visible ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
                     <button class="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white toggle-btn" data-review-id="${review.id}" data-visible="${review.is_visible}">
                         Toggle
                     </button>
@@ -470,6 +471,34 @@ function displayAdminReviews(reviews) {
                 btn.disabled = false;
                 btn.textContent = 'Toggle';
                 btn.classList.remove('opacity-60', 'pointer-events-none');
+            }
+        };
+    });
+    // Add event listeners for switches
+    const switches = container.querySelectorAll('.review-switch');
+    switches.forEach(sw => {
+        sw.onchange = async function() {
+            const reviewId = sw.getAttribute('data-review-id');
+            const makeVisible = sw.checked;
+            sw.disabled = true;
+            const card = sw.closest('.bg-white.rounded-lg.shadow-md.p-6.mb-4');
+            try {
+                // Optimistically update UI
+                if (!makeVisible && card) {
+                    card.style.transition = 'opacity 0.4s, transform 0.4s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => card.remove(), 400);
+                }
+                let reviews = await fetchAllReviewsFromTeachersWebsites();
+                reviews = reviews.map(r => r.id === reviewId ? { ...r, is_visible: makeVisible } : r);
+                await saveAllReviewsToTeachersWebsites(reviews);
+                showToast(`Review ${makeVisible ? 'shown' : 'hidden'}!`);
+            } catch (err) {
+                showToast('Failed to update review visibility', 'error');
+                sw.checked = !makeVisible;
+            } finally {
+                sw.disabled = false;
             }
         };
     });
@@ -828,4 +857,42 @@ function setActiveSortModal(btnId) {
     document.getElementById('sortLatestModal').classList.remove('active');
     document.getElementById('sortHighestModal').classList.remove('active');
     document.getElementById(btnId).classList.add('active');
-} 
+}
+
+/* Add switch styles */
+const style = document.createElement('style');
+style.innerHTML = `
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 24px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: #10b981;
+}
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+`;
+document.head.appendChild(style); 
