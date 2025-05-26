@@ -507,7 +507,7 @@ async function loadAdminReviews() {
         }
         reviews.forEach(review => {
             const reviewElement = document.createElement('div');
-            reviewElement.className = 'p-4 border-b border-gray-200 hover:bg-gray-50 transition-colors';
+            reviewElement.className = 'bg-white rounded-lg shadow-md p-6 mb-4';
             reviewElement.innerHTML = `
                 <div class="flex justify-between items-start mb-2">
                     <div>
