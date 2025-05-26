@@ -2281,7 +2281,6 @@ function updateSiteContent(data) {
         // Update contact form
         const contactData = data.contact || {};
         // Remove default fallback for formUrl and assistantFormUrl
-        contactData.email = contactData.email || 'ahmed.mahmoud@mathseducator.com';
         // Only set formUrl and assistantFormUrl if present and non-empty
         contactData.formUrl = (typeof contactData.formUrl === 'string' && contactData.formUrl.trim() !== '') ? contactData.formUrl.trim() : '';
         contactData.assistantFormUrl = (typeof contactData.assistantFormUrl === 'string' && contactData.assistantFormUrl.trim() !== '') ? contactData.assistantFormUrl.trim() : '';
