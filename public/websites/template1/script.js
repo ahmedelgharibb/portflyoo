@@ -2379,6 +2379,17 @@ function updateSiteContent(data) {
                 console.log('Assistant Application section shown: Valid assistant form URL provided.');
             }
         }
+        // Hide contact section if email is empty or only whitespace
+        const contactSection1 = document.getElementById('contact');
+        const contactSection2 = document.getElementById('contactSection');
+        const contactEmail = (contactData.email || '').trim();
+        if ((!contactEmail || contactEmail === '')) {
+            if (contactSection1) contactSection1.style.display = 'none';
+            if (contactSection2) contactSection2.style.display = 'none';
+        } else {
+            if (contactSection1) contactSection1.style.display = '';
+            if (contactSection2) contactSection2.style.display = '';
+        }
     } catch (error) {
         console.error('Error updating site content:', error);
     }
