@@ -444,10 +444,22 @@ async function toggleReviewVisibility(reviewId, makeVisible) {
             btn.textContent = makeVisible ? 'Show...' : 'Hide...';
             btn.classList.add('opacity-60', 'pointer-events-none');
         }
-        if (card) {
-            card.style.transition = 'opacity 0.4s, transform 0.4s';
-            card.style.opacity = '0.5';
-            card.style.transform = 'scale(0.98)';
+        if (card && btn) {
+            // Optimistically update the card and button instantly
+            setTimeout(() => {
+                // Update button color and text
+                btn.textContent = makeVisible ? 'Hide' : 'Show';
+                btn.className = `px-4 py-2 rounded ${makeVisible ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white`;
+                btn.disabled = false;
+                btn.classList.remove('opacity-60', 'pointer-events-none');
+                // Animate out if hiding
+                if (!makeVisible) {
+                    card.style.transition = 'opacity 0.4s, transform 0.4s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => card.remove(), 400);
+                }
+            }, 400);
         }
     }
     try {
@@ -455,33 +467,11 @@ async function toggleReviewVisibility(reviewId, makeVisible) {
         reviews = reviews.map(r => r.id === reviewId ? { ...r, is_visible: makeVisible } : r);
         await saveAllReviewsToTeachersWebsites(reviews);
         showToast(`Review ${makeVisible ? 'shown' : 'hidden'}!`);
-        // Animate out the card, then reload just the reviews list
-        if (container) {
-            const btn = container.querySelector(`button[onclick*="toggleReviewVisibility('${reviewId}'"]`);
-            const card = btn ? btn.closest('.bg-white.rounded-lg.shadow-md.p-6.mb-4') : null;
-            if (card) {
-                card.style.opacity = '0';
-                card.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    // Remove the card from DOM
-                    card.remove();
-                    // Reload the reviews list in place (no full refresh)
-                    fetchAllReviewsFromTeachersWebsites().then(displayAdminReviews);
-                }, 400);
-            } else {
-                // Fallback: reload reviews list
-                fetchAllReviewsFromTeachersWebsites().then(displayAdminReviews);
-            }
-        }
     } catch (err) {
         showToast('Failed to update review visibility', 'error');
+        // Fallback: reload reviews list if error
         if (container) {
-            const btn = container.querySelector(`button[onclick*="toggleReviewVisibility('${reviewId}'"]`);
-            if (btn) {
-                btn.disabled = false;
-                btn.textContent = makeVisible ? 'Show' : 'Hide';
-                btn.classList.remove('opacity-60', 'pointer-events-none');
-            }
+            fetchAllReviewsFromTeachersWebsites().then(displayAdminReviews);
         }
     }
 }
