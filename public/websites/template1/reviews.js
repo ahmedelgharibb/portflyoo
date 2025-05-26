@@ -381,6 +381,38 @@ async function loadAllReviews() {
     }
 }
 
+// Add this shared function to bind switch listeners
+function bindReviewSwitchListeners(container) {
+    const switches = container.querySelectorAll('.review-switch');
+    switches.forEach(sw => {
+        sw.onchange = async function() {
+            const reviewId = sw.getAttribute('data-review-id');
+            const makeVisible = sw.checked;
+            sw.disabled = true;
+            const card = sw.closest('.bg-white.rounded-lg.shadow-md.p-6.mb-4');
+            try {
+                // Update in database first
+                let reviews = await fetchAllReviewsFromTeachersWebsites();
+                reviews = reviews.map(r => r.id === reviewId ? { ...r, is_visible: makeVisible } : r);
+                await saveAllReviewsToTeachersWebsites(reviews);
+                showToast(`Review ${makeVisible ? 'shown' : 'hidden'}!`);
+                // Animate out if hiding
+                if (!makeVisible && card) {
+                    card.style.transition = 'opacity 0.4s, transform 0.4s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => card.remove(), 400);
+                }
+            } catch (err) {
+                showToast('Failed to update review visibility', 'error');
+                sw.checked = !makeVisible;
+            } finally {
+                sw.disabled = false;
+            }
+        };
+    });
+}
+
 // Admin: Display reviews in admin panel
 function displayAdminReviews(reviews) {
     const container = document.querySelector('#adminReviewsContainer');
@@ -388,9 +420,7 @@ function displayAdminReviews(reviews) {
         console.error('❌ Admin reviews container not found in displayAdminReviews!');
         return;
     }
-
     container.innerHTML = '';
-
     if (!reviews || reviews.length === 0) {
         container.innerHTML = `
             <div class="text-center text-gray-500 py-8">
@@ -403,7 +433,6 @@ function displayAdminReviews(reviews) {
         `;
         return;
     }
-
     reviews.forEach((review) => {
         const reviewElement = document.createElement('div');
         reviewElement.className = 'bg-white rounded-lg shadow-md p-6 mb-4';
@@ -434,35 +463,7 @@ function displayAdminReviews(reviews) {
             true
         );
     });
-    // Add event listeners for switches
-    const switches = container.querySelectorAll('.review-switch');
-    switches.forEach(sw => {
-        sw.onchange = async function() {
-            const reviewId = sw.getAttribute('data-review-id');
-            const makeVisible = sw.checked;
-            sw.disabled = true;
-            const card = sw.closest('.bg-white.rounded-lg.shadow-md.p-6.mb-4');
-            try {
-                // Update in database first
-                let reviews = await fetchAllReviewsFromTeachersWebsites();
-                reviews = reviews.map(r => r.id === reviewId ? { ...r, is_visible: makeVisible } : r);
-                await saveAllReviewsToTeachersWebsites(reviews);
-                showToast(`Review ${makeVisible ? 'shown' : 'hidden'}!`);
-                // Animate out if hiding
-                if (!makeVisible && card) {
-                    card.style.transition = 'opacity 0.4s, transform 0.4s';
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.95)';
-                    setTimeout(() => card.remove(), 400);
-                }
-            } catch (err) {
-                showToast('Failed to update review visibility', 'error');
-                sw.checked = !makeVisible;
-            } finally {
-                sw.disabled = false;
-            }
-        };
-    });
+    bindReviewSwitchListeners(container);
 }
 
 // Toggle review visibility (admin)
@@ -562,6 +563,7 @@ async function loadAdminReviews() {
             `;
             reviewsContainer.appendChild(reviewElement);
         });
+        bindReviewSwitchListeners(reviewsContainer);
     } catch (error) {
         console.error('Error loading reviews:', error);
         showToast('Failed to load reviews', 'error');
