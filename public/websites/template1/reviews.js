@@ -420,9 +420,6 @@ function displayAdminReviews(reviews) {
                         <input type="checkbox" class="review-switch" data-review-id="${review.id}" ${review.is_visible ? 'checked' : ''}>
                         <span class="slider"></span>
                     </label>
-                    <button class="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white toggle-btn" data-review-id="${review.id}" data-visible="${review.is_visible}">
-                        Toggle
-                    </button>
                 </div>
             </div>
             <p class="text-gray-600 mt-2">${review.review_text}</p>
@@ -437,73 +434,7 @@ function displayAdminReviews(reviews) {
             true
         );
     });
-    // Add event listeners for new Toggle buttons
-    const toggleBtns = container.querySelectorAll('.toggle-btn');
-    toggleBtns.forEach(btn => {
-        btn.onclick = async function() {
-            const reviewId = btn.getAttribute('data-review-id');
-            const isVisible = btn.getAttribute('data-visible') === 'true';
-            btn.disabled = true;
-            btn.textContent = 'Toggling...';
-            btn.classList.add('opacity-60', 'pointer-events-none');
-            const card = btn.closest('.bg-white.rounded-lg.shadow-md.p-6.mb-4');
-            try {
-                // Optimistically update UI
-                setTimeout(() => {
-                    btn.textContent = isVisible ? 'Show' : 'Hide';
-                    btn.className = `px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white toggle-btn`;
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-60', 'pointer-events-none');
-                    btn.setAttribute('data-visible', (!isVisible).toString());
-                    // Animate out if hiding
-                    if (isVisible && card) {
-                        card.style.transition = 'opacity 0.4s, transform 0.4s';
-                        card.style.opacity = '0';
-                        card.style.transform = 'scale(0.95)';
-                        setTimeout(() => card.remove(), 400);
-                    }
-                }, 400);
-                // Update in database
-                let reviews = await fetchAllReviewsFromTeachersWebsites();
-                reviews = reviews.map(r => r.id === reviewId ? { ...r, is_visible: !isVisible } : r);
-                await saveAllReviewsToTeachersWebsites(reviews);
-                showToast(`Review ${!isVisible ? 'shown' : 'hidden'}!`);
-            } catch (err) {
-                showToast('Failed to toggle review visibility', 'error');
-                btn.disabled = false;
-                btn.textContent = 'Toggle';
-                btn.classList.remove('opacity-60', 'pointer-events-none');
-            }
-        };
-    });
-    // Add event listeners for switches
-    const switches = container.querySelectorAll('.review-switch');
-    switches.forEach(sw => {
-        sw.onchange = async function() {
-            const reviewId = sw.getAttribute('data-review-id');
-            const makeVisible = sw.checked;
-            sw.disabled = true;
-            const card = sw.closest('.bg-white.rounded-lg.shadow-md.p-6.mb-4');
-            try {
-                // Optimistically update UI
-                if (!makeVisible && card) {
-                    card.style.transition = 'opacity 0.4s, transform 0.4s';
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.95)';
-                    setTimeout(() => card.remove(), 400);
-                }
-                let reviews = await fetchAllReviewsFromTeachersWebsites();
-                reviews = reviews.map(r => r.id === reviewId ? { ...r, is_visible: makeVisible } : r);
-                await saveAllReviewsToTeachersWebsites(reviews);
-                showToast(`Review ${makeVisible ? 'shown' : 'hidden'}!`);
-            } catch (err) {
-                showToast('Failed to update review visibility', 'error');
-                sw.checked = !makeVisible;
-            } finally {
-                sw.disabled = false;
-            }
-        };
-    });
+    // Remove Toggle button event listeners
 }
 
 // Toggle review visibility (admin)
@@ -594,9 +525,6 @@ async function loadAdminReviews() {
                             <input type="checkbox" class="review-switch" data-review-id="${review.id}" ${review.is_visible ? 'checked' : ''}>
                             <span class="slider"></span>
                         </label>
-                        <button class="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white toggle-btn" data-review-id="${review.id}" data-visible="${review.is_visible}">
-                            Toggle
-                        </button>
                     </div>
                 </div>
                 <p class="text-gray-600 mt-2">${review.review_text}</p>
