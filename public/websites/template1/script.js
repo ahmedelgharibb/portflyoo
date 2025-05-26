@@ -2246,13 +2246,18 @@ function updateSiteContent(data) {
         const experienceCards = document.querySelectorAll('#experience .experience-card');
         // 0: Years of Experience, 1: Schools, 2: Centers, 3: Online Platforms
 
+        // Helper to check if array is empty or only contains empty/whitespace strings
+        function isArrayEmptyOrWhitespace(arr) {
+            return !Array.isArray(arr) || arr.length === 0 || arr.every(item => !item || item.trim() === '');
+        }
+
         // Update schools
         const schoolsList = experienceCards[1]?.querySelector('ul');
         const schoolsArray = Array.isArray(experienceData.schools) ? experienceData.schools : [];
         if (schoolsList) {
             schoolsList.innerHTML = schoolsArray.map(school => `<li>${school}</li>`).join('');
-            // Hide card if empty
-            experienceCards[1].style.display = schoolsArray.length === 0 ? 'none' : '';
+            // Hide card if empty or only whitespace
+            experienceCards[1].style.display = isArrayEmptyOrWhitespace(schoolsArray) ? 'none' : '';
         }
 
         // Update centers
@@ -2260,8 +2265,8 @@ function updateSiteContent(data) {
         const centersArray = Array.isArray(experienceData.centers) ? experienceData.centers : [];
         if (centersList) {
             centersList.innerHTML = centersArray.map(center => `<li>${center}</li>`).join('');
-            // Hide card if empty
-            experienceCards[2].style.display = centersArray.length === 0 ? 'none' : '';
+            // Hide card if empty or only whitespace
+            experienceCards[2].style.display = isArrayEmptyOrWhitespace(centersArray) ? 'none' : '';
         }
 
         // Update platforms
@@ -2269,8 +2274,8 @@ function updateSiteContent(data) {
         const platformsArray = Array.isArray(experienceData.platforms) ? experienceData.platforms : [];
         if (platformsList) {
             platformsList.innerHTML = platformsArray.map(platform => `<li>${platform}</li>`).join('');
-            // Hide card if empty
-            experienceCards[3].style.display = platformsArray.length === 0 ? 'none' : '';
+            // Hide card if empty or only whitespace
+            experienceCards[3].style.display = isArrayEmptyOrWhitespace(platformsArray) ? 'none' : '';
         }
         
         // Update contact form
