@@ -2241,16 +2241,20 @@ function updateSiteContent(data) {
         // Update experience section
         const experienceData = data.experience || {};
         console.log('Experience data:', experienceData);
-        
         // Experience cards
         const experienceCards = document.querySelectorAll('#experience .experience-card');
         // 0: Years of Experience, 1: Schools, 2: Centers, 3: Online Platforms
-
-        // Helper to check if array is empty or only contains empty/whitespace strings
-        function isArrayEmptyOrWhitespace(arr) {
-            return !Array.isArray(arr) || arr.length === 0 || arr.every(item => !item || item.trim() === '');
+        // Update Years of Experience card
+        if (experienceCards[0]) {
+            const yearsValue = personalData.experience ? personalData.experience.replace(/[^\d+]/g, '') : '';
+            const yearsText = yearsValue ? yearsValue : '15+';
+            const yearsDiv = experienceCards[0].querySelector('.text-4xl');
+            if (yearsDiv) yearsDiv.textContent = yearsText;
+            const yearsDesc = experienceCards[0].querySelector('p');
+            if (yearsDesc) yearsDesc.textContent = personalData.experienceDescription || 'Dedicated to excellence in mathematics education';
         }
-
+        // ... existing code ...
+        
         // Update schools
         const schoolsList = experienceCards[1]?.querySelector('ul');
         const schoolsArray = Array.isArray(experienceData.schools) ? experienceData.schools : [];
