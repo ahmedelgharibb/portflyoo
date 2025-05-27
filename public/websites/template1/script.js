@@ -2393,6 +2393,17 @@ function updateSiteContent(data) {
             if (contactSection1) contactSection1.style.display = '';
             if (contactSection2) contactSection2.style.display = '';
         }
+        // Hide hero Contact Me button if email is empty
+        const heroContactBtn = document.getElementById('heroContactBtn');
+        if (heroContactBtn) {
+            if (!contactEmail || contactEmail === '') {
+                heroContactBtn.style.display = 'none';
+                heroContactBtn.setAttribute('tabindex', '-1');
+            } else {
+                heroContactBtn.style.display = '';
+                heroContactBtn.removeAttribute('tabindex');
+            }
+        }
     } catch (error) {
         console.error('Error updating site content:', error);
     }
