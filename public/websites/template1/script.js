@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 openAdminPanel();
             });
         } else {
-            adminBtn.innerHTML = '<i class="fas fa-lock text-lg mr-2"></i><span>Admin Login</span>';
+            adminBtn.innerHTML = '<i class="fas fa-lock text-lg"></i>';
             adminBtn.style.display = 'flex';
             adminBtn.style.alignItems = 'center';
             adminBtn.style.color = '';
