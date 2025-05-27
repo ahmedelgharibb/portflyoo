@@ -805,5 +805,25 @@ header nav {
     gap: 0.75rem;
   }
 }
+
+.admin-btn i {
+  color: inherit !important;
+  font-size: 1.1rem;
+  margin-right: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+.admin-btn span {
+  color: inherit;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+.admin-btn {
+  color: #6B7280;
+}
+.admin-btn:hover {
+  color: var(--primary);
+}
   
   
