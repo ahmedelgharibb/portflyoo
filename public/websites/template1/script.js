@@ -2530,18 +2530,43 @@ function updateResultsChart(subjects) {
 // Save admin changes to Supabase and localStorage
 async function saveAdminChanges() {
     console.log('Save changes function called');
-    
     // Show loading state on button
     const saveBtn = document.getElementById('saveChangesBtn');
     if (!saveBtn) {
         console.error('Save button not found in DOM');
         return;
     }
-    
     console.log('Save button found:', saveBtn);
     const originalBtnText = saveBtn.innerHTML;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
     saveBtn.disabled = true;
+
+    // Validation
+    let validationErrors = [];
+    if (emailInput && emailInput.value.trim() && !isValidEmail(emailInput.value.trim())) {
+        validationErrors.push('Please enter a valid email address.');
+    }
+    if (formUrlInput && formUrlInput.value.trim() && !isValidUrl(formUrlInput.value.trim())) {
+        validationErrors.push('Please enter a valid registration form URL.');
+    }
+    if (assistantFormUrlInput && assistantFormUrlInput.value.trim() && !isValidUrl(assistantFormUrlInput.value.trim())) {
+        validationErrors.push('Please enter a valid assistant application form URL.');
+    }
+    if (phoneInput && phoneInput.value.trim() && !isValidPhone(phoneInput.value.trim())) {
+        validationErrors.push('Please enter a valid phone number.');
+    }
+    if (nameInput && !nameInput.value.trim()) {
+        validationErrors.push('Name is required.');
+    }
+    if (titleInput && !titleInput.value.trim()) {
+        validationErrors.push('Title is required.');
+    }
+    if (validationErrors.length > 0) {
+        showAdminAlert('error', validationErrors.join('<br>'));
+        saveBtn.innerHTML = originalBtnText;
+        saveBtn.disabled = false;
+        return;
+    }
 
     try {
         const currentSiteId = await getCurrentSiteId();
@@ -4097,3 +4122,22 @@ function maybeHidePreloader() {
             return !Array.isArray(arr) || arr.length === 0 || arr.every(item => !item || item.trim() === '');
         }
         // ... existing code ...
+
+// Helper function to validate email
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+// Helper function to validate URL
+function isValidUrl(url) {
+    try {
+        if (!url) return true; // Allow empty (not required)
+        new URL(url);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+// Helper function to validate phone (simple)
+function isValidPhone(phone) {
+    return !phone || /^[\d\s\-+()]{7,}$/.test(phone);
+}
