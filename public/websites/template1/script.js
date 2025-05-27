@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 openAdminPanel();
             });
         } else {
-            adminBtn.textContent = 'Admin Login';
+            adminBtn.innerHTML = '<i class="fas fa-lock"></i> <span class="ml-2">Admin Login</span>';
             adminBtn.addEventListener('click', function(e) {
                 console.log('Admin button clicked (not logged in) - showing login form');
                 e.preventDefault();
