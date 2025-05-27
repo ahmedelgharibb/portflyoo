@@ -1466,7 +1466,7 @@ async function openAdminPanel() {
                 
                 dataSource = 'supabase';
                 console.log('✅ Data loaded for admin panel from Supabase successfully');
-                showAdminAlert('success', 'Data loaded successfully from Supabase!');
+                // showAdminAlert('success', 'Data loaded successfully from Supabase!');
             } else {
                 console.log('No data found in Supabase for admin panel');
                 showAdminAlert('error', 'No data found in database. Using local storage or default values.');
