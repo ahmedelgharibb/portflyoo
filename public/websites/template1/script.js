@@ -773,6 +773,17 @@ function initDOMElements() {
     
     // Other DOM elements initialization can go here
     // ...
+    
+    // Add new password change elements
+    const showChangePasswordBtn = document.getElementById('showChangePasswordBtn');
+    const changePasswordSection = document.getElementById('changePasswordSection');
+    const hidePasswordSection = document.getElementById('hidePasswordSection');
+    const changePasswordFormSection = document.getElementById('changePasswordFormSection');
+    if (showChangePasswordBtn && changePasswordSection && hidePasswordSection && changePasswordFormSection) {
+        showChangePasswordBtn.addEventListener('click', showChangePasswordSection);
+        hidePasswordSection.addEventListener('click', hideChangePasswordSection);
+        changePasswordFormSection.addEventListener('submit', handlePasswordChange);
+    }
 }
 
 // Close menu when clicking outside
@@ -1994,12 +2005,11 @@ function initDOMElements() {
     const showChangePasswordBtn = document.getElementById('showChangePasswordBtn');
     const changePasswordSection = document.getElementById('changePasswordSection');
     const hidePasswordSection = document.getElementById('hidePasswordSection');
-    const changePasswordForm = document.getElementById('changePasswordForm');
-    
-    if (showChangePasswordBtn && changePasswordSection && hidePasswordSection && changePasswordForm) {
+    const changePasswordFormSection = document.getElementById('changePasswordFormSection');
+    if (showChangePasswordBtn && changePasswordSection && hidePasswordSection && changePasswordFormSection) {
         showChangePasswordBtn.addEventListener('click', showChangePasswordSection);
         hidePasswordSection.addEventListener('click', hideChangePasswordSection);
-        changePasswordForm.addEventListener('submit', handlePasswordChange);
+        changePasswordFormSection.addEventListener('submit', handlePasswordChange);
     }
     
     console.log('DOM elements initialized');
@@ -2033,7 +2043,7 @@ function hideChangePasswordSection() {
     if (changePasswordSection) {
         changePasswordSection.classList.add('hidden');
         // Reset the form
-        document.getElementById('changePasswordForm').reset();
+        document.getElementById('changePasswordFormSection').reset();
     }
 }
 
