@@ -75,14 +75,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (adminBtn) {
         console.log('Setting up admin button click handler');
         if (isLoggedIn) {
-            adminBtn.innerHTML = '<i class="fas fa-lock"></i>';
+            adminBtn.innerHTML = '<i class="fas fa-lock text-lg" style="color: var(--primary-color); vertical-align: middle;"></i>';
             adminBtn.addEventListener('click', function(e) {
                 console.log('Admin button clicked (logged in) - opening panel');
                 e.preventDefault();
                 openAdminPanel();
             });
         } else {
-            adminBtn.innerHTML = '<i class="fas fa-lock"></i> <span class="ml-2">Admin Login</span>';
+            adminBtn.innerHTML = '<i class="fas fa-lock text-lg" style="color: var(--primary-color); vertical-align: middle; margin-right: 0.5rem;"></i> <span class="ml-2 align-middle">Admin Login</span>';
             adminBtn.addEventListener('click', function(e) {
                 console.log('Admin button clicked (not logged in) - showing login form');
                 e.preventDefault();
