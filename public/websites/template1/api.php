@@ -31,12 +31,29 @@ if ($method === 'POST') {
 
 // Define the data file path
 $dataFile = 'siteData.json';
+// Path to password file
+$passwordFile = 'password.txt';
+
+// Helper to get current password
+function getCurrentPassword() {
+    global $passwordFile;
+    if (!file_exists($passwordFile)) {
+        file_put_contents($passwordFile, 'admin123');
+        return 'admin123';
+    }
+    return trim(file_get_contents($passwordFile));
+}
+
+// Helper to set new password
+function setNewPassword($newPassword) {
+    global $passwordFile;
+    file_put_contents($passwordFile, $newPassword);
+}
 
 // Function to verify admin password
 function verifyPassword($password) {
     error_log("Verifying password: $password");
-    // In a real app, use a secure hashing mechanism
-    return $password === 'admin123';
+    return $password === getCurrentPassword();
 }
 
 // Route API requests
@@ -59,6 +76,21 @@ switch ($action) {
         
         echo json_encode($response);
         error_log("Login response: " . json_encode($response));
+        break;
+
+    case 'changePassword':
+        $oldPassword = $_POST['oldPassword'] ?? '';
+        $newPassword = $_POST['newPassword'] ?? '';
+        if (!verifyPassword($oldPassword)) {
+            echo json_encode(['success' => false, 'message' => 'Current password is incorrect.']);
+            break;
+        }
+        if (!$newPassword) {
+            echo json_encode(['success' => false, 'message' => 'New password cannot be empty.']);
+            break;
+        }
+        setNewPassword($newPassword);
+        echo json_encode(['success' => true, 'message' => 'Password changed successfully.']);
         break;
 
     case 'getData':

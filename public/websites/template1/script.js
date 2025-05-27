@@ -2041,30 +2041,26 @@ function hideChangePasswordSection() {
 async function handlePasswordChange(e) {
     e.preventDefault();
     console.log('Handling password change');
-    
     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
-    
-    // Validate inputs
     if (!currentPassword || !newPassword) {
         showAdminAlert('error', 'Please fill in all password fields.');
         return;
     }
-    
-    // Verify current password
-    if (currentPassword !== 'admin123') {
-        showAdminAlert('error', 'Current password is incorrect.');
-        return;
-    }
-    
     try {
-        // In a real application, you would make an API call to update the password
-        // For this demo, we'll simulate the password change
-        showAdminAlert('success', 'Password changed successfully!');
-        hideChangePasswordSection();
-        
-        // Reset the form
-        document.getElementById('changePasswordForm').reset();
+        const res = await fetch('api.php?action=changePassword', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ oldPassword: currentPassword, newPassword })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showAdminAlert('success', 'Password changed successfully!');
+            hideChangePasswordSection();
+            document.getElementById('changePasswordFormSection').reset();
+        } else {
+            showAdminAlert('error', data.message || 'Failed to change password.');
+        }
     } catch (error) {
         console.error('Error changing password:', error);
         showAdminAlert('error', 'Failed to change password. Please try again.');
