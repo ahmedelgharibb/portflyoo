@@ -78,21 +78,6 @@ switch ($action) {
         error_log("Login response: " . json_encode($response));
         break;
 
-    case 'changePassword':
-        $oldPassword = $_POST['oldPassword'] ?? '';
-        $newPassword = $_POST['newPassword'] ?? '';
-        if (!verifyPassword($oldPassword)) {
-            echo json_encode(['success' => false, 'message' => 'Current password is incorrect.']);
-            break;
-        }
-        if (!$newPassword) {
-            echo json_encode(['success' => false, 'message' => 'New password cannot be empty.']);
-            break;
-        }
-        setNewPassword($newPassword);
-        echo json_encode(['success' => true, 'message' => 'Password changed successfully.']);
-        break;
-
     case 'getData':
         // Get site data
         if (file_exists($dataFile)) {
