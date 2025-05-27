@@ -2541,6 +2541,36 @@ async function saveAdminChanges() {
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
     saveBtn.disabled = true;
 
+    // Move input element declarations above validation
+    const nameInput = document.getElementById('admin-name');
+    const titleInput = document.getElementById('admin-title');
+    const subtitleInput = document.getElementById('admin-subtitle');
+    const heroHeadingInput = document.getElementById('admin-hero-heading');
+    const experienceInput = document.getElementById('admin-experience');
+    const philosophyInput = document.getElementById('admin-philosophy');
+    const qualificationsInput = document.getElementById('admin-qualifications');
+    const schoolsInput = document.getElementById('admin-schools');
+    const centersInput = document.getElementById('admin-centers');
+    const platformsInput = document.getElementById('admin-platforms');
+    const emailInput = document.getElementById('admin-email');
+    const formUrlInput = document.getElementById('admin-form-url');
+    const assistantFormUrlInput = document.getElementById('admin-assistant-form-url');
+    const phoneInput = document.getElementById('admin-phone');
+    const contactMessageInput = document.getElementById('admin-contact-message');
+
+    // Check for missing required elements and show popout error if any are missing
+    const missingInputs = [];
+    if (!emailInput) missingInputs.push('Email');
+    if (!formUrlInput) missingInputs.push('Registration Form URL');
+    if (!nameInput) missingInputs.push('Name');
+    if (!titleInput) missingInputs.push('Title');
+    if (missingInputs.length > 0) {
+        showAdminAlert('error', `Missing required input fields: ${missingInputs.join(', ')}. Please reload the page or contact support.`);
+        saveBtn.innerHTML = originalBtnText;
+        saveBtn.disabled = false;
+        return;
+    }
+
     // Validation
     let validationErrors = [];
     if (emailInput && emailInput.value.trim() && !isValidEmail(emailInput.value.trim())) {
