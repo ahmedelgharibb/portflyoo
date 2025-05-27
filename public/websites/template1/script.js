@@ -4079,3 +4079,10 @@ function maybeHidePreloader() {
         hidePreloader();
     }
 }
+
+// ... existing code ...
+        // Helper to check if array is empty or only contains empty/whitespace strings
+        function isArrayEmptyOrWhitespace(arr) {
+            return !Array.isArray(arr) || arr.length === 0 || arr.every(item => !item || item.trim() === '');
+        }
+        // ... existing code ...
