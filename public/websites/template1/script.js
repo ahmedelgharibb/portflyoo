@@ -2593,6 +2593,17 @@ async function saveAdminChanges() {
     }
     if (validationErrors.length > 0) {
         showAdminAlert('error', validationErrors.join('<br>'));
+        // Scroll the save button into view and shake it for visibility
+        if (saveBtn) {
+            saveBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            saveBtn.classList.add('shake');
+            setTimeout(() => saveBtn.classList.remove('shake'), 600);
+        }
+        // Move the alert container just above the save button for better visibility
+        const alertContainer = document.getElementById('adminAlertContainer');
+        if (alertContainer && saveBtn && saveBtn.parentNode) {
+            saveBtn.parentNode.insertBefore(alertContainer, saveBtn);
+        }
         saveBtn.innerHTML = originalBtnText;
         saveBtn.disabled = false;
         return;
@@ -4170,4 +4181,22 @@ function isValidUrl(url) {
 // Helper function to validate phone (simple)
 function isValidPhone(phone) {
     return !phone || /^[\d\s\-+()]{7,}$/.test(phone);
+}
+
+// Add shake animation CSS if not present
+if (!document.getElementById('shake-animation-style')) {
+    const style = document.createElement('style');
+    style.id = 'shake-animation-style';
+    style.textContent = `
+        .shake {
+            animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translateX(-2px); }
+            20%, 80% { transform: translateX(4px); }
+            30%, 50%, 70% { transform: translateX(-8px); }
+            40%, 60% { transform: translateX(8px); }
+        }
+    `;
+    document.head.appendChild(style);
 }
