@@ -779,10 +779,12 @@ function initDOMElements() {
     const changePasswordSection = document.getElementById('changePasswordSection');
     const hidePasswordSection = document.getElementById('hidePasswordSection');
     const changePasswordFormSection = document.getElementById('changePasswordFormSection');
-    if (showChangePasswordBtn && changePasswordSection && hidePasswordSection && changePasswordFormSection) {
+    const changePasswordSectionBtn = document.getElementById('changePasswordSectionBtn');
+    if (showChangePasswordBtn && changePasswordSection && hidePasswordSection && changePasswordFormSection && changePasswordSectionBtn) {
         showChangePasswordBtn.addEventListener('click', showChangePasswordSection);
         hidePasswordSection.addEventListener('click', hideChangePasswordSection);
-        changePasswordFormSection.addEventListener('submit', handlePasswordChange);
+        // Remove submit event, use button click instead
+        changePasswordSectionBtn.addEventListener('click', handlePasswordChange);
     }
 }
 
@@ -2006,10 +2008,12 @@ function initDOMElements() {
     const changePasswordSection = document.getElementById('changePasswordSection');
     const hidePasswordSection = document.getElementById('hidePasswordSection');
     const changePasswordFormSection = document.getElementById('changePasswordFormSection');
-    if (showChangePasswordBtn && changePasswordSection && hidePasswordSection && changePasswordFormSection) {
+    const changePasswordSectionBtn = document.getElementById('changePasswordSectionBtn');
+    if (showChangePasswordBtn && changePasswordSection && hidePasswordSection && changePasswordFormSection && changePasswordSectionBtn) {
         showChangePasswordBtn.addEventListener('click', showChangePasswordSection);
         hidePasswordSection.addEventListener('click', hideChangePasswordSection);
-        changePasswordFormSection.addEventListener('submit', handlePasswordChange);
+        // Remove submit event, use button click instead
+        changePasswordSectionBtn.addEventListener('click', handlePasswordChange);
     }
     
     console.log('DOM elements initialized');
