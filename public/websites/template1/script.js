@@ -175,6 +175,18 @@ document.addEventListener('DOMContentLoaded', async function() {
             showAdminAlert('error', error.message || 'Failed to remove image. Please try again.');
         }
     }
+
+    try {
+        // Fetch site data from backend
+        const data = await loadSiteData();
+        // If data is nested under .data, flatten it
+        const siteContent = data.data || data;
+        updateSiteContent(siteContent);
+    } catch (err) {
+        console.error('Failed to load site data:', err);
+        // Fallback: use default data
+        initializeWithDefaultData();
+    }
 });
 
     
