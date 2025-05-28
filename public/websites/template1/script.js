@@ -157,6 +157,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             showAdminAlert('error', error.message || 'Failed to remove image. Please try again.');
         }
     }
+}
     
     // Event Listeners
     heroUploadBtn.addEventListener('click', () => heroImageInput.click());
