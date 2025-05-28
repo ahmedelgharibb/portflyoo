@@ -139,7 +139,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log('Setting up close admin panel button click handler');
         closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
     }
-                .upsert([{ data: websiteData }]);
             if (updateError) throw updateError;
 
             // Hide preview
