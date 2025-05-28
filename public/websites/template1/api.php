@@ -31,6 +31,8 @@ if ($method === 'POST') {
 
 // Define the data file path
 $dataFile = 'siteData.json';
+// Path to reviews file
+$reviewsFile = 'reviews.json';
 // Path to password file
 $passwordFile = 'password.txt';
 
@@ -148,6 +150,28 @@ switch ($action) {
                 'success' => false,
                 'message' => 'No data provided'
             ]);
+        }
+        break;
+
+    case 'getReviews':
+        // Get all reviews
+        if (file_exists($reviewsFile)) {
+            $reviews = json_decode(file_get_contents($reviewsFile), true);
+            if (!is_array($reviews)) $reviews = [];
+        } else {
+            $reviews = [];
+        }
+        echo json_encode(['reviews' => $reviews]);
+        break;
+
+    case 'saveReviews':
+        // Save all reviews
+        $reviews = $_POST['reviews'] ?? null;
+        if ($reviews && is_array($reviews)) {
+            file_put_contents($reviewsFile, json_encode($reviews, JSON_PRETTY_PRINT));
+            echo json_encode(['success' => true, 'message' => 'Reviews saved successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'No reviews provided']);
         }
         break;
 
