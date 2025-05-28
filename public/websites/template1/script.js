@@ -227,6 +227,12 @@ document.addEventListener('DOMContentLoaded', async function() {
                 const response = await fetch('https://portflyo.online/api/api?action=getData');
                 if (!response.ok) throw new Error('Failed to fetch site data');
                 const currentData = await response.json();
+                console.log('Fetched site data:', currentData);
+                try {
+                  updateSiteContent(currentData);
+                } catch (e) {
+                  console.error('Error updating site content:', e);
+                }
                 const websiteData = currentData?.data || currentData;
 
                 // Make sure heroPreview and aboutPreview are defined
