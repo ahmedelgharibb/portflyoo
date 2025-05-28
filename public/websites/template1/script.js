@@ -3629,3 +3629,43 @@ async function saveSiteData(data) {
     const result = await response.json();
     if (!result.success) throw new Error(result.message || 'Failed to save site data');
 }
+
+// Drag and drop setup for image upload zones
+function setupDragAndDrop(dropZone, fileInput, type) {
+    if (!dropZone || !fileInput) return;
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.classList.add('border-blue-500', 'dark:border-blue-400');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.classList.remove('border-blue-500', 'dark:border-blue-400');
+        });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            fileInput.dispatchEvent(new Event('change'));
+        }
+    });
+
+    // Also allow clicking the drop zone to open the file dialog
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            fileInput.click();
+        }
+    });
+}
