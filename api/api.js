@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   switch (action) {
     case 'getData': {
       const { data, error } = await supabase
-        .from('site_data')
+        .from('teachers_websites')
         .select('*')
         .single();
       if (error) return res.status(500).json({ error: error.message });
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     }
     case 'saveData': {
       const { data, error } = await supabase
-        .from('site_data')
+        .from('teachers_websites')
         .upsert([req.body.data]);
       if (error) return res.status(500).json({ error: error.message });
       res.status(200).json({ success: true, message: 'Data saved successfully' });
