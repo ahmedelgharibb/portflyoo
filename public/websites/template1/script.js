@@ -61,87 +61,106 @@ async function getCurrentSiteId() {
 // Once the document is ready
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Document ready, initializing...');
-    
+
     // Initialize DOM elements
     initDOMElements();
-    
-    // Check if user is logged in (using sessionStorage for session-only login)
-    isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+
+    // Define elements (example selectors)
+    const adminBtn = document.querySelector('#adminBtn');
+    const adminBtnMobile = document.querySelector('#adminBtnMobile');
+    const adminLoginForm = document.querySelector('#adminLoginForm');
+    const cancelLoginBtn = document.querySelector('#cancelLoginBtn');
+    const exitLoginBtn = document.querySelector('#exitLoginBtn');
+    const closeAdminPanelBtn = document.querySelector('#closeAdminPanelBtn');
+    const heroPreview = document.querySelector('#heroPreview');
+    const aboutPreview = document.querySelector('#aboutPreview');
+
+    let isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
     console.log('Login status:', isLoggedIn ? 'Logged in' : 'Not logged in');
-    
-    // Set up the admin button functionality based on login status
+
+    // Set up admin button
     if (adminBtn) {
         console.log('Setting up admin button click handler');
-        if (isLoggedIn) {
-            adminBtn.innerHTML = '<i class="fas fa-lock text-lg"></i>';
-            adminBtn.addEventListener('click', function(e) {
+        adminBtn.innerHTML = '<i class="fas fa-lock text-lg"></i>';
+        adminBtn.style.display = 'flex';
+        adminBtn.style.alignItems = 'center';
+
+        adminBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (isLoggedIn) {
                 console.log('Admin button clicked (logged in) - opening panel');
-                e.preventDefault();
                 openAdminPanel();
-            });
-        } else {
-            adminBtn.innerHTML = '<i class="fas fa-lock text-lg"></i>';
-            adminBtn.style.display = 'flex';
-            adminBtn.style.alignItems = 'center';
-            adminBtn.style.color = '';
-            adminBtn.addEventListener('click', function(e) {
+            } else {
                 console.log('Admin button clicked (not logged in) - showing login form');
-                e.preventDefault();
                 showLoginForm();
-            });
-        }
+            }
+        });
     } else {
         console.warn('Admin button not found in the DOM');
     }
-    
-    // Mobile admin button functionality
+
+    // Mobile admin button
     if (adminBtnMobile) {
         console.log('Setting up mobile admin button click handler');
-        if (isLoggedIn) {
-            adminBtnMobile.addEventListener('click', function(e) {
+        adminBtnMobile.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMenu();
+            if (isLoggedIn) {
                 console.log('Mobile admin button clicked (logged in) - opening panel');
-                e.preventDefault();
-                closeMenu();
                 openAdminPanel();
-            });
-        } else {
-            adminBtnMobile.addEventListener('click', function(e) {
+            } else {
                 console.log('Mobile admin button clicked (not logged in) - showing login form');
-                e.preventDefault();
-                closeMenu();
                 showLoginForm();
-            });
-        }
+            }
+        });
     } else {
         console.warn('Mobile admin button not found in the DOM');
     }
-    
-    // Set up admin login form event listener
+
+    // Admin login form
     if (adminLoginForm) {
         console.log('Setting up admin login form submit handler');
         adminLoginForm.addEventListener('submit', handleAdminLogin);
     }
-    
-    // Set up cancel login button
+
+    // Cancel login button
     if (cancelLoginBtn) {
         console.log('Setting up cancel login button click handler');
         cancelLoginBtn.addEventListener('click', hideAdminLogin);
     }
-    
-    // Set up exit login button
+
+    // Exit login button
     if (exitLoginBtn) {
         console.log('Setting up exit login button click handler');
         exitLoginBtn.addEventListener('click', hideAdminLogin);
     }
-    
-    // Set up close admin panel button
+
+    // Close admin panel button
     if (closeAdminPanelBtn) {
         console.log('Setting up close admin panel button click handler');
         closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
     }
+
+    // The following logic seems misplaced:
+    /*
+    if (updateError) throw updateError;
+
+    if (type === 'hero') {
+        heroPreview.classList.add('hidden');
+    } else {
+        aboutPreview.classList.add('hidden');
+    }
+
+    showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image removed successfully`);
+
+    updateSiteContent(websiteData);
+    */
+
+    // This should probably go inside a function like removeImage(), example:
+    async function removeImage(type, updateError, websiteData) {
+        try {
             if (updateError) throw updateError;
 
-            // Hide preview
             if (type === 'hero') {
                 heroPreview.classList.add('hidden');
             } else {
@@ -149,14 +168,15 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
 
             showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image removed successfully`);
-            
-            // Update the website content
+
             updateSiteContent(websiteData);
         } catch (error) {
             console.error('Error removing image:', error);
             showAdminAlert('error', error.message || 'Failed to remove image. Please try again.');
         }
-}
+    }
+});
+
     
     // Event Listeners
     heroUploadBtn.addEventListener('click', () => heroImageInput.click());
@@ -208,24 +228,37 @@ document.addEventListener('DOMContentLoaded', async function() {
                     .select('*')
                     .order('created_at', { ascending: false })
                     .limit(1);
-
+    
                 if (fetchError) throw fetchError;
-
+    
                 if (currentData && currentData.length > 0) {
                     const websiteData = currentData[0].data;
-                    
+    
+                    // Make sure heroPreview and aboutPreview are defined
+                    const heroPreview = document.getElementById('heroPreview'); // or adjust your selector
+                    const aboutPreview = document.getElementById('aboutPreview'); // or adjust your selector
+    
+                    if (!heroPreview || !aboutPreview) {
+                        console.warn('Preview elements not found in the DOM');
+                        return;
+                    }
+    
                     // Initialize hero image
                     if (websiteData.heroImage) {
                         const heroImg = heroPreview.querySelector('img');
-                        heroImg.src = websiteData.heroImage;
-                        heroPreview.classList.remove('hidden');
+                        if (heroImg) {
+                            heroImg.src = websiteData.heroImage;
+                            heroPreview.classList.remove('hidden');
+                        }
                     }
-
+    
                     // Initialize about image
                     if (websiteData.aboutImage) {
                         const aboutImg = aboutPreview.querySelector('img');
-                        aboutImg.src = websiteData.aboutImage;
-                        aboutPreview.classList.remove('hidden');
+                        if (aboutImg) {
+                            aboutImg.src = websiteData.aboutImage;
+                            aboutPreview.classList.remove('hidden');
+                        }
                     }
                 }
             } catch (error) {
@@ -233,7 +266,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         }
     });
-});
+    
 
 // Function to restore data to Supabase when it's missing
 async function restoreDataToSupabase() {
@@ -484,27 +517,41 @@ document.addEventListener('DOMContentLoaded', function() {
 // Initialize DOM Elements function
 function initDOMElements() {
     console.log('Initializing DOM elements');
-    
-    // Mobile Menu Elements
-                    const increment = target / (duration / 16);
 
-                    const updateCount = () => {
-                        if (count < target) {
-                            count += increment;
-                            value.textContent = Math.ceil(count) + '+';
-                        } else {
-                            value.textContent = target + '+';
-                        }
-                    };
+    // Assuming you have a stats section and elements you want to animate
+    const statsSection = document.querySelector('.stats-section'); // Adjust selector as needed
+    const value = document.querySelector('.value'); // Adjust selector as needed
+    const target = 100; // Example target value
+    const duration = 2000; // Example duration (in ms)
+    let count = 0;
 
-                    const countInterval = setInterval(() => {
-                        if (count < target) {
-                            updateCount();
-                        } else {
-                            clearInterval(countInterval);
-                        }
-                    }, 16);
-                });
+    const increment = target / (duration / 16);
+
+    const updateCount = () => {
+        if (count < target) {
+            count += increment;
+            value.textContent = Math.ceil(count) + '+';
+        } else {
+            value.textContent = target + '+';
+        }
+    };
+
+    const options = {
+        root: null,
+        threshold: 0.5, // Example threshold for IntersectionObserver
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const countInterval = setInterval(() => {
+                    if (count < target) {
+                        updateCount();
+                    } else {
+                        clearInterval(countInterval);
+                    }
+                }, 16);
+
                 observer.unobserve(statsSection);
             }
         });
