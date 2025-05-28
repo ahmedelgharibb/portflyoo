@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (document.getElementById('adminPanel')) {
             try {
                 // Fetch data from backend API
-                const response = await fetch('api.php?action=getData');
+                const response = await fetch('/api/api?action=getData');
                 if (!response.ok) throw new Error('Failed to fetch site data');
                 const currentData = await response.json();
                 const websiteData = currentData?.data || currentData;
@@ -269,7 +269,7 @@ async function restoreDataToSupabase() {
     console.log('About to save this data to Supabase:', JSON.stringify(siteData, null, 2));
     try {
         // Save this data to backend API
-        const response = await fetch('api.php?action=saveData', {
+        const response = await fetch('/api/api?action=saveData', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ data: siteData })
@@ -277,7 +277,7 @@ async function restoreDataToSupabase() {
         const result = await response.json();
         if (!result.success) throw new Error(result.message || 'Failed to save data');
         // Verify the data was saved by fetching it back
-        const verifyResponse = await fetch('api.php?action=getData');
+        const verifyResponse = await fetch('/api/api?action=getData');
         if (!verifyResponse.ok) throw new Error('Failed to verify saved data');
         const verifyData = await verifyResponse.json();
         if (!verifyData) throw new Error('Data verification failed: No data found after save');
@@ -964,7 +964,7 @@ async function openAdminPanel() {
         let adminData;
         try {
             // Fetch data from backend API
-            const response = await fetch('api.php?action=getData');
+            const response = await fetch('/api/api?action=getData');
             if (!response.ok) throw new Error('Failed to fetch site data');
             const data = await response.json();
             if (data && (data.data || data.personal || data.personalInfo)) {
@@ -1533,7 +1533,7 @@ async function handlePasswordChange(e) {
         return;
     }
     try {
-        const res = await fetch('api.php?action=changePassword', {
+        const res = await fetch('/api/api?action=changePassword', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ oldPassword: currentPassword, newPassword })
@@ -2094,7 +2094,7 @@ async function saveAdminChanges() {
 
     try {
         // Fetch current data from backend API
-        const response = await fetch('api.php?action=getData');
+        const response = await fetch('/api/api?action=getData');
         if (!response.ok) throw new Error('Failed to fetch current data');
         const currentData = await response.json();
 
@@ -2198,7 +2198,7 @@ async function saveAdminChanges() {
         applyTheme(currentColor, currentMode);
 
         // Save to backend API
-        const saveResponse = await fetch('api.php?action=saveData', {
+        const saveResponse = await fetch('/api/api?action=saveData', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ data: newData })
@@ -3283,7 +3283,7 @@ aboutDropZone.dataset.type = 'about';
 async function saveWebsiteData() {
     try {
         // Fetch current data from backend API
-        const response = await fetch('api.php?action=getData');
+        const response = await fetch('/api/api?action=getData');
         if (!response.ok) throw new Error('Failed to fetch current data');
         const currentData = await response.json();
         const dataToSave = {
@@ -3292,7 +3292,7 @@ async function saveWebsiteData() {
             aboutImage: websiteData.aboutImage || currentData?.data?.aboutImage
         };
         // Save to backend API
-        const saveResponse = await fetch('api.php?action=saveData', {
+        const saveResponse = await fetch('/api/api?action=saveData', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ data: dataToSave })
@@ -3473,14 +3473,14 @@ if (!document.getElementById('shake-animation-style')) {
 
 // Example: Load site data from backend
 async function loadSiteData() {
-    const response = await fetch('api.php?action=getData');
+    const response = await fetch('/api/api?action=getData');
     if (!response.ok) throw new Error('Failed to load site data');
     return await response.json();
 }
 
 // Example: Save site data to backend
 async function saveSiteData(data) {
-    const response = await fetch('api.php?action=saveData', {
+    const response = await fetch('/api/api?action=saveData', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data })

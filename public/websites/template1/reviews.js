@@ -86,7 +86,7 @@ async function getCurrentSiteId() {
 
 // Helper to fetch all reviews from backend
 async function fetchAllReviewsFromTeachersWebsites() {
-    const response = await fetch('api.php?action=getReviews');
+    const response = await fetch('/api/api?action=getReviews');
     if (!response.ok) throw new Error('Failed to fetch reviews');
     const data = await response.json();
     return Array.isArray(data.reviews) ? data.reviews : [];
@@ -94,7 +94,7 @@ async function fetchAllReviewsFromTeachersWebsites() {
 
 // Helper to save all reviews to backend
 async function saveAllReviewsToTeachersWebsites(reviews) {
-    const response = await fetch('api.php?action=saveReviews', {
+    const response = await fetch('/api/api?action=saveReviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reviews })
