@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (document.getElementById('adminPanel')) {
             try {
                 // Fetch data from backend API
-                const response = await fetch('/api/api?action=getData');
+                const response = await fetch('https://portflyo.online/api/api?action=getData');
                 if (!response.ok) throw new Error('Failed to fetch site data');
                 const currentData = await response.json();
                 const websiteData = currentData?.data || currentData;
