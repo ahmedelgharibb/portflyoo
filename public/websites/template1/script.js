@@ -156,7 +156,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             console.error('Error removing image:', error);
             showAdminAlert('error', error.message || 'Failed to remove image. Please try again.');
         }
-    }
 }
     
     // Event Listeners
