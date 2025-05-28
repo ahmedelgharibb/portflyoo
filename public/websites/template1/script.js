@@ -140,7 +140,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
     }
                 .upsert([{ data: websiteData }]);
-
             if (updateError) throw updateError;
 
             // Hide preview
