@@ -1,25 +1,4 @@
-// Initialize Supabase client if not already initialized
-if (!window.supabaseClient) {
-    window.supabaseClient = window.supabase.createClient(
-        'https://bqpchhitrbyfleqpyydz.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ'
-    );
-}
-
-// Enable RLS bypass for public access
-async function enablePublicAccess() {
-    try {
-        const { data, error } = await window.supabaseClient.rpc('enable_public_access');
-        if (error) {
-            console.error('Error enabling public access:', error);
-            return false;
-        }
-        return true;
-    } catch (error) {
-        console.error('Error calling enable_public_access:', error);
-        return false;
-    }
-}
+// [SECURITY] Removed all Supabase client initialization and logic. All review operations now use backend API endpoints only.
 
 // Star rating component
 class StarRating {
@@ -105,33 +84,23 @@ async function getCurrentSiteId() {
     }
 }
 
-// Helper to fetch all reviews from teachers_websites
+// Helper to fetch all reviews from backend
 async function fetchAllReviewsFromTeachersWebsites() {
-    const currentSiteId = await getCurrentSiteId();
-    console.log('Fetching reviews for id:', currentSiteId);
-    const { data, error } = await window.supabaseClient
-        .from('teachers_websites')
-        .select('data')
-        .eq('id', currentSiteId)
-        .single();
-    if (error) throw error;
-    return (data && data.data && Array.isArray(data.data.reviews)) ? data.data.reviews : [];
+    const response = await fetch('api.php?action=getReviews');
+    if (!response.ok) throw new Error('Failed to fetch reviews');
+    const data = await response.json();
+    return Array.isArray(data.reviews) ? data.reviews : [];
 }
 
-// Helper to save all reviews to teachers_websites
+// Helper to save all reviews to backend
 async function saveAllReviewsToTeachersWebsites(reviews) {
-    const { data: row, error: fetchError } = await window.supabaseClient
-        .from('teachers_websites')
-        .select('data')
-        .eq('id', 1)
-        .single();
-    if (fetchError) throw fetchError;
-    const newData = { ...(row?.data || {}), reviews };
-    console.log('Upserting to table: teachers_websites [operation: upsert]');
-    const { error } = await window.supabaseClient
-        .from('teachers_websites')
-        .upsert({ id: 1, data: newData }, { onConflict: 'id' });
-    if (error) throw error;
+    const response = await fetch('api.php?action=saveReviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reviews })
+    });
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message || 'Failed to save reviews');
 }
 
 // Submit review (add to reviews array)
@@ -139,9 +108,6 @@ async function submitReview(event) {
     event.preventDefault();
     console.log('🚀 Starting review submission process...'); // Console logging
     console.log('----------------------------------------');
-
-    // Enable public access before submitting
-    await enablePublicAccess();
 
     // Get the form from the event target
     const form = event.target.closest('form') || event.target;
@@ -357,9 +323,6 @@ async function loadAllReviews() {
     `;
 
     try {
-        // Enable RLS bypass for admin access
-        await enablePublicAccess();
-
         console.log('📡 Sending request to Supabase...');
         console.log('Query: SELECT * FROM reviews ORDER BY created_at DESC');
         
@@ -594,15 +557,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Initializing review system...');
     console.log('----------------------------------------');
 
-    // Initialize Supabase client if not already initialized
-    if (!window.supabaseClient) {
-        console.log('📡 Initializing Supabase client...');
-        window.supabaseClient = window.supabase.createClient(
-            'https://bqpchhitrbyfleqpyydz.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ'
-        );
-    }
-
     // Initialize star rating for new review form
     const ratingContainer = document.querySelector('#ratingContainer');
     if (ratingContainer) {
@@ -619,8 +573,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const adminContainer = document.querySelector('#adminReviewsContainer');
     if (adminContainer) {
         console.log('👩‍💼 Admin panel detected, loading all reviews...');
-        // Enable public access before loading reviews
-        await enablePublicAccess();
         await loadAllReviews();
     } else {
         console.log('👥 Public page detected, loading approved reviews...');

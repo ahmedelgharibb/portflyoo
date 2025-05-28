@@ -38,9 +38,7 @@ let isAdminLoggedIn = false;
 let websiteData = {}; // Object to store website data including images
 
 // Supabase setup
-const SUPABASE_URL = 'https://bqpchhitrbyfleqpyydz.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxcGNoaGl0cmJ5ZmxlcXB5eWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTU4ODgsImV4cCI6MjA1OTAzMTg4OH0.Yworu_EPLewJJGBFnW5W7GUsNZIONc3qOEJMTwJMzzQ';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// [SECURITY] All Supabase client usage and keys removed. All data operations now use backend API endpoints (api.php). No direct DB access or secrets in frontend.
 
 // Helper to load site_id from site.config.json
 async function getCurrentSiteId() {
@@ -4212,4 +4210,24 @@ if (!document.getElementById('shake-animation-style')) {
         }
     `;
     document.head.appendChild(style);
+}
+
+// [SECURITY] All data load/save logic now uses backend API endpoints (api.php). No Supabase logic or secrets remain in frontend.
+
+// Example: Load site data from backend
+async function loadSiteData() {
+    const response = await fetch('api.php?action=getData');
+    if (!response.ok) throw new Error('Failed to load site data');
+    return await response.json();
+}
+
+// Example: Save site data to backend
+async function saveSiteData(data) {
+    const response = await fetch('api.php?action=saveData', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data })
+    });
+    const result = await response.json();
+    if (!result.success) throw new Error(result.message || 'Failed to save site data');
 }
