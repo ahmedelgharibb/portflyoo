@@ -223,42 +223,36 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.addEventListener('DOMContentLoaded', async () => {
         if (document.getElementById('adminPanel')) {
             try {
-                const { data: currentData, error: fetchError } = await supabase
-                    .from('teachers_websites')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(1);
-    
-                if (fetchError) throw fetchError;
-    
-                if (currentData && currentData.length > 0) {
-                    const websiteData = currentData[0].data;
-    
-                    // Make sure heroPreview and aboutPreview are defined
-                    const heroPreview = document.getElementById('heroPreview'); // or adjust your selector
-                    const aboutPreview = document.getElementById('aboutPreview'); // or adjust your selector
-    
-                    if (!heroPreview || !aboutPreview) {
-                        console.warn('Preview elements not found in the DOM');
-                        return;
+                // Fetch data from backend API
+                const response = await fetch('api.php?action=getData');
+                if (!response.ok) throw new Error('Failed to fetch site data');
+                const currentData = await response.json();
+                const websiteData = currentData?.data || currentData;
+
+                // Make sure heroPreview and aboutPreview are defined
+                const heroPreview = document.getElementById('heroPreview');
+                const aboutPreview = document.getElementById('aboutPreview');
+
+                if (!heroPreview || !aboutPreview) {
+                    console.warn('Preview elements not found in the DOM');
+                    return;
+                }
+
+                // Initialize hero image
+                if (websiteData.heroImage) {
+                    const heroImg = heroPreview.querySelector('img');
+                    if (heroImg) {
+                        heroImg.src = websiteData.heroImage;
+                        heroPreview.classList.remove('hidden');
                     }
-    
-                    // Initialize hero image
-                    if (websiteData.heroImage) {
-                        const heroImg = heroPreview.querySelector('img');
-                        if (heroImg) {
-                            heroImg.src = websiteData.heroImage;
-                            heroPreview.classList.remove('hidden');
-                        }
-                    }
-    
-                    // Initialize about image
-                    if (websiteData.aboutImage) {
-                        const aboutImg = aboutPreview.querySelector('img');
-                        if (aboutImg) {
-                            aboutImg.src = websiteData.aboutImage;
-                            aboutPreview.classList.remove('hidden');
-                        }
+                }
+
+                // Initialize about image
+                if (websiteData.aboutImage) {
+                    const aboutImg = aboutPreview.querySelector('img');
+                    if (aboutImg) {
+                        aboutImg.src = websiteData.aboutImage;
+                        aboutPreview.classList.remove('hidden');
                     }
                 }
             } catch (error) {
@@ -271,55 +265,28 @@ document.addEventListener('DOMContentLoaded', async function() {
 // Function to restore data to Supabase when it's missing
 async function restoreDataToSupabase() {
     console.log('Restoring default data to Supabase');
-    
-    // First initialize with default data for the site
     initializeWithDefaultData();
-    
-    // Log what we're about to save
     console.log('About to save this data to Supabase:', JSON.stringify(siteData, null, 2));
-    
-    // Then save this data to Supabase with proper error handling
     try {
-        // Use upsert with onConflict to handle existing records
-        const { data, error } = await supabase
-            .from('teachers_websites')
-            .upsert({ 
-                id: 1, 
-                data: siteData 
-            }, { 
-                onConflict: 'id',
-                returning: 'minimal'
-            });
-        
-        if (error) {
-            console.error('Supabase upsert error:', error);
-            throw new Error(`Supabase error: ${error.message}`);
-        }
-        
+        // Save this data to backend API
+        const response = await fetch('api.php?action=saveData', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: siteData })
+        });
+        const result = await response.json();
+        if (!result.success) throw new Error(result.message || 'Failed to save data');
         // Verify the data was saved by fetching it back
-        const { data: verifyData, error: verifyError } = await supabase
-            .from('teachers_websites')
-            .select('data')
-            .eq('id', 1)
-            .single();
-            
-        if (verifyError) {
-            console.error('Failed to verify data was saved:', verifyError);
-            throw new Error(`Verification error: ${verifyError.message}`);
-        }
-        
-        if (!verifyData || !verifyData.data) {
-            console.error('Data verification failed: No data found after save');
-            throw new Error('Data verification failed: No data found after save');
-        }
-        
+        const verifyResponse = await fetch('api.php?action=getData');
+        if (!verifyResponse.ok) throw new Error('Failed to verify saved data');
+        const verifyData = await verifyResponse.json();
+        if (!verifyData) throw new Error('Data verification failed: No data found after save');
         console.log('✅ Data verification successful:', verifyData);
         console.log('✅ Data successfully restored to Supabase!');
         alert('Data has been restored to the database successfully!');
     } catch (restoreError) {
         console.error('Exception during data restoration:', restoreError);
         alert('Error restoring data to Supabase: ' + restoreError.message);
-        
         // Fall back to localStorage only
         try {
             localStorage.setItem('siteData', JSON.stringify(siteData));
@@ -981,61 +948,37 @@ function showAdminAlert(type, message, inLoginModal = false, autoHideDelay = 0) 
 // Open admin panel and load data
 async function openAdminPanel() {
     console.log('Opening admin panel, login status:', isLoggedIn);
-    
     if (!isLoggedIn) {
         console.error('Attempt to open admin panel when not logged in');
         showLoginForm();
         return;
     }
-    
     if (!adminPanel) {
         console.error('Admin panel element not found');
         return;
     }
-    
-    // Show the admin panel
     adminPanel.classList.remove('hidden');
-    
-    // Make sure body doesn't scroll when panel is open
     document.body.classList.add('overflow-hidden');
-    
     try {
-        // Load admin data
         let dataSource = 'unknown';
-        // Try to load from Supabase
         let adminData;
         try {
-            const currentSiteId = await getCurrentSiteId();
-            console.log('Fetching data for id:', currentSiteId);
-            const { data, error } = await supabase
-                .from('teachers_websites')
-                .select('*')
-                .eq('id', currentSiteId)
-                .single();
-                
-            console.log('Supabase query response:', data, error);
-            
-            if (error) {
-                console.error('Error loading from Supabase:', error);
-                showAdminAlert('error', 'Failed to load data from database. Using local data instead.');
-            } else if (data && data.data) {
-                console.log('✅ Raw data from Supabase:', data);
-                // Use the data property which contains the actual site content
-                adminData = data.data;
-                
-                dataSource = 'supabase';
-                console.log('✅ Data loaded for admin panel from Supabase successfully');
-                // showAdminAlert('success', 'Data loaded successfully from Supabase!');
+            // Fetch data from backend API
+            const response = await fetch('api.php?action=getData');
+            if (!response.ok) throw new Error('Failed to fetch site data');
+            const data = await response.json();
+            if (data && (data.data || data.personal || data.personalInfo)) {
+                adminData = data.data || data;
+                dataSource = 'api';
+                console.log('✅ Data loaded for admin panel from API successfully');
             } else {
-                console.log('No data found in Supabase for admin panel');
+                console.log('No data found in API for admin panel');
                 showAdminAlert('error', 'No data found in database. Using local storage or default values.');
             }
         } catch (error) {
-            console.error('Error in admin data loading from Supabase:', error);
+            console.error('Error in admin data loading from API:', error);
             showAdminAlert('error', `Database error: ${error.message}. Using local data instead.`);
         }
-        
-        // If Supabase failed, try localStorage
         if (!adminData) {
             try {
                 const localData = localStorage.getItem('siteData');
@@ -1049,8 +992,6 @@ async function openAdminPanel() {
                 console.error('Error loading from localStorage:', localError);
             }
         }
-        
-        // If both failed, use default data
         if (!adminData) {
             adminData = {
                 personal: {
@@ -1106,25 +1047,13 @@ async function openAdminPanel() {
             console.log('✅ Default data used for admin panel');
             showAdminAlert('info', 'Using default data - no saved data found');
         }
-        
-        // Store the data globally
         siteData = adminData;
         console.log(`Admin data loaded from ${dataSource}:`, adminData);
-        
-        // Populate the admin form with the loaded data
         populateAdminForm(adminData);
-        
-        // Make sure we have the saveChangesBtn properly initialized
         saveChangesBtn = document.getElementById('saveChangesBtn');
-        
-        // Always attach event listener to save changes button when opening admin panel
         if (saveChangesBtn) {
-            // Remove any existing event listeners to prevent duplicates
             saveChangesBtn.removeEventListener('click', saveAdminChanges);
-            
-            // Add fresh event listener
             saveChangesBtn.addEventListener('click', saveAdminChanges);
-            // Hide the admin loader when the save changes button event listener is attached
             const adminLoader = document.getElementById('adminLoader');
             if (adminLoader) {
                 adminLoader.classList.add('hide');
@@ -1133,7 +1062,6 @@ async function openAdminPanel() {
         } else {
             console.error('Save changes button not found in DOM when opening admin panel');
         }
-        
     } catch (error) {
         console.error('Error opening admin panel:', error);
         showAdminAlert('error', 'Failed to load admin panel: ' + error.message);
@@ -2083,10 +2011,9 @@ function updateResultsChart(subjects) {
     }
 }
 
-// Save admin changes to Supabase and localStorage
+// Save admin changes to backend API and localStorage
 async function saveAdminChanges() {
     console.log('Save changes function called');
-    // Show loading state on button
     const saveBtn = document.getElementById('saveChangesBtn');
     if (!saveBtn) {
         console.error('Save button not found in DOM');
@@ -2166,21 +2093,10 @@ async function saveAdminChanges() {
     }
 
     try {
-        const currentSiteId = await getCurrentSiteId();
-        console.log('Fetching current data from Supabase...');
-        // Get current data to preserve existing values
-        const { data: currentData, error: fetchError } = await supabase
-            .from('teachers_websites')
-            .select('*')
-            .eq('id', currentSiteId)
-            .single();
-
-        if (fetchError) {
-            console.error('Error fetching current data:', fetchError);
-            throw fetchError;
-        }
-
-        console.log('Current data fetched successfully:', currentData);
+        // Fetch current data from backend API
+        const response = await fetch('api.php?action=getData');
+        if (!response.ok) throw new Error('Failed to fetch current data');
+        const currentData = await response.json();
 
         // Initialize all input elements with correct IDs
         const nameInput = document.getElementById('admin-name');
@@ -2281,67 +2197,16 @@ async function saveAdminChanges() {
         // Apply the theme immediately
         applyTheme(currentColor, currentMode);
 
-        // Save to Supabase with verification
-        let supabaseSaveSuccess = false;
-        try {
-            console.log('Attempting to save to Supabase...');
-            const { error } = await supabase
-                .from('teachers_websites')
-                .upsert({ id: currentSiteId, data: newData }, { onConflict: 'id' });
-
-            if (error) {
-                console.error('Supabase upsert error:', error);
-                throw new Error(`Supabase error: ${error.message}`);
-            }
-            
-            // Verify the data was saved correctly
-            console.log('Verifying Supabase data after save...');
-            const { data: verifyData, error: verifyError } = await supabase
-                .from('teachers_websites')
-                .select('data')
-                .eq('id', currentSiteId)
-                .single();
-                
-            if (verifyError) {
-                console.error('Failed to verify data was saved:', verifyError);
-                throw new Error(`Verification error: ${verifyError.message}`);
-            }
-            
-            if (!verifyData || !verifyData.data) {
-                console.error('Data verification failed: No data found after save');
-                throw new Error('Data verification failed: No data found after save');
-            }
-            
-            // Log the verification results
-            console.log('✅ Supabase data verification successful');
-            console.log('Saved data structure:', JSON.stringify(verifyData.data, null, 2));
-            console.log('Saved results specifically:', JSON.stringify(verifyData.data.results, null, 2));
-            
-            supabaseSaveSuccess = true;
-            console.log('✅ Data saved to Supabase successfully');
-        } catch (error) {
-            console.error('Error saving to Supabase:', error);
-            showAdminAlert('error', `Failed to save to database: ${error.message}`);
-        }
-
-        // If Supabase save failed, try localStorage
-        if (!supabaseSaveSuccess) {
-            try {
-                localStorage.setItem('siteData', JSON.stringify(newData));
-                console.log('✅ Data saved to localStorage as fallback');
-                showAdminAlert('success', 'Data saved to local storage successfully');
-            } catch (localError) {
-                console.error('Failed to save to localStorage:', localError);
-                showAdminAlert('error', 'Failed to save data to any storage location');
-            }
-        } else {
-            showAdminAlert('success', 'Changes saved successfully!');
-        }
-
-        // Update the site content with the new data
+        // Save to backend API
+        const saveResponse = await fetch('api.php?action=saveData', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: newData })
+        });
+        const saveResult = await saveResponse.json();
+        if (!saveResult.success) throw new Error(saveResult.message || 'Failed to save data');
+        showAdminAlert('success', 'Changes saved successfully!');
         updateSiteContent(newData);
-        
-        // Force update the results chart if it exists
         if (window.resultsChart) {
             updateResultsChart(newData.results);
         }
@@ -2349,7 +2214,6 @@ async function saveAdminChanges() {
         console.error('Error saving changes:', error);
         showAdminAlert('error', `Failed to save changes: ${error.message}`);
     } finally {
-        // Restore button state
         saveBtn.innerHTML = originalBtnText;
         saveBtn.disabled = false;
     }
@@ -3415,31 +3279,26 @@ function handleDrop(e) {
 heroDropZone.dataset.type = 'hero';
 aboutDropZone.dataset.type = 'about';
 
-// Save website data to Supabase
+// Save website data to backend API
 async function saveWebsiteData() {
     try {
-        const currentSiteId = await getCurrentSiteId();
-        // First get current data to make sure we don't overwrite other fields
-        const { data: currentData, error: fetchError } = await supabase
-            .from('teachers_websites')
-            .select('*')
-            .eq('id', currentSiteId)
-            .single();
-        if (fetchError) throw fetchError;
-        // Prepare new data object, preserving existing data
+        // Fetch current data from backend API
+        const response = await fetch('api.php?action=getData');
+        if (!response.ok) throw new Error('Failed to fetch current data');
+        const currentData = await response.json();
         const dataToSave = {
             ...(currentData?.data || {}),
             heroImage: websiteData.heroImage || currentData?.data?.heroImage,
             aboutImage: websiteData.aboutImage || currentData?.data?.aboutImage
         };
-        // Save to Supabase
-        const { error: saveError } = await supabase
-            .from('teachers_websites')
-            .upsert({ 
-                id: currentSiteId, 
-                data: dataToSave 
-            }, { onConflict: 'id' });
-        if (saveError) throw saveError;
+        // Save to backend API
+        const saveResponse = await fetch('api.php?action=saveData', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: dataToSave })
+        });
+        const saveResult = await saveResponse.json();
+        if (!saveResult.success) throw new Error(saveResult.message || 'Failed to save image data');
         console.log('Website data saved successfully');
         return true;
     } catch (error) {
