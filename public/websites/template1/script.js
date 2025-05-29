@@ -979,13 +979,14 @@ async function openAdminPanel() {
             const response = await fetch('/api/api?action=getData');
             if (!response.ok) throw new Error('Failed to fetch site data');
             const data = await response.json();
-            if (data && (data.data || data.personal || data.personalInfo)) {
-                adminData = data.data || data;
+            // Accept any non-error API response as valid
+            if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+                adminData = data;
                 dataSource = 'api';
                 console.log('✅ Data loaded for admin panel from API successfully');
             } else {
-                console.log('No data found in API for admin panel');
-                showAdminAlert('error', 'No data found in database. Using local storage or default values.');
+                console.log('No usable data found in API for admin panel');
+                showAdminAlert('error', 'No usable data found in database. Using local storage or default values.');
             }
         } catch (error) {
             console.error('Error in admin data loading from API:', error);
