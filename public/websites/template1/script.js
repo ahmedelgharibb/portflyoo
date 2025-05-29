@@ -1574,38 +1574,27 @@ async function handlePasswordChange(e) {
 function updateSiteContent(data) {
     try {
         console.log('Updating site content with data:', data);
-        // Use personal data for name, title, subtitle, heroHeading, etc.
+
         const personalData = data.personal || data.personalInfo || {};
-        // Prefer root-level fields if present, otherwise use personalData
         const name = data.name || personalData.name || 'Teacher Name';
         const title = data.title || personalData.title || 'Teacher Title';
         const subtitle = data.subtitle || personalData.subtitle || '';
         const heroHeading = data.heroHeading || personalData.heroHeading || 'Inspiring Minds Through <span class="text-blue-600">Education</span>';
-        const heroDesc = data.heroDescription || personalData.heroDescription || title;
+        const heroDescText = data.heroDescription || personalData.heroDescription || title;
         const qualifications = data.qualifications || personalData.qualifications || [];
         const philosophy = data.philosophy || personalData.philosophy || '';
+
         // Update name and title in nav
-        document.querySelectorAll('.nav-brand-name').forEach(el => {
-            el.textContent = name;
-        });
-        document.querySelectorAll('.nav-brand-subtitle').forEach(el => {
-            el.textContent = title;
-        });
+        document.querySelectorAll('.nav-brand-name').forEach(el => el.textContent = name);
+        document.querySelectorAll('.nav-brand-subtitle').forEach(el => el.textContent = subtitle || title);
+
         // Update hero section
         const heroTitleEl = document.querySelector('.hero-title');
-        if (heroTitleEl) {
-            heroTitleEl.innerHTML = heroHeading;
-        }
+        if (heroTitleEl) heroTitleEl.innerHTML = heroHeading;
+
         const heroDescEl = document.querySelector('#hero p.text-base, #hero p.text-lg');
-        if (heroDescEl) {
-            heroDescEl.textContent = heroDesc;
-        }
-        // Update subtitle/role in navigation if present
-        if (subtitle) {
-            document.querySelectorAll('.nav-brand-subtitle').forEach(el => {
-                el.textContent = subtitle;
-            });
-        }
+        if (heroDescEl) heroDescEl.textContent = heroDescText;
+
         // Update about section qualifications
         const qualsList = document.querySelector('#about ul');
         if (qualsList && Array.isArray(qualifications)) {
@@ -1616,285 +1605,142 @@ function updateSiteContent(data) {
                 </li>
             `).join('');
         }
+
         // Update teaching philosophy text
         const philosophyText = document.querySelector('#about p.text-gray-600, #about p.mb-8');
         if (philosophyText) {
-            if (philosophy && philosophy.trim()) {
+            if (philosophy.trim()) {
                 philosophyText.textContent = philosophy;
                 philosophyText.style.display = '';
             } else {
                 philosophyText.style.display = 'none';
             }
         }
-        // Hide Teaching Philosophy title if there is no philosophy
-        const philosophyTitle = Array.from(document.querySelectorAll('#about h2, #about h3')).find(el => el.textContent.trim().toLowerCase() === 'teaching philosophy');
+
+        // Hide Teaching Philosophy title if missing
+        const philosophyTitle = Array.from(document.querySelectorAll('#about h2, #about h3'))
+            .find(el => el.textContent.trim().toLowerCase() === 'teaching philosophy');
         if (philosophyTitle) {
-            if (!philosophy || !philosophy.trim()) {
-                philosophyTitle.style.display = 'none';
-                console.log('Teaching Philosophy title hidden: No teaching philosophy data found in the database.');
-            } else {
-                philosophyTitle.style.display = '';
-            }
+            philosophyTitle.style.display = philosophy.trim() ? '' : 'none';
         }
-        // ... keep the rest of updateSiteContent unchanged ...
-        // Update hero images if they exist
+
+        // Update hero images
         if (data.heroImage) {
             const heroImg = document.querySelector('#heroImage');
             const heroImgMobile = document.querySelector('#heroImageMobile');
-            if (heroImg) {
-                heroImg.src = data.heroImage;
-                heroImg.classList.remove('hidden');
-            }
-            if (heroImgMobile) {
-                heroImgMobile.src = data.heroImage;
-                heroImgMobile.classList.remove('hidden');
-            }
+            if (heroImg) { heroImg.src = data.heroImage; heroImg.classList.remove('hidden'); }
+            if (heroImgMobile) { heroImgMobile.src = data.heroImage; heroImgMobile.classList.remove('hidden'); }
         }
-        
-        // Update about image if it exists
+
+        // Update about image
         if (data.aboutImage) {
             const aboutImg = document.querySelector('#aboutImage');
-            if (aboutImg) {
-                aboutImg.src = data.aboutImage;
-                aboutImg.classList.remove('hidden');
-            }
+            if (aboutImg) { aboutImg.src = data.aboutImage; aboutImg.classList.remove('hidden'); }
         }
-        
+
         // Update page title
-        if (personalData.name && personalData.title) {
-            document.title = `${personalData.name} - ${personalData.title}`;
-        }
-        
-        // Update name in navigation
-        const navName = document.querySelector('.nav-brand-name');
-        if (navName && personalData.name) {
-            navName.textContent = personalData.name;
-        }
-        
-        // Update subtitle/role in navigation
-        if (subtitle) {
-            document.querySelectorAll('.nav-brand-subtitle').forEach(el => {
-                el.textContent = subtitle;
-            });
-        }
-        
-        // Update hero description
-        const heroDesc = document.querySelector('#hero p.text-base, #hero p.text-lg');
-        if (heroDesc && personalData.title) {
-            heroDesc.textContent = personalData.title;
-        }
-        
-        // Update teaching philosophy text
-        const philosophyText = document.querySelector('#about p.text-gray-600, #about p.mb-8');
-        if (philosophyText) {
-            if (personalData.philosophy && personalData.philosophy.trim()) {
-                philosophyText.textContent = personalData.philosophy;
-                philosophyText.style.display = '';
-            } else {
-                philosophyText.style.display = 'none';
-            }
-        }
-        // Hide Teaching Philosophy title if there is no philosophy or the content is empty/whitespace
-        const philosophyTitle = Array.from(document.querySelectorAll('#about h2, #about h3')).find(el => el.textContent.trim().toLowerCase() === 'teaching philosophy');
-        if (philosophyTitle) {
-            if (!personalData.philosophy || !personalData.philosophy.trim()) {
-                philosophyTitle.style.display = 'none';
-                console.log('Teaching Philosophy title hidden: No teaching philosophy data found in the database.');
-            } else {
-                philosophyTitle.style.display = '';
-            }
-        }
-        
-        // Update about section qualifications
-        const qualsList = document.querySelector('#about ul');
-        if (qualsList && Array.isArray(personalData.qualifications)) {
-            qualsList.innerHTML = personalData.qualifications.map(qual => `
-                <li class="flex items-center">
-                    <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
-                    <span>${qual}</span>
-                </li>
-            `).join('');
-        }
-        // Hide Qualifications title if there are no qualifications or the list is empty/whitespace
-        const qualificationsTitle = document.querySelector('#about h3');
-        if (qualsList && qualificationsTitle) {
-            const hasContent = Array.from(qualsList.children).some(li => li.textContent.trim() !== '');
-            if (!hasContent) {
-                qualificationsTitle.style.display = 'none';
-                console.log('Qualifications title hidden: No qualifications data found in the database.');
-            }
-        }
-        
+        if (name && title) document.title = `${name} - ${title}`;
+
         // Update experience section
         const experienceData = data.experience || {};
         console.log('Experience data:', experienceData);
-        // Experience cards
+
         const experienceCards = document.querySelectorAll('#experience .experience-card');
-        // 0: Years of Experience, 1: Schools, 2: Centers, 3: Online Platforms
-        // Update Years of Experience card
+
         if (experienceCards[0]) {
-            const yearsValue = personalData.experience ? personalData.experience.replace(/[^\d+]/g, '') : '';
-            const yearsText = yearsValue ? yearsValue : '15+';
+            const yearsValue = (personalData.experience || '').replace(/[^\d+]/g, '') || '15+';
             const yearsDiv = experienceCards[0].querySelector('.text-4xl');
-            if (yearsDiv) yearsDiv.textContent = yearsText;
+            if (yearsDiv) yearsDiv.textContent = yearsValue;
             const yearsDesc = experienceCards[0].querySelector('p');
             if (yearsDesc) yearsDesc.textContent = personalData.experienceDescription || 'Dedicated to excellence in mathematics education';
         }
-        // ... existing code ...
-        
-        // Update schools
-        const schoolsList = experienceCards[1]?.querySelector('ul');
-        const schoolsArray = Array.isArray(experienceData.schools) ? experienceData.schools : [];
-        if (schoolsList) {
-            schoolsList.innerHTML = schoolsArray.map(school => `<li>${school}</li>`).join('');
-            // Hide card if empty or only whitespace
-            experienceCards[1].style.display = isArrayEmptyOrWhitespace(schoolsArray) ? 'none' : '';
-        }
 
-        // Update centers
-        const centersList = experienceCards[2]?.querySelector('ul');
-        const centersArray = Array.isArray(experienceData.centers) ? experienceData.centers : [];
-        if (centersList) {
-            centersList.innerHTML = centersArray.map(center => `<li>${center}</li>`).join('');
-            // Hide card if empty or only whitespace
-            experienceCards[2].style.display = isArrayEmptyOrWhitespace(centersArray) ? 'none' : '';
-        }
+        const updateList = (cardIndex, items) => {
+            const card = experienceCards[cardIndex];
+            if (card) {
+                const list = card.querySelector('ul');
+                if (list) list.innerHTML = items.map(i => `<li>${i}</li>`).join('');
+                card.style.display = items.length ? '' : 'none';
+            }
+        };
 
-        // Update platforms
-        const platformsList = experienceCards[3]?.querySelector('ul');
-        const platformsArray = Array.isArray(experienceData.platforms) ? experienceData.platforms : [];
-        if (platformsList) {
-            platformsList.innerHTML = platformsArray.map(platform => `<li>${platform}</li>`).join('');
-            // Hide card if empty or only whitespace
-            experienceCards[3].style.display = isArrayEmptyOrWhitespace(platformsArray) ? 'none' : '';
-        }
-        
-        // Update contact form
+        updateList(1, experienceData.schools || []);
+        updateList(2, experienceData.centers || []);
+        updateList(3, experienceData.platforms || []);
+
+        // Update contact info
         const contactData = data.contact || {};
-        // Remove default fallback for formUrl and assistantFormUrl
-        // Only set formUrl and assistantFormUrl if present and non-empty
-        contactData.formUrl = (typeof contactData.formUrl === 'string' && contactData.formUrl.trim() !== '') ? contactData.formUrl.trim() : '';
-        contactData.assistantFormUrl = (typeof contactData.assistantFormUrl === 'string' && contactData.assistantFormUrl.trim() !== '') ? contactData.assistantFormUrl.trim() : '';
-        contactData.phone = contactData.phone || '+1 123-456-7890';
-        contactData.contactMessage = contactData.contactMessage || 'Thank you for your interest in my teaching services.';
-        
+        const contactPhone = contactData.phone || '+1 123-456-7890';
+        const contactMessage = contactData.contactMessage || 'Thank you for your interest in my teaching services.';
+
         const contactPhoneEl = document.querySelector('.contact-phone');
-        if (contactPhoneEl && contactData && contactData.phone) {
-            contactPhoneEl.textContent = contactData.phone;
-        }
+        if (contactPhoneEl) contactPhoneEl.textContent = contactPhone;
+
         const contactMessageEl = document.querySelector('.contact-message');
-        if (contactMessageEl && contactData && contactData.contactMessage) {
-            contactMessageEl.textContent = contactData.contactMessage;
-        }
-        
-        // Apply theme if it exists
+        if (contactMessageEl) contactMessageEl.textContent = contactMessage;
+
+        // Apply theme
         if (data.theme) {
             const { color = 'blue', mode = 'light' } = data.theme;
-            console.log(`Applying theme from content update: ${color} color, ${mode} mode`);
+            console.log(`Applying theme: ${color}, ${mode}`);
             applyTheme(color, mode);
-        } else {
-            const colorRadio = document.querySelector('input[name="theme-color"]:checked');
-            const modeRadio = document.querySelector('input[name="theme-mode"]:checked');
-            const currentColor = colorRadio ? colorRadio.value : 'blue';
-            const currentMode = modeRadio ? modeRadio.value : 'light';
-            console.log(`No theme data found, using current radio button values: ${currentColor} color, ${currentMode} mode`);
-            applyTheme(currentColor, currentMode);
         }
-        
-        console.log('✅ Site content updated successfully');
-        console.log('✅ All data loaded and shown to the user successfully.');
-        window.mainDataLoaded = true;
-        maybeHidePreloader();
-        // Hide Subjects Taught section if no subjects
-        const subjectsSection = document.getElementById('subjects');
-        if (subjectsSection) {
-            if (!data.subjects || data.subjects.length === 0) {
-                subjectsSection.style.display = 'none';
-            } else {
-                subjectsSection.style.display = '';
-            }
-        }
-        // Hide Student Performance section if no results
-        const resultsSection = document.getElementById('results');
-        if (resultsSection) {
-            if (!data.results || data.results.length === 0) {
-                resultsSection.style.display = 'none';
-            } else {
-                resultsSection.style.display = '';
-            }
-        }
-        // Register for Classes section: hide section if formUrl is empty
-        const registerSection = document.getElementById('register');
-        const registerBtn = registerSection ? registerSection.querySelector('a.btn-primary') : null;
-        const formUrl = (data.contact && typeof data.contact.formUrl === 'string') ? data.contact.formUrl.trim() : '';
-        if (registerSection) {
-            if (!formUrl || formUrl === '') {
-                registerSection.style.display = 'none';
-                if (registerBtn) {
-                    registerBtn.href = '#';
-                    registerBtn.setAttribute('tabindex', '-1');
-                    registerBtn.style.pointerEvents = 'none';
+
+        // Handle sections (subjects, results, register, assistant, contact)
+        const hideIfEmpty = (sectionId, items) => {
+            const section = document.getElementById(sectionId);
+            if (section) section.style.display = (items && items.length) ? '' : 'none';
+        };
+
+        hideIfEmpty('subjects', data.subjects);
+        hideIfEmpty('results', data.results);
+
+        const toggleSectionByUrl = (sectionId, buttonSelector, url) => {
+            const section = document.getElementById(sectionId);
+            const btn = section ? section.querySelector(buttonSelector) : null;
+            if (section) {
+                if (url) {
+                    section.style.display = '';
+                    if (btn) { btn.href = url; btn.removeAttribute('tabindex'); btn.style.pointerEvents = ''; }
+                } else {
+                    section.style.display = 'none';
+                    if (btn) { btn.href = '#'; btn.setAttribute('tabindex', '-1'); btn.style.pointerEvents = 'none'; }
                 }
-                console.log('Register for Classes section hidden: No form URL provided.');
-            } else {
-                registerSection.style.display = '';
-                if (registerBtn) {
-                    registerBtn.href = formUrl;
-                    registerBtn.removeAttribute('tabindex');
-                    registerBtn.style.pointerEvents = '';
-                }
-                console.log('Register for Classes section shown: Valid form URL provided.');
             }
-        }
-        // Assistant Application section: hide section if assistantFormUrl is empty
-        const assistantSection = document.getElementById('assistant');
-        const assistantBtn = assistantSection ? assistantSection.querySelector('a.btn-assistant-apply') : null;
-        const assistantFormUrl = (data.contact && typeof data.contact.assistantFormUrl === 'string') ? data.contact.assistantFormUrl.trim() : '';
-        if (assistantSection) {
-            if (!assistantFormUrl || assistantFormUrl === '') {
-                assistantSection.style.display = 'none';
-                if (assistantBtn) {
-                    assistantBtn.href = '#';
-                    assistantBtn.setAttribute('tabindex', '-1');
-                    assistantBtn.style.pointerEvents = 'none';
-                }
-                console.log('Assistant Application section hidden: No assistant form URL provided.');
-            } else {
-                assistantSection.style.display = '';
-                if (assistantBtn) {
-                    assistantBtn.href = assistantFormUrl;
-                    assistantBtn.removeAttribute('tabindex');
-                    assistantBtn.style.pointerEvents = '';
-                }
-                console.log('Assistant Application section shown: Valid assistant form URL provided.');
-            }
-        }
-        // Hide contact section if email is empty or only whitespace
+        };
+
+        toggleSectionByUrl('register', 'a.btn-primary', contactData.formUrl?.trim());
+        toggleSectionByUrl('assistant', 'a.btn-assistant-apply', contactData.assistantFormUrl?.trim());
+
+        // Contact section visibility
+        const contactEmail = (contactData.email || '').trim();
         const contactSection1 = document.getElementById('contact');
         const contactSection2 = document.getElementById('contactSection');
-        const contactEmail = (contactData.email || '').trim();
-        if ((!contactEmail || contactEmail === '')) {
-            if (contactSection1) contactSection1.style.display = 'none';
-            if (contactSection2) contactSection2.style.display = 'none';
-        } else {
-            if (contactSection1) contactSection1.style.display = '';
-            if (contactSection2) contactSection2.style.display = '';
-        }
-        // Hide hero Contact Me button if email is empty
+        [contactSection1, contactSection2].forEach(sec => {
+            if (sec) sec.style.display = contactEmail ? '' : 'none';
+        });
+
+        // Hero Contact Me button
         const heroContactBtn = document.getElementById('heroContactBtn');
         if (heroContactBtn) {
-            if (!contactEmail || contactEmail === '') {
-                heroContactBtn.style.display = 'none';
-                heroContactBtn.setAttribute('tabindex', '-1');
-            } else {
+            if (contactEmail) {
                 heroContactBtn.style.display = '';
                 heroContactBtn.removeAttribute('tabindex');
+            } else {
+                heroContactBtn.style.display = 'none';
+                heroContactBtn.setAttribute('tabindex', '-1');
             }
         }
+
+        console.log('✅ Site content updated successfully');
+        window.mainDataLoaded = true;
+        maybeHidePreloader();
+
     } catch (error) {
         console.error('Error updating site content:', error);
     }
 }
+
 
 // Update results chart with new data
 function updateResultsChart(subjects) {
