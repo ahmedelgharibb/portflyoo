@@ -47,8 +47,58 @@ export default async function handler(req, res) {
         console.log('[API:getData] Success. Flattened data sent:', result);
         res.status(200).json(result);
       } else {
-        console.warn('[API:getData] No nested data property found. Raw data sent:', data);
-        res.status(200).json(data);
+        // Return a default data structure if no data is found
+        const defaultData = {
+          personal: {
+            name: 'Dr. Ahmed Mahmoud',
+            title: 'Mathematics Educator',
+            subtitle: 'Inspiring the next generation',
+            heroHeading: 'Inspiring Minds Through Mathematics',
+            experience: '15+ years teaching experience',
+            philosophy: 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.',
+            qualifications: [
+              'Ph.D. in Mathematics Education',
+              'Master\'s in Applied Mathematics',
+              'Bachelor\'s in Mathematics'
+            ]
+          },
+          experience: {
+            schools: [
+              'International School of Mathematics',
+              'Elite Academy',
+              'Science High School'
+            ],
+            centers: [
+              'Math Excellence Center',
+              'Advanced Learning Institute',
+              'STEM Education Hub'
+            ],
+            platforms: [
+              'MathPro Online',
+              'EduTech Academy',
+              'Virtual Learning Center'
+            ]
+          },
+          results: [
+            { subject: 'Mathematics', astar: 10, a: 15, other: 5 },
+            { subject: 'Physics', astar: 8, a: 12, other: 7 },
+            { subject: 'Chemistry', astar: 6, a: 10, other: 9 },
+            { subject: 'Biology', astar: 5, a: 8, other: 12 }
+          ],
+          contact: {
+            email: 'ahmed.mahmoud@mathseducator.com',
+            formUrl: 'https://forms.google.com/your-form-link',
+            assistantFormUrl: 'https://forms.google.com/assistant-form-link',
+            phone: '+1 123-456-7890',
+            contactMessage: 'Thank you for your interest in my teaching services. I will get back to you as soon as possible.'
+          },
+          theme: {
+            color: 'blue',
+            mode: 'light'
+          }
+        };
+        console.warn('[API:getData] No data found. Returning default data structure.');
+        res.status(200).json(defaultData);
       }
       break;
     }
