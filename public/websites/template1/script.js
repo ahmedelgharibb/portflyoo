@@ -258,14 +258,12 @@ document.addEventListener('DOMContentLoaded', async function() {
 
                 // Initialize hero image
                 if (websiteData.heroImage) {
-                    const heroImg = heroPreview.querySelector('img');
-                    if (heroImg) { heroImg.src = websiteData.heroImage; heroImg.classList.remove('hidden'); }
+                    updateAdminImagePreview('hero', websiteData.heroImage);
                 }
 
                 // Initialize about image
                 if (websiteData.aboutImage) {
-                    const aboutImg = aboutPreview.querySelector('img');
-                    if (aboutImg) { aboutImg.src = websiteData.aboutImage; aboutImg.classList.remove('hidden'); }
+                    updateAdminImagePreview('about', websiteData.aboutImage);
                 }
             } catch (error) {
                 console.error('Error initializing images:', error);
@@ -3407,6 +3405,9 @@ async function handleImageUpload(file, type) {
         // Save to backend
         await saveWebsiteData();
         showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image uploaded successfully!`);
+
+        // Update preview with the new image
+        updateAdminImagePreview(type, base64);
     } catch (error) {
         console.error('Error uploading image:', error);
         showAdminAlert('error', `Failed to upload ${type} image: ${error.message}`);
@@ -3415,5 +3416,18 @@ async function handleImageUpload(file, type) {
         const spinnerId = type === 'hero' ? 'heroUploadSpinner' : 'aboutUploadSpinner';
         const spinner = document.getElementById(spinnerId);
         if (spinner) spinner.classList.add('hidden');
+    }
+}
+
+// --- Helper to update admin image preview ---
+function updateAdminImagePreview(type, base64) {
+    const previewId = type === 'hero' ? 'heroPreview' : 'aboutPreview';
+    const preview = document.getElementById(previewId);
+    if (preview) {
+        const img = preview.querySelector('img');
+        if (img && base64) {
+            img.src = base64;
+            preview.classList.remove('hidden');
+        }
     }
 }
