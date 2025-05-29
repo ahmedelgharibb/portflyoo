@@ -7,6 +7,27 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req, res) {
+  // Parse JSON body if needed (Vercel does not do this automatically)
+  if (req.method === 'POST' && !req.body) {
+    try {
+      req.body = await new Promise((resolve, reject) => {
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', () => {
+          try {
+            resolve(JSON.parse(body));
+          } catch (err) {
+            reject(err);
+          }
+        });
+        req.on('error', reject);
+      });
+    } catch (err) {
+      console.error('[API] Failed to parse JSON body:', err);
+      return res.status(400).json({ error: 'Invalid JSON body' });
+    }
+  }
+
   const { action } = req.query;
 
   switch (action) {
