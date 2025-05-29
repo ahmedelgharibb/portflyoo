@@ -1101,6 +1101,9 @@ async function openAdminPanel() {
         } else {
             console.error('Save changes button not found in DOM when opening admin panel');
         }
+        // Show image previews if available
+        showAdminImagePreview('hero', adminData.heroImage);
+        showAdminImagePreview('about', adminData.aboutImage);
     } catch (error) {
         console.error('Error opening admin panel:', error);
         showAdminAlert('error', 'Failed to load admin panel: ' + error.message);
@@ -3450,6 +3453,14 @@ async function handleImageUpload(file, type) {
 
         // Update preview with the new image
         updateAdminImagePreview(type, base64);
+        // After upload, get the new image URL from backend or local state
+        // For now, assume saveSiteData returns the new URL in data.heroImage/aboutImage
+        const data = await fetchSiteData();
+        if (type === 'hero') {
+            showAdminImagePreview('hero', data.heroImage);
+        } else {
+            showAdminImagePreview('about', data.aboutImage);
+        }
     } catch (error) {
         console.error('Error uploading image:', error);
         showAdminAlert('error', `Failed to upload ${type} image: ${error.message}`);
@@ -3471,5 +3482,19 @@ function updateAdminImagePreview(type, base64) {
             img.src = base64;
             preview.classList.remove('hidden');
         }
+    }
+}
+
+// Helper to show image preview in admin panel
+function showAdminImagePreview(type, url) {
+    const previewId = type === 'hero' ? 'heroPreview' : 'aboutPreview';
+    const preview = document.getElementById(previewId);
+    if (!preview) return;
+    const img = preview.querySelector('img');
+    if (url) {
+        img.src = url;
+        preview.classList.remove('hidden');
+    } else {
+        preview.classList.add('hidden');
     }
 }
