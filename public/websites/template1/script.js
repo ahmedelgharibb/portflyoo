@@ -2049,7 +2049,7 @@ async function saveAdminChanges() {
         const saveResponse = await fetch('/api/api?action=saveData', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: newData })
+            body: JSON.stringify({ data: { id: currentSiteId, data: newData } })
         });
         const saveResult = await saveResponse.json();
         if (!saveResult.success) throw new Error(saveResult.message || 'Failed to save data');
