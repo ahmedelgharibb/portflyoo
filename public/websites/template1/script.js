@@ -1179,9 +1179,22 @@ function populateAdminForm(data) {
             data = siteData;
         }
         
-        // Personal Info - Check for both 'personal' and 'personalInfo'
-        const personalData = data.personal || data.personalInfo || {};
-        console.log('Personal data to populate:', personalData);
+        // Personal Info - Support both flat and nested data
+        const nameValue = data.name || (data.personal && data.personal.name) || (data.personalInfo && data.personalInfo.name) || '';
+        const titleValue = data.title || (data.personal && data.personal.title) || (data.personalInfo && data.personalInfo.title) || '';
+        const subtitleValue = data.subtitle || (data.personal && data.personal.subtitle) || (data.personalInfo && data.personalInfo.subtitle) || 'History Teacher';
+        const heroHeadingValue = data.heroHeading || (data.personal && data.personal.heroHeading) || (data.personalInfo && data.personalInfo.heroHeading) || 'Inspiring Minds Through Mathematics';
+        const experienceValue = data.experience && typeof data.experience === 'string' ? data.experience : (data.personal && data.personal.experience) || (data.personalInfo && data.personalInfo.experience) || '';
+        const philosophyValue = data.philosophy || (data.personal && data.personal.philosophy) || (data.personalInfo && data.personalInfo.philosophy) || '';
+        const qualificationsValue = data.qualifications || (data.personal && data.personal.qualifications) || (data.personalInfo && data.personalInfo.qualifications) || [];
+
+        if (nameInput) nameInput.value = nameValue;
+        if (titleInput) titleInput.value = titleValue;
+        if (subtitleInput) subtitleInput.value = subtitleValue;
+        if (heroHeadingInput) heroHeadingInput.value = heroHeadingValue;
+        if (experienceInput) experienceInput.value = experienceValue;
+        if (philosophyInput) philosophyInput.value = philosophyValue;
+        if (qualificationsInput) qualificationsInput.value = Array.isArray(qualificationsValue) ? qualificationsValue.join('\n') : qualificationsValue;
         
         // Get form elements
         const nameInput = document.getElementById('admin-name');
