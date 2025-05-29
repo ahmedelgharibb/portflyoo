@@ -1188,14 +1188,6 @@ function populateAdminForm(data) {
         const philosophyValue = data.philosophy || (data.personal && data.personal.philosophy) || (data.personalInfo && data.personalInfo.philosophy) || '';
         const qualificationsValue = data.qualifications || (data.personal && data.personal.qualifications) || (data.personalInfo && data.personalInfo.qualifications) || [];
 
-        if (nameInput) nameInput.value = nameValue;
-        if (titleInput) titleInput.value = titleValue;
-        if (subtitleInput) subtitleInput.value = subtitleValue;
-        if (heroHeadingInput) heroHeadingInput.value = heroHeadingValue;
-        if (experienceInput) experienceInput.value = experienceValue;
-        if (philosophyInput) philosophyInput.value = philosophyValue;
-        if (qualificationsInput) qualificationsInput.value = Array.isArray(qualificationsValue) ? qualificationsValue.join('\n') : qualificationsValue;
-        
         // Get form elements
         const nameInput = document.getElementById('admin-name');
         const titleInput = document.getElementById('admin-title');
@@ -1218,55 +1210,50 @@ function populateAdminForm(data) {
         
         // Set values with detailed logging
         if (nameInput) {
-            nameInput.value = personalData.name || '';
-            console.log(`Set name input to "${personalData.name || ''}"`);
+            nameInput.value = nameValue;
+            console.log(`Set name input to "${nameValue}"`);
         } else {
             console.error('admin-name input not found in DOM');
         }
         
         if (titleInput) {
-            titleInput.value = personalData.title || '';
-            console.log(`Set title input to "${personalData.title || ''}"`);
+            titleInput.value = titleValue;
+            console.log(`Set title input to "${titleValue}"`);
         } else {
             console.error('admin-title input not found in DOM');
         }
         
         if (subtitleInput) {
-            subtitleInput.value = personalData.subtitle || 'History Teacher';
-            console.log(`Set subtitle input to "${personalData.subtitle || 'History Teacher'}"`);
+            subtitleInput.value = subtitleValue;
+            console.log(`Set subtitle input to "${subtitleValue}"`);
         } else {
             console.error('admin-subtitle input not found in DOM');
         }
         
         if (heroHeadingInput) {
-            heroHeadingInput.value = personalData.heroHeading || 'Inspiring Minds Through Mathematics';
-            console.log(`Set hero heading input to "${personalData.heroHeading || 'Inspiring Minds Through Mathematics'}"`);
+            heroHeadingInput.value = heroHeadingValue;
+            console.log(`Set hero heading input to "${heroHeadingValue}"`);
         } else {
             console.error('admin-hero-heading input not found in DOM');
         }
         
         if (experienceInput) {
-            experienceInput.value = personalData.experience || '';
-            console.log(`Set experience input to "${personalData.experience || ''}"`);
+            experienceInput.value = experienceValue;
+            console.log(`Set experience input to "${experienceValue}"`);
         } else {
             console.error('admin-experience input not found in DOM');
         }
         
         if (philosophyInput) {
-            // Use the value from the database if present, otherwise fallback to default
-            philosophyInput.value = (typeof personalData.philosophy === 'string' && personalData.philosophy.trim())
-                ? personalData.philosophy
-                : '';
-            console.log(`Set philosophy input to "${philosophyInput.value}"`);
+            philosophyInput.value = philosophyValue;
+            console.log(`Set philosophy input to "${philosophyValue}"`);
         } else {
             console.error('admin-philosophy input not found in DOM');
         }
         
         if (qualificationsInput) {
-            const qualifications = personalData.qualifications || [];
-            const qualText = Array.isArray(qualifications) ? qualifications.join('\n') : '';
-            qualificationsInput.value = qualText;
-            console.log(`Set qualifications input to "${qualText}"`);
+            qualificationsInput.value = Array.isArray(qualificationsValue) ? qualificationsValue.join('\n') : qualificationsValue;
+            console.log(`Set qualifications input to "${qualificationsValue}"`);
         } else {
             console.error('admin-qualifications input not found in DOM');
         }
