@@ -259,19 +259,13 @@ document.addEventListener('DOMContentLoaded', async function() {
                 // Initialize hero image
                 if (websiteData.heroImage) {
                     const heroImg = heroPreview.querySelector('img');
-                    if (heroImg) {
-                        heroImg.src = websiteData.heroImage;
-                        heroPreview.classList.remove('hidden');
-                    }
+                    if (heroImg) { heroImg.src = websiteData.heroImage; heroImg.classList.remove('hidden'); }
                 }
 
                 // Initialize about image
                 if (websiteData.aboutImage) {
                     const aboutImg = aboutPreview.querySelector('img');
-                    if (aboutImg) {
-                        aboutImg.src = websiteData.aboutImage;
-                        aboutPreview.classList.remove('hidden');
-                    }
+                    if (aboutImg) { aboutImg.src = websiteData.aboutImage; aboutImg.classList.remove('hidden'); }
                 }
             } catch (error) {
                 console.error('Error initializing images:', error);
@@ -1947,6 +1941,9 @@ async function saveAdminChanges() {
         if (!response.ok) throw new Error('Failed to fetch current data');
         const currentData = await response.json();
 
+        // Always get the current site id
+        const currentSiteId = await getCurrentSiteId();
+
         // Initialize all input elements with correct IDs
         const nameInput = document.getElementById('admin-name');
         const titleInput = document.getElementById('admin-title');
@@ -1994,6 +1991,7 @@ async function saveAdminChanges() {
 
         // Start with current data to preserve all existing values
         const newData = {
+            id: currentSiteId,
             ...(currentData?.data || {}),
             personal: {
                 name: nameInput?.value || currentData?.data?.personal?.name || '',
