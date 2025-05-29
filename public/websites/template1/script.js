@@ -187,6 +187,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Fallback: use default data
         initializeWithDefaultData();
     }
+
+    // Ensure logout and close (X) buttons work in admin panel
+    const logoutBtnEl = document.getElementById('logoutBtn');
+    if (logoutBtnEl) {
+        const newLogoutBtn = logoutBtnEl.cloneNode(true);
+        logoutBtnEl.parentNode.replaceChild(newLogoutBtn, logoutBtnEl);
+        newLogoutBtn.addEventListener('click', adminLogout);
+    }
+    const closeAdminPanelBtnEl = document.getElementById('closeAdminPanel');
+    if (closeAdminPanelBtnEl) {
+        const newCloseBtn = closeAdminPanelBtnEl.cloneNode(true);
+        closeAdminPanelBtnEl.parentNode.replaceChild(newCloseBtn, closeAdminPanelBtnEl);
+        newCloseBtn.addEventListener('click', closeAdminPanel);
+    }
 });
 
     
@@ -535,6 +549,20 @@ function initDOMElements() {
     }, options);
 
     observer.observe(statsSection);
+
+    // Ensure logout and close (X) buttons work in admin panel
+    const logoutBtnEl = document.getElementById('logoutBtn');
+    if (logoutBtnEl) {
+        const newLogoutBtn = logoutBtnEl.cloneNode(true);
+        logoutBtnEl.parentNode.replaceChild(newLogoutBtn, logoutBtnEl);
+        newLogoutBtn.addEventListener('click', adminLogout);
+    }
+    const closeAdminPanelBtnEl = document.getElementById('closeAdminPanel');
+    if (closeAdminPanelBtnEl) {
+        const newCloseBtn = closeAdminPanelBtnEl.cloneNode(true);
+        closeAdminPanelBtnEl.parentNode.replaceChild(newCloseBtn, closeAdminPanelBtnEl);
+        newCloseBtn.addEventListener('click', closeAdminPanel);
+    }
 }
 
 // Gallery Hover Effect
@@ -1510,6 +1538,20 @@ function initDOMElements() {
         showChangePasswordBtn: !!showChangePasswordBtn,
         changePasswordSection: !!changePasswordSection
     });
+
+    // Ensure logout and close (X) buttons work in admin panel
+    const logoutBtnEl = document.getElementById('logoutBtn');
+    if (logoutBtnEl) {
+        const newLogoutBtn = logoutBtnEl.cloneNode(true);
+        logoutBtnEl.parentNode.replaceChild(newLogoutBtn, logoutBtnEl);
+        newLogoutBtn.addEventListener('click', adminLogout);
+    }
+    const closeAdminPanelBtnEl = document.getElementById('closeAdminPanel');
+    if (closeAdminPanelBtnEl) {
+        const newCloseBtn = closeAdminPanelBtnEl.cloneNode(true);
+        closeAdminPanelBtnEl.parentNode.replaceChild(newCloseBtn, closeAdminPanelBtnEl);
+        newCloseBtn.addEventListener('click', closeAdminPanel);
+    }
 }
 
 // Show password change section
