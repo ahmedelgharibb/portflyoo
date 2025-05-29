@@ -1643,7 +1643,9 @@ function updateSiteContent(data) {
         const experienceCards = document.querySelectorAll('#experience .experience-card');
 
         if (experienceCards[0]) {
-            const yearsValue = (personalData.experience || '').replace(/[^\d+]/g, '') || '15+';
+            // Always show '15+' if value is missing or empty
+            let yearsValue = (personalData.experience || '').replace(/[^\\d+]/g, '');
+            if (!yearsValue || yearsValue.trim() === '') yearsValue = '15+';
             const yearsDiv = experienceCards[0].querySelector('.text-4xl');
             if (yearsDiv) yearsDiv.textContent = yearsValue;
             const yearsDesc = experienceCards[0].querySelector('p');
@@ -3134,16 +3136,17 @@ async function saveWebsiteData() {
         const response = await fetch('/api/api?action=getData');
         if (!response.ok) throw new Error('Failed to fetch current data');
         const currentData = await response.json();
+        const currentSiteId = await getCurrentSiteId();
         const dataToSave = {
             ...(currentData?.data || {}),
             heroImage: websiteData.heroImage || currentData?.data?.heroImage,
             aboutImage: websiteData.aboutImage || currentData?.data?.aboutImage
         };
-        // Save to backend API
+        // Save to backend API (wrap in {id, data})
         const saveResponse = await fetch('/api/api?action=saveData', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: dataToSave })
+            body: JSON.stringify({ data: { id: currentSiteId, data: dataToSave } })
         });
         const saveResult = await saveResponse.json();
         if (!saveResult.success) throw new Error(saveResult.message || 'Failed to save image data');
