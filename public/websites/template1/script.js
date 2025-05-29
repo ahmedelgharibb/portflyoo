@@ -1574,83 +1574,69 @@ async function handlePasswordChange(e) {
 function updateSiteContent(data) {
     try {
         console.log('Updating site content with data:', data);
-        // Use personal data for name and title
+        // Use personal data for name, title, subtitle, heroHeading, etc.
         const personalData = data.personal || data.personalInfo || {};
-        // Update name and title
+        // Prefer root-level fields if present, otherwise use personalData
+        const name = data.name || personalData.name || 'Teacher Name';
+        const title = data.title || personalData.title || 'Teacher Title';
+        const subtitle = data.subtitle || personalData.subtitle || '';
+        const heroHeading = data.heroHeading || personalData.heroHeading || 'Inspiring Minds Through <span class="text-blue-600">Education</span>';
+        const heroDesc = data.heroDescription || personalData.heroDescription || title;
+        const qualifications = data.qualifications || personalData.qualifications || [];
+        const philosophy = data.philosophy || personalData.philosophy || '';
+        // Update name and title in nav
         document.querySelectorAll('.nav-brand-name').forEach(el => {
-            el.textContent = personalData.name || 'Teacher Name';
+            el.textContent = name;
         });
         document.querySelectorAll('.nav-brand-subtitle').forEach(el => {
-            el.textContent = personalData.title || 'Teacher Title';
+            el.textContent = title;
         });
         // Update hero section
-        const heroHeading = document.querySelector('.hero-title');
-        if (heroHeading) {
-            heroHeading.innerHTML = data.heroHeading || 'Inspiring Minds Through <span class="text-blue-600">Education</span>';
+        const heroTitleEl = document.querySelector('.hero-title');
+        if (heroTitleEl) {
+            heroTitleEl.innerHTML = heroHeading;
         }
-        // --- Always set hero and about image src, with fallback and logging ---
-        const heroImg = document.querySelector('#heroImage');
-        const heroImgMobile = document.querySelector('#heroImageMobile');
-        const aboutImg = document.querySelector('#aboutImage');
-        const heroImageUrl = data.heroImage || 'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg';
-        const aboutImageUrl = data.aboutImage || 'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg';
-        if (heroImg) {
-            heroImg.src = heroImageUrl;
-            heroImg.classList.remove('hidden');
-            console.log('[Image] Set #heroImage to:', heroImageUrl);
+        const heroDescEl = document.querySelector('#hero p.text-base, #hero p.text-lg');
+        if (heroDescEl) {
+            heroDescEl.textContent = heroDesc;
         }
-        if (heroImgMobile) {
-            heroImgMobile.src = heroImageUrl;
-            heroImgMobile.classList.remove('hidden');
-            console.log('[Image] Set #heroImageMobile to:', heroImageUrl);
+        // Update subtitle/role in navigation if present
+        if (subtitle) {
+            document.querySelectorAll('.nav-brand-subtitle').forEach(el => {
+                el.textContent = subtitle;
+            });
         }
-        if (aboutImg) {
-            aboutImg.src = aboutImageUrl;
-            aboutImg.classList.remove('hidden');
-            console.log('[Image] Set #aboutImage to:', aboutImageUrl);
+        // Update about section qualifications
+        const qualsList = document.querySelector('#about ul');
+        if (qualsList && Array.isArray(qualifications)) {
+            qualsList.innerHTML = qualifications.map(qual => `
+                <li class="flex items-center">
+                    <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
+                    <span>${qual}</span>
+                </li>
+            `).join('');
         }
-        // Handle results data
-        try {
-            const resultsData = data.results || [];
-            if (resultsData.length === 0) {
-                console.warn('⚠️ Results data array is empty, skipping results/subjects updates');
-                // Do NOT return here; just skip updating results/subjects
+        // Update teaching philosophy text
+        const philosophyText = document.querySelector('#about p.text-gray-600, #about p.mb-8');
+        if (philosophyText) {
+            if (philosophy && philosophy.trim()) {
+                philosophyText.textContent = philosophy;
+                philosophyText.style.display = '';
             } else {
-                // Validate the structure of results data
-                const validResults = resultsData.every(item => 
-                    item && 
-                    typeof item === 'object' && 
-                    'subject' in item && 
-                    'astar' in item && 
-                    'a' in item && 
-                    'other' in item
-                );
-                if (!validResults) {
-                    console.error('❌ Invalid results data structure:', resultsData);
-                    // Try to fix the data if possible
-                    const fixedResults = resultsData.filter(item => 
-                        item && 
-                        typeof item === 'object' && 
-                        'subject' in item && 
-                        'astar' in item && 
-                        'a' in item && 
-                        'other' in item
-                    );
-                    if (fixedResults.length > 0) {
-                        console.log('🔧 Using fixed results data:', fixedResults);
-                        updateResultsChart(fixedResults);
-                        updateSubjectsGrid(fixedResults);
-                    }
-                    return;
-                }
-                console.log('✅ Valid results data found, updating chart and subjects grid:', resultsData);
-                updateResultsChart(resultsData);
-                updateSubjectsGrid(resultsData);
+                philosophyText.style.display = 'none';
             }
-        } catch (updateError) {
-            console.error('❌ Error updating results:', updateError);
         }
-        // ... rest of updateSiteContent ...
+        // Hide Teaching Philosophy title if there is no philosophy
+        const philosophyTitle = Array.from(document.querySelectorAll('#about h2, #about h3')).find(el => el.textContent.trim().toLowerCase() === 'teaching philosophy');
+        if (philosophyTitle) {
+            if (!philosophy || !philosophy.trim()) {
+                philosophyTitle.style.display = 'none';
+                console.log('Teaching Philosophy title hidden: No teaching philosophy data found in the database.');
+            } else {
+                philosophyTitle.style.display = '';
+            }
+        }
+        // ... keep the rest of updateSiteContent unchanged ...
         // Update hero images if they exist
         if (data.heroImage) {
             const heroImg = document.querySelector('#heroImage');
@@ -1686,10 +1672,9 @@ function updateSiteContent(data) {
         }
         
         // Update subtitle/role in navigation
-        const subtitleElements = document.querySelectorAll('.nav-brand-subtitle');
-        if (subtitleElements.length > 0 && personalData.subtitle) {
-            subtitleElements.forEach(el => {
-                el.textContent = personalData.subtitle;
+        if (subtitle) {
+            document.querySelectorAll('.nav-brand-subtitle').forEach(el => {
+                el.textContent = subtitle;
             });
         }
         
