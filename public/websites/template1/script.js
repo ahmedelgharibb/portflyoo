@@ -3379,3 +3379,41 @@ function setupDragAndDrop(dropZone, fileInput, type) {
         }
     });
 }
+
+// --- Add handleImageUpload for admin image upload ---
+async function handleImageUpload(file, type) {
+    try {
+        // Show spinner
+        const spinnerId = type === 'hero' ? 'heroUploadSpinner' : 'aboutUploadSpinner';
+        const spinner = document.getElementById(spinnerId);
+        if (spinner) spinner.classList.remove('hidden');
+
+        // Convert file to base64
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+        const base64 = await toBase64(file);
+
+        // Update websiteData
+        if (type === 'hero') {
+            websiteData.heroImage = base64;
+        } else if (type === 'about') {
+            websiteData.aboutImage = base64;
+        }
+
+        // Save to backend
+        await saveWebsiteData();
+        showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image uploaded successfully!`);
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        showAdminAlert('error', `Failed to upload ${type} image: ${error.message}`);
+    } finally {
+        // Hide spinner
+        const spinnerId = type === 'hero' ? 'heroUploadSpinner' : 'aboutUploadSpinner';
+        const spinner = document.getElementById(spinnerId);
+        if (spinner) spinner.classList.add('hidden');
+    }
+}
