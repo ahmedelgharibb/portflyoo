@@ -3454,8 +3454,8 @@ async function handleImageUpload(file, type) {
         // Update preview with the new image
         updateAdminImagePreview(type, base64);
         // After upload, get the new image URL from backend or local state
-        // For now, assume saveSiteData returns the new URL in data.heroImage/aboutImage
-        const data = await fetchSiteData();
+        // For now, assume loadSiteData returns the new URL in data.heroImage/aboutImage
+        const data = await loadSiteData();
         if (type === 'hero') {
             showAdminImagePreview('hero', data.heroImage);
         } else {
