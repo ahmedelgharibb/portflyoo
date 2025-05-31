@@ -3553,3 +3553,20 @@ function showAdminImagePreview(type, url) {
         preview.classList.add('hidden');
     }
 }
+
+// --- Patch: Always flatten results.subjects to results array on load ---
+function normalizeResults(data) {
+    if (data && data.results && Array.isArray(data.results.subjects)) {
+        data.results = data.results.subjects;
+        delete data.results.subjects;
+    }
+    return data;
+}
+
+// Patch all data loads to normalize results
+async function loadSiteData() {
+    const response = await fetch('/api/api?action=getData');
+    if (!response.ok) throw new Error('Failed to load site data');
+    const data = await response.json();
+    return normalizeResults(data);
+}
