@@ -201,6 +201,18 @@ document.addEventListener('DOMContentLoaded', async function() {
         closeAdminPanelBtnEl.parentNode.replaceChild(newCloseBtn, closeAdminPanelBtnEl);
         newCloseBtn.addEventListener('click', closeAdminPanel);
     }
+
+    // Ensure Add Subject button works
+    const addResultBtn = document.getElementById('addResultBtn');
+    if (addResultBtn) {
+        // Remove previous event listeners by cloning
+        const newAddBtn = addResultBtn.cloneNode(true);
+        addResultBtn.parentNode.replaceChild(newAddBtn, addResultBtn);
+        newAddBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            addNewResult();
+        });
+    }
 });
 
     
@@ -562,6 +574,17 @@ function initDOMElements() {
         const newCloseBtn = closeAdminPanelBtnEl.cloneNode(true);
         closeAdminPanelBtnEl.parentNode.replaceChild(newCloseBtn, closeAdminPanelBtnEl);
         newCloseBtn.addEventListener('click', closeAdminPanel);
+    }
+
+    addResultBtn = document.getElementById('addResultBtn');
+    if (addResultBtn) {
+        // Remove previous event listeners by cloning
+        const newAddBtn = addResultBtn.cloneNode(true);
+        addResultBtn.parentNode.replaceChild(newAddBtn, addResultBtn);
+        newAddBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            addNewResult();
+        });
     }
 }
 
@@ -1557,6 +1580,17 @@ function initDOMElements() {
         const newCloseBtn = closeAdminPanelBtnEl.cloneNode(true);
         closeAdminPanelBtnEl.parentNode.replaceChild(newCloseBtn, closeAdminPanelBtnEl);
         newCloseBtn.addEventListener('click', closeAdminPanel);
+    }
+
+    addResultBtn = document.getElementById('addResultBtn');
+    if (addResultBtn) {
+        // Remove previous event listeners by cloning
+        const newAddBtn = addResultBtn.cloneNode(true);
+        addResultBtn.parentNode.replaceChild(newAddBtn, addResultBtn);
+        newAddBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            addNewResult();
+        });
     }
 }
 
