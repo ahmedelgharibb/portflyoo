@@ -1763,28 +1763,23 @@ function updateSiteContent(data) {
             applyTheme(color, mode);
         }
 
+        // --- Fix: Always extract subjects from results for both sections ---
+        let subjects = [];
+        if (Array.isArray(data.results)) {
+            subjects = data.results;
+        } else if (data.results && Array.isArray(data.results.subjects)) {
+            subjects = data.results.subjects;
+        }
+        updateSubjectsGrid(subjects);
+        updateResultsChart(subjects);
+        // --- End fix ---
         // Handle sections (subjects, results, register, assistant, contact)
         const hideIfEmpty = (sectionId, items) => {
             const section = document.getElementById(sectionId);
             if (section) section.style.display = (items && items.length) ? '' : 'none';
         };
-
-        hideIfEmpty('subjects', data.subjects);
-        hideIfEmpty('results', data.results);
-
-        const toggleSectionByUrl = (sectionId, buttonSelector, url) => {
-            const section = document.getElementById(sectionId);
-            const btn = section ? section.querySelector(buttonSelector) : null;
-            if (section) {
-                if (url) {
-                    section.style.display = '';
-                    if (btn) { btn.href = url; btn.removeAttribute('tabindex'); btn.style.pointerEvents = ''; }
-                } else {
-                    section.style.display = 'none';
-                    if (btn) { btn.href = '#'; btn.setAttribute('tabindex', '-1'); btn.style.pointerEvents = 'none'; }
-                }
-            }
-        };
+        hideIfEmpty('subjects', subjects);
+        hideIfEmpty('results', subjects);
 
         toggleSectionByUrl('register', 'a.btn-primary', contactData.formUrl?.trim());
         toggleSectionByUrl('assistant', 'a.btn-assistant-apply', contactData.assistantFormUrl?.trim());
