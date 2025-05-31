@@ -2167,14 +2167,14 @@ async function saveAdminChanges() {
 function collectResultsData() {
     const results = [];
     document.querySelectorAll('.result-item').forEach(item => {
-        const subject = item.querySelector('.subject-name').value;
+        const subjectValue = item.querySelector('.subject-name').value;
         const astar = parseInt(item.querySelector('.astar-count').value) || 0;
         const a = parseInt(item.querySelector('.a-count').value) || 0;
         const other = parseInt(item.querySelector('.other-count').value) || 0;
-        
-        if (subject) {
+        if (subjectValue) {
             results.push({
-                subject,
+                subject: subjectValue,
+                name: subjectValue,
                 astar,
                 a,
                 other
