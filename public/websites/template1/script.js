@@ -1770,7 +1770,7 @@ function updateSiteContent(data) {
         } else if (data.results && Array.isArray(data.results.subjects)) {
             subjects = data.results.subjects;
         }
-        updateSubjectsGrid(subjects);
+        renderSubjectsTaught(subjects);
         updateResultsChart(subjects);
         // --- End fix ---
         // Handle sections (subjects, results, register, assistant, contact)
@@ -3570,4 +3570,37 @@ async function loadSiteData() {
     if (!response.ok) throw new Error('Failed to load site data');
     const data = await response.json();
     return normalizeResults(data);
+}
+
+// --- Subjects Taught Section Logic ---
+function renderSubjectsTaught(subjects) {
+    const grid = document.getElementById('subjects-taught-grid');
+    if (!grid) return;
+    if (!Array.isArray(subjects) || subjects.length === 0) {
+        grid.innerHTML = '<div class="col-span-full text-center text-gray-400">No subjects available.</div>';
+        return;
+    }
+    // Get unique subject names
+    const names = Array.from(new Set(subjects.map(s => (s.subject || s.name || s.title || s.label || '').toString().trim()).filter(Boolean)));
+    grid.innerHTML = names.map(name => `
+        <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center justify-center">
+            <div class="text-blue-600 mb-4 text-center">
+                <i class="fas fa-book text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 text-center">${name}</h3>
+        </div>
+    `).join('');
+}
+// Patch updateSiteContent to call renderSubjectsTaught
+const _updateSiteContent = updateSiteContent;
+updateSiteContent = function(data) {
+    // --- Fix: Always extract subjects from results for both sections ---
+    let subjects = [];
+    if (Array.isArray(data.results)) {
+        subjects = data.results;
+    } else if (data.results && Array.isArray(data.results.subjects)) {
+        subjects = data.results.subjects;
+    }
+    renderSubjectsTaught(subjects);
+    _updateSiteContent.call(this, data);
 }
