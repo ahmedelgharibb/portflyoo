@@ -1087,6 +1087,9 @@ async function openAdminPanel() {
             showAdminAlert('info', 'Using default data - no saved data found');
         }
         siteData = adminData;
+        // Keep websiteData.heroImage/aboutImage in sync with backend
+        websiteData.heroImage = adminData.heroImage;
+        websiteData.aboutImage = adminData.aboutImage;
         console.log(`Admin data loaded from ${dataSource}:`, adminData);
         populateAdminForm(adminData);
         saveChangesBtn = document.getElementById('saveChangesBtn');
@@ -2105,6 +2108,9 @@ async function saveAdminChanges() {
         if (window.resultsChart) {
             updateResultsChart(newData.results);
         }
+        // Sync websiteData with latest saved images
+        websiteData.heroImage = newData.heroImage;
+        websiteData.aboutImage = newData.aboutImage;
     } catch (error) {
         console.error('Error saving changes:', error);
         showAdminAlert('error', `Failed to save changes: ${error.message}`);
