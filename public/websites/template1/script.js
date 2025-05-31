@@ -3259,7 +3259,8 @@ function updateSubjectsGrid(subjects) {
     if (!subjectsGrid || !Array.isArray(subjects)) return;
 
     subjectsGrid.innerHTML = subjects.map(subject => {
-        const subjectName = subject.subject || subject.name || 'Subject';
+        const subjectName = [subject.subject, subject.name, subject.title, subject.label]
+            .find(val => typeof val === 'string' && val.trim()) || 'Subject';
         return `
         <div class="bg-white rounded-lg shadow-lg p-6 transform hover:-translate-y-1 transition-all duration-300">
             <div class="text-blue-600 mb-4 text-center">
