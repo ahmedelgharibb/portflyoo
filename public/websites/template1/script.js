@@ -3258,14 +3258,17 @@ function updateSubjectsGrid(subjects) {
     const subjectsGrid = document.getElementById('subjects-grid');
     if (!subjectsGrid || !Array.isArray(subjects)) return;
 
-    subjectsGrid.innerHTML = subjects.map(subject => `
+    subjectsGrid.innerHTML = subjects.map(subject => {
+        const subjectName = subject.subject || subject.name || 'Subject';
+        return `
         <div class="bg-white rounded-lg shadow-lg p-6 transform hover:-translate-y-1 transition-all duration-300">
             <div class="text-blue-600 mb-4 text-center">
                 <i class="fas fa-book text-3xl"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-800 text-center">${subject.subject}</h3>
+            <h3 class="text-xl font-bold text-gray-800 text-center">${subjectName}</h3>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // Replace all site_data fetches/updates with teachers_websites.data
