@@ -1780,7 +1780,21 @@ function updateSiteContent(data) {
         };
         hideIfEmpty('subjects', subjects);
         hideIfEmpty('results', subjects);
-
+        // --- Fix: Define toggleSectionByUrl before use ---
+        const toggleSectionByUrl = (sectionId, buttonSelector, url) => {
+            const section = document.getElementById(sectionId);
+            const btn = section ? section.querySelector(buttonSelector) : null;
+            if (section) {
+                if (url) {
+                    section.style.display = '';
+                    if (btn) { btn.href = url; btn.removeAttribute('tabindex'); btn.style.pointerEvents = ''; }
+                } else {
+                    section.style.display = 'none';
+                    if (btn) { btn.href = '#'; btn.setAttribute('tabindex', '-1'); btn.style.pointerEvents = 'none'; }
+                }
+            }
+        };
+        // --- End fix ---
         toggleSectionByUrl('register', 'a.btn-primary', contactData.formUrl?.trim());
         toggleSectionByUrl('assistant', 'a.btn-assistant-apply', contactData.assistantFormUrl?.trim());
 
