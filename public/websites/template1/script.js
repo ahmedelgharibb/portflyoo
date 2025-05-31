@@ -2039,6 +2039,8 @@ async function saveAdminChanges() {
         const newData = {
             id: currentSiteId,
             ...(currentData?.data || {}),
+            heroImage: (websiteData.heroImage || currentData?.data?.heroImage),
+            aboutImage: (websiteData.aboutImage || currentData?.data?.aboutImage),
             personal: {
                 name: nameInput?.value || currentData?.data?.personal?.name || '',
                 title: titleInput?.value || currentData?.data?.personal?.title || '',
