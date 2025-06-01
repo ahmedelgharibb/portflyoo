@@ -61,10 +61,10 @@ async function getCurrentSiteId() {
 // Once the document is ready
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Document ready, initializing...');
-
+    
     // Initialize DOM elements
     initDOMElements();
-
+    
     // Define elements (example selectors)
     const adminBtn = document.querySelector('#adminBtn');
     const adminBtnMobile = document.querySelector('#adminBtnMobile');
@@ -77,77 +77,77 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     let isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
     console.log('Login status:', isLoggedIn ? 'Logged in' : 'Not logged in');
-
+    
     // Set up admin button
     if (adminBtn) {
         console.log('Setting up admin button click handler');
-        adminBtn.innerHTML = '<i class="fas fa-lock text-lg"></i>';
+            adminBtn.innerHTML = '<i class="fas fa-lock text-lg"></i>';
         adminBtn.style.display = 'flex';
         adminBtn.style.alignItems = 'center';
 
-        adminBtn.addEventListener('click', function(e) {
-            e.preventDefault();
+            adminBtn.addEventListener('click', function(e) {
+                e.preventDefault();
             if (isLoggedIn) {
                 console.log('Admin button clicked (logged in) - opening panel');
                 openAdminPanel();
-            } else {
+        } else {
                 console.log('Admin button clicked (not logged in) - showing login form');
                 showLoginForm();
-            }
+        }
         });
     } else {
         console.warn('Admin button not found in the DOM');
     }
-
+    
     // Mobile admin button
     if (adminBtnMobile) {
         console.log('Setting up mobile admin button click handler');
-        adminBtnMobile.addEventListener('click', function(e) {
-            e.preventDefault();
-            closeMenu();
+            adminBtnMobile.addEventListener('click', function(e) {
+                e.preventDefault();
+                closeMenu();
             if (isLoggedIn) {
                 console.log('Mobile admin button clicked (logged in) - opening panel');
                 openAdminPanel();
-            } else {
+        } else {
                 console.log('Mobile admin button clicked (not logged in) - showing login form');
                 showLoginForm();
-            }
+        }
         });
     } else {
         console.warn('Mobile admin button not found in the DOM');
     }
-
+    
     // Admin login form
     if (adminLoginForm) {
         console.log('Setting up admin login form submit handler');
         adminLoginForm.addEventListener('submit', handleAdminLogin);
     }
-
+    
     // Cancel login button
     if (cancelLoginBtn) {
         console.log('Setting up cancel login button click handler');
         cancelLoginBtn.addEventListener('click', hideAdminLogin);
     }
-
+    
     // Exit login button
     if (exitLoginBtn) {
         console.log('Setting up exit login button click handler');
         exitLoginBtn.addEventListener('click', hideAdminLogin);
     }
-
+    
     // Close admin panel button
     if (closeAdminPanelBtn) {
         console.log('Setting up close admin panel button click handler');
         closeAdminPanelBtn.addEventListener('click', closeAdminPanel);
     }
-
+    
     // The following logic seems misplaced:
     /*
     if (updateError) throw updateError;
 
     if (type === 'hero') {
         heroPreview.classList.add('hidden');
-    } else {
+            } else {
         aboutPreview.classList.add('hidden');
     }
 
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
 
             showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image removed successfully`);
-
+            
             updateSiteContent(websiteData);
         } catch (error) {
             console.error('Error removing image:', error);
@@ -281,21 +281,21 @@ document.addEventListener('DOMContentLoaded', async function() {
                     console.warn('Preview elements not found in the DOM');
                     return;
                 }
-
-                // Initialize hero image
-                if (websiteData.heroImage) {
+                    
+                    // Initialize hero image
+                    if (websiteData.heroImage) {
                     updateAdminImagePreview('hero', websiteData.heroImage);
-                }
+                    }
 
-                // Initialize about image
-                if (websiteData.aboutImage) {
+                    // Initialize about image
+                    if (websiteData.aboutImage) {
                     updateAdminImagePreview('about', websiteData.aboutImage);
                 }
             } catch (error) {
                 console.error('Error initializing images:', error);
             }
         }
-    });
+});
     
 
 // Function to restore data to Supabase when it's missing
@@ -520,24 +520,24 @@ document.addEventListener('DOMContentLoaded', function() {
 // Initialize DOM Elements function
 function initDOMElements() {
     console.log('Initializing DOM elements');
-
+    
     // Assuming you have a stats section and elements you want to animate
     const statsSection = document.querySelector('.stats-section'); // Adjust selector as needed
     const value = document.querySelector('.value'); // Adjust selector as needed
     const target = 100; // Example target value
     const duration = 2000; // Example duration (in ms)
-    let count = 0;
+                    let count = 0;
 
-    const increment = target / (duration / 16);
+                    const increment = target / (duration / 16);
 
-    const updateCount = () => {
-        if (count < target) {
-            count += increment;
-            value.textContent = Math.ceil(count) + '+';
-        } else {
-            value.textContent = target + '+';
-        }
-    };
+                    const updateCount = () => {
+                        if (count < target) {
+                            count += increment;
+                            value.textContent = Math.ceil(count) + '+';
+                        } else {
+                            value.textContent = target + '+';
+                        }
+                    };
 
     const options = {
         root: null,
@@ -547,13 +547,13 @@ function initDOMElements() {
     const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                const countInterval = setInterval(() => {
-                    if (count < target) {
-                        updateCount();
-                    } else {
-                        clearInterval(countInterval);
-                    }
-                }, 16);
+                    const countInterval = setInterval(() => {
+                        if (count < target) {
+                            updateCount();
+                        } else {
+                            clearInterval(countInterval);
+                        }
+                    }, 16);
 
                 observer.unobserve(statsSection);
             }
@@ -1242,7 +1242,7 @@ function populateAdminForm(data) {
         const experienceValue = data.experience && typeof data.experience === 'string' ? data.experience : (data.personal && data.personal.experience) || (data.personalInfo && data.personalInfo.experience) || '';
         const philosophyValue = data.philosophy || (data.personal && data.personal.philosophy) || (data.personalInfo && data.personalInfo.philosophy) || '';
         const qualificationsValue = data.qualifications || (data.personal && data.personal.qualifications) || (data.personalInfo && data.personalInfo.qualifications) || [];
-
+        
         // Get form elements
         const nameInput = document.getElementById('admin-name');
         const titleInput = document.getElementById('admin-title');
@@ -1680,7 +1680,7 @@ function updateSiteContent(data) {
                 </li>
             `).join('');
         }
-
+        
         // Update teaching philosophy text
         const philosophyText = document.querySelector('#about p.text-gray-600, #about p.mb-8');
         if (philosophyText) {
@@ -1715,7 +1715,7 @@ function updateSiteContent(data) {
 
         // Update page title
         if (name && title) document.title = `${name} - ${title}`;
-
+        
         // Update experience section
         const experienceData = data.experience || {};
         console.log('Experience data:', experienceData);
@@ -1749,13 +1749,13 @@ function updateSiteContent(data) {
         const contactData = data.contact || {};
         const contactPhone = contactData.phone || '+1 123-456-7890';
         const contactMessage = contactData.contactMessage || 'Thank you for your interest in my teaching services.';
-
+        
         const contactPhoneEl = document.querySelector('.contact-phone');
         if (contactPhoneEl) contactPhoneEl.textContent = contactPhone;
 
         const contactMessageEl = document.querySelector('.contact-message');
         if (contactMessageEl) contactMessageEl.textContent = contactMessage;
-
+        
         // Apply theme
         if (data.theme) {
             const { color = 'blue', mode = 'light' } = data.theme;
@@ -1788,7 +1788,7 @@ function updateSiteContent(data) {
                 if (url) {
                     section.style.display = '';
                     if (btn) { btn.href = url; btn.removeAttribute('tabindex'); btn.style.pointerEvents = ''; }
-                } else {
+            } else {
                     section.style.display = 'none';
                     if (btn) { btn.href = '#'; btn.setAttribute('tabindex', '-1'); btn.style.pointerEvents = 'none'; }
                 }
@@ -2146,7 +2146,7 @@ async function saveAdminChanges() {
         });
         const saveResult = await saveResponse.json();
         if (!saveResult.success) throw new Error(saveResult.message || 'Failed to save data');
-        showAdminAlert('success', 'Changes saved successfully!');
+            showAdminAlert('success', 'Changes saved successfully!');
         updateSiteContent(newData);
         if (window.resultsChart) {
             updateResultsChart(newData.results);
@@ -3570,37 +3570,4 @@ async function loadSiteData() {
     if (!response.ok) throw new Error('Failed to load site data');
     const data = await response.json();
     return normalizeResults(data);
-}
-
-// --- Subjects Taught Section Logic ---
-function renderSubjectsTaught(subjects) {
-    const grid = document.getElementById('subjects-taught-grid');
-    if (!grid) return;
-    if (!Array.isArray(subjects) || subjects.length === 0) {
-        grid.innerHTML = '<div class="col-span-full text-center text-gray-400">No subjects available.</div>';
-        return;
-    }
-    // Get unique subject names
-    const names = Array.from(new Set(subjects.map(s => (s.subject || s.name || s.title || s.label || '').toString().trim()).filter(Boolean)));
-    grid.innerHTML = names.map(name => `
-        <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center justify-center">
-            <div class="text-blue-600 mb-4 text-center">
-                <i class="fas fa-book text-3xl"></i>
-            </div>
-            <h3 class="text-xl font-bold text-gray-800 text-center">${name}</h3>
-        </div>
-    `).join('');
-}
-// Patch updateSiteContent to call renderSubjectsTaught
-const _updateSiteContent = updateSiteContent;
-updateSiteContent = function(data) {
-    // --- Fix: Always extract subjects from results for both sections ---
-    let subjects = [];
-    if (Array.isArray(data.results)) {
-        subjects = data.results;
-    } else if (data.results && Array.isArray(data.results.subjects)) {
-        subjects = data.results.subjects;
-    }
-    renderSubjectsTaught(subjects);
-    _updateSiteContent.call(this, data);
 }
