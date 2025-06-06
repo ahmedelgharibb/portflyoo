@@ -1770,7 +1770,6 @@ function updateSiteContent(data) {
         } else if (data.results && Array.isArray(data.results.subjects)) {
             subjects = data.results.subjects;
         }
-        renderSubjectsTaught(subjects);
         updateResultsChart(subjects);
         // --- End fix ---
         // Handle sections (subjects, results, register, assistant, contact)
