@@ -232,6 +232,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             reader.readAsDataURL(file);
             // Then upload
             handleImageUpload(file, 'hero');
+            // Reset input so same file can be selected again
+            heroImageInput.value = '';
         }
     });
     
@@ -247,6 +249,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             reader.readAsDataURL(file);
             // Then upload
             handleImageUpload(file, 'about');
+            // Reset input so same file can be selected again
+            aboutImageInput.value = '';
         }
     });
     
