@@ -1821,6 +1821,9 @@ function updateSiteContent(data) {
         window.mainDataLoaded = true;
         maybeHidePreloader();
 
+        // Render Courses Teaching section
+        updateCoursesTeachingGrid(data.results);
+
     } catch (error) {
         console.error('Error updating site content:', error);
     }
@@ -3570,3 +3573,27 @@ async function loadSiteData() {
     const data = await response.json();
     return normalizeResults(data);
 }
+
+// Render Courses Teaching section
+function updateCoursesTeachingGrid(subjects) {
+    const coursesGrid = document.getElementById('courses-teaching-grid');
+    if (!coursesGrid || !Array.isArray(subjects)) return;
+    // Extract unique subject names
+    const uniqueSubjects = Array.from(new Set(subjects.map(s => s.subject || s.name || s.title || s.label).filter(Boolean)));
+    if (uniqueSubjects.length === 0) {
+        coursesGrid.innerHTML = '<div class="col-span-full text-center text-gray-500">No courses available.</div>';
+        return;
+    }
+    coursesGrid.innerHTML = uniqueSubjects.map(subjectName => `
+        <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center justify-center transform hover:-translate-y-1 transition-all duration-300">
+            <div class="text-blue-600 mb-4 text-center">
+                <i class="fas fa-book-open text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 text-center">${subjectName}</h3>
+        </div>
+    `).join('');
+}
+
+// Call updateCoursesTeachingGrid when site data is loaded
+// In updateSiteContent, after updating other sections:
+if (data.results) updateCoursesTeachingGrid(data.results);
