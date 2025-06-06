@@ -3578,8 +3578,12 @@ async function loadSiteData() {
 function updateCoursesTeachingGrid(subjects) {
     const coursesGrid = document.getElementById('courses-teaching-grid');
     if (!coursesGrid || !Array.isArray(subjects)) return;
-    // Extract unique subject names
-    const uniqueSubjects = Array.from(new Set(subjects.map(s => s.subject || s.name || s.title || s.label).filter(Boolean)));
+    // Extract unique, non-empty subject names (prefer 'subject', fallback to 'name')
+    const uniqueSubjects = Array.from(new Set(
+        subjects
+            .map(s => (typeof s.subject === 'string' && s.subject.trim()) ? s.subject.trim() : (typeof s.name === 'string' && s.name.trim()) ? s.name.trim() : null)
+            .filter(Boolean)
+    ));
     if (uniqueSubjects.length === 0) {
         coursesGrid.innerHTML = '<div class="col-span-full text-center text-gray-500">No courses available.</div>';
         return;
