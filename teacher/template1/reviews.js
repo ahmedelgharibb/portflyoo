@@ -745,4 +745,6 @@ function setActiveSortModal(btnId) {
     document.getElementById('sortLatestModal').classList.remove('active');
     document.getElementById('sortHighestModal').classList.remove('active');
     document.getElementById(btnId).classList.add('active');
-} 
+}
+
+document.getElementById('refreshPublicReviewsBtn')?.addEventListener('click', loadApprovedReviews); 
