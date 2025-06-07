@@ -3203,32 +3203,6 @@ function updateAlertStyles(color, primaryColorRgb) {
     alertStyleElement.textContent = alertStyles;
 }
 
-// Update drag and drop handlers to show preview
-function handleDrop(e) {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-    if (files.length > 0) {
-        const file = files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            if (e.target.dataset.type === 'hero') {
-                heroPreview.querySelector('img').src = e.target.result;
-                heroPreview.classList.remove('hidden');
-            } else {
-                aboutPreview.querySelector('img').src = e.target.result;
-                aboutPreview.classList.remove('hidden');
-            }
-        }
-        reader.dataset.type = e.target.dataset.type;
-        reader.readAsDataURL(file);
-        handleImageUpload(file, e.target.dataset.type);
-    }
-}
-
-// Update drop zones to include type
-heroDropZone.dataset.type = 'hero';
-aboutDropZone.dataset.type = 'about';
-
 // Save website data to backend API
 async function saveWebsiteData() {
     try {
@@ -3605,3 +3579,134 @@ function updateCoursesTeachingGrid(subjects) {
 // Call updateCoursesTeachingGrid when site data is loaded
 // In updateSiteContent, after updating other sections:
 if (data.results) updateCoursesTeachingGrid(data.results);
+
+// --- Modern Drag-and-Drop and File Upload for Hero/About Images ---
+
+function setupModernImageUpload({
+    dropZoneId,
+    inputId,
+    previewId,
+    uploadBtnId,
+    removeBtnId,
+    spinnerId,
+    type
+}) {
+    const dropZone = document.getElementById(dropZoneId);
+    const fileInput = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const uploadBtn = document.getElementById(uploadBtnId);
+    const removeBtn = document.getElementById(removeBtnId);
+    const spinner = document.getElementById(spinnerId);
+
+    if (!dropZone || !fileInput || !preview || !uploadBtn || !removeBtn) return;
+
+    // Click upload button or drop zone opens file dialog
+    uploadBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        fileInput.click();
+    });
+    dropZone.addEventListener('click', (e) => {
+        // Only trigger if not clicking the upload button inside
+        if (e.target === dropZone) fileInput.click();
+    });
+    dropZone.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') fileInput.click();
+    });
+    dropZone.setAttribute('tabindex', '0');
+    dropZone.setAttribute('role', 'button');
+    dropZone.setAttribute('aria-label', `Upload ${type} image by clicking or dropping a file`);
+
+    // Drag events for visual feedback
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('ring-2', 'ring-purple-400', 'border-purple-400');
+        });
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('ring-2', 'ring-purple-400', 'border-purple-400');
+        });
+    });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            handleSelectedFile(files[0]);
+        }
+    });
+
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+        if (fileInput.files && fileInput.files.length > 0) {
+            handleSelectedFile(fileInput.files[0]);
+        }
+    });
+
+    // Remove image
+    removeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        preview.classList.add('hidden');
+        if (type === 'hero') {
+            websiteData.heroImage = '';
+        } else {
+            websiteData.aboutImage = '';
+        }
+        fileInput.value = '';
+        // Optionally, update backend to remove image
+        showAdminAlert('info', `${type.charAt(0).toUpperCase() + type.slice(1)} image removed.`);
+    });
+
+    // Handle file selection (from input or drop)
+    async function handleSelectedFile(file) {
+        if (!file || !file.type.startsWith('image/')) {
+            showAdminAlert('error', 'Please select a valid image file.');
+            return;
+        }
+        // Show spinner
+        if (spinner) spinner.classList.remove('hidden');
+        // Show preview immediately
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = preview.querySelector('img');
+            if (img) {
+                img.src = e.target.result;
+                preview.classList.remove('hidden');
+            }
+        };
+        reader.readAsDataURL(file);
+        // Upload logic
+        try {
+            await handleImageUpload(file, type);
+            fileInput.value = '';
+        } catch (err) {
+            showAdminAlert('error', `Failed to upload image: ${err.message}`);
+        } finally {
+            if (spinner) spinner.classList.add('hidden');
+        }
+    }
+}
+
+// Initialize both hero and about image uploaders
+setupModernImageUpload({
+    dropZoneId: 'heroDropZone',
+    inputId: 'heroImageInput',
+    previewId: 'heroPreview',
+    uploadBtnId: 'heroUploadBtn',
+    removeBtnId: 'removeHeroBtn',
+    spinnerId: 'heroUploadSpinner',
+    type: 'hero'
+});
+setupModernImageUpload({
+    dropZoneId: 'aboutDropZone',
+    inputId: 'aboutImageInput',
+    previewId: 'aboutPreview',
+    uploadBtnId: 'aboutUploadBtn',
+    removeBtnId: 'removeAboutBtn',
+    spinnerId: 'aboutUploadSpinner',
+    type: 'about'
+});
