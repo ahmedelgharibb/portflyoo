@@ -279,11 +279,10 @@ function displayReviews(reviews) {
             </div>
         `;
         container.appendChild(reviewElement);
-        new StarRating(
-            reviewElement.querySelector('.star-rating'),
-            review.rating,
-            true
-        );
+        const starRatingEl = reviewElement.querySelector('.star-rating');
+        if (starRatingEl) {
+            new StarRating(starRatingEl, review.rating, true);
+        }
     });
 
     // Add 'See All Reviews' button if there are more than 3 reviews
@@ -405,9 +404,7 @@ function displayAdminReviews(reviews) {
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h4 class="text-lg font-semibold">${review.student_name || 'Anonymous'}</h4>
-                    <div class="flex items-center mt-1">
-                        ${generateStarRating(review.rating)}
-                    </div>
+                    <div class="star-rating flex items-center mt-1"></div>
                 </div>
                 <div class="flex gap-2 items-center">
                     <label class="switch">
@@ -422,11 +419,10 @@ function displayAdminReviews(reviews) {
             </div>
         `;
         container.appendChild(reviewElement);
-        new StarRating(
-            reviewElement.querySelector('.star-rating'),
-            review.rating,
-            true
-        );
+        const starRatingEl = reviewElement.querySelector('.star-rating');
+        if (starRatingEl) {
+            new StarRating(starRatingEl, review.rating, true);
+        }
     });
     bindReviewSwitchListeners(container);
 }
@@ -510,9 +506,7 @@ async function loadAdminReviews() {
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h4 class="text-lg font-semibold">${review.student_name || 'Anonymous'}</h4>
-                        <div class="flex items-center mt-1">
-                            ${generateStarRating(review.rating)}
-                        </div>
+                        <div class="star-rating flex items-center mt-1"></div>
                     </div>
                     <div class="flex gap-2 items-center">
                         <label class="switch">
@@ -527,6 +521,10 @@ async function loadAdminReviews() {
                 </div>
             `;
             reviewsContainer.appendChild(reviewElement);
+            const starRatingEl = reviewElement.querySelector('.star-rating');
+            if (starRatingEl) {
+                new StarRating(starRatingEl, review.rating, true);
+            }
         });
         bindReviewSwitchListeners(reviewsContainer);
     } catch (error) {
@@ -688,11 +686,10 @@ window.displayAllReviews = function(reviews) {
             </div>
         `;
         container.appendChild(reviewElement);
-        new StarRating(
-            reviewElement.querySelector('.star-rating'),
-            review.rating,
-            true
-        );
+        const starRatingEl = reviewElement.querySelector('.star-rating');
+        if (starRatingEl) {
+            new StarRating(starRatingEl, review.rating, true);
+        }
     });
 };
 
@@ -741,11 +738,10 @@ function displayAllReviewsModal(reviews) {
             </div>
         `;
         container.appendChild(reviewElement);
-        new StarRating(
-            reviewElement.querySelector('.star-rating'),
-            review.rating,
-            true
-        );
+        const starRatingEl = reviewElement.querySelector('.star-rating');
+        if (starRatingEl) {
+            new StarRating(starRatingEl, review.rating, true);
+        }
     });
 }
 
