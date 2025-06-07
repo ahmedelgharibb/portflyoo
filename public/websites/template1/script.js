@@ -3476,22 +3476,24 @@ async function handleImageUpload(file, type) {
         });
         const base64 = await toBase64(file);
 
-        // Update websiteData
+        // Always fetch the latest data before updating
+        const currentData = await loadSiteData();
+        websiteData = { ...currentData };
         if (type === 'hero') {
             websiteData.heroImage = base64;
         } else if (type === 'about') {
             websiteData.aboutImage = base64;
         }
 
-        // Save to backend
-        await saveWebsiteData();
+        // Save the full websiteData object
+        await saveSiteData(websiteData);
         showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image uploaded successfully!`);
 
         // Update preview with the new image
         updateAdminImagePreview(type, base64);
-        // After upload, get the new image URL from backend or local state
-        // For now, assume loadSiteData returns the new URL in data.heroImage/aboutImage
+        // After upload, reload and update local websiteData
         const data = await loadSiteData();
+        websiteData = { ...data };
         if (type === 'hero') {
             showAdminImagePreview('hero', data.heroImage);
         } else {
