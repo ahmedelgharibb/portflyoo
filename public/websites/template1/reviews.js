@@ -301,6 +301,8 @@ function displayReviews(reviews) {
         };
         container.appendChild(seeAllBtn);
     }
+
+    renderReviewStats(reviews, '#reviewsContainer');
 }
 
 // Load all reviews (admin)
@@ -605,9 +607,10 @@ async function loadReviews() {
         const reviews = await fetchAllReviewsFromTeachersWebsites();
         const approved = reviews.filter(r => r.is_visible);
         const reviewsContainer = document.getElementById('reviewsContainer');
-        reviewsContainer.innerHTML = '';
+        if (reviewsContainer) reviewsContainer.innerHTML = '';
+        renderReviewStats(approved, '#reviewsContainer');
         if (approved.length === 0) {
-            reviewsContainer.innerHTML = `
+            reviewsContainer.innerHTML += `
                 <div class="text-center text-gray-500">
                     <p>No reviews yet. Be the first to leave a review!</p>
                 </div>
@@ -811,4 +814,85 @@ input:checked + .slider:before {
   transform: translateX(20px);
 }
 `;
-document.head.appendChild(style); 
+document.head.appendChild(style);
+
+// --- Add: Helper to render average rating and total reviews ---
+function renderReviewStats(reviews, containerSelector = '#reviewsContainer') {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+    if (!reviews || reviews.length === 0) {
+        container.insertAdjacentHTML('afterbegin', '<div class="text-center text-gray-500 mb-4">No reviews yet.</div>');
+        return;
+    }
+    const total = reviews.length;
+    const avg = (reviews.reduce((sum, r) => sum + (parseInt(r.rating) || 0), 0) / total) || 0;
+    const avgFixed = avg.toFixed(1);
+    // Render stars (rounded to nearest half)
+    const fullStars = Math.floor(avg);
+    const halfStar = avg - fullStars >= 0.5;
+    let starsHtml = '';
+    for (let i = 0; i < fullStars; i++) starsHtml += '<i class="fas fa-star text-yellow-400"></i>';
+    if (halfStar) starsHtml += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
+    for (let i = fullStars + halfStar; i < 5; i++) starsHtml += '<i class="far fa-star text-yellow-300"></i>';
+    container.insertAdjacentHTML('afterbegin', `
+        <div class="flex items-center gap-2 mb-6 justify-center">
+            <span class="flex">${starsHtml}</span>
+            <span class="font-semibold text-lg text-gray-800">${avgFixed}/5.0</span>
+            <span class="text-gray-500">(${total} review${total !== 1 ? 's' : ''})</span>
+        </div>
+    `);
+}
+
+// Patch: Show average rating and total reviews in displayReviews
+const origDisplayReviews = displayReviews;
+displayReviews = function(reviews) {
+    const container = document.querySelector('#reviewsContainer');
+    if (container) container.innerHTML = '';
+    renderReviewStats(reviews, '#reviewsContainer');
+    origDisplayReviews(reviews);
+}
+
+// Patch: Show average rating and total reviews in loadReviews
+const origLoadReviews = loadReviews;
+loadReviews = async function() {
+    try {
+        const reviews = await fetchAllReviewsFromTeachersWebsites();
+        const approved = reviews.filter(r => r.is_visible);
+        const reviewsContainer = document.getElementById('reviewsContainer');
+        if (reviewsContainer) reviewsContainer.innerHTML = '';
+        renderReviewStats(approved, '#reviewsContainer');
+        if (approved.length === 0) {
+            reviewsContainer.innerHTML += `
+                <div class="text-center text-gray-500">
+                    <p>No reviews yet. Be the first to leave a review!</p>
+                </div>
+            `;
+            return;
+        }
+        const reviewsGrid = document.createElement('div');
+        reviewsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+        approved.forEach(review => {
+            const reviewCard = document.createElement('div');
+            reviewCard.className = 'bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow';
+            reviewCard.innerHTML = `
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h4 class="font-semibold text-gray-800">${review.student_name}</h4>
+                        <div class="flex items-center mt-1">
+                            ${generateStarRating(review.rating)}
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        ${new Date(review.created_at).toLocaleDateString()}
+                    </div>
+                </div>
+                <p class="text-gray-600">${review.review_text}</p>
+            `;
+            reviewsGrid.appendChild(reviewCard);
+        });
+        reviewsContainer.appendChild(reviewsGrid);
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+        showAlert('error', 'Failed to load reviews');
+    }
+} 
