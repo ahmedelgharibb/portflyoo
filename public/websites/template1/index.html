@@ -1648,6 +1648,82 @@
             .site-loader-spinner { width: 44px; height: 44px; }
             .site-loader-text { font-size: 1rem; }
         }
+
+        /* Minimal & Modern Admin Panel Redesign */
+        .admin-panel-card {
+            background: #fff;
+            border-radius: 1.25rem;
+            box-shadow: 0 2px 16px rgba(30, 41, 59, 0.08);
+            padding: 2.5rem 2rem;
+            max-width: 700px;
+            margin: 2rem auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            border: none;
+        }
+        .admin-panel-card h3 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #223a52;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+        .admin-panel-label {
+            font-size: 1.08rem;
+            font-weight: 600;
+            color: #14509e;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.01em;
+        }
+        .admin-panel-input, .admin-panel-textarea {
+            border: 1.5px solid #e5e7eb;
+            outline: none;
+            background: #f9fafb;
+            color: #223a52;
+            border-radius: 0.7rem;
+            padding: 1rem 1.25rem;
+            width: 100%;
+            font-size: 1.08rem;
+            margin-top: 0.25rem;
+            margin-bottom: 0.5rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-shadow: none;
+        }
+        .admin-panel-input:focus, .admin-panel-textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.08);
+        }
+        .admin-panel-btn {
+            background: #223a52;
+            color: #fff;
+            border: none;
+            border-radius: 0.7rem;
+            padding: 0.85rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(30, 41, 59, 0.07);
+            margin-top: 1rem;
+        }
+        .admin-panel-btn:hover {
+            background: #14509e;
+            box-shadow: 0 4px 16px rgba(30, 41, 59, 0.12);
+        }
+        @media (max-width: 900px) {
+            .admin-panel-card {
+                padding: 1.25rem 0.5rem;
+                max-width: 99vw;
+            }
+            .admin-panel-card h3 {
+                font-size: 1.3rem;
+                margin-bottom: 1.2rem;
+            }
+            .admin-panel-input, .admin-panel-textarea {
+                font-size: 0.98rem;
+                padding: 0.7rem 0.75rem;
+            }
+        }
     </style>
     
     <!-- Chart.js -->
