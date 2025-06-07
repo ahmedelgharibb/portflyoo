@@ -460,7 +460,7 @@ async function loadAdminReviews() {
         const reviews = await fetchAllReviewsFromTeachersWebsites();
         const reviewsContainer = document.getElementById('admin-reviews-container');
         reviewsContainer.innerHTML = '';
-        if (reviews.length === 0) {
+        if (!reviews || reviews.length === 0) {
             reviewsContainer.innerHTML = `
                 <div class="p-6 text-center text-gray-500">
                     <i class="fas fa-comments text-gray-300 text-4xl mb-2"></i>
