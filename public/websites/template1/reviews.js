@@ -192,7 +192,7 @@ async function submitReview(event) {
         new StarRating(ratingContainer);
 
         // If we're in the admin panel, refresh the reviews list
-        if (document.querySelector('#adminReviewsContainer')) {
+        if (document.querySelector('#admin-reviews-container')) {
             console.log('🔄 Refreshing admin review list...');
             loadAllReviews();
         }
@@ -311,7 +311,7 @@ async function loadAllReviews() {
     console.log('----------------------------------------');
 
     // Show loading state
-    const container = document.querySelector('#adminReviewsContainer');
+    const container = document.querySelector('#admin-reviews-container');
     if (!container) {
         console.error('❌ Admin reviews container not found!');
         return;
@@ -380,7 +380,7 @@ function bindReviewSwitchListeners(container) {
 
 // Admin: Display reviews in admin panel
 function displayAdminReviews(reviews) {
-    const container = document.querySelector('#adminReviewsContainer');
+    const container = document.querySelector('#admin-reviews-container');
     if (!container) {
         console.error('❌ Admin reviews container not found in displayAdminReviews!');
         return;
@@ -433,7 +433,7 @@ function displayAdminReviews(reviews) {
 
 // Toggle review visibility (admin)
 async function toggleReviewVisibility(reviewId, makeVisible) {
-    const container = document.querySelector('#adminReviewsContainer');
+    const container = document.querySelector('#admin-reviews-container');
     if (container) {
         const btn = container.querySelector(`button[onclick*="toggleReviewVisibility('${reviewId}'"]`);
         const card = btn ? btn.closest('.bg-white.rounded-lg.shadow-md.p-6.mb-4') : null;
@@ -572,7 +572,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Check if we're on the admin page
-    const adminContainer = document.querySelector('#adminReviewsContainer');
+    const adminContainer = document.querySelector('#admin-reviews-container');
     if (adminContainer) {
         console.log('👩‍💼 Admin panel detected, loading all reviews...');
         await loadAllReviews();
@@ -895,4 +895,12 @@ loadReviews = async function() {
         console.error('Error loading reviews:', error);
         showAlert('error', 'Failed to load reviews');
     }
-} 
+}
+
+// On DOMContentLoaded, bind refresh button
+document.addEventListener('DOMContentLoaded', function() {
+    const refreshBtn = document.getElementById('refreshReviewsBtn');
+    if (refreshBtn) {
+        refreshBtn.onclick = loadAllReviews;
+    }
+}); 
