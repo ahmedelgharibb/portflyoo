@@ -1495,20 +1495,20 @@ function addResultItem(name = '', score = '', astar = '', a = '', other = '') {
     resultItem.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
-                <label class="form-label">Subject</label>
-                <input type="text" class="form-input subject-name" value="${name}" placeholder="e.g., Mathematics">
+                <label class="result-label" for="subject">Subject</label>
+                <input type="text" class="result-input subject-input" value="${name}" placeholder="e.g., Mathematics">
             </div>
             <div>
-                <label class="form-label">A* Students</label>
-                <input type="number" class="form-input astar-count" value="${astar}" placeholder="Number of A* students">
+                <label class="result-label" for="astar">A* Students</label>
+                <input type="number" class="result-input" value="${astar}" placeholder="Number of A* students">
             </div>
             <div>
-                <label class="form-label">A Students</label>
-                <input type="number" class="form-input a-count" value="${a}" placeholder="Number of A students">
+                <label class="result-label" for="a">A Students</label>
+                <input type="number" class="result-input" value="${a}" placeholder="Number of A students">
             </div>
             <div>
-                <label class="form-label">Other Grades</label>
-                <input type="number" class="form-input other-count" value="${other}" placeholder="Number of other grades">
+                <label class="result-label other-label" for="other">Other Grades</label>
+                <input type="number" class="result-input" value="${other}" placeholder="Number of other grades">
             </div>
             <div class="flex items-end">
                 <button class="remove-result-btn bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition-colors">
