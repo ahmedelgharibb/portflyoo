@@ -1,4 +1,85 @@
 <?php
+// SECURITY-ENHANCED API ENDPOINT
+// Enforce HTTPS, validate all input, and keep dependencies up to date.
+
+// TODO: Implement Two-Factor Authentication (2FA) for admin logins.
+// TODO: Implement IP whitelisting for admin panel access.
+// TODO: Add logging and monitoring for all admin actions (e.g., file_put_contents to a secure log file).
+
+session_start();
+
+// --- Rate Limiting (simple IP-based) ---
+$ip = $_SERVER['REMOTE_ADDR'];
+$rate_limit_file = sys_get_temp_dir() . '/api_rate_limit_' . md5($ip);
+$rate_limit = 10; // requests per minute
+$window = 60; // seconds
+$now = time();
+$requests = [];
+if (file_exists($rate_limit_file)) {
+    $requests = json_decode(file_get_contents($rate_limit_file), true) ?: [];
+    $requests = array_filter($requests, function($t) use ($now, $window) { return $t > $now - $window; });
+}
+$requests[] = $now;
+file_put_contents($rate_limit_file, json_encode($requests));
+if (count($requests) > $rate_limit) {
+    http_response_code(429);
+    die(json_encode(['error' => 'Too many requests. Please try again later.']));
+}
+
+// --- Input Validation & Sanitization ---
+function clean_input($data) {
+    return htmlspecialchars(strip_tags(trim($data)), ENT_QUOTES, 'UTF-8');
+}
+
+// --- Strong Password Hashing ---
+function hash_password($password) {
+    return password_hash($password, PASSWORD_DEFAULT);
+}
+function verify_password($password, $hash) {
+    return password_verify($password, $hash);
+}
+
+// --- Secure Session Management ---
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_secure', 1);
+ini_set('session.use_strict_mode', 1);
+
+// --- Admin Authentication Example ---
+function is_admin() {
+    return isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
+}
+function require_admin() {
+    if (!is_admin()) {
+        http_response_code(403);
+        die(json_encode(['error' => 'Unauthorized']));
+    }
+}
+
+// --- Example: Secure Login Endpoint ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'login') {
+    $password = clean_input($_POST['password'] ?? '');
+    // $stored_hash = ... (fetch from DB or config, do NOT hardcode)
+    $stored_hash = 'REPLACE_WITH_HASH_FROM_DB';
+    if (verify_password($password, $stored_hash)) {
+        $_SESSION['is_admin'] = true;
+        echo json_encode(['success' => true]);
+    } else {
+        http_response_code(401);
+        echo json_encode(['error' => 'Invalid credentials']);
+    }
+    exit;
+}
+
+// --- Example: Secure Admin Action ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'admin_action') {
+    require_admin();
+    // Validate and sanitize all inputs
+    $data = clean_input($_POST['data'] ?? '');
+    // ... perform admin action ...
+    echo json_encode(['success' => true]);
+    exit;
+}
+
 // Enable error reporting for debugging
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
