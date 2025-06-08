@@ -1330,22 +1330,20 @@
         }
 
         .admin-panel-card {
-            background: linear-gradient(135deg, #f9fafb 80%, #e3eafc 100%);
-            border-radius: 1.75rem;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
-            padding: 3rem 2.5rem;
-            max-width: 750px;
+            background: #fff;
+            border-radius: 2rem;
+            box-shadow: 0 8px 40px 0 rgba(30, 41, 59, 0.10);
+            padding: 2.5rem 2rem;
+            max-width: 600px;
             margin: 2.5rem auto;
             display: flex;
             flex-direction: column;
-            gap: 2.5rem;
-            border: 1.5px solid #e3eafc;
-            transition: box-shadow 0.2s, transform 0.2s;
+            gap: 2.25rem;
+            border: none;
+            transition: box-shadow 0.2s;
         }
-
         .admin-panel-card:hover {
-            box-shadow: 0 16px 48px 0 rgba(31, 38, 135, 0.16);
-            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 16px 56px 0 rgba(30, 41, 59, 0.13);
         }
 
         .admin-panel-label {
@@ -1658,16 +1656,21 @@
 
         /* Minimal & Modern Admin Panel Redesign */
         .admin-panel-card {
-            background: #fff;
-            border-radius: 1.25rem;
-            box-shadow: 0 2px 16px rgba(30, 41, 59, 0.08);
-            padding: 2.5rem 2rem;
-            max-width: 700px;
-            margin: 2rem auto;
+            background: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+            padding: 2rem;
+            max-width: 800px;
+            margin: 1.5rem auto;
             display: flex;
             flex-direction: column;
-            gap: 2rem;
-            border: none;
+            gap: 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .admin-panel-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 32px rgba(0, 0, 0, 0.06);
         }
         .admin-panel-card h3 {
             font-size: 2rem;
