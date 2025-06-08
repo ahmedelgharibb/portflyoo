@@ -1753,6 +1753,41 @@
                 gap: 1.2rem;
             }
         }
+
+        #admin-results-container label,
+        #admin-results-container .admin-panel-label {
+            font-size: 1.12rem;
+            font-weight: 700;
+            color: #223a52;
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.01em;
+            display: block;
+        }
+        #admin-results-container input,
+        #admin-results-container .admin-panel-input,
+        #admin-results-container .admin-panel-textarea {
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: #14509e;
+            background: #fff;
+            border: 1px solid #e3eafc;
+            border-radius: 0.7rem;
+            padding: 0.7rem 1.1rem;
+            margin-bottom: 1.1rem;
+            margin-top: 0.1rem;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        #admin-results-container input:focus,
+        #admin-results-container .admin-panel-input:focus,
+        #admin-results-container .admin-panel-textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.08);
+        }
+        #admin-results-container .admin-panel-label[for^="admin-"] {
+            margin-top: 1.2rem;
+        }
     </style>
     
     <!-- Chart.js -->
