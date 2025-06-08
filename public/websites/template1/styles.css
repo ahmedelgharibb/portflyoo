@@ -833,7 +833,7 @@ header nav {
   width: 168px; /* 1.4x of 120px */
   min-width: 140px;
   max-width: 220px;
-  margin-left: -12px; /* Shift subject field to the left */
+  margin-left: -28px; /* Stronger shift to the left */
 }
 @media (max-width: 900px) {
   #admin-results-container .result-input.subject-input {
