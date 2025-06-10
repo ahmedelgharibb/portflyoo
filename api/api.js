@@ -13,6 +13,10 @@ export default async function handler(req, res) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'interest-cohort=()');
+  res.setHeader('Feature-Policy', "geolocation 'none'; microphone 'none'; camera 'none'");
+  res.setHeader('Expect-CT', 'max-age=86400, enforce');
+  res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
 
   // Parse JSON body if needed (Vercel does not do this automatically)
   if (req.method === 'POST' && !req.body) {
