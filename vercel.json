@@ -14,5 +14,12 @@
         { "key": "X-XSS-Protection", "value": "1; mode=block" }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/websites/:folder",
+      "destination": "/websites/:folder/index.html",
+      "permanent": true
+    }
   ]
 } 
