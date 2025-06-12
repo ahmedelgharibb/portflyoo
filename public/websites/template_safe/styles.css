@@ -2807,5 +2807,27 @@
         .site-loader-spinner { width: 44px; height: 44px; }
         .site-loader-text { font-size: 1rem; }
       }
+
+      /* === Utility classes for previously inline styles (auto-generated) === */
+      .bg-primary-color { background: var(--primary-color) !important; }
+      .display-inline-block { display: inline-block !important; }
+      .vertical-align-middle { vertical-align: middle !important; }
+      .margin-right-8 { margin-right: 8px !important; }
+      .display-block { display: block !important; }
+      .width-100 { width: 100% !important; }
+      .padding-075-1 { padding: 0.75rem 1rem !important; }
+      .z-index-10 { z-index: 10 !important; }
+      .position-relative { position: relative !important; }
+      .display-none { display: none !important; }
+      .z-index-10001 { z-index: 10001 !important; }
+      .bg-rgba-white { background: rgba(255,255,255,0.98) !important; }
+      .max-height-60vh { max-height: 60vh !important; }
+      .color-white { color: #fff !important; }
+      .border-none { border: none !important; }
+      .bg-primary-dark { background: var(--primary-dark) !important; }
+      .bg-primary-color-white { background: var(--primary-color) !important; color: #fff !important; border: none !important; }
+      .margin-top-1rem { margin-top: 1rem !important; }
+      .font-size-1rem { font-size: 1rem !important; }
+      /* === End utility classes === */
   
   
