@@ -24,24 +24,6 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="template1/reviews.js"></script>
-    <script>
-        // Sorting logic
-        function setActiveSort(btnId) {
-            document.getElementById('sortLatest').classList.remove('active');
-            document.getElementById('sortHighest').classList.remove('active');
-            document.getElementById(btnId).classList.add('active');
-        }
-        document.getElementById('sortLatest').onclick = function() {
-            setActiveSort('sortLatest');
-            window.loadAllPublicReviews('latest');
-        };
-        document.getElementById('sortHighest').onclick = function() {
-            setActiveSort('sortHighest');
-            window.loadAllPublicReviews('highest');
-        };
-        // Initial load
-        setActiveSort('sortLatest');
-        window.loadAllPublicReviews('latest');
-    </script>
+    <script src="all-reviews.js"></script>
 </body>
 </html> 

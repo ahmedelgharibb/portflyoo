@@ -2426,49 +2426,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
 
-    <script>
-        // Add this to your existing script section or create a new one
-        document.addEventListener('DOMContentLoaded', function() {
-            // Update footer year automatically
-            document.getElementById('current-year').textContent = new Date().getFullYear();
-            
-            const loaderContainer = document.getElementById('loaderContainer');
-            
-            // Function to show loader
-            window.showLoader = function() {
-                loaderContainer.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Prevent scrolling while loading
-            };
-            
-            // Function to hide loader
-            window.hideLoader = function() {
-                loaderContainer.classList.add('hidden');
-                document.body.style.overflow = ''; // Restore scrolling
-            };
-            
-            // Example usage: Hide loader when all content is loaded
-            window.addEventListener('load', function() {
-                // Add a small delay to ensure smooth animation
-                setTimeout(hideLoader, 500);
-            });
-            
-            // Show loader before making any AJAX requests
-            const originalFetch = window.fetch;
-            window.fetch = function() {
-                showLoader();
-                return originalFetch.apply(this, arguments)
-                    .then(function(response) {
-                        hideLoader();
-                        return response;
-                    })
-                    .catch(function(error) {
-                        hideLoader();
-                        throw error;
-                    });
-            };
-        });
-    </script>
-
     <!-- Add this before the closing body tag -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="reviews.js"></script>

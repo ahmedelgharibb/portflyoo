@@ -257,28 +257,6 @@
   <footer>
     &copy; <span id="year"></span> Futuristic Fun Factory. All rights reserved.
   </footer>
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-    document.getElementById('contactForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var status = document.getElementById('formStatus');
-      status.textContent = 'Sending...';
-      status.style.color = 'var(--primary)';
-      setTimeout(function() {
-        status.textContent = 'Thank you for reaching out! We will get back to you soon.';
-        status.style.color = 'var(--secondary)';
-        document.getElementById('contactForm').reset();
-      }, 1200);
-    });
-    document.addEventListener('DOMContentLoaded', function() {
-      const exploreFeaturesBtn = document.getElementById('exploreFeaturesBtn');
-      if (exploreFeaturesBtn) {
-        exploreFeaturesBtn.addEventListener('click', function() {
-          const features = document.getElementById('features');
-          if (features) features.scrollIntoView({behavior: 'smooth'});
-        });
-      }
-    });
-  </script>
+  <script src="fff.js"></script>
 </body>
 </html> 
