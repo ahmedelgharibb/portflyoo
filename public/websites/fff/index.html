@@ -221,7 +221,7 @@
     <section class="hero">
       <h1>Welcome to Futuristic Fun Factory</h1>
       <p>Experience the next generation of interactive web fun! FFF brings you a blend of creativity, technology, and entertainment. Dive into a world where imagination meets innovation.</p>
-      <button class="cta" onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">Explore Features</button>
+      <button class="cta" id="exploreFeaturesBtn">Explore Features</button>
     </section>
     <section class="features" id="features">
       <div class="feature">
@@ -269,6 +269,15 @@
         status.style.color = 'var(--secondary)';
         document.getElementById('contactForm').reset();
       }, 1200);
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+      const exploreFeaturesBtn = document.getElementById('exploreFeaturesBtn');
+      if (exploreFeaturesBtn) {
+        exploreFeaturesBtn.addEventListener('click', function() {
+          const features = document.getElementById('features');
+          if (features) features.scrollIntoView({behavior: 'smooth'});
+        });
+      }
     });
   </script>
 </body>

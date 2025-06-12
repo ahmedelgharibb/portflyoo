@@ -3881,3 +3881,22 @@ document.addEventListener('DOMContentLoaded', function() {
   var siteOwnerEmail = (window.siteData && window.siteData.contact && window.siteData.contact.email) || '';
   showOrHideContactSection(siteOwnerEmail);
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+  // All Reviews page navigation
+  const goToTemplate1 = document.getElementById('goToTemplate1');
+  if (goToTemplate1) {
+    goToTemplate1.addEventListener('click', function() {
+      window.location.href = 'template1/index.html';
+    });
+  }
+  // Sort buttons (hover handled by CSS)
+  // FFF Explore Features button
+  const exploreFeaturesBtn = document.getElementById('exploreFeaturesBtn');
+  if (exploreFeaturesBtn) {
+    exploreFeaturesBtn.addEventListener('click', function() {
+      const features = document.getElementById('features');
+      if (features) features.scrollIntoView({behavior: 'smooth'});
+    });
+  }
+});
