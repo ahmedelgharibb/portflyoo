@@ -802,17 +802,8 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="script.js"></script>
     
-        <script>
-            // Add this to your existing script section or create a new one
-            document.addEventListener('DOMContentLoaded', function() {
-                // Update footer year automatically
-                document.getElementById('current-year').textContent = new Date().getFullYear();
-            });
-        </script>
-    
-        <!-- Add this before the closing body tag -->
-        <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-        <script src="reviews.js"></script>
+        <script src="footer-year.js"></script>
+        <script src="load-approved-reviews.js"></script>
     
         <!-- All Reviews Modal -->
         <div id="allReviewsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">

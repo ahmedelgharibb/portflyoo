@@ -2688,39 +2688,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
 
-    <script>
-        // Add this to your existing script section or create a new one
-        document.addEventListener('DOMContentLoaded', function() {
-            // Update footer year automatically
-            document.getElementById('current-year').textContent = new Date().getFullYear();
-        });
-    </script>
-
-    <!-- Add this before the closing body tag -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="reviews.js"></script>
-
-    <!-- All Reviews Modal -->
-    <div id="allReviewsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-      <div class="bg-white rounded-lg shadow-lg max-w-xl w-full flex flex-col relative overflow-hidden">
-        <div class="flex items-center justify-between px-6 pt-6 pb-2 border-b border-gray-200">
-          <h2 class="text-2xl font-bold">All Student Reviews</h2>
-          <button id="closeAllReviewsModal" class="text-gray-500 hover:text-gray-700 text-2xl ml-4">&times;</button>
-        </div>
-        <div class="flex justify-center gap-4 px-6 pt-4 pb-2 sticky top-0 bg-white z-10">
-          <button id="sortLatestModal" class="sort-btn px-4 py-2 rounded-md text-white bg-primary-color-white">Latest</button>
-          <button id="sortHighestModal" class="sort-btn px-4 py-2 rounded-md text-white bg-primary-color-white">Highest Rated</button>
-        </div>
-        <div id="allReviewsModalContainer" class="overflow-y-auto px-6 pb-6 flex-1 max-height-60vh"></div>
-      </div>
-    </div>
-
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        if (typeof loadApprovedReviews === 'function') {
-          loadApprovedReviews();
-        }
-      });
-    </script>
+    <script src="footer-year.js"></script>
+    <script src="load-approved-reviews.js"></script>
 </body>
 </html>
