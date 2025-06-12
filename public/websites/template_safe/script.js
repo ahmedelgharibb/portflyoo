@@ -1822,6 +1822,8 @@ function updateSiteContent(data) {
         }
 
         console.log('✅ Site content updated successfully');
+        var siteLoader = document.getElementById('siteLoader');
+        if (siteLoader) siteLoader.classList.add('hide');
         window.mainDataLoaded = true;
         maybeHidePreloader();
 
