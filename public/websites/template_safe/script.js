@@ -3582,7 +3582,7 @@ function updateCoursesTeachingGrid(subjects) {
 
 // Call updateCoursesTeachingGrid when site data is loaded
 // In updateSiteContent, after updating other sections:
-if (data.results) updateCoursesTeachingGrid(data.results);
+
 
 // --- Modern Drag-and-Drop and File Upload for Hero/About Images ---
 
