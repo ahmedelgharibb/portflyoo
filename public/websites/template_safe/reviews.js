@@ -398,8 +398,9 @@ function displayAdminReviews(reviews) {
         return;
     }
     reviews.forEach((review) => {
+        const isHidden = !review.is_visible;
         const reviewElement = document.createElement('div');
-        reviewElement.className = 'bg-white rounded-lg shadow-md p-6 mb-4';
+        reviewElement.className = `bg-white rounded-lg shadow-md p-6 mb-4 transition-opacity duration-300 ${isHidden ? 'opacity-60 grayscale' : ''}`;
         reviewElement.innerHTML = `
             <div class="flex items-center justify-between mb-4">
                 <div>
@@ -414,8 +415,9 @@ function displayAdminReviews(reviews) {
                 </div>
             </div>
             <p class="text-gray-600 mt-2">${review.review_text}</p>
-            <div class="text-sm text-gray-500 mt-2">
-                ${new Date(review.created_at).toLocaleDateString()}
+            <div class="flex items-center mt-2 gap-2">
+                <div class="text-sm text-gray-500">${new Date(review.created_at).toLocaleDateString()}</div>
+                ${isHidden ? '<span class="ml-2 px-2 py-1 bg-gray-300 text-gray-700 text-xs rounded">Hidden</span>' : ''}
             </div>
         `;
         container.appendChild(reviewElement);
@@ -429,41 +431,17 @@ function displayAdminReviews(reviews) {
 
 // Toggle review visibility (admin)
 async function toggleReviewVisibility(reviewId, makeVisible) {
-    const container = document.querySelector('#admin-reviews-container');
-    if (container) {
-        const btn = container.querySelector(`button[onclick*="toggleReviewVisibility('${reviewId}'"]`);
-        const card = btn ? btn.closest('.bg-white.rounded-lg.shadow-md.p-6.mb-4') : null;
-        if (btn) {
-            btn.disabled = true;
-            btn.textContent = makeVisible ? 'Show...' : 'Hide...';
-            btn.classList.add('opacity-60', 'pointer-events-none');
-        }
-        if (card && btn) {
-            // Optimistically update the card and button instantly
-            setTimeout(() => {
-                // Update button color and text
-                btn.textContent = makeVisible ? 'Hide' : 'Show';
-                btn.className = `px-4 py-2 rounded ${makeVisible ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white`;
-                btn.disabled = false;
-                btn.classList.remove('opacity-60', 'pointer-events-none');
-                // Animate out if hiding
-                if (!makeVisible) {
-                    card.style.transition = 'opacity 0.4s, transform 0.4s';
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.95)';
-                    setTimeout(() => card.remove(), 400);
-                }
-            }, 400);
-        }
-    }
     try {
         let reviews = await fetchAllReviewsFromTeachersWebsites();
         reviews = reviews.map(r => r.id === reviewId ? { ...r, is_visible: makeVisible } : r);
         await saveAllReviewsToTeachersWebsites(reviews);
         showToast(`Review ${makeVisible ? 'shown' : 'hidden'}!`);
+        // Refresh admin reviews to update visual state
+        loadAllReviews();
     } catch (err) {
         showToast('Failed to update review visibility', 'error');
         // Fallback: reload reviews list if error
+        const container = document.querySelector('#admin-reviews-container');
         if (container) {
             fetchAllReviewsFromTeachersWebsites().then(displayAdminReviews);
         }
