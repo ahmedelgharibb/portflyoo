@@ -899,4 +899,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (refreshBtn) {
         refreshBtn.onclick = loadAllReviews;
     }
-}); 
+});
+
+// --- Add: Helper to render average rating and total reviews ---
+function renderAverageRatingAndTotal(reviews) {
+  // Calculate average using ALL reviews (approved and unapproved)
+  const total = reviews.length;
+  const avg = (reviews.reduce((sum, r) => sum + (parseInt(r.rating) || 0), 0) / total) || 0;
+  const avgFixed = avg.toFixed(1);
+  const fullStars = Math.floor(avg);
+  const halfStar = avg - fullStars >= 0.5;
+  // ... existing code ...
+} 
