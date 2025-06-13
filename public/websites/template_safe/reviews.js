@@ -431,17 +431,38 @@ function displayAdminReviews(reviews) {
 
 // Toggle review visibility (admin)
 async function toggleReviewVisibility(reviewId, makeVisible) {
+    // Instantly update the card's visual state for immediate feedback
+    const container = document.querySelector('#admin-reviews-container');
+    if (container) {
+        const card = Array.from(container.children).find(el => {
+            const input = el.querySelector(`input.review-switch[data-review-id="${reviewId}"]`);
+            return input !== null;
+        });
+        if (card) {
+            if (makeVisible) {
+                card.classList.remove('opacity-60', 'grayscale');
+                const badge = card.querySelector('.hidden-badge');
+                if (badge) badge.remove();
+            } else {
+                card.classList.add('opacity-60', 'grayscale');
+                if (!card.querySelector('.hidden-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'ml-2 px-2 py-1 bg-gray-300 text-gray-700 text-xs rounded hidden-badge';
+                    badge.textContent = 'Hidden';
+                    const meta = card.querySelector('.flex.items-center.mt-2.gap-2');
+                    if (meta) meta.appendChild(badge);
+                }
+            }
+        }
+    }
     try {
         let reviews = await fetchAllReviewsFromTeachersWebsites();
         reviews = reviews.map(r => r.id === reviewId ? { ...r, is_visible: makeVisible } : r);
         await saveAllReviewsToTeachersWebsites(reviews);
         showToast(`Review ${makeVisible ? 'shown' : 'hidden'}!`);
-        // Refresh admin reviews to update visual state
-        loadAllReviews();
     } catch (err) {
         showToast('Failed to update review visibility', 'error');
         // Fallback: reload reviews list if error
-        const container = document.querySelector('#admin-reviews-container');
         if (container) {
             fetchAllReviewsFromTeachersWebsites().then(displayAdminReviews);
         }
