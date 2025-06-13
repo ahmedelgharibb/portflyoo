@@ -1956,6 +1956,8 @@ function updateResultsChart(subjects) {
 
 // Save admin changes to backend API and localStorage
 async function saveAdminChanges() {
+    // Record scroll position
+    const scrollY = window.scrollY;
     console.log('Save changes function called');
     const saveBtn = document.getElementById('saveChangesBtn');
     if (!saveBtn) {
@@ -2168,6 +2170,8 @@ async function saveAdminChanges() {
     } finally {
         saveBtn.innerHTML = originalBtnText;
         saveBtn.disabled = false;
+        // Restore scroll position
+        window.scrollTo({ top: scrollY, behavior: 'auto' });
     }
 }
 
