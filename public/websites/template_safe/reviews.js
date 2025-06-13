@@ -606,7 +606,7 @@ async function loadReviews() {
         const approved = reviews.filter(r => r.is_visible);
         const reviewsContainer = document.getElementById('reviewsContainer');
         if (reviewsContainer) reviewsContainer.innerHTML = '';
-        renderReviewStats(approved, '#reviewsContainer');
+        renderReviewStats(reviews, '#reviewsContainer');
         if (approved.length === 0) {
             reviewsContainer.innerHTML += `
                 <div class="text-center text-gray-500">
@@ -844,8 +844,11 @@ const origDisplayReviews = displayReviews;
 displayReviews = function(reviews) {
     const container = document.querySelector('#reviewsContainer');
     if (container) container.innerHTML = '';
-    renderReviewStats(reviews, '#reviewsContainer');
-    origDisplayReviews(reviews);
+    // Fetch all reviews for stats, not just approved
+    fetchAllReviewsFromTeachersWebsites().then(allReviews => {
+        renderReviewStats(allReviews, '#reviewsContainer');
+        origDisplayReviews(reviews);
+    });
 }
 
 // Patch: Show average rating and total reviews in loadReviews
@@ -856,7 +859,7 @@ loadReviews = async function() {
         const approved = reviews.filter(r => r.is_visible);
         const reviewsContainer = document.getElementById('reviewsContainer');
         if (reviewsContainer) reviewsContainer.innerHTML = '';
-        renderReviewStats(approved, '#reviewsContainer');
+        renderReviewStats(reviews, '#reviewsContainer'); // Use all reviews for stats
         if (approved.length === 0) {
             reviewsContainer.innerHTML += `
                 <div class="text-center text-gray-500">
