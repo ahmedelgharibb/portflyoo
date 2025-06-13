@@ -841,25 +841,24 @@ function renderReviewStats(reviews, containerSelector = '#reviewsContainer') {
 
 // Patch: Show average rating and total reviews in displayReviews
 const origDisplayReviews = displayReviews;
-displayReviews = function(reviews) {
+displayReviews = async function(reviews) {
     const container = document.querySelector('#reviewsContainer');
     if (container) container.innerHTML = '';
-    // Fetch all reviews for stats, not just approved
-    fetchAllReviewsFromTeachersWebsites().then(allReviews => {
-        renderReviewStats(allReviews, '#reviewsContainer');
-        origDisplayReviews(reviews);
-    });
+    // Always fetch all reviews for stats
+    const allReviews = await fetchAllReviewsFromTeachersWebsites();
+    renderReviewStats(allReviews, '#reviewsContainer');
+    origDisplayReviews(reviews);
 }
 
 // Patch: Show average rating and total reviews in loadReviews
 const origLoadReviews = loadReviews;
 loadReviews = async function() {
     try {
-        const reviews = await fetchAllReviewsFromTeachersWebsites();
-        const approved = reviews.filter(r => r.is_visible);
+        const allReviews = await fetchAllReviewsFromTeachersWebsites();
+        const approved = allReviews.filter(r => r.is_visible);
         const reviewsContainer = document.getElementById('reviewsContainer');
         if (reviewsContainer) reviewsContainer.innerHTML = '';
-        renderReviewStats(reviews, '#reviewsContainer'); // Use all reviews for stats
+        renderReviewStats(allReviews, '#reviewsContainer'); // Always use all reviews for stats
         if (approved.length === 0) {
             reviewsContainer.innerHTML += `
                 <div class="text-center text-gray-500">
