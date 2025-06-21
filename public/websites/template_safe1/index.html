@@ -97,32 +97,32 @@
         </div>
     
         <!-- Hero Section -->
-        <section id="hero" class="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
-            <div class="absolute inset-0 z-0 bg-gradient-to-br from-gray-50 to-blue-50">
-                <div class="absolute inset-0 bg-pattern opacity-5"></div>
+        <section id="hero" class="hero-section">
+            <div class="hero-background">
+                <div class="hero-bg-pattern"></div>
             </div>
             
-            <div class="container mx-auto px-4 lg:px-8 relative z-10">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                    <div class="hero-content flex flex-col items-center text-center md:items-start md:text-left md:pr-8">
-                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight hero-title">
+            <div class="hero-container">
+                <div class="hero-grid">
+                    <div class="hero-content">
+                        <h1 class="hero-title">
                             Inspiring Minds Through 
-                            <span class="text-blue-600">Subject</span>
+                            <span class="hero-title-highlight">Subject</span>
                         </h1>
-                        <p class="text-base md:text-lg text-gray-600 mb-6 md:mb-8 max-w-xl">
+                        <p class="hero-description">
                             Experience
                         </p>
-                        <div class="flex flex-col sm:flex-row gap-3 md:gap-4 w-full sm:w-auto justify-center md:justify-start items-center md:items-start">
-                            <a href="#about" class="btn-modern btn-primary transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="hero-buttons">
+                            <a href="#about" class="btn-modern btn-primary hero-button-primary">
                                 <span>Learn More</span>
                             </a>
-                            <a href="#contact" id="heroContactBtn" class="btn-modern btn-secondary transition-all duration-300 transform hover:-translate-y-1">
+                            <a href="#contact" id="heroContactBtn" class="btn-modern btn-secondary hero-button-secondary">
                                 <span>Contact Me</span>
                             </a>
                         </div>
                     </div>
                     
-                    <div class="hero-image-wrap">
+                    <div class="hero-image-container">
                         <img id="heroImage" class="hero-image" src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" alt="Teacher Picture">
                         <a href="#about" class="hero-arrow">
                             <i class="fas fa-chevron-down text-xl"></i>
@@ -133,31 +133,31 @@
         </section>
     
         <!-- About Section -->
-        <section id="about" class="py-20 bg-white w-full overflow-hidden">
-            <div class="container mx-auto px-4">
-                <h2 class="text-4xl font-bold text-center mb-12 section-title">About Me</h2>
+        <section id="about" class="about-section">
+            <div class="about-container">
+                <h2 class="about-title section-title">About Me</h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="relative">
+                <div class="about-grid">
+                    <div class="about-image-container">
                         <img id="aboutImage" src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" 
                              alt="Teacher Picture" 
-                             class="rounded-lg shadow-xl w-full">
+                             class="about-image">
                         <!-- <div class="absolute -bottom-6 -right-6 bg-blue-600 text-white p-4 rounded-lg">
                             <p class="text-2xl font-bold">15+</p>
                             <p class="text-sm">Years Experience</p>
                         </div> -->
                     </div>
-                    <div>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-6">Qualifications</h3>
-                        <ul class="space-y-4 mb-8">
-                            <li class="flex items-center">
-                                <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
+                    <div class="about-details">
+                        <h3 class="about-subheading">Qualifications</h3>
+                        <ul class="qualifications-list">
+                            <li class="qualification-item">
+                                <i class="fas fa-graduation-cap qualification-icon"></i>
                                 <span>Qualifications</span>
                             </li>
                         </ul>
                         
-                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Teaching Philosophy</h3>
-                        <p class="text-gray-600 mb-8">
+                        <h3 class="about-subheading">Teaching Philosophy</h3>
+                        <p class="philosophy-text">
                             Teaching Philosophy
                         </p>
                     </div>
