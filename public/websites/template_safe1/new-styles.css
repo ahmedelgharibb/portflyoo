@@ -1,0 +1,192 @@
+/* New Styles for Refactoring */
+
+/* Courses Teaching Section */
+.courses-section {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+    background-color: #f9fafb; /* bg-gray-50 */
+}
+
+.courses-container {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-width: 1280px; /* Corresponds to container and mx-auto */
+}
+
+.courses-section .section-title {
+    font-size: 1.875rem; /* text-3xl */
+    font-weight: 700; /* font-bold */
+    text-align: center;
+    margin-bottom: 2.5rem; /* mb-10 */
+}
+
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem; /* gap-4 */
+}
+
+@media (min-width: 768px) {
+    .courses-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Experience Section */
+.experience-section {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+    background-color: #ffffff; /* bg-white */
+}
+
+.experience-container {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-width: 1280px;
+}
+
+.experience-section .section-title {
+    font-size: 1.875rem; /* text-3xl */
+    font-weight: 700; /* font-bold */
+    text-align: center;
+    margin-bottom: 2.5rem; /* mb-10 */
+}
+
+.experience-list {
+    margin-top: 2rem; /* mt-8 */
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 2rem; /* gap-8 */
+}
+
+@media (min-width: 768px) {
+    .experience-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .experience-list {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* Reviews Section */
+.reviews-section {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+    background-color: #f9fafb; /* bg-gray-50 */
+}
+
+.reviews-container {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-width: 1280px;
+}
+
+.reviews-title {
+    font-size: 1.875rem; /* text-3xl */
+    font-weight: 700; /* font-bold */
+    text-align: center;
+    margin-bottom: 2.5rem; /* mb-10 */
+}
+
+.reviews-display {
+    margin-bottom: 3rem; /* mb-12 */
+}
+
+.review-form-container {
+    max-width: 42rem; /* max-w-2xl */
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #ffffff;
+    border-radius: 0.5rem; /* rounded-lg */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+    padding: 2rem; /* p-8 */
+}
+
+.review-form-title {
+    font-size: 1.5rem; /* text-2xl */
+    font-weight: 600; /* font-semibold */
+    margin-bottom: 1.5rem; /* mb-6 */
+}
+
+.review-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* space-y-6 */
+}
+
+.review-form .form-label {
+    display: block;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* font-medium */
+    color: #374151; /* text-gray-700 */
+    margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.review-form .form-input {
+    width: 100%;
+    padding: 0.5rem 1rem; /* px-4 py-2 */
+    border: 1px solid #d1d5db; /* border-gray-300 */
+    border-radius: 0.375rem; /* rounded-md */
+}
+
+.review-form .form-input:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+    --tw-ring-color: rgba(59, 130, 246, var(--tw-ring-opacity));
+    --tw-ring-opacity: 1;
+    border-color: #3b82f6; /* focus:border-blue-500 */
+}
+
+.rating-container-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+#ratingContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem; /* space-x-1 */
+}
+
+.rating-text {
+    font-size: 0.875rem; /* text-sm */
+    color: #6b7280; /* text-gray-500 */
+    margin-top: 0.25rem; /* mt-1 */
+}
+
+.submit-review-btn {
+    width: 100%;
+    color: white;
+    padding-top: 0.75rem; /* py-3 */
+    padding-bottom: 0.75rem;
+    padding-left: 1.5rem; /* px-6 */
+    padding-right: 1.5rem;
+    border-radius: 0.375rem; /* rounded-md */
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+    transition-duration: 200ms;
+    background-color: var(--primary-color);
+}
+
+.submit-review-btn:hover {
+    background-color: var(--primary-dark);
+}
+
+.submit-review-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+} 

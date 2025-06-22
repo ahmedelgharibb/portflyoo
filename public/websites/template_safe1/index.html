@@ -14,9 +14,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="styles.css">
+    <link href="styles.css" rel="stylesheet">
+    <link href="new-styles.css" rel="stylesheet">
 
     
     
@@ -170,12 +171,12 @@
     
         <!-- Courses Teaching Section -->
         <section id="courses-teaching" class="courses-section">
-          <div class="courses-container">
-            <h2 class="section-title">Courses Teaching</h2>
-            <div id="courses-teaching-grid" class="courses-grid">
-              <!-- Courses will be dynamically added here from the results data -->
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-10">Courses Teaching</h2>
+                <div id="courses-teaching-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- Courses will be dynamically added here from the results data -->
+                </div>
             </div>
-          </div>
         </section>
     
         <!-- Results Section -->
@@ -191,55 +192,13 @@
         <!-- Experience Section -->
         <section id="experience" class="experience-section">
             <div class="experience-container">
-                <h2 class="section-title">Teaching Experience</h2>
-                <div class="experience-grid">
-                    <!-- Years of Experience Box -->
-                    <div class="experience-card years-card">
-                        <div class="experience-card-bg-gradient"></div>
-                        <div class="experience-card-content">
-                            <div class="experience-card-icon">
-                                <i class="fas fa-calendar-alt text-3xl"></i>
-                            </div>
-                            <h3 class="experience-card-title">Years of Experience</h3>
-                            <div class="experience-card-metric">
-                                <div class="experience-card-number">15+</div>
-                                <div class="experience-card-unit">Years</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="experience-card">
-                        <div class="experience-card-icon">
-                            <i class="fas fa-school text-3xl"></i>
-                        </div>
-                        <h3 class="experience-card-title">Schools</h3>
-                        <ul class="experience-list">
-                            <!-- School items will be dynamically inserted here -->
-                        </ul>
-                    </div>
-                    
-                    <div class="experience-card">
-                        <div class="experience-card-icon">
-                            <i class="fas fa-chalkboard-teacher text-3xl"></i>
-                        </div>
-                        <h3 class="experience-card-title">Centers</h3>
-                        <ul class="experience-list">
-                            <!-- Center items will be dynamically inserted here -->
-                        </ul>
-                    </div>
-                    
-                    <div class="experience-card">
-                        <div class="experience-card-icon">
-                            <i class="fas fa-laptop text-3xl"></i>
-                        </div>
-                        <h3 class="experience-card-title">Online Platforms</h3>
-                        <ul class="experience-list">
-                            <!-- Platform items will be dynamically inserted here -->
-                        </ul>
-                    </div>
+                <h2 class="section-title">Professional Experience</h2>
+                <div id="experience-list" class="experience-list">
+                    <!-- Experience items will be dynamically added here -->
                 </div>
             </div>
         </section>
+    
         <!-- Reviews Section -->
         <section id="reviews" class="reviews-section">
             <div class="reviews-container">
@@ -249,37 +208,37 @@
                     <!-- Reviews will be loaded here dynamically -->
                 </div>
                 <!-- Review Form -->
-                <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
-                    <h3 class="text-2xl font-semibold mb-6">Leave a Review</h3>
-                    <form id="reviewForm" class="space-y-6">
+                <div class="review-form-container">
+                    <h3 class="review-form-title">Leave a Review</h3>
+                    <form id="reviewForm" class="review-form">
                         <div>
-                            <label for="reviewName" class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+                            <label for="reviewName" class="form-label">Your Name</label>
                             <input
                                 type="text"
                                 id="reviewName"
                                 required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                class="form-input"
                                 placeholder="Enter your name"
                             >
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
-                            <div id="ratingContainer" class="flex items-center space-x-1" data-rating="0"></div>
-                            <p class="text-sm text-gray-500 mt-1">Click on the stars to rate</p>
+                            <label class="rating-container-label">Rating</label>
+                            <div id="ratingContainer" data-rating="0"></div>
+                            <p class="rating-text">Click on the stars to rate</p>
                         </div>
                         <div>
-                            <label for="reviewText" class="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
+                            <label for="reviewText" class="form-label">Your Review</label>
                             <textarea
                                 id="reviewText"
                                 required
                                 rows="4"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                class="form-input"
                                 placeholder="Share your experience..."
                             ></textarea>
                         </div>
                         <button
                             type="submit"
-                            class="w-full text-white py-3 px-6 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-primary-color hover:bg-primary-dark"
+                            class="submit-review-btn"
                         >
                             Submit Review
                         </button>
@@ -771,14 +730,6 @@
                 </div>
             </div>
         </div>
-    
-        <!-- Add Change Password Button to Theme Settings -->
-       <!-- <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h3 class="text-xl font-bold mb-4 text-gray-800">Security Settings</h3>
-            <button id="showChangePasswordBtn" class="btn btn-secondary">
-                <i class="fas fa-key mr-2"></i> Change Admin Password
-            </button>
-        </div> -->
     
         <!-- Danger Zone Section in Admin Panel -->
         <div id="dangerZone" class="fixed bottom-0 left-0 right-0 bg-red-50 border-t border-red-200 p-4 z-[1001] hidden">
