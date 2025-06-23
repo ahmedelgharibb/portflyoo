@@ -564,16 +564,6 @@
     overflow: auto;
 }
 
-.admin-panel-loader {
-    position: fixed;
-    inset: 0;
-    background: rgba(255,255,255,0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10001;
-}
-
 .admin-panel-container {
     margin-left: auto;
     margin-right: auto;
@@ -621,9 +611,9 @@
 }
 
 .admin-panel-card {
-    background: #fff;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    background-color: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
     padding: 1.5rem;
     margin-bottom: 2rem;
 }
