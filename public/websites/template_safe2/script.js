@@ -3745,3 +3745,136 @@ document.addEventListener('DOMContentLoaded', function() {
         loadApprovedReviews();
     }
 });
+
+// --- Custom Color Theme Support ---
+function isValidHex(hex) {
+    return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex);
+}
+
+function hexToRgb(hex) {
+    let c = hex.substring(1);
+    if (c.length === 3) c = c.split('').map(x => x + x).join('');
+    const num = parseInt(c, 16);
+    return [(num >> 16) & 255, (num >> 8) & 255, num & 255].join(', ');
+}
+
+function setupCustomThemeColor() {
+    const customRadio = document.getElementById('theme-custom');
+    const colorPicker = document.getElementById('customThemeColorPicker');
+    const hexInput = document.getElementById('customThemeHex');
+    const themeColorInputs = document.querySelectorAll('input[name="theme-color"]');
+
+    // Sync color picker and hex input
+    colorPicker.addEventListener('input', e => {
+        hexInput.value = e.target.value.toUpperCase();
+        customRadio.checked = true;
+    });
+    hexInput.addEventListener('input', e => {
+        let val = e.target.value;
+        if (!val.startsWith('#')) val = '#' + val;
+        if (val.length > 7) val = val.slice(0, 7);
+        e.target.value = val.toUpperCase();
+        colorPicker.value = isValidHex(val) ? val : '#000000';
+        customRadio.checked = true;
+    });
+    // When custom radio is selected, focus hex input
+    customRadio.addEventListener('change', () => {
+        if (customRadio.checked) hexInput.focus();
+    });
+    // Deselect custom if another color is picked
+    themeColorInputs.forEach(input => {
+        if (input.id !== 'theme-custom') {
+            input.addEventListener('change', () => {
+                if (input.checked) {
+                    hexInput.value = '';
+                    colorPicker.value = '#000000';
+                }
+            });
+        }
+    });
+}
+
+// Patch previewSelectedTheme to support custom color
+const origPreviewSelectedTheme = previewSelectedTheme;
+previewSelectedTheme = function() {
+    let selectedColor = document.querySelector('input[name="theme-color"]:checked').value;
+    let selectedMode = document.querySelector('input[name="theme-mode"]:checked').value;
+    let customHex = document.getElementById('customThemeHex').value;
+    if (selectedColor === 'custom' && isValidHex(customHex)) {
+        selectedColor = customHex;
+    }
+    // Use the patched applyTheme
+    applyTheme(selectedColor, selectedMode);
+    // ... rest of original logic ...
+    const previewBtn = document.getElementById('previewThemeBtn');
+    if (previewBtn) {
+        previewBtn.innerHTML = '<div class="admin-loading"></div> Applying Theme...';
+        previewBtn.disabled = true;
+    }
+    document.body.classList.add('theme-transition');
+    setTimeout(() => {
+        // Already applied above
+        if (previewBtn) {
+            setTimeout(() => {
+                previewBtn.innerHTML = '<i class="fas fa-eye mr-2"></i> Preview Theme';
+                previewBtn.disabled = false;
+                showAdminAlert('info', 'Theme preview applied. Save changes to make it permanent.', false, 3000);
+            }, 600);
+        }
+        setTimeout(() => {
+            document.body.classList.remove('theme-transition');
+        }, 500);
+    }, 100);
+}
+
+// Patch applyColorTheme to support custom color
+const origApplyColorTheme = applyColorTheme;
+applyColorTheme = function(color) {
+    const root = document.documentElement;
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    if (isValidHex(color)) {
+        // Custom color logic
+        root.style.setProperty('--primary-color', color);
+        root.style.setProperty('--primary-dark', color);
+        root.style.setProperty('--primary-light', color);
+        root.style.setProperty('--gradient-from', color + 'CC'); // 80% opacity
+        root.style.setProperty('--gradient-to', color + '99'); // 60% opacity
+        root.style.setProperty('--primary-color-rgb', hexToRgb(color));
+        document.body.classList.remove('theme-blue', 'theme-green', 'theme-purple', 'theme-red', 'theme-gray');
+        document.body.classList.add('theme-custom');
+        // Update all elements as in original function (skip Tailwind color classes)
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (!link.classList.contains('admin-btn')) {
+                link.style.color = `var(--primary-color)`;
+            }
+        });
+        document.querySelectorAll('#adminBtn i, #adminBtnMobile i, .admin-btn i').forEach(icon => {
+            icon.style.color = 'var(--primary-color)';
+        });
+        document.querySelectorAll('.section-title').forEach(title => {
+            title.style.borderColor = `var(--primary-color)`;
+        });
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            btn.style.backgroundColor = `var(--primary-color)`;
+            btn.style.borderColor = `var(--primary-dark)`;
+            if (isDarkMode) {
+                btn.style.boxShadow = `0 0 15px rgba(${hexToRgb(color)}, 0.3)`;
+            }
+        });
+        document.querySelectorAll('.theme-color-option input:checked + label').forEach(label => {
+            label.style.boxShadow = `0 0 0 2px var(--primary-color)`;
+        });
+        document.querySelectorAll('.theme-mode-option input:checked + label').forEach(label => {
+            label.style.boxShadow = `0 0 0 2px var(--primary-color)`;
+        });
+        // ... add more as needed for icons, etc ...
+        return;
+    }
+    // Fallback to original logic
+    origApplyColorTheme(color);
+}
+
+// Setup on DOMContentLoaded
+window.addEventListener('DOMContentLoaded', () => {
+    setupCustomThemeColor();
+});
