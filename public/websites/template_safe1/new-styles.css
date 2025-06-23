@@ -402,4 +402,58 @@
 .contact-message {
     font-size: 1rem;
     margin-bottom: 1rem;
+}
+
+/* Footer Section */
+.footer-section {
+    background-color: #111827;
+    color: #fff;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.footer-container {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-width: 1280px;
+}
+
+.footer-flex {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.join-portflyo-btn {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.join-portflyo-btn:hover {
+    color: #60a5fa;
+}
+
+.footer-bottom {
+    text-align: center;
+    font-size: 1rem;
+}
+
+.vertical-align-middle {
+    vertical-align: middle;
+}
+
+.inline-block-middle {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.margin-right-8 {
+    margin-right: 0.5rem;
 } 
