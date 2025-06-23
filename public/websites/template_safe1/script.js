@@ -1867,7 +1867,7 @@ function updateResultsChart(subjects) {
         subjects.forEach(subject => {
             // Create chart container
             const chartWrapper = document.createElement('div');
-            chartWrapper.className = 'bg-white rounded-lg shadow-lg p-6';
+            chartWrapper.className = 'results-chart-card';
             chartWrapper.style.height = '400px';
 
             const canvas = document.createElement('canvas');
