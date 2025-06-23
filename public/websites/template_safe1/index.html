@@ -413,6 +413,53 @@
                         </div>
                     </form>
                 </div>
+                <div class="admin-panel-card" id="websiteImages">
+                    <h3 class="admin-section-title">Website Images</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Hero Image Upload -->
+                        <div class="image-upload-container">
+                            <label class="image-upload-label">Hero Image</label>
+                            <input type="file" id="heroImageInput" accept="image/*" class="hidden-file-input">
+                            <div id="heroDropZone" class="image-drop-zone">
+                                <button id="heroUploadBtn" class="image-upload-button">
+                                    <i class="fas fa-upload mr-2"></i>
+                                    <span>Upload Hero Image</span>
+                                </button>
+                                <p class="image-drop-text">or drag and drop</p>
+                            </div>
+                            <div id="heroPreview" class="image-preview-container hidden">
+                                <img src="" alt="Hero image preview" class="image-preview">
+                                <button id="removeHeroBtn" class="image-remove-button">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div id="heroUploadSpinner" class="image-upload-spinner hidden">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                        <!-- About Image Upload -->
+                        <div class="image-upload-container">
+                            <label class="image-upload-label">About Image</label>
+                            <input type="file" id="aboutImageInput" accept="image/*" class="hidden-file-input">
+                            <div id="aboutDropZone" class="image-drop-zone">
+                                <button id="aboutUploadBtn" class="image-upload-button">
+                                    <i class="fas fa-upload mr-2"></i>
+                                    <span>Upload About Image</span>
+                                </button>
+                                <p class="image-drop-text">or drag and drop</p>
+                            </div>
+                            <div id="aboutPreview" class="image-preview-container hidden">
+                                <img src="" alt="About image preview" class="image-preview">
+                                <button id="removeAboutBtn" class="image-remove-button">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div id="aboutUploadSpinner" class="image-upload-spinner hidden">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="admin-panel-card">
                     <h3 class="text-xl font-bold mb-4 text-gray-800">Experience</h3>
                     <form id="admin-experience-form" class="admin-panel-form">
