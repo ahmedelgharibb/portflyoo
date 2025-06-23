@@ -552,4 +552,129 @@
 }
 .admin-login-btn-secondary:hover {
     background-color: #d1d5db;
+}
+
+/* Admin Panel Section */
+.admin-panel-modal {
+    position: fixed;
+    inset: 0;
+    background: #f3f4f6;
+    z-index: 1000;
+    overflow: auto;
+}
+
+.admin-panel-loader {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+}
+
+.admin-panel-container {
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem 1rem;
+    max-width: 1280px;
+}
+
+.admin-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.admin-panel-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.admin-panel-header-btns {
+    display: flex;
+    gap: 1rem;
+}
+
+.admin-panel-btn {
+    background-color: #e5e7eb;
+    color: #374151;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.admin-panel-btn:hover {
+    background-color: #d1d5db;
+}
+.admin-panel-btn-logout {
+    background-color: #ef4444;
+    color: #fff;
+}
+.admin-panel-btn-logout:hover {
+    background-color: #dc2626;
+}
+
+.admin-panel-card {
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.admin-panel-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.admin-panel-input {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+}
+
+.admin-panel-input:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    border-color: #3b82f6;
+}
+
+.admin-panel-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.admin-panel-results-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.admin-panel-reviews-container {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    max-height: 24rem;
+    overflow-y: auto;
+}
+
+.admin-panel-review-empty {
+    padding: 1.5rem;
+    text-align: center;
+    color: #6b7280;
+}
+
+.admin-panel-review-empty-icon {
+    color: #d1d5db;
+    font-size: 2.25rem;
+    margin-bottom: 0.5rem;
 } 
