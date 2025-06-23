@@ -1123,10 +1123,6 @@ async function openAdminPanel() {
         if (saveChangesBtn) {
             saveChangesBtn.removeEventListener('click', saveAdminChanges);
             saveChangesBtn.addEventListener('click', saveAdminChanges);
-            const adminLoader = document.getElementById('adminLoader');
-            if (adminLoader) {
-                adminLoader.classList.add('hide');
-            }
             console.log('Save changes button event listener attached');
         } else {
             console.error('Save changes button not found in DOM when opening admin panel');
