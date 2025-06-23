@@ -3571,15 +3571,15 @@ function updateCoursesTeachingGrid(subjects) {
             .filter(Boolean)
     ));
     if (uniqueSubjects.length === 0) {
-        coursesGrid.innerHTML = '<div class="col-span-full text-center text-gray-500">No courses available.</div>';
+        coursesGrid.innerHTML = '<div class="courses-empty">No courses available.</div>';
         return;
     }
     coursesGrid.innerHTML = uniqueSubjects.map(subjectName => `
-        <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center justify-center transform hover:-translate-y-1 transition-all duration-300">
-            <div class="text-blue-600 mb-4 text-center">
-                <i class="fas fa-book-open text-3xl"></i>
+        <div class="course-card">
+            <div class="course-icon">
+                <i class="fas fa-book-open"></i>
             </div>
-            <h3 class="text-xl font-bold text-blue-600 text-center">${subjectName}</h3>
+            <h3 class="course-title">${subjectName}</h3>
         </div>
     `).join('');
 }
