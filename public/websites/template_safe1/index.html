@@ -287,12 +287,12 @@
     
     
         <!-- Contact Section -->
-        <section id="contact" class="py-20 bg-gray-50">
-            <div class="container mx-auto px-4">
-                <h2 class="section-title">Contact Me</h2>
-                <div class="max-w-2xl mx-auto">
-                    <div class="contact-phone text-lg font-semibold mb-2"></div>
-                    <form id="contactForm" class="space-y-6">
+        <section id="contact" class="contact-section">
+            <div class="contact-container">
+                <h2 class="contact-title">Contact Me</h2>
+                <div class="contact-form-wrapper">
+                    <div class="contact-phone"></div>
+                    <form id="contactForm" class="contact-form">
                         <div>
                             <label for="name" class="form-label">Name</label>
                             <input type="text" id="name" name="name" required class="form-input">
@@ -305,11 +305,11 @@
                             <label for="message" class="form-label">Message</label>
                             <textarea id="message" name="message" required rows="4" class="form-input"></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary w-full">
+                        <button type="submit" class="contact-btn">
                             <span>Send Message</span>
                         </button>
                     </form>
-                    <div class="contact-message text-base mb-4"></div>
+                    <div class="contact-message"></div>
                 </div>
             </div>
         </section>

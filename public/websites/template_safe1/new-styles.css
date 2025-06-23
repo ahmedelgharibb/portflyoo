@@ -321,4 +321,85 @@
 
 .assistant-btn:hover {
     background-color: var(--primary-dark, #1e40af);
+}
+
+/* Contact Section */
+.contact-section {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+    background-color: #f9fafb;
+}
+
+.contact-container {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-width: 1280px;
+}
+
+.contact-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.contact-form-wrapper {
+    max-width: 42rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.contact-phone {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+}
+
+.form-input:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    border-color: #3b82f6;
+}
+
+.contact-btn {
+    width: 100%;
+    background-color: var(--primary-color, #2563eb);
+    color: #fff;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    transition: background 0.2s;
+    border: none;
+}
+
+.contact-btn:hover {
+    background-color: var(--primary-dark, #1e40af);
+}
+
+.contact-message {
+    font-size: 1rem;
+    margin-bottom: 1rem;
 } 
