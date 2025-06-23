@@ -5801,3 +5801,55 @@
     font-size: 1.1rem;
     padding: 2rem 0;
 }
+
+/* === Reviews Section Semantic Classes === */
+.review-card {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    transition: opacity 0.3s, filter 0.3s;
+}
+.review-card-hidden {
+    opacity: 0.6;
+    filter: grayscale(1);
+}
+.review-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+.review-card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+.review-card-switch {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+.review-card-text {
+    color: #4b5563;
+    margin-bottom: 1rem;
+}
+.review-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    color: #6b7280;
+}
+.review-card-date {
+    color: #6b7280;
+}
+.review-card-badge {
+    margin-left: 0.5rem;
+    padding: 0.2rem 0.6rem;
+    background: #e5e7eb;
+    color: #374151;
+    font-size: 0.8rem;
+    border-radius: 0.5rem;
+}

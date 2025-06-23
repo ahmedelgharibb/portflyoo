@@ -400,24 +400,24 @@ function displayAdminReviews(reviews) {
     reviews.forEach((review) => {
         const isHidden = !review.is_visible;
         const reviewElement = document.createElement('div');
-        reviewElement.className = `bg-white rounded-lg shadow-md p-6 mb-4 transition-opacity duration-300 ${isHidden ? 'opacity-60 grayscale' : ''}`;
+        reviewElement.className = `review-card${isHidden ? ' review-card-hidden' : ''}`;
         reviewElement.innerHTML = `
-            <div class="flex items-center justify-between mb-4">
+            <div class="review-card-header">
                 <div>
-                    <h4 class="text-lg font-semibold">${review.student_name || 'Anonymous'}</h4>
-                    <div class="star-rating flex items-center mt-1"></div>
+                    <h4 class="review-card-title">${review.student_name || 'Anonymous'}</h4>
+                    <div class="star-rating"></div>
                 </div>
-                <div class="flex gap-2 items-center">
+                <div class="review-card-switch">
                     <label class="switch">
                         <input type="checkbox" class="review-switch" data-review-id="${review.id}" ${review.is_visible ? 'checked' : ''}>
                         <span class="slider"></span>
                     </label>
                 </div>
             </div>
-            <p class="text-gray-600 mt-2">${review.review_text}</p>
-            <div class="flex items-center mt-2 gap-2">
-                <div class="text-sm text-gray-500">${new Date(review.created_at).toLocaleDateString()}</div>
-                ${isHidden ? '<span class="ml-2 px-2 py-1 bg-gray-300 text-gray-700 text-xs rounded">Hidden</span>' : ''}
+            <p class="review-card-text">${review.review_text}</p>
+            <div class="review-card-meta">
+                <div class="review-card-date">${new Date(review.created_at).toLocaleDateString()}</div>
+                ${isHidden ? '<span class="review-card-badge">Hidden</span>' : ''}
             </div>
         `;
         container.appendChild(reviewElement);
