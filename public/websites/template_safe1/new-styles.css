@@ -194,68 +194,72 @@
 
 /* Registration Section */
 .registration-section {
-    padding-top: 5rem;
-    padding-bottom: 5rem;
-    background-color: #fff;
+    padding: 5rem 0;
+    background-color: #f9fafb;
 }
 
 .registration-container {
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    max-width: 1280px;
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 1rem;
 }
 
 .registration-title {
-    font-size: 1.875rem;
+    font-size: 2.25rem;
     font-weight: 700;
     text-align: center;
     margin-bottom: 2.5rem;
+    color: #111827;
 }
 
 .registration-form-wrapper {
-    max-width: 42rem;
-    margin-left: auto;
-    margin-right: auto;
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    max-width: 48rem;
+    margin: 0 auto;
 }
 
 .registration-form-content {
+    padding: 4rem;
     text-align: center;
-    margin-bottom: 2rem;
 }
 
 .registration-form-icon {
     font-size: 3rem;
-    color: #2563eb;
-    margin-bottom: 1rem;
+    color: #4f46e5;
+    margin-bottom: 1.5rem;
 }
 
 .registration-form-heading {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1f2937;
+    font-size: 1.875rem;
+    font-weight: 600;
     margin-bottom: 1rem;
+    color: #111827;
 }
 
 .registration-form-description {
     color: #4b5563;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    max-width: 36rem;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .registration-btn {
     display: inline-block;
-    background-color: var(--primary-color, #2563eb);
-    color: #fff;
-    font-weight: 600;
+    background-color: #4f46e5;
+    color: #ffffff;
     padding: 0.75rem 2rem;
-    border-radius: 0.375rem;
-    transition: background 0.2s;
+    border-radius: 0.5rem;
+    font-weight: 500;
     text-decoration: none;
+    transition: background-color 0.3s;
 }
 
 .registration-btn:hover {
-    background-color: var(--primary-dark, #1e40af);
+    background-color: #4338ca;
 }
 
 /* Assistant Application Section */
