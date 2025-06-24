@@ -375,41 +375,9 @@
                 </div>
                 <!-- Alert container for messages -->
                 <div id="adminAlertContainer"></div>
-                <div class="admin-panel-card">
-                    <h3 class="text-xl font-bold mb-4 text-gray-800">Personal Information</h3>
-                    <form id="admin-personal-info-form" class="admin-panel-form">
-                        <div>
-                            <label for="admin-name" class="admin-panel-label">Name</label>
-                            <input type="text" id="admin-name" class="admin-panel-input" />
-                        </div>
-                        <div>
-                            <label for="admin-title" class="admin-panel-label">Title</label>
-                            <input type="text" id="admin-title" class="admin-panel-input" />
-                        </div>
-                        <div>
-                            <label for="admin-subtitle" class="admin-panel-label">Subtitle/Role</label>
-                            <input type="text" id="admin-subtitle" class="admin-panel-input" placeholder="History Teacher" />
-                        </div>
-                        <div>
-                            <label for="admin-hero-heading" class="admin-panel-label">Hero Heading</label>
-                            <input type="text" id="admin-hero-heading" class="admin-panel-input" placeholder="Inspiring Minds Through Mathematics" />
-                        </div>
-                        <div>
-                            <label for="admin-experience" class="admin-panel-label">Experience</label>
-                            <input type="text" id="admin-experience" class="admin-panel-input" />
-                        </div>
-                        <div>
-                            <label for="admin-philosophy" class="admin-panel-label">Teaching Philosophy</label>
-                            <textarea id="admin-philosophy" class="admin-panel-input" rows="3" placeholder="I believe in creating an engaging and supportive learning environment..."></textarea>
-                        </div>
-                        <div>
-                            <label for="admin-qualifications" class="admin-panel-label">Qualifications (one per line)</label>
-                            <textarea id="admin-qualifications" class="admin-panel-input" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="admin-panel-card" id="websiteImages">
-                    <h3 class="admin-section-title">Website Images</h3>
+                <!-- Website Images Upload Section (moved to top and highlighted) -->
+                <div class="admin-panel-card" id="websiteImages" style="border: 2px solid #3b82f6; box-shadow: 0 0 0 4px #dbeafe; background: #f0f7ff;">
+                    <h3 class="admin-section-title" style="color: #2563eb;">Website Images <span style="background: #2563eb; color: #fff; border-radius: 0.5rem; padding: 0.2rem 0.7rem; font-size: 1rem; margin-left: 0.5rem;">NEW</span></h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <!-- Hero Image Upload -->
                         <div class="image-upload-container">
