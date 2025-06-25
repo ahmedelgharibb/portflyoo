@@ -3482,21 +3482,34 @@ async function handleImageUpload(file, type) {
         });
         const base64 = await toBase64(file);
 
+        // Upload image to backend to get public URL
+        const filename = `${type}-image-${Date.now()}.png`;
+        const uploadRes = await fetch('/api/api?action=uploadImage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ base64, filename })
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok || !uploadData.url) {
+            throw new Error(uploadData.error || 'Failed to upload image');
+        }
+        const imageUrl = uploadData.url;
+
         // Always fetch the latest data before updating
         const currentData = await loadSiteData();
         websiteData = { ...currentData };
         if (type === 'hero') {
-            websiteData.heroImage = base64;
+            websiteData.heroImage = imageUrl;
         } else if (type === 'about') {
-            websiteData.aboutImage = base64;
+            websiteData.aboutImage = imageUrl;
         }
 
-        // Save the full websiteData object
+        // Save the full websiteData object (with image URL)
         await saveSiteData(websiteData);
         showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image uploaded successfully!`);
 
-        // Update preview with the new image
-        updateAdminImagePreview(type, base64);
+        // Update preview with the new image URL
+        updateAdminImagePreview(type, imageUrl);
         // After upload, reload and update local websiteData
         const data = await loadSiteData();
         websiteData = { ...data };
