@@ -114,12 +114,15 @@ export default async function handler(req, res) {
       break;
     }
     case 'saveData': {
+      // Log incoming data for debugging
+      console.log('[API:saveData] Incoming data:', JSON.stringify(req.body.data, null, 2));
       const { data, error } = await supabase
         .from('teachers_websites')
         .upsert([req.body.data]);
       if (error) {
-        console.error('[API:saveData] Supabase error:', error.message);
-        return res.status(500).json({ error: error.message });
+        // Log full error object for debugging
+        console.error('[API:saveData] Supabase error:', error.message, error.details, error.hint);
+        return res.status(500).json({ error: error.message, details: error.details, hint: error.hint });
       }
       console.log('[API:saveData] Success. Data saved:', req.body.data);
       res.status(200).json({ success: true, message: 'Data saved successfully' });
