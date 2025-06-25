@@ -116,9 +116,10 @@ export default async function handler(req, res) {
     case 'saveData': {
       // Log incoming data for debugging
       console.log('[API:saveData] Incoming data:', JSON.stringify(req.body.data, null, 2));
+      // Save the entire site data object in the 'data' column
       const { data, error } = await supabase
         .from('teachers_websites')
-        .upsert([req.body.data]);
+        .upsert([{ id: req.body.data.id, data: req.body.data }]);
       if (error) {
         // Log full error object for debugging
         console.error('[API:saveData] Supabase error:', error.message, error.details, error.hint);
