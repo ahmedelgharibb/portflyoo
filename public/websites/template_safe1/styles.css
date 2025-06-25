@@ -4859,16 +4859,16 @@
   
       /* Courses Teaching Section */
       .courses-section {
-        padding-top: 5rem;
-        padding-bottom: 5rem;
+            padding-top: 5rem;
+            padding-bottom: 5rem;
         background-color: #f9fafb; /* bg-gray-50 */
-      }
+        }
   
       .courses-container {
-      margin-left: auto;
-      margin-right: auto;
-      padding-left: 1rem;
-      padding-right: 1rem;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
         max-width: 1280px; /* Corresponds to container and mx-auto */
       }
   
@@ -4877,30 +4877,30 @@
         font-weight: 700; /* font-bold */
         text-align: center;
         margin-bottom: 2.5rem; /* mb-10 */
-      }
-  
-      .courses-grid {
-      display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1rem; /* gap-4 */
-  }
-  
-  @media (min-width: 768px) {
-        .courses-grid {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
-      }
+  
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem; /* gap-4 */
+        }
+  
+        @media (min-width: 768px) {
+            .courses-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
   
       /* Experience Section */
       .experience-section {
-        padding-top: 5rem;
-        padding-bottom: 5rem;
+            padding-top: 5rem;
+            padding-bottom: 5rem;
         background-color: #ffffff; /* bg-white */
-      }
+        }
   
       .experience-container {
-        margin-left: auto;
-        margin-right: auto;
+            margin-left: auto;
+            margin-right: auto;
             padding-left: 1rem;
             padding-right: 1rem;
         max-width: 1280px;
@@ -4915,7 +4915,7 @@
   
       .experience-list {
         margin-top: 2rem; /* mt-8 */
-        display: grid;
+            display: grid;
         grid-template-columns: repeat(1, minmax(0, 1fr));
         gap: 2rem; /* gap-8 */
         }
@@ -4933,36 +4933,36 @@
       }
   
       /* Reviews Section */
-      .reviews-section {
+        .reviews-section {
         padding-top: 5rem;
         padding-bottom: 5rem;
         background-color: #f9fafb; /* bg-gray-50 */
-      }
+        }
   
-      .reviews-container {
+        .reviews-container {
             margin-left: auto;
             margin-right: auto;
             padding-left: 1rem;
             padding-right: 1rem;
         max-width: 1280px;
-      }
+        }
   
-      .reviews-title {
+        .reviews-title {
         color: #333;
         font-size: 2rem;
-        font-weight: 700;
+            font-weight: 700;
         margin-bottom: 2.5rem;
-        text-align: center;
-      }
+            text-align: center;
+        }
   
-      .reviews-display {
+        .reviews-display {
         margin-bottom: 3rem; /* mb-12 */
       }
   
       .review-form-container {
         max-width: 42rem; /* max-w-2xl */
-        margin-left: auto;
-        margin-right: auto;
+      margin-left: auto;
+      margin-right: auto;
         background-color: #ffffff;
         border-radius: 0.5rem; /* rounded-lg */
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
@@ -4976,8 +4976,8 @@
       }
   
       .review-form {
-            display: flex;
-            flex-direction: column;
+      display: flex;
+      flex-direction: column;
         gap: 1.5rem; /* space-y-6 */
       }
   
@@ -5016,8 +5016,8 @@
       }
   
       #ratingContainer {
-            display: flex;
-            align-items: center;
+      display: flex;
+      align-items: center;
         gap: 0.25rem; /* space-x-1 */
       }
   
@@ -5062,9 +5062,9 @@
       }
   
       .registration-title {
-        font-size: 2.25rem;
+          font-size: 2.25rem;
         font-weight: 700;
-        text-align: center;
+          text-align: center;
         margin-bottom: 2.5rem;
         color: #111827;
       }
@@ -5080,8 +5080,8 @@
   
       .registration-form-content {
         padding: 4rem;
-        text-align: center;
-      }
+            text-align: center;
+        }
   
       .registration-form-icon {
         font-size: 3rem;
@@ -5090,16 +5090,16 @@
         }
   
       .registration-form-heading {
-        font-size: 1.875rem;
+            font-size: 1.875rem;
         font-weight: 600;
         margin-bottom: 1rem;
-        color: #111827;
+            color: #111827;
       }
   
       .registration-form-description {
             color: #4b5563;
             margin-bottom: 2rem;
-        max-width: 36rem;
+            max-width: 36rem;
             margin-left: auto;
             margin-right: auto;
       }
@@ -5109,7 +5109,7 @@
         background-color: #4f46e5;
         color: #ffffff;
         padding: 0.75rem 2rem;
-        border-radius: 0.5rem;
+            border-radius: 0.5rem;
         font-weight: 500;
         text-decoration: none;
         transition: background-color 0.3s;
@@ -5123,7 +5123,7 @@
       .assistant-section {
             padding-top: 5rem;
             padding-bottom: 5rem;
-        background-color: #f9fafb;
+            background-color: #f9fafb;
         }
   
       .assistant-container {
@@ -5668,9 +5668,9 @@
   }
   .custom-nav-brand-name {
       font-family: 'Poppins', 'Inter', sans-serif;
-      font-weight: 700;
+            font-weight: 700;
       font-size: 1.25rem;
-      color: #1f2937;
+            color: #1f2937;
       letter-spacing: 0.01em;
       text-decoration: none;
   }
@@ -5681,13 +5681,13 @@
       margin-top: 0.125rem;
   }
   .custom-header-actions {
-      display: flex;
-      align-items: center;
+            display: flex;
+            align-items: center;
       gap: 2rem;
   }
   .custom-nav-links {
       display: flex;
-      gap: 1.5rem;
+            gap: 1.5rem;
       list-style: none;
       margin: 0;
       padding: 0;
@@ -5731,8 +5731,8 @@
       background: #f3f4f6;
   }
   .custom-bars-icon {
-      font-size: 1.25rem;
-      color: #1f2937;
+            font-size: 1.25rem;
+            color: #1f2937;
   }
   
   /* === Custom Results Section Refactor === */
@@ -5743,15 +5743,15 @@
   }
   .custom-results-container {
       max-width: 1280px;
-      margin-left: auto;
-      margin-right: auto;
-      padding-left: 1rem;
-      padding-right: 1rem;
-  }
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
   .custom-results-title {
-      font-size: 1.875rem;
-      font-weight: 700;
-      text-align: center;
+            font-size: 1.875rem;
+            font-weight: 700;
+            text-align: center;
       margin-bottom: 2.5rem;
   }
   .custom-charts-grid {
@@ -5776,8 +5776,8 @@
       align-items: center;
       justify-content: center;
       transition: transform 0.2s, box-shadow 0.2s;
-      margin-bottom: 1.5rem;
-  }
+          margin-bottom: 1.5rem;
+      }
   .course-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 32px rgba(0,0,0,0.12);
@@ -5803,11 +5803,11 @@
   }
   
   /* === Reviews Section Semantic Classes === */
-  .review-card {
-      background: #fff;
+        .review-card {
+          background: #fff;
       border-radius: 1rem;
       box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      padding: 2rem;
+          padding: 2rem;
       margin-bottom: 1.5rem;
       transition: opacity 0.3s, filter 0.3s;
   }
@@ -5816,9 +5816,9 @@
       filter: grayscale(1);
   }
   .review-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
       margin-bottom: 1.5rem;
   }
   .review-card-title {
@@ -5827,17 +5827,17 @@
       color: #1f2937;
   }
   .review-card-switch {
-      display: flex;
+            display: flex;
       gap: 0.5rem;
-      align-items: center;
+            align-items: center;
   }
   .review-card-text {
       color: #4b5563;
       margin-bottom: 1rem;
   }
   .review-card-meta {
-      display: flex;
-      align-items: center;
+            display: flex;
+            align-items: center;
       gap: 0.75rem;
       font-size: 0.95rem;
       color: #6b7280;
@@ -5861,9 +5861,9 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.08);
       padding: 2rem;
       margin-bottom: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
       justify-content: center;
   }
   
