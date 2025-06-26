@@ -782,21 +782,28 @@ function toggleDangerZone() {
 // Show admin login modal
 function showLoginForm() {
     console.log('showLoginForm called');
-    
     if (isLoggedIn) {
         // If already logged in, just open the admin panel
         console.log('User already logged in, opening admin panel instead');
         openAdminPanel();
         return;
     }
-    
     const adminLoginModal = document.getElementById('adminLoginModal');
     if (adminLoginModal) {
         console.log('Showing admin login modal');
         adminLoginModal.classList.remove('hidden');
+        // Clear any previous alert/status message
+        const alertContainer = document.getElementById('loginAlertContainer');
+        if (alertContainer) alertContainer.innerHTML = '';
+        // Reset login button
+        const loginBtn = document.querySelector('#adminLoginForm button[type="submit"]');
+        if (loginBtn) {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = 'Login';
+        }
         const passwordInput = document.getElementById('adminPassword');
         if (passwordInput) {
-            passwordInput.value = ''; // Clear any previous input
+            passwordInput.value = '';
             passwordInput.focus();
         } else {
             console.error('Password input not found in login modal');
