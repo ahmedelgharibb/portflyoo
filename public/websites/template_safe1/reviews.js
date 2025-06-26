@@ -256,7 +256,7 @@ function displayReviews(reviews) {
 
     if (reviews.length === 0) {
         container.innerHTML = `
-            <div class="text-center text-gray-500 py-8">
+            <div class="reviews-empty-message">
                 <p>No reviews yet. Be the first to review!</p>
             </div>
         `;
@@ -267,14 +267,14 @@ function displayReviews(reviews) {
     const reviewsToShow = reviews.slice(0, 3);
     reviewsToShow.forEach(review => {
         const reviewElement = document.createElement('div');
-        reviewElement.className = 'bg-white rounded-lg shadow-md p-6 mb-4';
+        reviewElement.className = 'review-card';
         reviewElement.innerHTML = `
-            <div class="flex items-center justify-between mb-4">
-                <h4 class="text-lg font-semibold">${review.student_name}</h4>
+            <div class="review-card-header">
+                <h4 class="review-card-title">${review.student_name}</h4>
                 <div class="star-rating" data-rating="${review.rating}"></div>
             </div>
-            <p class="text-gray-600">${review.review_text}</p>
-            <div class="text-sm text-gray-400 mt-2">
+            <p class="review-card-text">${review.review_text}</p>
+            <div class="review-card-meta">
                 ${new Date(review.created_at).toLocaleDateString()}
             </div>
         `;
@@ -288,10 +288,7 @@ function displayReviews(reviews) {
     // Add 'See All Reviews' button if there are more than 3 reviews
     if (reviews.length > 3) {
         const seeAllBtn = document.createElement('button');
-        seeAllBtn.className = 'w-full mt-4 py-3 px-6 rounded-md text-white transition duration-200';
-        seeAllBtn.style.background = 'var(--primary-color)';
-        seeAllBtn.onmouseover = function() { this.style.background = 'var(--primary-dark)'; };
-        seeAllBtn.onmouseout = function() { this.style.background = 'var(--primary-color)'; };
+        seeAllBtn.className = 'see-all-reviews-btn';
         seeAllBtn.textContent = 'See All Reviews';
         seeAllBtn.onclick = function() {
             document.getElementById('allReviewsModal').classList.remove('hidden');
