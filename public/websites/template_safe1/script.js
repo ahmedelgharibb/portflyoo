@@ -3575,26 +3575,21 @@ async function loadSiteData() {
 
 // Render Courses Teaching section
 function updateCoursesTeachingGrid(subjects) {
-    const coursesGrid = document.getElementById('courses-teaching-grid');
-    if (!coursesGrid || !Array.isArray(subjects)) return;
-    // Extract unique, non-empty subject names (prefer 'subject', fallback to 'name')
-    const uniqueSubjects = Array.from(new Set(
-        subjects
-            .map(s => (typeof s.subject === 'string' && s.subject.trim()) ? s.subject.trim() : (typeof s.name === 'string' && s.name.trim()) ? s.name.trim() : null)
-            .filter(Boolean)
-    ));
-    if (uniqueSubjects.length === 0) {
-        coursesGrid.innerHTML = '<div class="courses-empty">No courses available.</div>';
+    const grid = document.getElementById('courses-teaching-grid');
+    grid.innerHTML = '';
+    if (!subjects || subjects.length === 0) {
+        grid.innerHTML = '<div class="courses-empty">No courses available.</div>';
         return;
     }
-    coursesGrid.innerHTML = uniqueSubjects.map(subjectName => `
-        <div class="course-card">
-            <div class="course-icon">
-                <i class="fas fa-book-open"></i>
-            </div>
-            <h3 class="course-title">${subjectName}</h3>
-        </div>
-    `).join('');
+    subjects.forEach(subject => {
+        const card = document.createElement('div');
+        card.className = 'course-card';
+        card.innerHTML = `
+            <div class="course-icon"><i class="fas fa-book"></i></div>
+            <div class="course-title">${subject.name}</div>
+        `;
+        grid.appendChild(card);
+    });
 }
 
 // Call updateCoursesTeachingGrid when site data is loaded
