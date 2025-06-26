@@ -28,42 +28,35 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
-    <body class="overflow-fix">
+    <body class="site-body">
         <!-- Website Loader -->
         <div id="siteLoader" class="site-loader" role="status" aria-live="polite">
             <div class="site-loader-spinner"></div>
             <div class="site-loader-text">Loading website...</div>
         </div>
         <!-- Header -->
-        <header class="main-header custom-header">
-            <nav class="header-nav custom-header-nav">
-                <div class="header-nav-content custom-header-nav-content">
-                    <!-- Brand -->
-                    <div class="nav-brand custom-nav-brand">
-                        <a href="#hero" class="nav-brand-name custom-nav-brand-name">Jane Doe. </a>
-                        <span class="nav-brand-subtitle custom-nav-brand-subtitle">STEM Specialist</span>
+        <header class="main-header">
+            <nav class="header-nav">
+                <div class="header-nav-content">
+                    <div class="nav-brand">
+                        <a href="#hero" class="nav-brand-name">Jane Doe. </a>
+                        <span class="nav-brand-subtitle">STEM Specialist</span>
                     </div>
-                    
-                    <div class="header-actions custom-header-actions">
-                        <!-- Desktop Navigation -->
-                        <ul class="nav-links custom-nav-links">
-                            <li><a href="#about" class="nav-link custom-nav-link">About</a></li>
-                            <li><a href="#subjects" class="nav-link custom-nav-link">Subjects</a></li>
-                            <li><a href="#results" class="nav-link custom-nav-link">Results</a></li>
-                            <li><a href="#experience" class="nav-link custom-nav-link">Experience</a></li>
-                            <li><a href="#reviews" class="nav-link custom-nav-link">Reviews</a></li>
-                            <li><a href="#register" class="nav-link custom-nav-link">Register</a></li>
-                            <li><a href="#contact" class="nav-link custom-nav-link">Contact</a></li>
+                    <div class="header-actions">
+                        <ul class="nav-links">
+                            <li><a href="#about" class="nav-link">About</a></li>
+                            <li><a href="#subjects" class="nav-link">Subjects</a></li>
+                            <li><a href="#results" class="nav-link">Results</a></li>
+                            <li><a href="#experience" class="nav-link">Experience</a></li>
+                            <li><a href="#reviews" class="nav-link">Reviews</a></li>
+                            <li><a href="#register" class="nav-link">Register</a></li>
+                            <li><a href="#contact" class="nav-link">Contact</a></li>
                         </ul>
-                        
-                        <!-- Lock Icon Button -->
-                        <button id="adminBtn" class="admin-btn header-admin-btn custom-admin-btn">
-                            <i class="fas fa-lock text-lg custom-lock-icon"></i>
+                        <button id="adminBtn" class="admin-btn">
+                            <i class="fas fa-lock"></i>
                         </button>
-                        
-                        <!-- Mobile Menu Button -->
-                        <button id="menuBtn" aria-label="Toggle Menu" class="mobile-menu-toggle custom-mobile-menu-toggle">
-                            <i class="fas fa-bars custom-bars-icon"></i>
+                        <button id="menuBtn" aria-label="Toggle Menu" class="mobile-menu-toggle">
+                            <i class="fas fa-bars"></i>
                         </button>
                     </div>
                 </div>
@@ -93,7 +86,7 @@
                 <li><a href="#contact" class="mobile-nav-link"><span>Contact</span></a></li>
             </ul>
             <button id="adminBtnMobile" class="mobile-admin-btn">
-                <i class="fas fa-lock mr-2"></i> Admin
+                <i class="fas fa-lock"></i> Admin
             </button>
         </div>
     
@@ -126,7 +119,7 @@
                     <div class="hero-image-container">
                         <img id="heroImage" class="hero-image" src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" alt="Teacher Picture">
                         <a href="#about" class="hero-arrow">
-                            <i class="fas fa-chevron-down text-xl"></i>
+                            <i class="fas fa-chevron-down"></i>
                         </a>
                     </div>
                 </div>
@@ -204,44 +197,25 @@
             <div class="reviews-container">
                 <h2 class="section-title reviews-title">Student Reviews</h2>
                 <!-- Reviews Display -->
-                <div id="reviewsContainer" class="reviews-display">
-                    <!-- Reviews will be loaded here dynamically -->
-                </div>
+                <div id="reviewsContainer" class="reviews-display"></div>
                 <!-- Review Form -->
                 <div class="review-form-container">
                     <h3 class="review-form-title">Leave a Review</h3>
                     <form id="reviewForm" class="review-form">
-                        <div>
+                        <div class="review-form-group">
                             <label for="reviewName" class="form-label">Your Name</label>
-                            <input
-                                type="text"
-                                id="reviewName"
-                                required
-                                class="form-input"
-                                placeholder="Enter your name"
-                            >
+                            <input type="text" id="reviewName" required class="form-input" placeholder="Enter your name">
                         </div>
-                        <div>
+                        <div class="review-form-group">
                             <label class="rating-container-label">Rating</label>
                             <div id="ratingContainer" data-rating="0"></div>
                             <p class="rating-text">Click on the stars to rate</p>
                         </div>
-                        <div>
+                        <div class="review-form-group">
                             <label for="reviewText" class="form-label">Your Review</label>
-                            <textarea
-                                id="reviewText"
-                                required
-                                rows="4"
-                                class="form-input"
-                                placeholder="Share your experience..."
-                            ></textarea>
+                            <textarea id="reviewText" required rows="4" class="form-input" placeholder="Share your experience..."></textarea>
                         </div>
-                        <button
-                            type="submit"
-                            class="submit-review-btn"
-                        >
-                            Submit Review
-                        </button>
+                        <button type="submit" class="submit-review-btn">Submit Review</button>
                     </form>
                 </div>
             </div>
@@ -461,18 +435,15 @@
                     </form>
                 </div>
                 <div class="admin-panel-card">
-                    <h3 class="text-xl font-bold mb-4 text-gray-800">Reviews Management</h3>
-                    <div class="mb-4">
-                        <p class="text-gray-600 mb-4">Manage student reviews that appear on your website.</p>
-                        <div class="admin-panel-header admin-panel-header-btns mb-4">
-                            <h4 class="text-lg font-semibold text-gray-700">All Reviews</h4>
-                        </div>
-                        <div id="admin-reviews-container" class="admin-panel-reviews-container">
-                            <!-- Reviews will be loaded here -->
-                            <div class="admin-panel-review-empty">
-                                <i class="fas fa-comments admin-panel-review-empty-icon"></i>
-                                <p>No reviews found.</p>
-                            </div>
+                    <h3 class="admin-section-title">Reviews Management</h3>
+                    <div class="admin-panel-reviews-desc">Manage student reviews that appear on your website.</div>
+                    <div class="admin-panel-header admin-panel-header-btns">
+                        <h4 class="admin-panel-reviews-title">All Reviews</h4>
+                    </div>
+                    <div id="admin-reviews-container" class="admin-panel-reviews-container">
+                        <div class="admin-panel-review-empty">
+                            <i class="fas fa-comments admin-panel-review-empty-icon"></i>
+                            <p>No reviews found.</p>
                         </div>
                     </div>
                 </div>
@@ -576,18 +547,18 @@
         <script src="script.js"></script>
     
         <!-- All Reviews Modal -->
-        <div id="allReviewsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-          <div class="bg-white rounded-lg shadow-lg max-w-xl w-full flex flex-col relative overflow-hidden">
-            <div class="flex items-center justify-between px-6 pt-6 pb-2 border-b border-gray-200">
-              <h2 class="text-2xl font-bold">All Student Reviews</h2>
-              <button id="closeAllReviewsModal" class="text-gray-500 hover:text-gray-700 text-2xl ml-4">&times;</button>
+        <div id="allReviewsModal" class="all-reviews-modal hidden">
+            <div class="all-reviews-modal-box">
+                <div class="all-reviews-modal-header">
+                    <h2 class="all-reviews-modal-title">All Student Reviews</h2>
+                    <button id="closeAllReviewsModal" class="all-reviews-modal-close">&times;</button>
+                </div>
+                <div class="all-reviews-modal-sort">
+                    <button id="sortLatestModal" class="sort-btn sort-latest">Latest</button>
+                    <button id="sortHighestModal" class="sort-btn sort-highest">Highest Rated</button>
+                </div>
+                <div id="allReviewsModalContainer" class="all-reviews-modal-container"></div>
             </div>
-            <div class="flex justify-center gap-4 px-6 pt-4 pb-2 sticky top-0 bg-white z-10">
-              <button id="sortLatestModal" class="sort-btn px-4 py-2 rounded-md text-white bg-primary-color color-white border-none">Latest</button>
-              <button id="sortHighestModal" class="sort-btn px-4 py-2 rounded-md text-white bg-primary-color color-white border-none">Highest Rated</button>
-            </div>
-            <div id="allReviewsModalContainer" class="overflow-y-auto px-6 pb-6 flex-1 max-height-60vh"></div>
-          </div>
         </div>
     </body>
 </body>
