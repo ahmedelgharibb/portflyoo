@@ -1043,7 +1043,7 @@ async function openAdminPanel() {
             const data = await response.json();
             // Accept any non-error API response as valid
             if (data && typeof data === 'object' && Object.keys(data).length > 0) {
-                adminData = data;
+                adminData = data.data || data;
                 dataSource = 'api';
                 console.log('✅ Data loaded for admin panel from API successfully');
             } else {
