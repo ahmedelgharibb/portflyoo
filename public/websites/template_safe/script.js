@@ -3779,18 +3779,22 @@ document.addEventListener('DOMContentLoaded', function() {
 function animateCountUp(elementId, endValue, duration = 3000) {
     const el = document.getElementById(elementId);
     if (!el) return;
-    let start = 0;
-    const increment = endValue / (duration / 16);
-    function update() {
-        start += increment;
-        if (start < endValue) {
-            el.textContent = Math.floor(start);
-            requestAnimationFrame(update);
+    let startTimestamp = null;
+    const startValue = 0;
+    function easeOutQuad(t) { return t * (2 - t); }
+    function step(timestamp) {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const easedProgress = easeOutQuad(progress);
+        const currentValue = Math.floor(startValue + (endValue - startValue) * easedProgress);
+        el.textContent = currentValue;
+        if (progress < 1) {
+            requestAnimationFrame(step);
         } else {
             el.textContent = endValue;
         }
     }
-    update();
+    requestAnimationFrame(step);
 }
 
 // Trigger animation when section is in viewport
