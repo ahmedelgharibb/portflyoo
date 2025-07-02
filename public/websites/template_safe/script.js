@@ -1854,6 +1854,13 @@ function updateSiteContent(data) {
         };
         newData.teacherExperience = teacherExperience;
 
+        // Hide Courses Teaching section if no courses
+        const coursesSection = document.getElementById('coursesTeaching');
+        if (coursesSection) {
+            const hasCourses = Array.isArray(data.coursesTeaching) && data.coursesTeaching.length > 0;
+            coursesSection.style.display = hasCourses ? '' : 'none';
+        }
+
     } catch (error) {
         console.error('Error updating site content:', error);
     }
