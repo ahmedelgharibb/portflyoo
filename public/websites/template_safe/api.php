@@ -164,7 +164,18 @@ switch ($action) {
     case 'getData':
         // Get site data
         if (file_exists($dataFile)) {
-            echo file_get_contents($dataFile);
+            $json = file_get_contents($dataFile);
+            echo $json;
+            if ($json === false) {
+                echo json_encode(['error' => 'Failed to read data file']);
+                die();
+            }
+            // Check for JSON errors
+            json_decode($json);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                echo json_last_error_msg();
+                die();
+            }
         } else {
             // Default site data if file doesn't exist
             $defaultData = [
@@ -208,9 +219,17 @@ switch ($action) {
                     'formUrl' => 'https://forms.google.com/your-form-link'
                 ]
             ];
-            
-            echo json_encode($defaultData);
-            
+            $json = json_encode($defaultData);
+            echo $json;
+            if ($json === false) {
+                echo json_last_error_msg();
+                die();
+            }
+            // Check for JSON errors
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                echo json_last_error_msg();
+                die();
+            }
             // Also save the default data to the file for future use
             file_put_contents($dataFile, json_encode($defaultData, JSON_PRETTY_PRINT));
         }
