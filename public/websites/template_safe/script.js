@@ -1855,7 +1855,7 @@ function updateSiteContent(data) {
         newData.teacherExperience = teacherExperience;
 
         // Hide Courses Teaching section if no courses
-        const coursesSection = document.getElementById('coursesTeaching');
+        const coursesSection = document.getElementById('courses-teaching');
         if (coursesSection) {
             const hasCourses = Array.isArray(data.coursesTeaching) && data.coursesTeaching.length > 0;
             coursesSection.style.display = hasCourses ? '' : 'none';
