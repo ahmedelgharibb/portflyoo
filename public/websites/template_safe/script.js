@@ -1653,6 +1653,8 @@ async function handlePasswordChange(e) {
 function updateSiteContent(data) {
     // Unwrap nested 'data' property if present
     if (data && data.data) data = data.data;
+    // Define personalData for all later references
+    const personalData = data.personal || {};
     try {
         console.log('Updating site content with data:', data);
 
