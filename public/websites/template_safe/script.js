@@ -1843,6 +1843,17 @@ function updateSiteContent(data) {
         // Render Courses Teaching section
         updateCoursesTeachingGrid(data.results);
 
+        // Teacher Experience
+        const yearsInput = document.getElementById('admin-years-experience');
+        const studentsInput = document.getElementById('admin-students-taught');
+        const schoolsInput = document.getElementById('admin-schools-taught');
+        const teacherExperience = {
+            years: yearsInput ? parseInt(yearsInput.value, 10) || 0 : 0,
+            students: studentsInput ? parseInt(studentsInput.value, 10) || 0 : 0,
+            schools: schoolsInput ? parseInt(schoolsInput.value, 10) || 0 : 0
+        };
+        newData.teacherExperience = teacherExperience;
+
     } catch (error) {
         console.error('Error updating site content:', error);
     }
@@ -3424,7 +3435,11 @@ if (!document.getElementById('shake-animation-style')) {
 async function loadSiteData() {
     const response = await fetch('/api/api?action=getData');
     if (!response.ok) throw new Error('Failed to load site data');
-    return await response.json();
+    const data = await response.json();
+    const siteContent = data.data || data;
+    // Set global for teacher experience animation
+    window.teacherExperienceData = siteContent.teacherExperience || { years: 10, students: 500, schools: 8 };
+    return siteContent;
 }
 
 // Example: Save site data to backend
@@ -3758,3 +3773,43 @@ document.addEventListener('DOMContentLoaded', function() {
         loadApprovedReviews();
     }
 });
+
+// ... existing code ...
+// Animate numbers in Teacher Experience section
+function animateCountUp(elementId, endValue, duration = 3000) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    let start = 0;
+    const increment = endValue / (duration / 16);
+    function update() {
+        start += increment;
+        if (start < endValue) {
+            el.textContent = Math.floor(start);
+            requestAnimationFrame(update);
+        } else {
+            el.textContent = endValue;
+        }
+    }
+    update();
+}
+
+// Trigger animation when section is in viewport
+function handleTeacherExperienceAnimation() {
+    const section = document.getElementById('teacher-experience');
+    if (!section) return;
+    let animated = false;
+    function onScroll() {
+        const rect = section.getBoundingClientRect();
+        if (!animated && rect.top < window.innerHeight && rect.bottom > 0) {
+            animateCountUp('yearsExperience', window.teacherExperienceData?.years || 10);
+            animateCountUp('studentsTaught', window.teacherExperienceData?.students || 500);
+            animateCountUp('schoolsTaught', window.teacherExperienceData?.schools || 8);
+            animated = true;
+            window.removeEventListener('scroll', onScroll);
+        }
+    }
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+}
+document.addEventListener('DOMContentLoaded', handleTeacherExperienceAnimation);
+// ... existing code ...
