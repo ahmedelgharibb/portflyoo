@@ -801,6 +801,15 @@ function showLoginForm() {
         } else {
             console.error('Password input not found in login modal');
         }
+        // Clear previous alerts
+        const loginAlertContainer = document.getElementById('loginAlertContainer');
+        if (loginAlertContainer) loginAlertContainer.innerHTML = '';
+        // Reset login button
+        const loginBtn = document.querySelector('#adminLoginForm button[type="submit"]');
+        if (loginBtn) {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = 'Login';
+        }
     } else {
         console.error('Admin login modal not found in the DOM');
         alert('Error: Login form not found. Please refresh the page and try again.');
