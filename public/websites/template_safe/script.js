@@ -3776,7 +3776,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ... existing code ...
 // Animate numbers in Teacher Experience section
-function animateCountUp(elementId, endValue, duration = 3000) {
+function animateCountUp(elementId, endValue, duration = 1200) {
     const el = document.getElementById(elementId);
     if (!el) return;
     let startTimestamp = null;
@@ -3787,11 +3787,11 @@ function animateCountUp(elementId, endValue, duration = 3000) {
         const progress = Math.min((timestamp - startTimestamp) / duration, 1);
         const easedProgress = easeOutQuad(progress);
         const currentValue = Math.floor(startValue + (endValue - startValue) * easedProgress);
-        el.textContent = currentValue;
+        el.textContent = currentValue + '+';
         if (progress < 1) {
             requestAnimationFrame(step);
         } else {
-            el.textContent = endValue;
+            el.textContent = endValue + '+';
         }
     }
     requestAnimationFrame(step);
