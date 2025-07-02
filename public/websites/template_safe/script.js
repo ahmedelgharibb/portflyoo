@@ -1654,14 +1654,15 @@ function updateSiteContent(data) {
     try {
         console.log('Updating site content with data:', data);
 
+        // Always prefer data.personal.name/title if present
         const personalData = data.personal || data.personalInfo || {};
-        const name = data.name || personalData.name || 'Teacher Name';
-        const title = data.title || personalData.title || 'Teacher Title';
-        const subtitle = data.subtitle || personalData.subtitle || '';
-        const heroHeading = data.heroHeading || personalData.heroHeading || 'Inspiring Minds Through <span class="text-blue-600">Education</span>';
-        const heroDescText = data.heroDescription || personalData.heroDescription || title;
-        const qualifications = data.qualifications || personalData.qualifications || [];
-        const philosophy = data.philosophy || personalData.philosophy || '';
+        const name = personalData.name || data.name || 'Teacher Name';
+        const title = personalData.title || data.title || 'Teacher Title';
+        const subtitle = personalData.subtitle || data.subtitle || '';
+        const heroHeading = personalData.heroHeading || data.heroHeading || 'Inspiring Minds Through <span class="text-blue-600">Education</span>';
+        const heroDescText = personalData.heroDescription || data.heroDescription || title;
+        const qualifications = personalData.qualifications || data.qualifications || [];
+        const philosophy = personalData.philosophy || data.philosophy || '';
 
         // Update name and title in nav
         document.querySelectorAll('.nav-brand-name').forEach(el => el.textContent = name);
