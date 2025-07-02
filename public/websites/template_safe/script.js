@@ -213,6 +213,15 @@ document.addEventListener('DOMContentLoaded', async function() {
             addNewResult();
         });
     }
+
+    // Hide Courses Teaching section immediately if no courses
+    const coursesSection = document.getElementById('courses-teaching');
+    if (coursesSection) {
+        // Try to get courses from global or window.siteData if available
+        const courses = (window.siteData && window.siteData.coursesTeaching) || [];
+        const hasCourses = Array.isArray(courses) && courses.length > 0;
+        coursesSection.style.display = hasCourses ? '' : 'none';
+    }
 });
 
     
