@@ -1655,14 +1655,13 @@ function updateSiteContent(data) {
         console.log('Updating site content with data:', data);
 
         // Always prefer data.personal.name/title if present
-        const personalData = data.personal || data.personalInfo || {};
-        const name = personalData.name || data.name || 'Teacher Name';
-        const title = personalData.title || data.title || 'Teacher Title';
-        const subtitle = personalData.subtitle || data.subtitle || '';
-        const heroHeading = personalData.heroHeading || data.heroHeading || 'Inspiring Minds Through <span class="text-blue-600">Education</span>';
-        const heroDescText = personalData.heroDescription || data.heroDescription || title;
-        const qualifications = personalData.qualifications || data.qualifications || [];
-        const philosophy = personalData.philosophy || data.philosophy || '';
+        const name = data.personal && data.personal.name ? data.personal.name : (data.name || 'Teacher Name');
+        const title = data.personal && data.personal.title ? data.personal.title : (data.title || 'Teacher Title');
+        const subtitle = data.personal && data.personal.subtitle ? data.personal.subtitle : (data.subtitle || '');
+        const heroHeading = data.personal && data.personal.heroHeading ? data.personal.heroHeading : (data.heroHeading || 'Inspiring Minds Through <span class="text-blue-600">Education</span>');
+        const heroDescText = data.personal && data.personal.heroDescription ? data.personal.heroDescription : (data.heroDescription || title);
+        const qualifications = data.personal && data.personal.qualifications ? data.personal.qualifications : (data.qualifications || []);
+        const philosophy = data.personal && data.personal.philosophy ? data.personal.philosophy : (data.philosophy || '');
 
         // Update name and title in nav
         document.querySelectorAll('.nav-brand-name').forEach(el => el.textContent = name);
