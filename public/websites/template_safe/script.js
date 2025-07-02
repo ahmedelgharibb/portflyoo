@@ -1651,6 +1651,8 @@ async function handlePasswordChange(e) {
 
 // Update site content with new data
 function updateSiteContent(data) {
+    // Unwrap nested 'data' property if present
+    if (data && data.data) data = data.data;
     try {
         console.log('Updating site content with data:', data);
 
