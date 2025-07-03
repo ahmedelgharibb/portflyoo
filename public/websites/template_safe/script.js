@@ -222,6 +222,17 @@ document.addEventListener('DOMContentLoaded', async function() {
         const hasCourses = Array.isArray(courses) && courses.length > 0;
         coursesSection.style.display = hasCourses ? '' : 'none';
     }
+
+    // Hide Teaching Affiliations section immediately if all affiliations are empty
+    const affiliationsSection = document.getElementById('experience');
+    if (affiliationsSection) {
+        const data = window.siteData || {};
+        const experience = data.experience || {};
+        const hasAffiliations = (Array.isArray(experience.schools) && experience.schools.length > 0) ||
+                                (Array.isArray(experience.centers) && experience.centers.length > 0) ||
+                                (Array.isArray(experience.platforms) && experience.platforms.length > 0);
+        affiliationsSection.style.display = hasAffiliations ? '' : 'none';
+    }
 });
 
     
@@ -1868,6 +1879,16 @@ function updateSiteContent(data) {
         if (coursesSection) {
             const hasCourses = Array.isArray(data.coursesTeaching) && data.coursesTeaching.length > 0;
             coursesSection.style.display = hasCourses ? '' : 'none';
+        }
+
+        // Hide Teaching Affiliations section immediately if all affiliations are empty
+        const affiliationsSection = document.getElementById('experience');
+        if (affiliationsSection) {
+            const experience = data.experience || {};
+            const hasAffiliations = (Array.isArray(experience.schools) && experience.schools.length > 0) ||
+                                    (Array.isArray(experience.centers) && experience.centers.length > 0) ||
+                                    (Array.isArray(experience.platforms) && experience.platforms.length > 0);
+            affiliationsSection.style.display = hasAffiliations ? '' : 'none';
         }
 
     } catch (error) {
