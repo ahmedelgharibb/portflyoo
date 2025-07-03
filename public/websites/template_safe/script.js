@@ -1930,6 +1930,16 @@ async function saveAdminChanges() {
             contactMessageInput: contactMessageInput ? 'found' : 'not found'
         });
 
+        // Collect dynamic input values for qualifications, schools, centers, platforms
+        const qualificationsInputs = document.querySelectorAll('#qualifications-list input');
+        const qualifications = Array.from(qualificationsInputs).map(input => input.value.trim()).filter(Boolean);
+        const schoolsInputs = document.querySelectorAll('#schools-list input');
+        const schools = Array.from(schoolsInputs).map(input => input.value.trim()).filter(Boolean);
+        const centersInputs = document.querySelectorAll('#centers-list input');
+        const centers = Array.from(centersInputs).map(input => input.value.trim()).filter(Boolean);
+        const platformsInputs = document.querySelectorAll('#platforms-list input');
+        const platforms = Array.from(platformsInputs).map(input => input.value.trim()).filter(Boolean);
+
         // Start with current data to preserve all existing values
         const newData = {
             id: currentSiteId,
@@ -1942,17 +1952,13 @@ async function saveAdminChanges() {
                 subtitle: subtitleInput?.value || currentData?.data?.personal?.subtitle || 'History Teacher',
                 heroHeading: heroHeadingInput?.value || currentData?.data?.personal?.heroHeading || 'Inspiring Minds Through Mathematics',
                 experience: experienceInput?.value || currentData?.data?.personal?.experience || '',
-                philosophy: philosophyInput ? philosophyInput.value : '', // Always use the current input value, even if empty
-                qualifications: qualificationsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
-                             currentData?.data?.personal?.qualifications || []
+                philosophy: philosophyInput ? philosophyInput.value : '',
+                qualifications: qualifications
             },
             experience: {
-                schools: schoolsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
-                        currentData?.data?.experience?.schools || [],
-                centers: centersInput?.value?.split('\n').filter(item => item.trim() !== '') || 
-                        currentData?.data?.experience?.centers || [],
-                platforms: platformsInput?.value?.split('\n').filter(item => item.trim() !== '') || 
-                          currentData?.data?.experience?.platforms || []
+                schools: schools,
+                centers: centers,
+                platforms: platforms
             },
             results: collectResultsData(),
             contact: {
