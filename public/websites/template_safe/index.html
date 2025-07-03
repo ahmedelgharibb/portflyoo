@@ -458,16 +458,19 @@
                     <h3 class="text-xl font-bold mb-4 text-gray-800">Experience</h3>
                     <form id="admin-experience-form" class="flex flex-col gap-5">
                         <div>
-                            <label for="admin-schools" class="admin-panel-label">Schools (one per line)</label>
-                            <textarea id="admin-schools" class="admin-panel-input" rows="3"></textarea>
+                            <label class="admin-panel-label">Schools</label>
+                            <div id="schools-list" class="flex flex-col gap-2"></div>
+                            <button type="button" id="add-schools-btn" class="btn btn-secondary mt-2">Add School</button>
                         </div>
                         <div>
-                            <label for="admin-centers" class="admin-panel-label">Centers (one per line)</label>
-                            <textarea id="admin-centers" class="admin-panel-input" rows="3"></textarea>
+                            <label class="admin-panel-label">Centers</label>
+                            <div id="centers-list" class="flex flex-col gap-2"></div>
+                            <button type="button" id="add-centers-btn" class="btn btn-secondary mt-2">Add Center</button>
                         </div>
                         <div>
-                            <label for="admin-platforms" class="admin-panel-label">Online Platforms (one per line)</label>
-                            <textarea id="admin-platforms" class="admin-panel-input" rows="3"></textarea>
+                            <label class="admin-panel-label">Online Platforms</label>
+                            <div id="platforms-list" class="flex flex-col gap-2"></div>
+                            <button type="button" id="add-platforms-btn" class="btn btn-secondary mt-2">Add Platform</button>
                         </div>
                     </form>
                 </div>
