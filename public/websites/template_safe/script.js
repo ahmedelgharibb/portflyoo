@@ -3735,3 +3735,31 @@ async function saveAdminChanges() {
     // ...existing code...
 }
 // ... existing code ...
+
+// ... existing code ...
+function addExperienceInput(field) {
+    const list = document.getElementById(`${field}-list`);
+    if (!list) return;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'admin-panel-input';
+    input.placeholder = field.charAt(0).toUpperCase() + field.slice(1);
+    list.appendChild(input);
+    input.focus();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const addSchoolsBtn = document.getElementById('add-schools-btn');
+    if (addSchoolsBtn) {
+        addSchoolsBtn.addEventListener('click', () => addExperienceInput('schools'));
+    }
+    const addCentersBtn = document.getElementById('add-centers-btn');
+    if (addCentersBtn) {
+        addCentersBtn.addEventListener('click', () => addExperienceInput('centers'));
+    }
+    const addPlatformsBtn = document.getElementById('add-platforms-btn');
+    if (addPlatformsBtn) {
+        addPlatformsBtn.addEventListener('click', () => addExperienceInput('platforms'));
+    }
+});
+// ... existing code ...
