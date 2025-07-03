@@ -3670,7 +3670,10 @@ function renderQualificationsInputs(qualifications) {
         delBtn.className = 'ml-2 text-red-500 hover:text-red-700 focus:outline-none';
         delBtn.setAttribute('aria-label', 'Delete qualification');
         delBtn.innerHTML = '&times;';
-        delBtn.onclick = () => wrapper.remove();
+        delBtn.onclick = () => {
+            const newValues = Array.from(list.querySelectorAll('input')).map((el, i) => i !== idx ? el.value : null).filter(v => v !== null);
+            renderQualificationsInputs(newValues);
+        };
         wrapper.appendChild(input);
         wrapper.appendChild(delBtn);
         list.appendChild(wrapper);
@@ -3695,7 +3698,10 @@ function renderExperienceInputs(field, values) {
         delBtn.className = 'ml-2 text-red-500 hover:text-red-700 focus:outline-none';
         delBtn.setAttribute('aria-label', `Delete ${field}`);
         delBtn.innerHTML = '&times;';
-        delBtn.onclick = () => wrapper.remove();
+        delBtn.onclick = () => {
+            const newValues = Array.from(list.querySelectorAll('input')).map((el, i) => i !== idx ? el.value : null).filter(v => v !== null);
+            renderExperienceInputs(field, newValues);
+        };
         wrapper.appendChild(input);
         wrapper.appendChild(delBtn);
         list.appendChild(wrapper);
