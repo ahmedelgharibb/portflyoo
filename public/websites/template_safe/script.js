@@ -3854,3 +3854,60 @@ function handleTeacherExperienceAnimation() {
 }
 document.addEventListener('DOMContentLoaded', handleTeacherExperienceAnimation);
 // ... existing code ...
+
+// ... existing code ...
+// Helper to render qualifications as multiple input boxes
+function renderQualificationsInputs(qualifications) {
+    const list = document.getElementById('qualifications-list');
+    if (!list) return;
+    list.innerHTML = '';
+    (qualifications && qualifications.length ? qualifications : ['']).forEach((qual, idx) => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'admin-panel-input';
+        input.value = qual;
+        input.placeholder = 'Qualification';
+        input.dataset.idx = idx;
+        list.appendChild(input);
+    });
+}
+
+// Add qualification input
+function addQualificationInput() {
+    const list = document.getElementById('qualifications-list');
+    if (!list) return;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'admin-panel-input';
+    input.placeholder = 'Qualification';
+    list.appendChild(input);
+    input.focus();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const addBtn = document.getElementById('add-qualification-btn');
+    if (addBtn) {
+        addBtn.addEventListener('click', addQualificationInput);
+    }
+});
+
+// In populateAdminForm, use renderQualificationsInputs
+function populateAdminForm(data) {
+    // ...existing code...
+    // Qualifications
+    renderQualificationsInputs(
+        data.qualifications || (data.personal && data.personal.qualifications) || []
+    );
+    // ...existing code...
+}
+
+// In saveAdminChanges, collect qualifications from input boxes
+async function saveAdminChanges() {
+    // ...existing code...
+    // Qualifications
+    const qualificationsInputs = document.querySelectorAll('#qualifications-list input');
+    const qualifications = Array.from(qualificationsInputs).map(input => input.value.trim()).filter(Boolean);
+    newData.personal.qualifications = qualifications;
+    // ...existing code...
+}
+// ... existing code ...

@@ -423,16 +423,13 @@
                             <input type="text" id="admin-hero-heading" class="admin-panel-input" placeholder="Inspiring Minds Through Mathematics" />
                         </div>
                         <div>
-                            <label for="admin-experience" class="admin-panel-label">Experience</label>
-                            <input type="text" id="admin-experience" class="admin-panel-input" />
-                        </div>
-                        <div>
                             <label for="admin-philosophy" class="admin-panel-label">Teaching Philosophy</label>
                             <textarea id="admin-philosophy" class="admin-panel-input" rows="3" placeholder="I believe in creating an engaging and supportive learning environment..."></textarea>
                         </div>
                         <div>
-                            <label for="admin-qualifications" class="admin-panel-label">Qualifications (one per line)</label>
-                            <textarea id="admin-qualifications" class="admin-panel-input" rows="3"></textarea>
+                            <label class="admin-panel-label">Qualifications</label>
+                            <div id="qualifications-list" class="flex flex-col gap-2"></div>
+                            <button type="button" id="add-qualification-btn" class="btn btn-secondary mt-2">Add Qualification</button>
                         </div>
                     </form>
                 </div>
