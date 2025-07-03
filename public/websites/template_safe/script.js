@@ -1686,7 +1686,6 @@ function updateSiteContent(data) {
                                     (Array.isArray(experience.platforms) && experience.platforms.length > 0);
             affiliationsSection.style.display = hasAffiliations ? '' : 'none';
         }
-
     } catch (error) {
         console.error('Error updating site content:', error);
     }
@@ -3702,4 +3701,42 @@ function renderExperienceInputs(field, values) {
         list.appendChild(wrapper);
     });
 }
+// ... existing code ...
+
+function addQualificationInput() {
+    const list = document.getElementById('qualifications-list');
+    if (!list) return;
+    // Gather current values
+    const values = Array.from(list.querySelectorAll('input')).map(input => input.value);
+    values.push('');
+    renderQualificationsInputs(values);
+}
+
+function addExperienceInput(field) {
+    const list = document.getElementById(`${field}-list`);
+    if (!list) return;
+    // Gather current values
+    const values = Array.from(list.querySelectorAll('input')).map(input => input.value);
+    values.push('');
+    renderExperienceInputs(field, values);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const addBtn = document.getElementById('add-qualification-btn');
+    if (addBtn) {
+        addBtn.addEventListener('click', addQualificationInput);
+    }
+    const addSchoolsBtn = document.getElementById('add-schools-btn');
+    if (addSchoolsBtn) {
+        addSchoolsBtn.addEventListener('click', () => addExperienceInput('schools'));
+    }
+    const addCentersBtn = document.getElementById('add-centers-btn');
+    if (addCentersBtn) {
+        addCentersBtn.addEventListener('click', () => addExperienceInput('centers'));
+    }
+    const addPlatformsBtn = document.getElementById('add-platforms-btn');
+    if (addPlatformsBtn) {
+        addPlatformsBtn.addEventListener('click', () => addExperienceInput('platforms'));
+    }
+});
 // ... existing code ...
