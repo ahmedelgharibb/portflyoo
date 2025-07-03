@@ -3658,108 +3658,48 @@ function renderQualificationsInputs(qualifications) {
     if (!list) return;
     list.innerHTML = '';
     (qualifications && qualifications.length ? qualifications : ['']).forEach((qual, idx) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flex items-center gap-2';
         const input = document.createElement('input');
         input.type = 'text';
-        input.className = 'admin-panel-input';
+        input.className = 'admin-panel-input flex-1';
         input.value = qual;
         input.placeholder = 'Qualification';
         input.dataset.idx = idx;
-        list.appendChild(input);
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'ml-2 text-red-500 hover:text-red-700 focus:outline-none';
+        delBtn.setAttribute('aria-label', 'Delete qualification');
+        delBtn.innerHTML = '&times;';
+        delBtn.onclick = () => wrapper.remove();
+        wrapper.appendChild(input);
+        wrapper.appendChild(delBtn);
+        list.appendChild(wrapper);
     });
 }
 
-// Add qualification input
-function addQualificationInput() {
-    const list = document.getElementById('qualifications-list');
-    if (!list) return;
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'admin-panel-input';
-    input.placeholder = 'Qualification';
-    list.appendChild(input);
-    input.focus();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const addBtn = document.getElementById('add-qualification-btn');
-    if (addBtn) {
-        addBtn.addEventListener('click', addQualificationInput);
-    }
-});
-
-// In populateAdminForm, use renderQualificationsInputs
-function populateAdminForm(data) {
-    try {
-        console.log('Populating admin form with data:', JSON.stringify(data, null, 2));
-        if (!data) {
-            console.error('No data provided to populateAdminForm');
-            showAdminAlert('error', 'No data available to load. Using default values.');
-            initializeWithDefaultData();
-            data = siteData;
-        }
-        // Always use data.personal for personal info
-        const personal = data.personal || {};
-        const nameValue = personal.name || '';
-        const titleValue = personal.title || '';
-        const subtitleValue = personal.subtitle || '';
-        const heroHeadingValue = personal.heroHeading || '';
-        const philosophyValue = personal.philosophy || '';
-        // Get form elements
-        const nameInput = document.getElementById('admin-name');
-        const titleInput = document.getElementById('admin-title');
-        const subtitleInput = document.getElementById('admin-subtitle');
-        const heroHeadingInput = document.getElementById('admin-hero-heading');
-        const philosophyInput = document.getElementById('admin-philosophy');
-        // Set values
-        if (nameInput) nameInput.value = nameValue;
-        if (titleInput) titleInput.value = titleValue;
-        if (subtitleInput) subtitleInput.value = subtitleValue;
-        if (heroHeadingInput) heroHeadingInput.value = heroHeadingValue;
-        if (philosophyInput) philosophyInput.value = philosophyValue;
-        // Qualifications: always use data.personal.qualifications
-        renderQualificationsInputs(Array.isArray(personal.qualifications) ? personal.qualifications : []);
-        // ... keep rest of the function unchanged ...
-    } catch (error) {
-        console.error('Error populating admin form:', error);
-        showAdminAlert('error', `There was an error loading form fields: ${error.message}`);
-    }
-}
-
-// In saveAdminChanges, collect qualifications from input boxes
-async function saveAdminChanges() {
-    // ...existing code...
-    // Qualifications
-    const qualificationsInputs = document.querySelectorAll('#qualifications-list input');
-    const qualifications = Array.from(qualificationsInputs).map(input => input.value.trim()).filter(Boolean);
-    newData.personal.qualifications = qualifications;
-    // ...existing code...
-}
-// ... existing code ...
-
-// ... existing code ...
-function addExperienceInput(field) {
+function renderExperienceInputs(field, values) {
     const list = document.getElementById(`${field}-list`);
     if (!list) return;
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'admin-panel-input';
-    input.placeholder = field.charAt(0).toUpperCase() + field.slice(1);
-    list.appendChild(input);
-    input.focus();
+    list.innerHTML = '';
+    (values && values.length ? values : ['']).forEach((val, idx) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flex items-center gap-2';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'admin-panel-input flex-1';
+        input.value = val;
+        input.placeholder = field.charAt(0).toUpperCase() + field.slice(1);
+        input.dataset.idx = idx;
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'ml-2 text-red-500 hover:text-red-700 focus:outline-none';
+        delBtn.setAttribute('aria-label', `Delete ${field}`);
+        delBtn.innerHTML = '&times;';
+        delBtn.onclick = () => wrapper.remove();
+        wrapper.appendChild(input);
+        wrapper.appendChild(delBtn);
+        list.appendChild(wrapper);
+    });
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    const addSchoolsBtn = document.getElementById('add-schools-btn');
-    if (addSchoolsBtn) {
-        addSchoolsBtn.addEventListener('click', () => addExperienceInput('schools'));
-    }
-    const addCentersBtn = document.getElementById('add-centers-btn');
-    if (addCentersBtn) {
-        addCentersBtn.addEventListener('click', () => addExperienceInput('centers'));
-    }
-    const addPlatformsBtn = document.getElementById('add-platforms-btn');
-    if (addPlatformsBtn) {
-        addPlatformsBtn.addEventListener('click', () => addExperienceInput('platforms'));
-    }
-});
 // ... existing code ...
