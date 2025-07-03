@@ -3656,7 +3656,8 @@ function renderQualificationsInputs(qualifications) {
     const list = document.getElementById('qualifications-list');
     if (!list) return;
     list.innerHTML = '';
-    (qualifications && qualifications.length ? qualifications : ['']).forEach((qual, idx) => {
+    const showDelete = (qualifications && qualifications.length > 1);
+    (qualifications && qualifications.length ? qualifications : ['']).forEach((qual, idx, arr) => {
         const wrapper = document.createElement('div');
         wrapper.className = 'flex items-center gap-2';
         const input = document.createElement('input');
@@ -3665,17 +3666,21 @@ function renderQualificationsInputs(qualifications) {
         input.value = qual;
         input.placeholder = 'Qualification';
         input.dataset.idx = idx;
-        const delBtn = document.createElement('button');
-        delBtn.type = 'button';
-        delBtn.className = 'ml-2 text-red-500 hover:text-red-700 focus:outline-none';
-        delBtn.setAttribute('aria-label', 'Delete qualification');
-        delBtn.innerHTML = '&times;';
-        delBtn.onclick = () => {
-            const newValues = Array.from(list.querySelectorAll('input')).map((el, i) => i !== idx ? el.value : null).filter(v => v !== null);
-            renderQualificationsInputs(newValues);
-        };
-        wrapper.appendChild(input);
-        wrapper.appendChild(delBtn);
+        if (showDelete) {
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'ml-2 text-red-500 hover:text-red-700 focus:outline-none';
+            delBtn.setAttribute('aria-label', 'Delete qualification');
+            delBtn.innerHTML = '&times;';
+            delBtn.onclick = () => {
+                const newValues = Array.from(list.querySelectorAll('input')).map((el, i) => i !== idx ? el.value : null).filter(v => v !== null);
+                renderQualificationsInputs(newValues);
+            };
+            wrapper.appendChild(input);
+            wrapper.appendChild(delBtn);
+        } else {
+            wrapper.appendChild(input);
+        }
         list.appendChild(wrapper);
     });
 }
@@ -3684,7 +3689,8 @@ function renderExperienceInputs(field, values) {
     const list = document.getElementById(`${field}-list`);
     if (!list) return;
     list.innerHTML = '';
-    (values && values.length ? values : ['']).forEach((val, idx) => {
+    const showDelete = (values && values.length > 1);
+    (values && values.length ? values : ['']).forEach((val, idx, arr) => {
         const wrapper = document.createElement('div');
         wrapper.className = 'flex items-center gap-2';
         const input = document.createElement('input');
@@ -3693,17 +3699,21 @@ function renderExperienceInputs(field, values) {
         input.value = val;
         input.placeholder = field.charAt(0).toUpperCase() + field.slice(1);
         input.dataset.idx = idx;
-        const delBtn = document.createElement('button');
-        delBtn.type = 'button';
-        delBtn.className = 'ml-2 text-red-500 hover:text-red-700 focus:outline-none';
-        delBtn.setAttribute('aria-label', `Delete ${field}`);
-        delBtn.innerHTML = '&times;';
-        delBtn.onclick = () => {
-            const newValues = Array.from(list.querySelectorAll('input')).map((el, i) => i !== idx ? el.value : null).filter(v => v !== null);
-            renderExperienceInputs(field, newValues);
-        };
-        wrapper.appendChild(input);
-        wrapper.appendChild(delBtn);
+        if (showDelete) {
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'ml-2 text-red-500 hover:text-red-700 focus:outline-none';
+            delBtn.setAttribute('aria-label', `Delete ${field}`);
+            delBtn.innerHTML = '&times;';
+            delBtn.onclick = () => {
+                const newValues = Array.from(list.querySelectorAll('input')).map((el, i) => i !== idx ? el.value : null).filter(v => v !== null);
+                renderExperienceInputs(field, newValues);
+            };
+            wrapper.appendChild(input);
+            wrapper.appendChild(delBtn);
+        } else {
+            wrapper.appendChild(input);
+        }
         list.appendChild(wrapper);
     });
 }
