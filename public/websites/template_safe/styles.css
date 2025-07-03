@@ -2866,5 +2866,35 @@
         color: #1e2937;
       }
       /* Add more semantic class mappings as needed for all replaced utility classes */
+
+      /* Style for dynamic input X (delete) button */
+      input + button,
+      .flex.items-center.gap-2 > button {
+        width: 2rem;
+        height: 2rem;
+        min-width: 2rem;
+        min-height: 2rem;
+        border-radius: 9999px;
+        background: #ef4444;
+        color: #fff;
+        font-size: 1.25rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        transition: background 0.2s, box-shadow 0.2s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        outline: none;
+        margin-left: 0.5rem;
+      }
+      input + button:hover,
+      .flex.items-center.gap-2 > button:hover,
+      input + button:focus,
+      .flex.items-center.gap-2 > button:focus {
+        background: #b91c1c;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(239,68,68,0.15);
+      }
   
   
