@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portflyo – Automate Smarter. Grow Faster.</title>
+  <title>Portflyo – Teacher Websites Made Easy</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.ico">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -17,6 +17,8 @@
       border-radius: 1.5rem;
       border: 1px solid rgba(255,255,255,0.08);
     }
+    .faq-answer { display: none; }
+    .faq-open .faq-answer { display: block; }
   </style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-gray-900 to-black min-h-screen text-white">
@@ -28,11 +30,13 @@
     </div>
     <ul class="hidden md:flex gap-8 text-lg font-medium">
       <li><a href="#features" class="hover:text-blue-400 transition">Features</a></li>
-      <li><a href="#process" class="hover:text-blue-400 transition">Process</a></li>
+      <li><a href="#templates" class="hover:text-blue-400 transition">Templates</a></li>
+      <li><a href="#how" class="hover:text-blue-400 transition">How It Works</a></li>
       <li><a href="#pricing" class="hover:text-blue-400 transition">Pricing</a></li>
+      <li><a href="#faq" class="hover:text-blue-400 transition">FAQ</a></li>
       <li><a href="#contact" class="hover:text-blue-400 transition">Contact</a></li>
     </ul>
-    <a href="#book" class="hidden md:inline-block px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700 transition font-semibold shadow-lg">Book a Free Call</a>
+    <a href="#contact" class="hidden md:inline-block px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700 transition font-semibold shadow-lg">Get Started</a>
     <button class="md:hidden text-2xl"><span>&#9776;</span></button>
   </nav>
 
@@ -43,42 +47,251 @@
         <div class="w-16 h-16 flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-700 to-blue-400 shadow-lg mb-4">
           <img src="/favicon.ico" alt="Portflyo Logo" class="w-10 h-10">
         </div>
-        <span class="uppercase tracking-widest text-xs text-blue-400 font-semibold mb-2">New Gen AI Automation</span>
+        <span class="uppercase tracking-widest text-xs text-blue-400 font-semibold mb-2">Websites for Teachers</span>
       </div>
       <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-4 bg-gradient-to-br from-white via-blue-200 to-blue-500 bg-clip-text text-transparent">
-        Automate Smarter.<br>Grow Faster. With AI.
+        Your Professional Teacher Website. Instantly.
       </h1>
-      <p class="text-lg md:text-xl text-gray-300 mb-8">AI Automation for Modern Businesses Made Simple</p>
-      <a href="#book" class="px-8 py-3 rounded-full bg-blue-600 hover:bg-blue-700 transition font-semibold text-lg shadow-lg flex items-center gap-2">
-        Book A Free Call <span class="text-xl">&#8594;</span>
+      <p class="text-lg md:text-xl text-gray-300 mb-8">Portflyo helps teachers launch beautiful, effective websites with results, reviews, and more—no coding needed.</p>
+      <a href="#contact" class="px-8 py-3 rounded-full bg-blue-600 hover:bg-blue-700 transition font-semibold text-lg shadow-lg flex items-center gap-2">
+        Get Started Free <span class="text-xl">&#8594;</span>
       </a>
       <div class="flex gap-6 mt-8 justify-center">
         <a href="#" class="text-gray-400 hover:text-white text-2xl"><i class="fab fa-x-twitter"></i></a>
         <a href="#" class="text-gray-400 hover:text-white text-2xl"><i class="fab fa-linkedin"></i></a>
         <a href="#" class="text-gray-400 hover:text-white text-2xl"><i class="fab fa-github"></i></a>
       </div>
+      <div class="mt-6 text-sm text-gray-400">Trusted by 500+ teachers worldwide</div>
     </div>
   </section>
 
-  <!-- Features Placeholder -->
+  <!-- Features Section -->
   <section id="features" class="max-w-5xl mx-auto py-24 px-4">
     <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">Features</h2>
-    <div class="grid md:grid-cols-3 gap-8">
+    <div class="grid md:grid-cols-4 gap-8">
       <div class="glass p-6 rounded-xl text-center">
-        <h3 class="text-xl font-semibold mb-2">Automate Repetitive Tasks</h3>
-        <p class="text-gray-300">Streamline your business by automating manual workflows and saving valuable time.</p>
+        <h3 class="text-xl font-semibold mb-2">Results Showcase</h3>
+        <p class="text-gray-300">Display your students' achievements and exam results in a beautiful, organized way.</p>
       </div>
       <div class="glass p-6 rounded-xl text-center">
-        <h3 class="text-xl font-semibold mb-2">Real-Time Intelligence</h3>
-        <p class="text-gray-300">Make smarter decisions with AI-powered analytics and actionable insights.</p>
+        <h3 class="text-xl font-semibold mb-2">Student Reviews</h3>
+        <p class="text-gray-300">Collect and show testimonials from students and parents to build trust.</p>
       </div>
       <div class="glass p-6 rounded-xl text-center">
-        <h3 class="text-xl font-semibold mb-2">Seamless Integration</h3>
-        <p class="text-gray-300">Connect with your favorite tools and platforms for a unified automation experience.</p>
+        <h3 class="text-xl font-semibold mb-2">Easy Admin Panel</h3>
+        <p class="text-gray-300">Update your site anytime—no tech skills needed. Manage results, reviews, and more.</p>
+      </div>
+      <div class="glass p-6 rounded-xl text-center">
+        <h3 class="text-xl font-semibold mb-2">Customizable Templates</h3>
+        <p class="text-gray-300">Choose from modern, mobile-friendly designs tailored for teachers.</p>
+      </div>
+      <div class="glass p-6 rounded-xl text-center">
+        <h3 class="text-xl font-semibold mb-2">Contact & Registration Forms</h3>
+        <p class="text-gray-300">Let students and parents reach you easily with built-in forms.</p>
+      </div>
+      <div class="glass p-6 rounded-xl text-center">
+        <h3 class="text-xl font-semibold mb-2">Gallery & Resources</h3>
+        <p class="text-gray-300">Share files, images, and teaching materials with your students.</p>
+      </div>
+      <div class="glass p-6 rounded-xl text-center">
+        <h3 class="text-xl font-semibold mb-2">SEO & Analytics</h3>
+        <p class="text-gray-300">Get found on Google and track your site's performance with built-in analytics.</p>
+      </div>
+      <div class="glass p-6 rounded-xl text-center">
+        <h3 class="text-xl font-semibold mb-2">Secure & Private</h3>
+        <p class="text-gray-300">GDPR-compliant, safe for teachers and students. Your data is protected.</p>
       </div>
     </div>
   </section>
 
+  <!-- Templates Gallery -->
+  <section id="templates" class="max-w-6xl mx-auto py-24 px-4">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">Templates Gallery</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="glass p-4 rounded-xl flex flex-col items-center">
+        <div class="w-full h-40 bg-gray-800 rounded-lg mb-4 flex items-center justify-center text-gray-500">Template 1 Preview</div>
+        <h3 class="text-lg font-semibold mb-2">Classic Teacher</h3>
+        <a href="#" class="text-blue-400 hover:underline">See Live Demo</a>
+      </div>
+      <div class="glass p-4 rounded-xl flex flex-col items-center">
+        <div class="w-full h-40 bg-gray-800 rounded-lg mb-4 flex items-center justify-center text-gray-500">Template 2 Preview</div>
+        <h3 class="text-lg font-semibold mb-2">Modern Portfolio</h3>
+        <a href="#" class="text-blue-400 hover:underline">See Live Demo</a>
+      </div>
+      <div class="glass p-4 rounded-xl flex flex-col items-center">
+        <div class="w-full h-40 bg-gray-800 rounded-lg mb-4 flex items-center justify-center text-gray-500">Template 3 Preview</div>
+        <h3 class="text-lg font-semibold mb-2">Minimalist</h3>
+        <a href="#" class="text-blue-400 hover:underline">See Live Demo</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how" class="max-w-5xl mx-auto py-24 px-4">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">How It Works</h2>
+    <div class="flex flex-col md:flex-row md:justify-between gap-8">
+      <div class="flex-1 flex flex-col items-center">
+        <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-2xl font-bold mb-4">1</div>
+        <h3 class="font-semibold mb-2">Choose a Template</h3>
+        <p class="text-gray-300 text-center">Pick from our gallery of beautiful, teacher-focused designs.</p>
+      </div>
+      <div class="flex-1 flex flex-col items-center">
+        <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-2xl font-bold mb-4">2</div>
+        <h3 class="font-semibold mb-2">Add Your Content</h3>
+        <p class="text-gray-300 text-center">Easily add your info, results, reviews, and more—no coding needed.</p>
+      </div>
+      <div class="flex-1 flex flex-col items-center">
+        <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-2xl font-bold mb-4">3</div>
+        <h3 class="font-semibold mb-2">Launch Instantly</h3>
+        <p class="text-gray-300 text-center">Go live with one click. Update your site anytime via your admin panel.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Demo / Examples -->
+  <section id="examples" class="max-w-6xl mx-auto py-24 px-4">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">Live Demo / Example Sites</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="glass p-4 rounded-xl flex flex-col items-center">
+        <div class="w-full h-40 bg-gray-800 rounded-lg mb-4 flex items-center justify-center text-gray-500">Ms. Smith's Math Site</div>
+        <a href="#" class="text-blue-400 hover:underline">View Example</a>
+      </div>
+      <div class="glass p-4 rounded-xl flex flex-col items-center">
+        <div class="w-full h-40 bg-gray-800 rounded-lg mb-4 flex items-center justify-center text-gray-500">Mr. Lee's Science Hub</div>
+        <a href="#" class="text-blue-400 hover:underline">View Example</a>
+      </div>
+      <div class="glass p-4 rounded-xl flex flex-col items-center">
+        <div class="w-full h-40 bg-gray-800 rounded-lg mb-4 flex items-center justify-center text-gray-500">Mrs. Patel's English Class</div>
+        <a href="#" class="text-blue-400 hover:underline">View Example</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing" class="max-w-5xl mx-auto py-24 px-4">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">Pricing</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="glass p-8 rounded-xl flex flex-col items-center border border-blue-600">
+        <h3 class="text-xl font-bold mb-2">Starter</h3>
+        <div class="text-3xl font-extrabold mb-4">Free</div>
+        <ul class="text-gray-300 mb-6 text-center">
+          <li>1 Website</li>
+          <li>Basic Templates</li>
+          <li>Results & Reviews</li>
+          <li>Email Support</li>
+        </ul>
+        <a href="#contact" class="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700 transition font-semibold shadow-lg">Get Started</a>
+      </div>
+      <div class="glass p-8 rounded-xl flex flex-col items-center border-2 border-blue-400 scale-105">
+        <h3 class="text-xl font-bold mb-2">Pro</h3>
+        <div class="text-3xl font-extrabold mb-4">$9/mo</div>
+        <ul class="text-gray-300 mb-6 text-center">
+          <li>All Starter Features</li>
+          <li>All Templates</li>
+          <li>Custom Domain</li>
+          <li>Priority Support</li>
+        </ul>
+        <a href="#contact" class="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700 transition font-semibold shadow-lg">Start Free Trial</a>
+      </div>
+      <div class="glass p-8 rounded-xl flex flex-col items-center border border-blue-600">
+        <h3 class="text-xl font-bold mb-2">School/Group</h3>
+        <div class="text-3xl font-extrabold mb-4">Custom</div>
+        <ul class="text-gray-300 mb-6 text-center">
+          <li>Multiple Sites</li>
+          <li>Custom Features</li>
+          <li>Dedicated Support</li>
+          <li>Onboarding & Training</li>
+        </ul>
+        <a href="#contact" class="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700 transition font-semibold shadow-lg">Contact Us</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials / Reviews -->
+  <section id="testimonials" class="max-w-5xl mx-auto py-24 px-4">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">What Teachers Say</h2>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="glass p-6 rounded-xl">
+        <p class="text-lg mb-4">"Portflyo made it so easy to launch my site and share my students' results. The admin panel is a lifesaver!"</p>
+        <div class="font-semibold">Ms. Smith, Math Teacher</div>
+      </div>
+      <div class="glass p-6 rounded-xl">
+        <p class="text-lg mb-4">"I love how professional my website looks. My students and parents love the reviews section!"</p>
+        <div class="font-semibold">Mr. Lee, Science Teacher</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="max-w-4xl mx-auto py-24 px-4">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">FAQ</h2>
+    <div class="space-y-4">
+      <div class="glass p-4 rounded-xl cursor-pointer faq-item" tabindex="0">
+        <div class="font-semibold text-lg">Do I need technical skills to use Portflyo?</div>
+        <div class="faq-answer text-gray-300 mt-2">No! Portflyo is designed for teachers of all tech levels. If you can use email, you can use Portflyo.</div>
+      </div>
+      <div class="glass p-4 rounded-xl cursor-pointer faq-item" tabindex="0">
+        <div class="font-semibold text-lg">Can I import my old website?</div>
+        <div class="faq-answer text-gray-300 mt-2">Yes, we offer migration support. Contact us for details.</div>
+      </div>
+      <div class="glass p-4 rounded-xl cursor-pointer faq-item" tabindex="0">
+        <div class="font-semibold text-lg">Is my data safe and private?</div>
+        <div class="faq-answer text-gray-300 mt-2">Absolutely. We are GDPR-compliant and take privacy seriously.</div>
+      </div>
+      <div class="glass p-4 rounded-xl cursor-pointer faq-item" tabindex="0">
+        <div class="font-semibold text-lg">How do I get support?</div>
+        <div class="faq-answer text-gray-300 mt-2">You can reach us anytime via the contact form below or email support@portflyo.com.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact / Signup Section -->
+  <section id="contact" class="max-w-3xl mx-auto py-24 px-4">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">Get Started / Contact Us</h2>
+    <form class="glass p-8 rounded-xl flex flex-col gap-6">
+      <input type="text" placeholder="Your Name" class="px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <input type="email" placeholder="Your Email" class="px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <textarea placeholder="Your Message" rows="4" class="px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+      <button type="submit" class="px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 transition font-semibold shadow-lg">Send Message</button>
+    </form>
+    <div class="text-center text-gray-400 mt-6">Or email us at <a href="mailto:support@portflyo.com" class="text-blue-400 hover:underline">support@portflyo.com</a></div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 py-8 mt-12">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-2">
+        <img src="/favicon.ico" alt="Portflyo Logo" class="w-7 h-7 rounded-full">
+        <span class="font-bold">Portflyo</span>
+      </div>
+      <ul class="flex gap-6 text-gray-400 text-sm">
+        <li><a href="#features" class="hover:text-blue-400">Features</a></li>
+        <li><a href="#templates" class="hover:text-blue-400">Templates</a></li>
+        <li><a href="#pricing" class="hover:text-blue-400">Pricing</a></li>
+        <li><a href="#faq" class="hover:text-blue-400">FAQ</a></li>
+        <li><a href="#contact" class="hover:text-blue-400">Contact</a></li>
+        <li><a href="#" class="hover:text-blue-400">Privacy</a></li>
+      </ul>
+      <div class="flex gap-4">
+        <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-x-twitter"></i></a>
+        <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-linkedin"></i></a>
+        <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-github"></i></a>
+      </div>
+    </div>
+    <div class="text-center text-gray-500 text-xs mt-6">&copy; 2024 Portflyo. All rights reserved.</div>
+  </footer>
+
   <script src="https://kit.fontawesome.com/4b8b59b5b2.js" crossorigin="anonymous"></script>
+  <script>
+    // FAQ accordion
+    document.querySelectorAll('.faq-item').forEach(item => {
+      item.addEventListener('click', () => {
+        item.classList.toggle('faq-open');
+      });
+      item.addEventListener('keypress', e => {
+        if (e.key === 'Enter' || e.key === ' ') item.classList.toggle('faq-open');
+      });
+    });
+  </script>
 </body>
 </html> 
