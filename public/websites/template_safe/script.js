@@ -221,6 +221,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const courses = (window.siteData && window.siteData.coursesTeaching) || [];
         const hasCourses = Array.isArray(courses) && courses.length > 0;
         coursesSection.style.display = hasCourses ? '' : 'none';
+        toggleMenuButton('subjects', hasCourses);
     }
 
     // Hide Teaching Affiliations section immediately if all affiliations are empty
@@ -232,6 +233,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                                 (Array.isArray(experience.centers) && experience.centers.length > 0) ||
                                 (Array.isArray(experience.platforms) && experience.platforms.length > 0);
         affiliationsSection.style.display = hasAffiliations ? '' : 'none';
+        toggleMenuButton('experience', hasAffiliations);
     }
 });
 
@@ -1608,7 +1610,9 @@ function updateSiteContent(data) {
         // Handle sections (subjects, results, register, assistant, contact)
         const hideIfEmpty = (sectionId, items) => {
             const section = document.getElementById(sectionId);
-            if (section) section.style.display = (items && items.length) ? '' : 'none';
+            const visible = (items && items.length);
+            if (section) section.style.display = visible ? '' : 'none';
+            toggleMenuButton(sectionId, visible);
         };
         hideIfEmpty('subjects', subjects);
         hideIfEmpty('results', subjects);
@@ -1616,15 +1620,17 @@ function updateSiteContent(data) {
         const toggleSectionByUrl = (sectionId, buttonSelector, url) => {
             const section = document.getElementById(sectionId);
             const btn = section ? section.querySelector(buttonSelector) : null;
+            const visible = !!url;
             if (section) {
                 if (url) {
                     section.style.display = '';
                     if (btn) { btn.href = url; btn.removeAttribute('tabindex'); btn.style.pointerEvents = ''; }
-            } else {
+                } else {
                     section.style.display = 'none';
                     if (btn) { btn.href = '#'; btn.setAttribute('tabindex', '-1'); btn.style.pointerEvents = 'none'; }
                 }
             }
+            toggleMenuButton(sectionId, visible);
         };
         // --- End fix ---
         toggleSectionByUrl('register', 'a.btn-primary', contactData.formUrl?.trim());
@@ -1637,6 +1643,7 @@ function updateSiteContent(data) {
         [contactSection1, contactSection2].forEach(sec => {
             if (sec) sec.style.display = contactEmail ? '' : 'none';
         });
+        toggleMenuButton('contact', !!contactEmail);
 
         // Hero Contact Me button
         const heroContactBtn = document.getElementById('heroContactBtn');
@@ -3178,7 +3185,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const hasContent = Array.from(qualificationsList.children).some(li => li.textContent.trim() !== '');
         if (!hasContent) {
             qualificationsTitle.style.display = 'none';
+            toggleMenuButton('about', false);
             console.log('Qualifications title hidden: No qualifications data found in the database.');
+        } else {
+            toggleMenuButton('about', true);
         }
     }
     // ... existing code ...
@@ -3751,3 +3761,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 // ... existing code ...
+
+// Helper: Map section IDs to menu button selectors
+const sectionMenuMap = {
+  about: ['a.nav-link[href="#about"]', 'a.mobile-nav-link[href="#about"]'],
+  subjects: ['a.nav-link[href="#subjects"]', 'a.mobile-nav-link[href="#subjects"]'],
+  results: ['a.nav-link[href="#results"]', 'a.mobile-nav-link[href="#results"]'],
+  experience: ['a.nav-link[href="#experience"]', 'a.mobile-nav-link[href="#experience"]'],
+  reviews: ['a.nav-link[href="#reviews"]', 'a.mobile-nav-link[href="#reviews"]'],
+  register: ['a.nav-link[href="#register"]', 'a.mobile-nav-link[href="#register"]'],
+  contact: ['a.nav-link[href="#contact"]', 'a.mobile-nav-link[href="#contact"]'],
+};
+
+function toggleMenuButton(sectionId, visible) {
+  const selectors = sectionMenuMap[sectionId] || [];
+  selectors.forEach(sel => {
+    const btn = document.querySelector(sel);
+    if (btn) {
+      btn.style.display = visible ? '' : 'none';
+      btn.setAttribute('aria-hidden', visible ? 'false' : 'true');
+      btn.tabIndex = visible ? 0 : -1;
+    }
+  });
+}
