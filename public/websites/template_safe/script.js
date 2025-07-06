@@ -1567,6 +1567,7 @@ function updateSiteContent(data) {
         const hasPlatforms = Array.isArray(experienceData.platforms) && experienceData.platforms.length > 0;
         const showAffiliations = hasSchools || hasCenters || hasPlatforms;
         if (experienceSection) experienceSection.style.display = showAffiliations ? '' : 'none';
+        toggleMenuButton('experience', showAffiliations);
         // Render each card and hide if empty
         const updateList = (cardIndex, items) => {
             const card = experienceCards[cardIndex];
@@ -3768,7 +3769,7 @@ const sectionMenuMap = {
   about: ['a.nav-link[href="#about"]', 'a.mobile-nav-link[href="#about"]'],
   subjects: ['a.nav-link[href="#subjects"]', 'a.mobile-nav-link[href="#subjects"]'],
   results: ['a.nav-link[href="#results"]', 'a.mobile-nav-link[href="#results"]'],
-  experience: ['a.nav-link[href="#experience"]', 'a.mobile-nav-link[href="#experience"]', 'a.nav-link:contains("Affiliations")', 'a.mobile-nav-link:contains("Affiliations")'],
+  experience: ['a.nav-link[href="#experience"]', 'a.mobile-nav-link[href="#experience"]'],
   reviews: ['a.nav-link[href="#reviews"]', 'a.mobile-nav-link[href="#reviews"]'],
   register: ['a.nav-link[href="#register"]', 'a.mobile-nav-link[href="#register"]'],
   contact: ['a.nav-link[href="#contact"]', 'a.mobile-nav-link[href="#contact"]'],
