@@ -3768,7 +3768,7 @@ const sectionMenuMap = {
   about: ['a.nav-link[href="#about"]', 'a.mobile-nav-link[href="#about"]'],
   subjects: ['a.nav-link[href="#subjects"]', 'a.mobile-nav-link[href="#subjects"]'],
   results: ['a.nav-link[href="#results"]', 'a.mobile-nav-link[href="#results"]'],
-  experience: ['a.nav-link[href="#experience"]', 'a.mobile-nav-link[href="#experience"]'],
+  experience: ['a.nav-link[href="#experience"]', 'a.mobile-nav-link[href="#experience"]', 'a.nav-link:contains("Affiliations")', 'a.mobile-nav-link:contains("Affiliations")'],
   reviews: ['a.nav-link[href="#reviews"]', 'a.mobile-nav-link[href="#reviews"]'],
   register: ['a.nav-link[href="#register"]', 'a.mobile-nav-link[href="#register"]'],
   contact: ['a.nav-link[href="#contact"]', 'a.mobile-nav-link[href="#contact"]'],
