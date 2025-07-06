@@ -1981,10 +1981,11 @@ async function saveAdminChanges() {
             }
         };
 
-        // Ensure empty arrays for empty textarea fields
-        if (schoolsInput && schoolsInput.value.trim() === '') newData.experience.schools = [];
-        if (centersInput && centersInput.value.trim() === '') newData.experience.centers = [];
-        if (platformsInput && platformsInput.value.trim() === '') newData.experience.platforms = [];
+        // Defensive: Ensure empty arrays for empty lists
+        if (!qualifications.length) newData.personal.qualifications = [];
+        if (!schools.length) newData.experience.schools = [];
+        if (!centers.length) newData.experience.centers = [];
+        if (!platforms.length) newData.experience.platforms = [];
 
         console.log('Saving data:', JSON.stringify(newData, null, 2));
         
