@@ -1288,6 +1288,11 @@ function populateAdminForm(data) {
         if (philosophyInput) philosophyInput.value = philosophyValue;
         // Qualifications: always use data.personal.qualifications
         renderQualificationsInputs(Array.isArray(personal.qualifications) ? personal.qualifications : []);
+        // Experience: schools, centers, platforms
+        const experience = data.experience || {};
+        renderExperienceInputs('schools', Array.isArray(experience.schools) ? experience.schools : []);
+        renderExperienceInputs('centers', Array.isArray(experience.centers) ? experience.centers : []);
+        renderExperienceInputs('platforms', Array.isArray(experience.platforms) ? experience.platforms : []);
         // ... keep rest of the function unchanged ...
     } catch (error) {
         console.error('Error populating admin form:', error);
