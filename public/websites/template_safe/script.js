@@ -3784,4 +3784,22 @@ function toggleMenuButton(sectionId, visible) {
       btn.tabIndex = visible ? 0 : -1;
     }
   });
+  adjustNavLinksAlignment();
 }
+
+function adjustNavLinksAlignment() {
+  const navLinks = document.querySelector('.nav-links');
+  if (!navLinks) return;
+  // Only count visible menu items
+  const visibleItems = Array.from(navLinks.children).filter(li => li.offsetParent !== null);
+  if (visibleItems.length <= 2) {
+    navLinks.classList.remove('justify-center');
+    navLinks.classList.add('justify-start');
+  } else {
+    navLinks.classList.remove('justify-start');
+    navLinks.classList.add('justify-center');
+  }
+}
+
+// Call after toggling menu buttons
+document.addEventListener('DOMContentLoaded', adjustNavLinksAlignment);
