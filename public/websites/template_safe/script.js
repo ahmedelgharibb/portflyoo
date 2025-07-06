@@ -1560,30 +1560,25 @@ function updateSiteContent(data) {
         const experienceData = data.experience || {};
         console.log('Experience data:', experienceData);
 
+        const experienceSection = document.getElementById('experience');
         const experienceCards = document.querySelectorAll('#experience .experience-card');
-
-        if (experienceCards[0]) {
-            // Always show '15+' if value is missing or empty
-            let yearsValue = (personalData.experience || '').replace(/[^\\d+]/g, '');
-            if (!yearsValue || yearsValue.trim() === '') yearsValue = '15+';
-            const yearsDiv = experienceCards[0].querySelector('.text-4xl');
-            if (yearsDiv) yearsDiv.textContent = yearsValue;
-            const yearsDesc = experienceCards[0].querySelector('p');
-            if (yearsDesc) yearsDesc.textContent = personalData.experienceDescription || 'Dedicated to excellence in mathematics education';
-        }
-
+        const hasSchools = Array.isArray(experienceData.schools) && experienceData.schools.length > 0;
+        const hasCenters = Array.isArray(experienceData.centers) && experienceData.centers.length > 0;
+        const hasPlatforms = Array.isArray(experienceData.platforms) && experienceData.platforms.length > 0;
+        const showAffiliations = hasSchools || hasCenters || hasPlatforms;
+        if (experienceSection) experienceSection.style.display = showAffiliations ? '' : 'none';
+        // Render each card and hide if empty
         const updateList = (cardIndex, items) => {
             const card = experienceCards[cardIndex];
             if (card) {
                 const list = card.querySelector('ul');
                 if (list) list.innerHTML = items.map(i => `<li>${i}</li>`).join('');
                 card.style.display = items.length ? '' : 'none';
-        }
+            }
         };
-
-        updateList(1, experienceData.schools || []);
-        updateList(2, experienceData.centers || []);
-        updateList(3, experienceData.platforms || []);
+        updateList(0, experienceData.schools || []);
+        updateList(1, experienceData.centers || []);
+        updateList(2, experienceData.platforms || []);
 
         // Update contact info
         const contactData = data.contact || {};
