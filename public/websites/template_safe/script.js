@@ -3780,7 +3780,9 @@ function toggleMenuButton(sectionId, visible) {
   selectors.forEach(sel => {
     const btn = document.querySelector(sel);
     if (btn) {
-      btn.style.display = visible ? '' : 'none';
+      // Hide/show the parent <li> instead of just the <a>
+      const li = btn.closest('li');
+      if (li) li.style.display = visible ? '' : 'none';
       btn.setAttribute('aria-hidden', visible ? 'false' : 'true');
       btn.tabIndex = visible ? 0 : -1;
     }
