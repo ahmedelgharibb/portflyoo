@@ -1165,6 +1165,7 @@ async function openAdminPanel() {
         // Show image previews if available
         showAdminImagePreview('hero', adminData.heroImage);
         showAdminImagePreview('about', adminData.aboutImage);
+        console.log('Admin data loaded for results:', adminData.results);
     } catch (error) {
         console.error('Error opening admin panel:', error);
         showAdminAlert('error', 'Failed to load admin panel: ' + error.message);
@@ -1294,6 +1295,8 @@ function populateAdminForm(data) {
         renderExperienceInputs('centers', Array.isArray(experience.centers) ? experience.centers : []);
         renderExperienceInputs('platforms', Array.isArray(experience.platforms) ? experience.platforms : []);
         // ... keep rest of the function unchanged ...
+        console.log('Populating results form with:', data.results);
+        populateResultsForm(Array.isArray(data.results) ? data.results : []);
     } catch (error) {
         console.error('Error populating admin form:', error);
         showAdminAlert('error', `There was an error loading form fields: ${error.message}`);
@@ -1302,10 +1305,10 @@ function populateAdminForm(data) {
 
 // Populate results form
 function populateResultsForm(subjects) {
+    console.log('populateResultsForm called with:', subjects);
     const container = document.getElementById('admin-results-container');
     container.innerHTML = '';
-    
-    if (subjects && subjects.length > 0) {
+    if (Array.isArray(subjects) && subjects.length > 0) {
         subjects.forEach(subject => {
             addResultItem(
                 subject.subject || '',
@@ -1315,7 +1318,8 @@ function populateResultsForm(subjects) {
                 subject.other || ''
             );
         });
-    } else {
+    } else if (subjects === undefined) {
+        // Only add an empty item if results are truly missing, not just empty
         addResultItem();
     }
 }
@@ -2018,6 +2022,14 @@ async function saveAdminChanges() {
         // Sync websiteData with latest saved images
         websiteData.heroImage = newData.heroImage;
         websiteData.aboutImage = newData.aboutImage;
+        if (Array.isArray(newData.results) && newData.results.length === 0) {
+            if (!confirm('Results are empty. Do you want to save with no results?')) {
+                showAdminAlert('warning', 'Save cancelled. Please add at least one result or confirm to save empty.');
+                saveBtn.innerHTML = originalBtnText;
+                saveBtn.disabled = false;
+                return;
+            }
+        }
     } catch (error) {
         console.error('Error saving changes:', error);
         showAdminAlert('error', `Failed to save changes: ${error.message}`);
