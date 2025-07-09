@@ -118,11 +118,20 @@
       }
       
       .admin-btn:hover {
-          background-color: var(--primary-color);
-          border-color: var(--primary-color);
-          color: white;
+          background-color: var(--primary-color) !important;
+          border-color: var(--primary-color) !important;
+          color: white !important;
           transform: translateY(-2px);
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      
+      .admin-btn:hover i, #adminBtn:hover i {
+          color: white !important;
+      }
+      
+      #adminBtn i {
+          color: var(--primary-color) !important;
+          transition: color 0.2s;
       }
       
       /* Mobile Menu Styles */
