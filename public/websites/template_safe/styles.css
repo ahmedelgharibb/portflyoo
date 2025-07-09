@@ -2905,5 +2905,27 @@
         color: #fff;
         box-shadow: 0 2px 8px rgba(239,68,68,0.15);
       }
+
+      #admin-results-container .result-item .grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(120px, 1fr)) 48px;
+        gap: 1.2rem;
+        align-items: center;
+      }
+      #admin-results-container .result-input {
+        margin: 0;
+        border-radius: 0.75rem !important;
+      }
+      #admin-results-container .result-input.subject-input {
+        margin-left: 0;
+        min-width: 120px;
+        max-width: 220px;
+      }
+      @media (max-width: 900px) {
+        #admin-results-container .result-item .grid {
+          grid-template-columns: 1fr;
+          gap: 0.7rem;
+        }
+      }
   
   
