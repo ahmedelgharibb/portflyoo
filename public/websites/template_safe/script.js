@@ -894,6 +894,7 @@ function handleAdminLogin(e) {
     // Direct password check for demo purposes - we do this immediately
     // In production, this should be a secure authentication process
     if (password === 'admin123') {
+        clearAdminAlerts();
         console.log('Admin login successful');
         
         // Save login state consistently
@@ -1043,6 +1044,7 @@ function showAdminAlert(type, message, inLoginModal = false, autoHideDelay = 0) 
 
 // Open admin panel and load data
 async function openAdminPanel() {
+    clearAdminAlerts();
     console.log('Opening admin panel, login status:', isLoggedIn);
     if (!isLoggedIn) {
         console.error('Attempt to open admin panel when not logged in');
@@ -2097,6 +2099,7 @@ function adminLogout() {
     
     // Close admin panel
     closeAdminPanel();
+    clearAdminAlerts();
     
     // Update admin button text
     if (adminBtn) {
@@ -3799,4 +3802,10 @@ function toggleMenuButton(sectionId, visible) {
       btn.tabIndex = visible ? 0 : -1;
     }
   });
+}
+
+// Utility to clear admin alerts
+function clearAdminAlerts() {
+    const alertContainer = document.getElementById('adminAlertContainer');
+    if (alertContainer) alertContainer.innerHTML = '';
 }
