@@ -353,6 +353,15 @@ function bindReviewSwitchListeners(container) {
             const reviewId = sw.getAttribute('data-review-id');
             const makeVisible = sw.checked;
             sw.disabled = true;
+            // INSTANT visual feedback: update switch color immediately
+            const slider = sw.nextElementSibling;
+            if (slider) {
+                if (makeVisible) {
+                    slider.style.backgroundColor = '#10b981'; // green
+                } else {
+                    slider.style.backgroundColor = '';
+                }
+            }
             const card = sw.closest('.bg-white.rounded-lg.shadow-md.p-6.mb-4');
             try {
                 // Update in database first
@@ -370,6 +379,10 @@ function bindReviewSwitchListeners(container) {
             } catch (err) {
                 showToast('Failed to update review visibility', 'error');
                 sw.checked = !makeVisible;
+                // Revert visual feedback if error
+                if (slider) {
+                    slider.style.backgroundColor = sw.checked ? '#10b981' : '';
+                }
             } finally {
                 sw.disabled = false;
             }
