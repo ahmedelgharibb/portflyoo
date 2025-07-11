@@ -90,8 +90,13 @@ async function getCurrentWebsiteId() {
     const response = await fetch('site.config.json');
     if (!response.ok) throw new Error('Failed to load site.config.json');
     const config = await response.json();
-    return config.site_id || 1;
+    if (!config.site_id) {
+      console.warn('site_id missing in site.config.json, using fallback 1');
+      return 1;
+    }
+    return config.site_id;
   } catch (err) {
+    console.warn('Error loading site_id, using fallback 1:', err);
     return 1;
   }
 }
