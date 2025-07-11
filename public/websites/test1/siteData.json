@@ -1,0 +1,22 @@
+{
+  "personal": {
+    "name": "Dr. Jane Smith",
+    "title": "Physics Teacher",
+    "subtitle": "STEM Specialist",
+    "heroHeading": "Inspiring Minds Through Physics",
+    "experience": "10+ years teaching experience",
+    "philosophy": "I believe in making science accessible and exciting for all students.",
+    "qualifications": [
+      "Ph.D. in Physics Education",
+      "M.Sc. in Physics",
+      "B.Sc. in Science"
+    ]
+  },
+  "teacherExperience": {
+    "years": 10,
+    "students": 500,
+    "schools": 8
+  },
+  "heroImage": "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg",
+  "aboutImage": "https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"
+}
