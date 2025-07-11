@@ -1,0 +1,43 @@
+PHP Warning:  Undefined array key "REMOTE_ADDR" in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 12
+
+Warning: Undefined array key "REMOTE_ADDR" in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 12
+PHP Deprecated:  md5(): Passing null to parameter #1 ($string) of type string is deprecated in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 13
+
+Deprecated: md5(): Passing null to parameter #1 ($string) of type string is deprecated in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 13
+PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 43
+
+Warning: ini_set(): Session ini settings cannot be changed when a session is active in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 43
+PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 44
+
+Warning: ini_set(): Session ini settings cannot be changed when a session is active in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 44
+PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 45
+
+Warning: ini_set(): Session ini settings cannot be changed when a session is active in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 45
+PHP Warning:  Undefined array key "REQUEST_METHOD" in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 59
+
+Warning: Undefined array key "REQUEST_METHOD" in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 59
+PHP Warning:  Undefined array key "REQUEST_METHOD" in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 74
+
+Warning: Undefined array key "REQUEST_METHOD" in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 74
+PHP Warning:  Cannot modify header information - headers already sent by (output started at /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php:12) in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 88
+
+Warning: Cannot modify header information - headers already sent by (output started at /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php:12) in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 88
+PHP Warning:  Cannot modify header information - headers already sent by (output started at /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php:12) in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 89
+
+Warning: Cannot modify header information - headers already sent by (output started at /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php:12) in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 89
+PHP Warning:  Cannot modify header information - headers already sent by (output started at /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php:12) in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 90
+
+Warning: Cannot modify header information - headers already sent by (output started at /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php:12) in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 90
+PHP Warning:  Cannot modify header information - headers already sent by (output started at /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php:12) in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 91
+
+Warning: Cannot modify header information - headers already sent by (output started at /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php:12) in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 91
+PHP Warning:  Undefined array key "REQUEST_METHOD" in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 94
+
+Warning: Undefined array key "REQUEST_METHOD" in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 94
+PHP Warning:  Undefined array key "REQUEST_METHOD" in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 100
+
+Warning: Undefined array key "REQUEST_METHOD" in /Users/ahmedmahmoud/portflyoo/public/websites/template_safe/api.php on line 100
+API Request Method: 
+Raw input: 
+API Action: debug
+{"error":"siteData.json not found"}
