@@ -84,23 +84,40 @@ async function getCurrentSiteId() {
     }
 }
 
-// Helper to fetch all reviews from backend
-async function fetchAllReviewsFromTeachersWebsites() {
-    const response = await fetch('/api/api?action=getReviews');
-    if (!response.ok) throw new Error('Failed to fetch reviews');
-    const data = await response.json();
-    return Array.isArray(data.reviews) ? data.reviews : [];
+// Helper to get current website ID
+async function getCurrentWebsiteId() {
+  try {
+    const response = await fetch('site.config.json');
+    if (!response.ok) throw new Error('Failed to load site.config.json');
+    const config = await response.json();
+    return config.site_id || 1;
+  } catch (err) {
+    return 1;
+  }
 }
 
-// Helper to save all reviews to backend
+// Helper to fetch all reviews for current website from backend
+async function fetchAllReviewsFromTeachersWebsites() {
+  const websiteId = await getCurrentWebsiteId();
+  const response = await fetch(`/api/api?action=getReviews&website_id=${websiteId}`);
+  if (!response.ok) throw new Error('Failed to fetch reviews');
+  const data = await response.json();
+  // Filter reviews by website_id in case backend returns all
+  return Array.isArray(data.reviews) ? data.reviews.filter(r => r.website_id == websiteId) : [];
+}
+
+// Helper to save all reviews to backend (with website_id)
 async function saveAllReviewsToTeachersWebsites(reviews) {
-    const response = await fetch('/api/api?action=saveReviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviews })
-    });
-    const data = await response.json();
-    if (!data.success) throw new Error(data.message || 'Failed to save reviews');
+  const websiteId = await getCurrentWebsiteId();
+  // Ensure all reviews have website_id
+  const reviewsWithId = reviews.map(r => ({ ...r, website_id: r.website_id || websiteId }));
+  const response = await fetch('/api/api?action=saveReviews', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reviews: reviewsWithId })
+  });
+  const data = await response.json();
+  if (!data.success) throw new Error(data.message || 'Failed to save reviews');
 }
 
 // Submit review (add to reviews array)
@@ -167,9 +184,11 @@ async function submitReview(event) {
 
     try {
         console.log('📡 Sending request to Supabase...');
+        const websiteId = await getCurrentWebsiteId();
         let reviews = await fetchAllReviewsFromTeachersWebsites();
         const newReview = {
             id: crypto.randomUUID(),
+            website_id: websiteId,
             student_name: studentName,
             rating: rating,
             review_text: reviewText,

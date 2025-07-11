@@ -130,16 +130,32 @@ export default async function handler(req, res) {
       break;
     }
     case 'getReviews': {
-      const { data, error } = await supabase
-        .from('reviews')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) {
-        console.error('[API:getReviews] Supabase error:', error.message);
-        return res.status(500).json({ error: error.message });
+      let reviews = [];
+      if (req.query.website_id || req.body.website_id) {
+        const websiteId = req.query.website_id || req.body.website_id;
+        const { data, error } = await supabase
+          .from('reviews')
+          .select('*')
+          .eq('website_id', websiteId)
+          .order('created_at', { ascending: false });
+        if (error) {
+          console.error('[API:getReviews] Supabase error:', error.message);
+          return res.status(500).json({ error: error.message });
+        }
+        reviews = data;
+      } else {
+        const { data, error } = await supabase
+          .from('reviews')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error) {
+          console.error('[API:getReviews] Supabase error:', error.message);
+          return res.status(500).json({ error: error.message });
+        }
+        reviews = data;
       }
-      console.log('[API:getReviews] Success. Reviews sent:', data);
-      res.status(200).json({ reviews: data });
+      console.log('[API:getReviews] Success. Reviews sent:', reviews);
+      res.status(200).json({ reviews });
       break;
     }
     case 'saveReviews': {
