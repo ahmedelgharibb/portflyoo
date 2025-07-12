@@ -265,13 +265,11 @@ async function loadApprovedReviews() {
 
 // Display reviews in the reviews container
 function displayReviews(reviews) {
+    // Remove logic that hides the reviews section if there are no reviews
+    // Always show the reviews section and the review form
     const reviewsSection = document.getElementById('reviews');
     if (reviewsSection) {
-        if (!reviews || reviews.length === 0) {
-            reviewsSection.style.display = 'none';
-        } else {
-            reviewsSection.style.display = '';
-        }
+        reviewsSection.style.display = '';
     }
     const container = document.querySelector('#reviewsContainer');
     if (!container) return;
