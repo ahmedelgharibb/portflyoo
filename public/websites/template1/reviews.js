@@ -433,9 +433,8 @@ function displayAdminReviews(reviews) {
         return;
     }
     reviews.forEach((review) => {
-        const isHidden = !review.is_visible;
         const reviewElement = document.createElement('div');
-        reviewElement.className = `bg-white rounded-lg shadow-md p-6 mb-4 transition-opacity duration-300 ${isHidden ? 'opacity-60 grayscale' : ''}`;
+        reviewElement.className = 'bg-white rounded-lg shadow-md p-6 mb-4 transition-opacity duration-300';
         reviewElement.innerHTML = `
             <div class="flex items-center justify-between mb-4">
                 <div>
@@ -452,7 +451,6 @@ function displayAdminReviews(reviews) {
             <p class="text-gray-600 mt-2">${review.review_text}</p>
             <div class="flex items-center mt-2 gap-2">
                 <div class="text-sm text-gray-500">${new Date(review.created_at).toLocaleDateString()}</div>
-                ${isHidden ? '<span class="ml-2 px-2 py-1 bg-gray-300 text-gray-700 text-xs rounded">Hidden</span>' : ''}
             </div>
         `;
         container.appendChild(reviewElement);
@@ -464,44 +462,31 @@ function displayAdminReviews(reviews) {
     bindReviewSwitchListeners(container);
 }
 
-// Toggle review visibility (admin)
-async function toggleReviewVisibility(reviewId, makeVisible) {
-    // Instantly update the card's visual state for immediate feedback
-    const container = document.querySelector('#admin-reviews-container');
-    if (container) {
-        const card = Array.from(container.children).find(el => {
-            const input = el.querySelector(`input.review-switch[data-review-id="${reviewId}"]`);
-            return input !== null;
-        });
-        if (card) {
-            if (makeVisible) {
-                card.classList.remove('opacity-60', 'grayscale');
-                const badge = card.querySelector('.hidden-badge');
-                if (badge) badge.remove();
-            } else {
-                card.classList.add('opacity-60', 'grayscale');
-                if (!card.querySelector('.hidden-badge')) {
-                    const badge = document.createElement('span');
-                    badge.className = 'ml-2 px-2 py-1 bg-gray-300 text-gray-700 text-xs rounded hidden-badge';
-                    badge.textContent = 'Hidden';
-                    const meta = card.querySelector('.flex.items-center.mt-2.gap-2');
-                    if (meta) meta.appendChild(badge);
-                }
-            }
+// Custom modal logic for delete confirmation
+function showDeleteReviewModal(reviewId, reviewElement) {
+    const modal = document.getElementById('deleteReviewModal');
+    const cancelBtn = document.getElementById('cancelDeleteReviewBtn');
+    const confirmBtn = document.getElementById('confirmDeleteReviewBtn');
+    if (!modal || !cancelBtn || !confirmBtn) return;
+    modal.classList.remove('hidden');
+    cancelBtn.onclick = () => { modal.classList.add('hidden'); };
+    confirmBtn.onclick = async () => {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Deleting...';
+        try {
+            let reviews = await fetchAllReviewsFromTeachersWebsites();
+            reviews = reviews.filter(r => r.id !== reviewId);
+            await saveAllReviewsToTeachersWebsites(reviews);
+            if (reviewElement) reviewElement.remove();
+            showToast('Review deleted successfully', 'success');
+        } catch (error) {
+            showToast('Failed to delete review', 'error');
+        } finally {
+            modal.classList.add('hidden');
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Delete';
         }
-    }
-    try {
-        let reviews = await fetchAllReviewsFromTeachersWebsites();
-        reviews = reviews.map(r => r.id === reviewId ? { ...r, is_visible: makeVisible } : r);
-        await saveAllReviewsToTeachersWebsites(reviews);
-        showToast(`Review ${makeVisible ? 'shown' : 'hidden'}!`);
-    } catch (err) {
-        showToast('Failed to update review visibility', 'error');
-        // Fallback: reload reviews list if error
-        if (container) {
-            fetchAllReviewsFromTeachersWebsites().then(displayAdminReviews);
-        }
-    }
+    };
 }
 
 // Delete review (admin)
