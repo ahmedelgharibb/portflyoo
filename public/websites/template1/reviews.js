@@ -615,7 +615,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Export functions for use in other files
-window.toggleReviewVisibility = toggleReviewVisibility;
 window.deleteReview = deleteReview;
 
 // Function to load reviews for the public view (now uses teachers_websites.data.reviews)
