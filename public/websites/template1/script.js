@@ -1673,7 +1673,17 @@ function updateSiteContent(data) {
         // Render Courses Teaching section
         updateCoursesTeachingGrid(data.results);
 
-        // Teacher Experience
+        // --- Fix: Update Teacher Experience Section ---
+        const teacherExp = data.teacherExperience || { years: 10, students: 500, schools: 8 };
+        const yearsExpEl = document.getElementById('yearsExperience');
+        const studentsTaughtEl = document.getElementById('studentsTaught');
+        const schoolsTaughtEl = document.getElementById('schoolsTaught');
+        if (yearsExpEl) yearsExpEl.textContent = teacherExp.years + '+';
+        if (studentsTaughtEl) studentsTaughtEl.textContent = teacherExp.students + '+';
+        if (schoolsTaughtEl) schoolsTaughtEl.textContent = teacherExp.schools + '+';
+        // --- End Fix ---
+
+        // Teacher Experience (admin panel only, not public)
         const yearsInput = document.getElementById('admin-years-experience');
         const studentsInput = document.getElementById('admin-students-taught');
         const schoolsInput = document.getElementById('admin-schools-taught');
