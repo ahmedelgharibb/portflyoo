@@ -1816,6 +1816,7 @@ async function saveAdminChanges() {
     const adminPanelLoader = document.getElementById('adminPanelLoader');
     if (!saveBtn) {
         console.error('Save button not found in DOM');
+        if (adminPanelLoader) adminPanelLoader.classList.add('hidden');
         return;
     }
     if (adminPanelLoader) {
@@ -1852,6 +1853,7 @@ async function saveAdminChanges() {
         showAdminAlert('error', `Missing required input fields: ${missingInputs.join(', ')}. Please reload the page or contact support.`);
         saveBtn.innerHTML = originalBtnText;
         saveBtn.disabled = false;
+        if (adminPanelLoader) adminPanelLoader.classList.add('hidden');
         return;
     }
 
@@ -1890,6 +1892,7 @@ async function saveAdminChanges() {
         }
         saveBtn.innerHTML = originalBtnText;
         saveBtn.disabled = false;
+        if (adminPanelLoader) adminPanelLoader.classList.add('hidden');
         return;
     }
 
@@ -2019,7 +2022,7 @@ async function saveAdminChanges() {
         });
         const saveResult = await saveResponse.json();
         if (!saveResult.success) throw new Error(saveResult.message || 'Failed to save data');
-            showAdminAlert('success', 'Changes saved successfully!');
+        showAdminAlert('success', 'Changes saved successfully!');
         updateSiteContent(newData);
         if (window.resultsChart) {
             updateResultsChart(newData.results);
@@ -2032,6 +2035,7 @@ async function saveAdminChanges() {
                 showAdminAlert('warning', 'Save cancelled. Please add at least one result or confirm to save empty.');
                 saveBtn.innerHTML = originalBtnText;
                 saveBtn.disabled = false;
+                if (adminPanelLoader) adminPanelLoader.classList.add('hidden');
                 return;
             }
         }
