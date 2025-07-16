@@ -1813,14 +1813,17 @@ async function saveAdminChanges() {
     const scrollY = window.scrollY;
     console.log('Save changes function called');
     const saveBtn = document.getElementById('saveChangesBtn');
+    const adminPanelLoader = document.getElementById('adminPanelLoader');
     if (!saveBtn) {
         console.error('Save button not found in DOM');
         return;
     }
-    console.log('Save button found:', saveBtn);
+    if (adminPanelLoader) {
+        adminPanelLoader.classList.remove('hidden');
+    }
+    saveBtn.disabled = true;
     const originalBtnText = saveBtn.innerHTML;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-    saveBtn.disabled = true;
 
     // Move input element declarations above validation
     const nameInput = document.getElementById('admin-name');
@@ -2036,6 +2039,9 @@ async function saveAdminChanges() {
         console.error('Error saving changes:', error);
         showAdminAlert('error', `Failed to save changes: ${error.message}`);
     } finally {
+        if (adminPanelLoader) {
+            adminPanelLoader.classList.add('hidden');
+        }
         saveBtn.innerHTML = originalBtnText;
         saveBtn.disabled = false;
         // Restore scroll position
