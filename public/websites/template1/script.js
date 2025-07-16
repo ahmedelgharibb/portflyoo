@@ -1299,6 +1299,14 @@ function populateAdminForm(data) {
         // ... keep rest of the function unchanged ...
         console.log('Populating results form with:', data.results);
         populateResultsForm(Array.isArray(data.results) ? data.results : []);
+        // Teacher Experience fields (admin panel)
+        const teacherExp = data.teacherExperience || { years: '', students: '', schools: '' };
+        const yearsInput = document.getElementById('admin-years-experience');
+        const studentsInput = document.getElementById('admin-students-taught');
+        const schoolsInput = document.getElementById('admin-schools-taught');
+        if (yearsInput) yearsInput.value = teacherExp.years !== undefined ? teacherExp.years : '';
+        if (studentsInput) studentsInput.value = teacherExp.students !== undefined ? teacherExp.students : '';
+        if (schoolsInput) schoolsInput.value = teacherExp.schools !== undefined ? teacherExp.schools : '';
     } catch (error) {
         console.error('Error populating admin form:', error);
         showAdminAlert('error', `There was an error loading form fields: ${error.message}`);
@@ -1673,14 +1681,14 @@ function updateSiteContent(data) {
         // Render Courses Teaching section
         updateCoursesTeachingGrid(data.results);
 
-        // --- Fix: Update Teacher Experience Section ---
-        const teacherExp = data.teacherExperience || { years: 10, students: 500, schools: 8 };
+        // --- Fix: Update Teacher Experience Section (public only) ---
+        const teacherExpPublic = data.teacherExperience || { years: 10, students: 500, schools: 8 };
         const yearsExpEl = document.getElementById('yearsExperience');
         const studentsTaughtEl = document.getElementById('studentsTaught');
         const schoolsTaughtEl = document.getElementById('schoolsTaught');
-        if (yearsExpEl) yearsExpEl.textContent = teacherExp.years + '+';
-        if (studentsTaughtEl) studentsTaughtEl.textContent = teacherExp.students + '+';
-        if (schoolsTaughtEl) schoolsTaughtEl.textContent = teacherExp.schools + '+';
+        if (yearsExpEl) yearsExpEl.textContent = teacherExpPublic.years + '+';
+        if (studentsTaughtEl) studentsTaughtEl.textContent = teacherExpPublic.students + '+';
+        if (schoolsTaughtEl) schoolsTaughtEl.textContent = teacherExpPublic.schools + '+';
         // --- End Fix ---
 
         // Teacher Experience (admin panel only, not public)
