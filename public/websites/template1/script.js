@@ -1807,8 +1807,12 @@ function updateResultsChart(subjects) {
     }
 }
 
+let isAdminSaving = false;
+
 // Save admin changes to backend API and localStorage
 async function saveAdminChanges() {
+    if (isAdminSaving) return;
+    isAdminSaving = true;
     // Record scroll position
     const scrollY = window.scrollY;
     console.log('Save changes function called');
@@ -1817,6 +1821,7 @@ async function saveAdminChanges() {
     if (!saveBtn) {
         console.error('Save button not found in DOM');
         if (adminPanelLoader) adminPanelLoader.classList.add('hidden');
+        isAdminSaving = false;
         return;
     }
     if (adminPanelLoader) {
@@ -1854,6 +1859,7 @@ async function saveAdminChanges() {
         saveBtn.innerHTML = originalBtnText;
         saveBtn.disabled = false;
         if (adminPanelLoader) adminPanelLoader.classList.add('hidden');
+        isAdminSaving = false;
         return;
     }
 
@@ -1893,6 +1899,7 @@ async function saveAdminChanges() {
         saveBtn.innerHTML = originalBtnText;
         saveBtn.disabled = false;
         if (adminPanelLoader) adminPanelLoader.classList.add('hidden');
+        isAdminSaving = false;
         return;
     }
 
@@ -2036,6 +2043,7 @@ async function saveAdminChanges() {
                 saveBtn.innerHTML = originalBtnText;
                 saveBtn.disabled = false;
                 if (adminPanelLoader) adminPanelLoader.classList.add('hidden');
+                isAdminSaving = false;
                 return;
             }
         }
@@ -2048,6 +2056,7 @@ async function saveAdminChanges() {
         }
         saveBtn.innerHTML = originalBtnText;
         saveBtn.disabled = false;
+        isAdminSaving = false;
         // Restore scroll position
         window.scrollTo({ top: scrollY, behavior: 'auto' });
     }
