@@ -6,8 +6,7 @@ const path = require('path');
 
 // Configuration
 const SITE_DIRECTORIES = [
-    'public/websites/template1',
-    'public/websites/test1'
+    'public/websites/template1'
 ];
 
 // Helper function to check if a string is base64

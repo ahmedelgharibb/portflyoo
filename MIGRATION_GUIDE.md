@@ -101,7 +101,6 @@ If something goes wrong, you can rollback using the backup:
 ```bash
 # Restore from backup
 cp backups/pre-migration-[timestamp]/template1/siteData.json public/websites/template1/
-cp backups/pre-migration-[timestamp]/test1/siteData.json public/websites/test1/
 ```
 
 ## Benefits of Migration
