@@ -3349,7 +3349,17 @@ async function handleImageUpload(file, type) {
         const spinner = document.getElementById(spinnerId);
         if (spinner) spinner.classList.remove('hidden');
 
-        // Convert file to base64
+        // Validate file type
+        if (!file || !file.type.startsWith('image/')) {
+            throw new Error('Please select a valid image file');
+        }
+
+        // Get file extension and create unique filename
+        const extension = file.name.split('.').pop().toLowerCase();
+        const timestamp = new Date().getTime();
+        const filename = `${type}-image-${timestamp}.${extension}`;
+
+        // Convert file to base64 for API upload
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -3358,21 +3368,36 @@ async function handleImageUpload(file, type) {
         });
         const base64 = await toBase64(file);
 
+        // Upload to Supabase via API
+        const uploadResponse = await fetch('/api/api?action=uploadImage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ base64, filename })
+        });
+
+        if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(errorData.error || 'Failed to upload image');
+        }
+
+        const { url: publicUrl } = await uploadResponse.json();
+
         // Always fetch the latest data before updating
         const currentData = await loadSiteData();
         websiteData = { ...currentData };
         if (type === 'hero') {
-            websiteData.heroImage = base64;
+            websiteData.heroImage = publicUrl;
         } else if (type === 'about') {
-            websiteData.aboutImage = base64;
+            websiteData.aboutImage = publicUrl;
         }
 
         // Save the full websiteData object
         await saveSiteData(websiteData);
         showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image uploaded successfully!`);
 
-        // Update preview with the new image
-        updateAdminImagePreview(type, base64);
+        // Update preview with the new image URL
+        updateAdminImagePreview(type, publicUrl);
+        
         // After upload, reload and update local websiteData
         const data = await loadSiteData();
         websiteData = { ...data };
@@ -3393,13 +3418,13 @@ async function handleImageUpload(file, type) {
 }
 
 // --- Helper to update admin image preview ---
-function updateAdminImagePreview(type, base64) {
+function updateAdminImagePreview(type, imageUrl) {
     const previewId = type === 'hero' ? 'heroPreview' : 'aboutPreview';
     const preview = document.getElementById(previewId);
     if (preview) {
         const img = preview.querySelector('img');
-        if (img && base64) {
-            img.src = base64;
+        if (img && imageUrl) {
+            img.src = imageUrl;
             preview.classList.remove('hidden');
         }
     }
@@ -3553,22 +3578,23 @@ function setupModernImageUpload({
         }
         // Show spinner
         if (spinner) spinner.classList.remove('hidden');
-        // Show preview immediately
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = preview.querySelector('img');
-            if (img) {
-                img.src = e.target.result;
-                preview.classList.remove('hidden');
-            }
-        };
-        reader.readAsDataURL(file);
+        // Show preview immediately using object URL for better performance
+        const objectUrl = URL.createObjectURL(file);
+        const img = preview.querySelector('img');
+        if (img) {
+            img.src = objectUrl;
+            preview.classList.remove('hidden');
+        }
         // Upload logic
         try {
             await handleImageUpload(file, type);
             fileInput.value = '';
+            // Clean up object URL after upload
+            URL.revokeObjectURL(objectUrl);
         } catch (err) {
             showAdminAlert('error', `Failed to upload image: ${err.message}`);
+            // Clean up object URL on error
+            URL.revokeObjectURL(objectUrl);
         } finally {
             if (spinner) spinner.classList.add('hidden');
         }
