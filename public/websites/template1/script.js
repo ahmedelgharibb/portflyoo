@@ -3872,3 +3872,295 @@ function clearAdminAlerts() {
     const alertContainer = document.getElementById('adminAlertContainer');
     if (alertContainer) alertContainer.innerHTML = '';
 }
+
+// ============================================================================
+// MIGRATION FUNCTIONS - Built into template1 for independence
+// ============================================================================
+
+// Helper function to check if a string is base64
+function isBase64(str) {
+    if (typeof str !== 'string') return false;
+    if (str.startsWith('data:image/')) return true;
+    if (str.startsWith('http://') || str.startsWith('https://')) return false;
+    // Check if it looks like base64 (contains only base64 characters and is reasonably long)
+    const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+    return base64Regex.test(str) && str.length > 100;
+}
+
+// Helper function to get file extension from base64 data URL
+function getExtensionFromBase64(base64String) {
+    const match = base64String.match(/^data:image\/([a-z]+);base64,/);
+    return match ? match[1] : 'png';
+}
+
+// Function to migrate base64 images to Supabase storage
+async function migrateBase64Images() {
+    console.log('🚀 Starting base64 to Supabase image migration...');
+    
+    try {
+        // Load current site data
+        const currentData = await loadSiteData();
+        let hasChanges = false;
+        let migratedImages = [];
+        
+        // Check hero image
+        if (currentData.heroImage && isBase64(currentData.heroImage)) {
+            console.log('📸 Found base64 hero image, converting to Supabase storage...');
+            
+            try {
+                const extension = getExtensionFromBase64(currentData.heroImage);
+                const timestamp = new Date().getTime();
+                const filename = `hero-image-${timestamp}.${extension}`;
+                
+                // Upload to Supabase via API
+                const uploadResponse = await fetch('/api/api?action=uploadImage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        base64: currentData.heroImage, 
+                        filename 
+                    })
+                });
+                
+                if (uploadResponse.ok) {
+                    const { url } = await uploadResponse.json();
+                    currentData.heroImage = url;
+                    hasChanges = true;
+                    migratedImages.push('hero');
+                    console.log('✅ Hero image migrated successfully');
+                    showAdminAlert('success', 'Hero image migrated to Supabase storage');
+                } else {
+                    const errorData = await uploadResponse.json();
+                    console.log('❌ Failed to upload hero image:', errorData.error);
+                    showAdminAlert('error', 'Failed to migrate hero image: ' + errorData.error);
+                }
+            } catch (error) {
+                console.log('❌ Error migrating hero image:', error.message);
+                showAdminAlert('error', 'Error migrating hero image: ' + error.message);
+            }
+        }
+        
+        // Check about image
+        if (currentData.aboutImage && isBase64(currentData.aboutImage)) {
+            console.log('📸 Found base64 about image, converting to Supabase storage...');
+            
+            try {
+                const extension = getExtensionFromBase64(currentData.aboutImage);
+                const timestamp = new Date().getTime();
+                const filename = `about-image-${timestamp}.${extension}`;
+                
+                // Upload to Supabase via API
+                const uploadResponse = await fetch('/api/api?action=uploadImage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        base64: currentData.aboutImage, 
+                        filename 
+                    })
+                });
+                
+                if (uploadResponse.ok) {
+                    const { url } = await uploadResponse.json();
+                    currentData.aboutImage = url;
+                    hasChanges = true;
+                    migratedImages.push('about');
+                    console.log('✅ About image migrated successfully');
+                    showAdminAlert('success', 'About image migrated to Supabase storage');
+                } else {
+                    const errorData = await uploadResponse.json();
+                    console.log('❌ Failed to upload about image:', errorData.error);
+                    showAdminAlert('error', 'Failed to migrate about image: ' + errorData.error);
+                }
+            } catch (error) {
+                console.log('❌ Error migrating about image:', error.message);
+                showAdminAlert('error', 'Error migrating about image: ' + error.message);
+            }
+        }
+        
+        // Save updated data if changes were made
+        if (hasChanges) {
+            await saveSiteData(currentData);
+            console.log('💾 Updated site data with migrated images');
+            
+            // Update the global websiteData
+            websiteData = { ...currentData };
+            
+            // Update image previews
+            if (migratedImages.includes('hero')) {
+                updateAdminImagePreview('hero', currentData.heroImage);
+            }
+            if (migratedImages.includes('about')) {
+                updateAdminImagePreview('about', currentData.aboutImage);
+            }
+            
+            showAdminAlert('success', `Migration completed! ${migratedImages.length} image(s) migrated to Supabase storage.`);
+        } else {
+            console.log('✅ No base64 images found to migrate');
+            showAdminAlert('info', 'No base64 images found to migrate. All images are already using Supabase storage.');
+        }
+        
+    } catch (error) {
+        console.log('❌ Error during migration:', error.message);
+        showAdminAlert('error', 'Migration failed: ' + error.message);
+    }
+}
+
+// Function to create a backup of current data
+function createDataBackup() {
+    try {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const backupData = {
+            timestamp: new Date().toISOString(),
+            description: 'Backup created before base64 to Supabase image migration',
+            data: websiteData || {},
+            version: '1.0'
+        };
+        
+        // Create backup in localStorage
+        const backupKey = `site-backup-${timestamp}`;
+        localStorage.setItem(backupKey, JSON.stringify(backupData));
+        
+        // Also create a downloadable backup
+        const backupBlob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+        const backupUrl = URL.createObjectURL(backupBlob);
+        const backupLink = document.createElement('a');
+        backupLink.href = backupUrl;
+        backupLink.download = `site-backup-${timestamp}.json`;
+        backupLink.click();
+        URL.revokeObjectURL(backupUrl);
+        
+        console.log('💾 Backup created successfully');
+        showAdminAlert('success', 'Backup created successfully! Check your downloads folder.');
+        
+        return backupKey;
+    } catch (error) {
+        console.log('❌ Error creating backup:', error.message);
+        showAdminAlert('error', 'Failed to create backup: ' + error.message);
+        return null;
+    }
+}
+
+// Function to restore from backup
+function restoreFromBackup(backupKey) {
+    try {
+        const backupData = localStorage.getItem(backupKey);
+        if (!backupData) {
+            showAdminAlert('error', 'Backup not found');
+            return false;
+        }
+        
+        const backup = JSON.parse(backupData);
+        websiteData = { ...backup.data };
+        
+        // Save the restored data
+        saveSiteData(websiteData);
+        
+        // Update the UI
+        updateSiteContent(websiteData);
+        
+        console.log('🔄 Data restored from backup');
+        showAdminAlert('success', 'Data restored from backup successfully!');
+        
+        return true;
+    } catch (error) {
+        console.log('❌ Error restoring from backup:', error.message);
+        showAdminAlert('error', 'Failed to restore from backup: ' + error.message);
+        return false;
+    }
+}
+
+// Function to list available backups
+function listBackups() {
+    const backups = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('site-backup-')) {
+            try {
+                const backupData = JSON.parse(localStorage.getItem(key));
+                backups.push({
+                    key: key,
+                    timestamp: backupData.timestamp,
+                    description: backupData.description
+                });
+            } catch (error) {
+                console.log('Error parsing backup:', key, error);
+            }
+        }
+    }
+    
+    return backups.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+}
+
+// Function to show migration UI in admin panel
+function showMigrationUI() {
+    const adminPanel = document.getElementById('adminPanel');
+    if (!adminPanel) return;
+    
+    // Create migration section if it doesn't exist
+    let migrationSection = document.getElementById('migrationSection');
+    if (!migrationSection) {
+        migrationSection = document.createElement('div');
+        migrationSection.id = 'migrationSection';
+        migrationSection.className = 'backdrop-blur-sm bg-white/70 dark:bg-gray-800/80 rounded-xl shadow-lg p-6 mb-6 transition-all duration-300';
+        migrationSection.innerHTML = `
+            <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-6">Image Migration Tools</h3>
+            <div class="space-y-4">
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                    <h4 class="font-medium text-yellow-800 dark:text-yellow-200 mb-2">Base64 to Supabase Migration</h4>
+                    <p class="text-sm text-yellow-700 dark:text-yellow-300 mb-3">
+                        Convert existing base64 images to Supabase cloud storage for better performance.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="createDataBackup()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                            Create Backup
+                        </button>
+                        <button onclick="migrateBase64Images()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                            Migrate Images
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <h4 class="font-medium text-blue-800 dark:text-blue-200 mb-2">Backup Management</h4>
+                    <p class="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                        Manage your data backups and restore if needed.
+                    </p>
+                    <button onclick="showBackupList()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                        View Backups
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Insert migration section at the top of admin panel
+        adminPanel.insertBefore(migrationSection, adminPanel.firstChild);
+    }
+}
+
+// Function to show backup list
+function showBackupList() {
+    const backups = listBackups();
+    
+    if (backups.length === 0) {
+        showAdminAlert('info', 'No backups found');
+        return;
+    }
+    
+    let backupList = 'Available Backups:\n\n';
+    backups.forEach((backup, index) => {
+        const date = new Date(backup.timestamp).toLocaleString();
+        backupList += `${index + 1}. ${date}\n`;
+    });
+    
+    backupList += '\nTo restore a backup, use the browser console:\n';
+    backupList += 'restoreFromBackup("backup-key-here")';
+    
+    alert(backupList);
+}
+
+// Add migration UI to admin panel when it opens
+const originalOpenAdminPanel = openAdminPanel;
+openAdminPanel = async function() {
+    await originalOpenAdminPanel();
+    showMigrationUI();
+};
