@@ -4091,51 +4091,7 @@ function listBackups() {
     return backups.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 }
 
-// Function to show migration UI in admin panel
-function showMigrationUI() {
-    const adminPanel = document.getElementById('adminPanel');
-    if (!adminPanel) return;
-    
-    // Create migration section if it doesn't exist
-    let migrationSection = document.getElementById('migrationSection');
-    if (!migrationSection) {
-        migrationSection = document.createElement('div');
-        migrationSection.id = 'migrationSection';
-        migrationSection.className = 'backdrop-blur-sm bg-white/70 dark:bg-gray-800/80 rounded-xl shadow-lg p-6 mb-6 transition-all duration-300';
-        migrationSection.innerHTML = `
-            <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-6">Image Migration Tools</h3>
-            <div class="space-y-4">
-                <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                    <h4 class="font-medium text-yellow-800 dark:text-yellow-200 mb-2">Base64 to Supabase Migration</h4>
-                    <p class="text-sm text-yellow-700 dark:text-yellow-300 mb-3">
-                        Convert existing base64 images to Supabase cloud storage for better performance.
-                    </p>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="createDataBackup()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                            Create Backup
-                        </button>
-                        <button onclick="migrateBase64Images()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
-                            Migrate Images
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                    <h4 class="font-medium text-blue-800 dark:text-blue-200 mb-2">Backup Management</h4>
-                    <p class="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                        Manage your data backups and restore if needed.
-                    </p>
-                    <button onclick="showBackupList()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                        View Backups
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        // Insert migration section at the top of admin panel
-        adminPanel.insertBefore(migrationSection, adminPanel.firstChild);
-    }
-}
+// Migration UI function removed - use console commands instead
 
 // Function to show backup list
 function showBackupList() {
@@ -4158,9 +4114,4 @@ function showBackupList() {
     alert(backupList);
 }
 
-// Add migration UI to admin panel when it opens
-const originalOpenAdminPanel = openAdminPanel;
-openAdminPanel = async function() {
-    await originalOpenAdminPanel();
-    showMigrationUI();
-};
+// Migration UI removed from frontend - functions still available in console
