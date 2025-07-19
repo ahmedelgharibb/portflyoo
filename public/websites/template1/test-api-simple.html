@@ -144,9 +144,7 @@
         <div id="postTestResult"></div>
     </div>
 
-    <script>
-        // Utility function to show results
-        function showResult(elementId, type, title, content) {
+    <script src="test-api.js"></script>
             const element = document.getElementById(elementId);
             const statusClass = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
             element.innerHTML = `
