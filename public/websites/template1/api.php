@@ -115,7 +115,7 @@ $dataFile = 'siteData.json';
 // Path to reviews file
 $reviewsFile = 'reviews.json';
 
-// Helper to get current password hash from siteData.json
+// Helper to get current password hash from siteData.json or database
 function getCurrentPasswordHash() {
     global $dataFile;
     if (!file_exists($dataFile)) {
@@ -150,6 +150,24 @@ function getCurrentPasswordHash() {
     }
     
     $data = json_decode(file_get_contents($dataFile), true);
+    
+    // Check if this is a database structure (has 'id' and 'data' fields)
+    if ($data && isset($data['id']) && isset($data['data'])) {
+        // Database structure - look for admin section within data
+        if (!isset($data['data']['admin']) || !isset($data['data']['admin']['passwordHash'])) {
+            // Create admin section in database structure
+            if (!isset($data['data']['admin'])) {
+                $data['data']['admin'] = [];
+            }
+            $data['data']['admin']['passwordHash'] = hash_password('admin123');
+            file_put_contents($dataFile, json_encode($data, JSON_PRETTY_PRINT));
+            error_log("Created admin section in database structure with default password");
+            return $data['data']['admin']['passwordHash'];
+        }
+        return $data['data']['admin']['passwordHash'];
+    }
+    
+    // Local file structure
     if (!$data || !isset($data['admin']['passwordHash'])) {
         // If no admin section exists, create it with default password
         $data = $data ?: [];
@@ -161,10 +179,26 @@ function getCurrentPasswordHash() {
     return $data['admin']['passwordHash'];
 }
 
-// Helper to set new password hash in siteData.json
+// Helper to set new password hash in siteData.json or database
 function setNewPasswordHash($newPassword) {
     global $dataFile;
     
+    // Check if we're working with a database structure (has 'id' and 'data' fields)
+    if (file_exists($dataFile)) {
+        $fileData = json_decode(file_get_contents($dataFile), true);
+        if ($fileData && isset($fileData['id']) && isset($fileData['data'])) {
+            // This is a database structure - update the admin section within data
+            if (!isset($fileData['data']['admin'])) {
+                $fileData['data']['admin'] = [];
+            }
+            $fileData['data']['admin']['passwordHash'] = hash_password($newPassword);
+            file_put_contents($dataFile, json_encode($fileData, JSON_PRETTY_PRINT));
+            error_log("Password hash updated in database structure successfully");
+            return;
+        }
+    }
+    
+    // Fallback to local file structure
     if (!file_exists($dataFile)) {
         // Create new file with just the admin section
         $data = [
@@ -339,8 +373,18 @@ switch ($action) {
                 $existingData = json_decode(file_get_contents($dataFile), true) ?: [];
             }
             
-            // Merge existing admin section with new data
-            $dataToSave = array_merge($existingData, $data);
+            // Check if this is a database structure
+            if (isset($existingData['id']) && isset($existingData['data'])) {
+                // Database structure - merge within the data section
+                if (!isset($data['data'])) {
+                    $data['data'] = [];
+                }
+                $dataToSave = $existingData;
+                $dataToSave['data'] = array_merge($existingData['data'], $data['data']);
+            } else {
+                // Local file structure
+                $dataToSave = array_merge($existingData, $data);
+            }
             
             file_put_contents($dataFile, json_encode($dataToSave, JSON_PRETTY_PRINT));
             echo json_encode([
