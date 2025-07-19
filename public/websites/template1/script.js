@@ -550,32 +550,64 @@ document.addEventListener('DOMContentLoaded', function() {
 function initDOMElements() {
     console.log('Initializing DOM elements');
     
-    // Assuming you have a stats section and elements you want to animate
-    const statsSection = document.querySelector('.stats-section'); // Adjust selector as needed
-    const value = document.querySelector('.value'); // Adjust selector as needed
-    const target = 100; // Example target value
-    const duration = 2000; // Example duration (in ms)
-                    let count = 0;
+    // Initialize DOM element variables
+    menuBtn = document.getElementById('menuBtn');
+    closeMenuBtn = document.getElementById('closeMenuBtn');
+    mobileMenu = document.getElementById('mobileMenu');
+    mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
+    body = document.body;
+    adminBtn = document.getElementById('adminBtn');
+    adminBtnMobile = document.getElementById('adminBtnMobile');
+    adminLoginModal = document.getElementById('adminLoginModal');
+    adminLoginForm = document.getElementById('adminLoginForm');
+    cancelLoginBtn = document.getElementById('cancelLogin');
+    exitLoginBtn = document.getElementById('exitLoginBtn');
+    adminPanel = document.getElementById('adminPanel');
+    closeAdminPanelBtn = document.getElementById('closeAdminPanel');
+    saveChangesBtn = document.getElementById('saveChangesBtn');
+    addResultBtn = document.getElementById('addResultBtn');
+    adminResultsContainer = document.getElementById('admin-results-container');
+    adminAlert = document.getElementById('adminAlertContainer');
+    
+    console.log('DOM elements initialized');
+    
+    // Log which admin elements were found
+    console.log('Admin elements found:', {
+        adminBtn: !!adminBtn,
+        adminBtnMobile: !!adminBtnMobile,
+        adminPanel: !!adminPanel,
+        adminLoginModal: !!adminLoginModal,
+        exitLoginBtn: !!exitLoginBtn
+    });
 
-                    const increment = target / (duration / 16);
+    // Stats section animation (only if elements exist)
+    const statsSection = document.querySelector('.stats-section');
+    const value = document.querySelector('.value');
+    
+    if (statsSection && value) {
+        const target = 100; // Example target value
+        const duration = 2000; // Example duration (in ms)
+        let count = 0;
 
-                    const updateCount = () => {
-                        if (count < target) {
-                            count += increment;
-                            value.textContent = Math.ceil(count) + '+';
-                        } else {
-                            value.textContent = target + '+';
-                        }
-                    };
+        const increment = target / (duration / 16);
 
-    const options = {
-        root: null,
-        threshold: 0.5, // Example threshold for IntersectionObserver
-    };
+        const updateCount = () => {
+            if (count < target) {
+                count += increment;
+                value.textContent = Math.ceil(count) + '+';
+            } else {
+                value.textContent = target + '+';
+            }
+        };
 
-    const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
+        const options = {
+            root: null,
+            threshold: 0.5, // Example threshold for IntersectionObserver
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
                     const countInterval = setInterval(() => {
                         if (count < target) {
                             updateCount();
@@ -584,12 +616,13 @@ function initDOMElements() {
                         }
                     }, 16);
 
-                observer.unobserve(statsSection);
-            }
-        });
-    }, options);
+                    observer.unobserve(statsSection);
+                }
+            });
+        }, options);
 
-    observer.observe(statsSection);
+        observer.observe(statsSection);
+    }
 
     // Ensure logout and close (X) buttons work in admin panel
     const logoutBtnEl = document.getElementById('logoutBtn');
