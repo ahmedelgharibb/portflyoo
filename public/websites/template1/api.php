@@ -142,8 +142,6 @@ function verifyPassword($password) {
 // Route API requests
 $action = $_GET['action'] ?? '';
 error_log("API Action: $action");
-error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
-error_log("Content Type: " . ($_SERVER['CONTENT_TYPE'] ?? 'not set'));
 
 switch ($action) {
     case 'login':
@@ -274,90 +272,6 @@ switch ($action) {
             echo json_encode(['success' => true, 'message' => 'Reviews saved successfully']);
         } else {
             echo json_encode(['success' => false, 'message' => 'No reviews provided']);
-        }
-        break;
-
-    case 'changePassword':
-        // Change admin password
-        error_log("Password change request received");
-        error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
-        
-        // Accept both GET and POST requests
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $currentPassword = $_GET['currentPassword'] ?? '';
-            $newPassword = $_GET['newPassword'] ?? '';
-            error_log("Using GET parameters");
-        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $currentPassword = $_POST['currentPassword'] ?? '';
-            $newPassword = $_POST['newPassword'] ?? '';
-            error_log("Using POST parameters");
-        } else {
-            http_response_code(405);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Method not allowed. Only GET and POST requests are accepted.'
-            ]);
-            break;
-        }
-        
-        error_log("Current password length: " . strlen($currentPassword));
-        error_log("New password length: " . strlen($newPassword));
-        
-        // Check if passwords are provided
-        if (empty($currentPassword) || empty($newPassword)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Both current and new passwords are required'
-            ]);
-            break;
-        }
-        
-        // Verify current password
-        if (!verifyPassword($currentPassword)) {
-            error_log("Current password verification failed");
-            echo json_encode([
-                'success' => false,
-                'message' => 'Current password is incorrect'
-            ]);
-            break;
-        }
-        
-        // Validate new password
-        if (strlen($newPassword) < 8) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'New password must be at least 8 characters long'
-            ]);
-            break;
-        }
-        
-        // Check if new password contains required characters
-        if (!preg_match('/[A-Z]/', $newPassword) || 
-            !preg_match('/[a-z]/', $newPassword) || 
-            !preg_match('/[0-9]/', $newPassword) || 
-            !preg_match('/[^A-Za-z0-9]/', $newPassword)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'New password must contain uppercase, lowercase, number, and special character'
-            ]);
-            break;
-        }
-        
-        // Set new password
-        try {
-            setNewPassword($newPassword);
-            error_log("Password changed successfully");
-            
-            echo json_encode([
-                'success' => true,
-                'message' => 'Password changed successfully'
-            ]);
-        } catch (Exception $e) {
-            error_log("Error setting new password: " . $e->getMessage());
-            echo json_encode([
-                'success' => false,
-                'message' => 'Failed to save new password. Please try again.'
-            ]);
         }
         break;
 
