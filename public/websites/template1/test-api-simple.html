@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test - Simple Version</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #007bff;
+        }
+        .result {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            font-size: 14px;
+            border: 1px solid #ddd;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-color: #ffeaa7;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 8px 5px;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        input {
+            padding: 10px;
+            margin: 8px 5px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            width: 250px;
+            font-size: 14px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #007bff;
+            margin-top: 0;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.success { background-color: #28a745; color: white; }
+        .status.error { background-color: #dc3545; color: white; }
+        .status.warning { background-color: #ffc107; color: #212529; }
+    </style>
+</head>
+<body>
+    <h1>🔧 API Endpoint Test - Simple Version</h1>
+    
+    <div class="test-section">
+        <h2>📡 Test 1: Basic API Connection</h2>
+        <p>Test if the API is accessible and responding:</p>
+        <button id="testBasicBtn">Test Connection</button>
+        <div id="basicResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔐 Test 2: Login Endpoint</h2>
+        <p>Test the admin login functionality:</p>
+        <input type="password" id="loginPassword" placeholder="Enter password" value="admin123">
+        <button id="testLoginBtn">Test Login</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔄 Test 3: Password Change (GET Method)</h2>
+        <p>Test password change using GET request (most compatible):</p>
+        <input type="password" id="currentPassGet" placeholder="Current Password" value="admin123">
+        <input type="password" id="newPassGet" placeholder="New Password" value="NewPass123!">
+        <button id="testGETBtn">Test GET Password Change</button>
+        <div id="passwordChangeGETResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Test 4: Get Data Endpoint</h2>
+        <p>Test retrieving website data:</p>
+        <button id="testGetDataBtn">Test Get Data</button>
+        <div id="getDataResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>⚠️ Server Configuration Test</h2>
+        <p>Test if POST requests are allowed (may fail due to server restrictions):</p>
+        <button id="testPOSTBtn">Test POST Request</button>
+        <div id="postTestResult"></div>
+    </div>
+
+    <script>
+        // Utility function to show results
+        function showResult(elementId, type, title, content) {
+            const element = document.getElementById(elementId);
+            const statusClass = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
+            element.innerHTML = `
+                <div class="result ${statusClass}">
+                    <strong>${title}</strong>
+                    <span class="status ${statusClass}">${type.toUpperCase()}</span>
+                    ${content}
+                </div>
+            `;
+        }
+
+        // Test basic API connection
+        async function testBasicConnection() {
+            const button = document.getElementById('testBasicBtn');
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch('api.php?action=getData');
+                const result = await response.json();
+                
+                showResult('basicResult', 'success', '✅ API Connection Successful', `
+Status: ${response.status}
+Response Time: ${Date.now()}ms
+Data Keys: ${Object.keys(result).join(', ')}
+Sample Data: ${JSON.stringify(result, null, 2).substring(0, 300)}...
+                `);
+            } catch (error) {
+                showResult('basicResult', 'error', '❌ API Connection Failed', `
+Error: ${error.message}
+Time: ${new Date().toLocaleTimeString()}
+                `);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test Connection';
+            }
+        }
+
+        // Test login
+        async function testLogin() {
+            const button = document.getElementById('testLoginBtn');
+            const password = document.getElementById('loginPassword').value;
+            
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch('api.php?action=login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ password: password })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult('loginResult', 'success', '✅ Login Successful', `
+Status: ${response.status}
+Message: ${result.message}
+Time: ${new Date().toLocaleTimeString()}
+                    `);
+                } else {
+                    showResult('loginResult', 'error', '❌ Login Failed', `
+Status: ${response.status}
+Message: ${result.message}
+Time: ${new Date().toLocaleTimeString()}
+                    `);
+                }
+            } catch (error) {
+                showResult('loginResult', 'error', '❌ Login Test Failed', `
+Error: ${error.message}
+Time: ${new Date().toLocaleTimeString()}
+                `);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test Login';
+            }
+        }
+
+        // Test GET password change
+        async function testPasswordChangeGET() {
+            const button = document.getElementById('testGETBtn');
+            const currentPassword = document.getElementById('currentPassGet').value;
+            const newPassword = document.getElementById('newPassGet').value;
+            
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            
+            try {
+                const params = new URLSearchParams({
+                    action: 'changePassword',
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                });
+                
+                const response = await fetch(`api.php?${params.toString()}`, {
+                    method: 'GET'
+                });
+
+                const responseText = await response.text();
+                let result;
+                
+                try {
+                    result = JSON.parse(responseText);
+                } catch (parseError) {
+                    showResult('passwordChangeGETResult', 'error', '❌ JSON Parse Error', `
+Status: ${response.status}
+Response Text: ${responseText}
+Parse Error: ${parseError.message}
+Time: ${new Date().toLocaleTimeString()}
+                    `);
+                    return;
+                }
+                
+                if (result.success) {
+                    showResult('passwordChangeGETResult', 'success', '✅ Password Change Successful', `
+Status: ${response.status}
+Message: ${result.message}
+Method: GET with URL parameters
+Time: ${new Date().toLocaleTimeString()}
+                    `);
+                } else {
+                    showResult('passwordChangeGETResult', 'error', '❌ Password Change Failed', `
+Status: ${response.status}
+Message: ${result.message}
+Time: ${new Date().toLocaleTimeString()}
+                    `);
+                }
+            } catch (error) {
+                showResult('passwordChangeGETResult', 'error', '❌ GET Password Change Failed', `
+Error: ${error.message}
+Time: ${new Date().toLocaleTimeString()}
+                `);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test GET Password Change';
+            }
+        }
+
+        // Test get data
+        async function testGetData() {
+            const button = document.getElementById('testGetDataBtn');
+            
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch('api.php?action=getData');
+                const result = await response.json();
+                
+                showResult('getDataResult', 'success', '✅ Get Data Successful', `
+Status: ${response.status}
+Data Keys: ${Object.keys(result).join(', ')}
+Data Size: ${JSON.stringify(result).length} characters
+Sample Data: ${JSON.stringify(result, null, 2).substring(0, 400)}...
+Time: ${new Date().toLocaleTimeString()}
+                `);
+            } catch (error) {
+                showResult('getDataResult', 'error', '❌ Get Data Failed', `
+Error: ${error.message}
+Time: ${new Date().toLocaleTimeString()}
+                `);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test Get Data';
+            }
+        }
+
+        // Test POST request capability
+        async function testPOSTRequest() {
+            const button = document.getElementById('testPOSTBtn');
+            
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch('api.php?action=changePassword', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        currentPassword: 'test',
+                        newPassword: 'test'
+                    })
+                });
+
+                if (response.status === 405) {
+                    showResult('postTestResult', 'warning', '⚠️ POST Requests Blocked', `
+Status: ${response.status} (Method Not Allowed)
+Server Configuration: POST requests are blocked by server
+Recommendation: Use GET requests for password changes
+Time: ${new Date().toLocaleTimeString()}
+                    `);
+                } else {
+                    showResult('postTestResult', 'success', '✅ POST Requests Allowed', `
+Status: ${response.status}
+Server Configuration: POST requests are allowed
+Time: ${new Date().toLocaleTimeString()}
+                    `);
+                }
+            } catch (error) {
+                showResult('postTestResult', 'error', '❌ POST Test Failed', `
+Error: ${error.message}
+Time: ${new Date().toLocaleTimeString()}
+                `);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test POST Request';
+            }
+        }
+
+        // Add event listeners when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('testBasicBtn').addEventListener('click', testBasicConnection);
+            document.getElementById('testLoginBtn').addEventListener('click', testLogin);
+            document.getElementById('testGETBtn').addEventListener('click', testPasswordChangeGET);
+            document.getElementById('testGetDataBtn').addEventListener('click', testGetData);
+            document.getElementById('testPOSTBtn').addEventListener('click', testPOSTRequest);
+            
+            // Auto-run basic connection test
+            setTimeout(testBasicConnection, 500);
+        });
+    </script>
+</body>
+</html> 

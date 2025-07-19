@@ -68,7 +68,7 @@
     <div class="test-section">
         <h2>Test 1: Basic API Connection</h2>
         <p>Test if the API is accessible:</p>
-        <button onclick="testBasicConnection()">Test Connection</button>
+        <button id="testBasicBtn">Test Connection</button>
         <div id="basicResult"></div>
     </div>
 
@@ -76,7 +76,7 @@
         <h2>Test 2: Login Endpoint</h2>
         <p>Test the login endpoint:</p>
         <input type="password" id="loginPassword" placeholder="Password" value="admin123">
-        <button onclick="testLogin()">Test Login</button>
+        <button id="testLoginBtn">Test Login</button>
         <div id="loginResult"></div>
     </div>
 
@@ -85,7 +85,7 @@
         <p>Test password change with JSON:</p>
         <input type="password" id="currentPass" placeholder="Current Password" value="admin123">
         <input type="password" id="newPass" placeholder="New Password" value="NewPass123!">
-        <button onclick="testPasswordChangeJSON()">Test JSON Password Change</button>
+        <button id="testJSONBtn">Test JSON Password Change</button>
         <div id="passwordChangeJSONResult"></div>
     </div>
 
@@ -94,7 +94,7 @@
         <p>Test password change with GET request (URL parameters):</p>
         <input type="password" id="currentPassGet" placeholder="Current Password" value="admin123">
         <input type="password" id="newPassGet" placeholder="New Password" value="NewPass123!">
-        <button onclick="testPasswordChangeGET()">Test GET Password Change</button>
+        <button id="testGETBtn">Test GET Password Change</button>
         <div id="passwordChangeGETResult"></div>
     </div>
 
@@ -103,14 +103,14 @@
         <p>Test password change with form data:</p>
         <input type="password" id="currentPassForm" placeholder="Current Password" value="admin123">
         <input type="password" id="newPassForm" placeholder="New Password" value="NewPass123!">
-        <button onclick="testPasswordChangeForm()">Test Form Password Change</button>
+        <button id="testFormBtn">Test Form Password Change</button>
         <div id="passwordChangeFormResult"></div>
     </div>
 
     <div class="test-section">
         <h2>Test 6: Get Data Endpoint</h2>
         <p>Test the getData endpoint:</p>
-        <button onclick="testGetData()">Test Get Data</button>
+        <button id="testGetDataBtn">Test Get Data</button>
         <div id="getDataResult"></div>
     </div>
 
@@ -356,6 +356,23 @@
                 `;
             }
         }
+
+        // Add event listeners when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Basic connection test
+            document.getElementById('testBasicBtn').addEventListener('click', testBasicConnection);
+            
+            // Login test
+            document.getElementById('testLoginBtn').addEventListener('click', testLogin);
+            
+            // Password change tests
+            document.getElementById('testJSONBtn').addEventListener('click', testPasswordChangeJSON);
+            document.getElementById('testGETBtn').addEventListener('click', testPasswordChangeGET);
+            document.getElementById('testFormBtn').addEventListener('click', testPasswordChangeForm);
+            
+            // Get data test
+            document.getElementById('testGetDataBtn').addEventListener('click', testGetData);
+        });
     </script>
 </body>
 </html> 
