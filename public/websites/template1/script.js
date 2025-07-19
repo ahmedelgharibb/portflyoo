@@ -3507,7 +3507,12 @@ async function loadSiteData() {
     const response = await fetch('/api/api?action=getData');
     if (!response.ok) throw new Error('Failed to load site data');
     const data = await response.json();
-    return normalizeResults(data);
+    const normalizedData = normalizeResults(data);
+    
+    // Set global for teacher experience animation
+    window.teacherExperienceData = normalizedData.teacherExperience || { years: 0, students: 0, schools: 0 };
+    
+    return normalizedData;
 }
 
 // Render Courses Teaching section
@@ -3728,9 +3733,9 @@ function handleTeacherExperienceAnimation() {
     function onScroll() {
         const rect = section.getBoundingClientRect();
         if (!animated && rect.top < window.innerHeight && rect.bottom > 0) {
-            animateCountUp('yearsExperience', window.teacherExperienceData?.years || 10);
-            animateCountUp('studentsTaught', window.teacherExperienceData?.students || 500);
-            animateCountUp('schoolsTaught', window.teacherExperienceData?.schools || 8);
+            animateCountUp('yearsExperience', window.teacherExperienceData?.years || 0);
+            animateCountUp('studentsTaught', window.teacherExperienceData?.students || 0);
+            animateCountUp('schoolsTaught', window.teacherExperienceData?.schools || 0);
             animated = true;
             window.removeEventListener('scroll', onScroll);
         }
