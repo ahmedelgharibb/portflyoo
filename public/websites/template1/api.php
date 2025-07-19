@@ -275,6 +275,50 @@ switch ($action) {
         }
         break;
 
+    case 'changePassword':
+        // Change admin password
+        $currentPassword = $_POST['currentPassword'] ?? '';
+        $newPassword = $_POST['newPassword'] ?? '';
+        
+        // Verify current password
+        if (!verifyPassword($currentPassword)) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Current password is incorrect'
+            ]);
+            break;
+        }
+        
+        // Validate new password
+        if (strlen($newPassword) < 8) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'New password must be at least 8 characters long'
+            ]);
+            break;
+        }
+        
+        // Check if new password contains required characters
+        if (!preg_match('/[A-Z]/', $newPassword) || 
+            !preg_match('/[a-z]/', $newPassword) || 
+            !preg_match('/[0-9]/', $newPassword) || 
+            !preg_match('/[^A-Za-z0-9]/', $newPassword)) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'New password must contain uppercase, lowercase, number, and special character'
+            ]);
+            break;
+        }
+        
+        // Set new password
+        setNewPassword($newPassword);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Password changed successfully'
+        ]);
+        break;
+
     default:
         echo json_encode([
             'success' => false,

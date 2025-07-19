@@ -2851,9 +2851,176 @@
       }
       @media (max-width: 900px) {
         #admin-results-container .result-item .grid {
-          grid-template-columns: 1fr;
-          gap: 0.7rem;
+          grid-template-columns: 1fr !important;
         }
       }
+
+      /* Password Change Styles */
+      #admin-password-form {
+        position: relative;
+      }
+
+      #admin-password-form .admin-panel-input {
+        padding-right: 2.5rem;
+      }
+
+      #toggleCurrentPassword,
+      #toggleNewPassword,
+      #toggleConfirmPassword {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 0.25rem;
+        transition: all 0.2s ease;
+      }
+
+      #toggleCurrentPassword:hover,
+      #toggleNewPassword:hover,
+      #toggleConfirmPassword:hover {
+        color: var(--primary-color);
+        background-color: rgba(59, 130, 246, 0.1);
+      }
+
+      #password-strength {
+        margin-top: 0.5rem;
+      }
+
+      #password-strength-bar {
+        transition: all 0.3s ease;
+      }
+
+      .requirement {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        color: #6b7280;
+        transition: all 0.2s ease;
+      }
+
+      .requirement i {
+        font-size: 0.625rem;
+        transition: all 0.2s ease;
+      }
+
+      .requirement i.text-green-500 {
+        color: #10b981;
+      }
+
+      .requirement i.text-gray-300 {
+        color: #d1d5db;
+      }
+
+      #password-match {
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        transition: all 0.2s ease;
+      }
+
+      #password-match span {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
+      #password-match .text-green-500 {
+        color: #10b981;
+      }
+
+      #password-match .text-red-500 {
+        color: #ef4444;
+      }
+
+      #password-match .text-gray-500 {
+        color: #6b7280;
+      }
+
+      /* Security notice styles */
+      .bg-blue-50 {
+        background-color: #eff6ff;
+      }
+
+      .border-blue-200 {
+        border-color: #bfdbfe;
+      }
+
+      .text-blue-600 {
+        color: #2563eb;
+      }
+
+      .text-blue-800 {
+        color: #1e40af;
+      }
+
+      .text-blue-700 {
+        color: #1d4ed8;
+      }
+
+      /* Dark mode support for password change */
+      .dark-mode #toggleCurrentPassword,
+      .dark-mode #toggleNewPassword,
+      .dark-mode #toggleConfirmPassword {
+        color: #9ca3af;
+      }
+
+      .dark-mode #toggleCurrentPassword:hover,
+      .dark-mode #toggleNewPassword:hover,
+      .dark-mode #toggleConfirmPassword:hover {
+        color: var(--primary-color);
+        background-color: rgba(59, 130, 246, 0.2);
+      }
+
+      .dark-mode .requirement {
+        color: #9ca3af;
+      }
+
+      .dark-mode #password-match .text-gray-500 {
+        color: #9ca3af;
+      }
+
+      .dark-mode .bg-blue-50 {
+        background-color: rgba(59, 130, 246, 0.1);
+      }
+
+      .dark-mode .border-blue-200 {
+        border-color: rgba(59, 130, 246, 0.3);
+      }
+
+      .dark-mode .text-blue-800 {
+        color: #93c5fd;
+      }
+
+      .dark-mode .text-blue-700 {
+        color: #a5b4fc;
+      }
+
+      /* Responsive adjustments for password change */
+      @media (max-width: 768px) {
+        #admin-password-form .admin-panel-input {
+          padding-right: 2.25rem;
+        }
+
+        #toggleCurrentPassword,
+        #toggleNewPassword,
+        #toggleConfirmPassword {
+          right: 0.5rem;
+          padding: 0.375rem;
+        }
+
+        .requirement {
+          font-size: 0.7rem;
+        }
+
+        #password-match {
+          font-size: 0.7rem;
+        }
+      }
+  
   
   
