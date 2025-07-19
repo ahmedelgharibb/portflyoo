@@ -240,6 +240,32 @@ switch ($action) {
         $data = $_POST['data'] ?? null;
         
         if ($data) {
+            // Handle password change if present
+            if (isset($data['passwordChange'])) {
+                $passwordChange = $data['passwordChange'];
+                $currentPassword = $passwordChange['currentPassword'] ?? '';
+                $newPassword = $passwordChange['newPassword'] ?? '';
+                
+                // Validate current password
+                if (!verifyPassword($currentPassword)) {
+                    echo json_encode(['success' => false, 'message' => 'Current password is incorrect']);
+                    break;
+                }
+                
+                // Validate new password
+                if (strlen($newPassword) < 6) {
+                    echo json_encode(['success' => false, 'message' => 'New password must be at least 6 characters']);
+                    break;
+                }
+                
+                // Update password
+                setNewPassword($newPassword);
+                error_log("Password changed successfully");
+                
+                // Remove password change data from the main data object
+                unset($data['passwordChange']);
+            }
+            
             file_put_contents($dataFile, json_encode($data, JSON_PRETTY_PRINT));
             echo json_encode([
                 'success' => true,

@@ -285,6 +285,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Initialize image upload when admin panel is loaded
     document.addEventListener('DOMContentLoaded', async () => {
+        // Setup password form
+        setupPasswordForm();
+        
         if (document.getElementById('adminPanel')) {
             try {
                 // Fetch data from backend API
@@ -1372,64 +1375,7 @@ function addResultItem(name = '', score = '', astar = '', a = '', other = '') {
     document.getElementById('admin-results-container').appendChild(resultItem);
 }
 
-// Initialize DOM elements
-function initDOMElements() {
-    menuBtn = document.getElementById('menuBtn');
-    closeMenuBtn = document.getElementById('closeMenuBtn');
-    mobileMenu = document.getElementById('mobileMenu');
-    mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
-    body = document.body;
-    adminBtn = document.getElementById('adminBtn');
-    adminBtnMobile = document.getElementById('adminBtnMobile');
-    adminLoginModal = document.getElementById('adminLoginModal');
-    adminLoginForm = document.getElementById('adminLoginForm');
-    cancelLoginBtn = document.getElementById('cancelLogin');
-    exitLoginBtn = document.getElementById('exitLoginBtn');
-    adminPanel = document.getElementById('adminPanel');
-    closeAdminPanelBtn = document.getElementById('closeAdminPanel');
-    saveChangesBtn = document.getElementById('saveChangesBtn');
-    addResultBtn = document.getElementById('addResultBtn');
-    adminResultsContainer = document.getElementById('admin-results-container');
-    adminAlert = document.getElementById('adminAlertContainer');
-    
 
-    
-    console.log('DOM elements initialized');
-    
-    // Log which admin elements were found
-    console.log('Admin elements found:', {
-        adminBtn: !!adminBtn,
-        adminBtnMobile: !!adminBtnMobile,
-        adminPanel: !!adminPanel,
-        adminLoginModal: !!adminLoginModal,
-        exitLoginBtn: !!exitLoginBtn
-    });
-
-    // Ensure logout and close (X) buttons work in admin panel
-    const logoutBtnEl = document.getElementById('logoutBtn');
-    if (logoutBtnEl) {
-        const newLogoutBtn = logoutBtnEl.cloneNode(true);
-        logoutBtnEl.parentNode.replaceChild(newLogoutBtn, logoutBtnEl);
-        newLogoutBtn.addEventListener('click', adminLogout);
-    }
-    const closeAdminPanelBtnEl = document.getElementById('closeAdminPanel');
-    if (closeAdminPanelBtnEl) {
-        const newCloseBtn = closeAdminPanelBtnEl.cloneNode(true);
-        closeAdminPanelBtnEl.parentNode.replaceChild(newCloseBtn, closeAdminPanelBtnEl);
-        newCloseBtn.addEventListener('click', closeAdminPanel);
-    }
-
-    addResultBtn = document.getElementById('addResultBtn');
-    if (addResultBtn) {
-        // Remove previous event listeners by cloning
-        const newAddBtn = addResultBtn.cloneNode(true);
-        addResultBtn.parentNode.replaceChild(newAddBtn, addResultBtn);
-        newAddBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            addNewResult();
-        });
-    }
-}
 
 
 
@@ -1839,6 +1785,19 @@ async function saveAdminChanges() {
     if (titleInput && !titleInput.value.trim()) {
         validationErrors.push('Title is required.');
     }
+    // Validate password change if pending
+    if (pendingPasswordChange) {
+        const passwordValidation = validateAndStorePasswordChange();
+        if (!passwordValidation) {
+            showAdminAlert('error', 'Please fix password validation errors before saving.');
+            saveBtn.innerHTML = originalBtnText;
+            saveBtn.disabled = false;
+            if (adminPanelLoader) adminPanelLoader.classList.add('hidden');
+            isAdminSaving = false;
+            return;
+        }
+    }
+
     if (validationErrors.length > 0) {
         showAdminAlert('error', validationErrors.join('<br>'));
         // Scroll the save button into view and shake it for visibility
@@ -1969,6 +1928,11 @@ async function saveAdminChanges() {
             }
         };
 
+        // Add password change to the data object if pending
+        if (pendingPasswordChange) {
+            newData.passwordChange = pendingPasswordChange;
+        }
+
         // Defensive: Ensure empty arrays for empty lists
         if (!qualifications.length) newData.personal.qualifications = [];
         if (!schools.length) newData.experience.schools = [];
@@ -1997,7 +1961,16 @@ async function saveAdminChanges() {
         });
         const saveResult = await saveResponse.json();
         if (!saveResult.success) throw new Error(saveResult.message || 'Failed to save data');
-        showAdminAlert('success', 'Changes saved successfully!');
+        
+        // Clear pending password change after successful save
+        if (pendingPasswordChange) {
+            pendingPasswordChange = null;
+            clearPasswordForm();
+            showAdminAlert('success', 'Changes saved successfully! Password has been updated.');
+        } else {
+            showAdminAlert('success', 'Changes saved successfully!');
+        }
+        
         updateSiteContent(newData);
         if (window.resultsChart) {
             updateResultsChart(newData.results);
@@ -2120,6 +2093,213 @@ function adminLogout() {
     
     // Show logout success message
     showAdminAlert('success', 'You have been logged out.');
+}
+
+// Global variable to store pending password change
+let pendingPasswordChange = null;
+
+// Handle password form interactions
+function setupPasswordForm() {
+    const changePasswordForm = document.getElementById('changePasswordForm');
+    const showPasswordBtn = document.getElementById('showPasswordBtn');
+    const clearPasswordBtn = document.getElementById('clearPasswordBtn');
+    const newPasswordInput = document.getElementById('newPassword');
+    
+    if (changePasswordForm) {
+        // Prevent form submission (we'll handle it in saveAdminChanges)
+        changePasswordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            validateAndStorePasswordChange();
+        });
+    }
+    
+    if (showPasswordBtn) {
+        showPasswordBtn.addEventListener('click', togglePasswordVisibility);
+    }
+    
+    if (clearPasswordBtn) {
+        clearPasswordBtn.addEventListener('click', clearPasswordForm);
+    }
+    
+    if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', function() {
+            updatePasswordStrength(this.value);
+        });
+    }
+}
+
+// Validate and store password change (doesn't save to database yet)
+function validateAndStorePasswordChange() {
+    const currentPassword = document.getElementById('currentPassword').value.trim();
+    const newPassword = document.getElementById('newPassword').value.trim();
+    const confirmPassword = document.getElementById('confirmPassword').value.trim();
+    
+    // Clear previous validation
+    clearPasswordValidation();
+    
+    // Validation
+    let isValid = true;
+    let errorMessage = '';
+    
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        errorMessage = 'All password fields are required';
+        isValid = false;
+    } else if (newPassword !== confirmPassword) {
+        errorMessage = 'New passwords do not match';
+        isValid = false;
+    } else if (newPassword.length < 6) {
+        errorMessage = 'New password must be at least 6 characters';
+        isValid = false;
+    } else if (currentPassword === newPassword) {
+        errorMessage = 'New password must be different from current password';
+        isValid = false;
+    }
+    
+    if (!isValid) {
+        showPasswordValidationError(errorMessage);
+        return false;
+    }
+    
+    // Store the pending password change
+    pendingPasswordChange = {
+        currentPassword: currentPassword,
+        newPassword: newPassword
+    };
+    
+    showPasswordValidationSuccess('Password change validated! Click "Save Changes" to apply.');
+    updatePasswordChangeStatus();
+    return true;
+}
+
+// Clear password form
+function clearPasswordForm() {
+    const form = document.getElementById('changePasswordForm');
+    if (form) {
+        form.reset();
+        pendingPasswordChange = null;
+        clearPasswordValidation();
+        updatePasswordStrength('');
+        updatePasswordChangeStatus();
+    }
+}
+
+// Toggle password visibility
+function togglePasswordVisibility() {
+    const passwordInputs = [
+        document.getElementById('currentPassword'),
+        document.getElementById('newPassword'),
+        document.getElementById('confirmPassword')
+    ];
+    
+    const showBtn = document.getElementById('showPasswordBtn');
+    const isShowing = showBtn.innerHTML.includes('fa-eye-slash');
+    
+    passwordInputs.forEach(input => {
+        if (input) {
+            input.type = isShowing ? 'password' : 'text';
+        }
+    });
+    
+    showBtn.innerHTML = isShowing ? 
+        '<i class="fas fa-eye mr-2"></i> Show Passwords' : 
+        '<i class="fas fa-eye-slash mr-2"></i> Hide Passwords';
+}
+
+// Update password strength indicator
+function updatePasswordStrength(password) {
+    const strengthIndicator = document.getElementById('passwordStrength');
+    if (!strengthIndicator) return;
+    
+    if (!password) {
+        strengthIndicator.textContent = '';
+        strengthIndicator.className = 'text-sm mt-1';
+        return;
+    }
+    
+    const strength = checkPasswordStrength(password);
+    const colors = ['text-red-600', 'text-orange-600', 'text-yellow-600', 'text-blue-600', 'text-green-600'];
+    const labels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+    
+    const colorClass = colors[Math.min(strength.strength - 1, 4)];
+    const label = labels[Math.min(strength.strength - 1, 4)];
+    
+    strengthIndicator.className = `text-sm mt-1 font-medium ${colorClass}`;
+    strengthIndicator.textContent = `Password Strength: ${label}`;
+}
+
+// Check password strength
+function checkPasswordStrength(password) {
+    let strength = 0;
+    
+    if (password.length >= 6) strength++;
+    if (password.length >= 8) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    
+    return { strength };
+}
+
+// Show password validation error
+function showPasswordValidationError(message) {
+    const form = document.getElementById('changePasswordForm');
+    if (!form) return;
+    
+    // Remove existing validation messages
+    clearPasswordValidation();
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'bg-red-50 border border-red-200 rounded-lg p-3 mt-3';
+    errorDiv.innerHTML = `
+        <p class="text-sm text-red-800">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            ${message}
+        </p>
+    `;
+    
+    form.appendChild(errorDiv);
+}
+
+// Show password validation success
+function showPasswordValidationSuccess(message) {
+    const form = document.getElementById('changePasswordForm');
+    if (!form) return;
+    
+    // Remove existing validation messages
+    clearPasswordValidation();
+    
+    const successDiv = document.createElement('div');
+    successDiv.className = 'bg-green-50 border border-green-200 rounded-lg p-3 mt-3';
+    successDiv.innerHTML = `
+        <p class="text-sm text-green-800">
+            <i class="fas fa-check-circle mr-2"></i>
+            ${message}
+        </p>
+    `;
+    
+    form.appendChild(successDiv);
+}
+
+// Clear password validation messages
+function clearPasswordValidation() {
+    const form = document.getElementById('changePasswordForm');
+    if (!form) return;
+    
+    const validationMessages = form.querySelectorAll('.bg-red-50, .bg-green-50');
+    validationMessages.forEach(msg => msg.remove());
+}
+
+// Update password change status
+function updatePasswordChangeStatus() {
+    const statusDiv = document.getElementById('passwordChangeStatus');
+    if (!statusDiv) return;
+    
+    if (pendingPasswordChange) {
+        statusDiv.classList.remove('hidden');
+    } else {
+        statusDiv.classList.add('hidden');
+    }
 }
 
 // Setup theme toggle functionality (placeholder for future dark mode implementation)
@@ -3440,18 +3620,7 @@ function normalizeResults(data) {
     return data;
 }
 
-// Patch all data loads to normalize results
-async function loadSiteData() {
-    const response = await fetch('/api/api?action=getData');
-    if (!response.ok) throw new Error('Failed to load site data');
-    const data = await response.json();
-    const normalizedData = normalizeResults(data);
-    
-    // Set global for teacher experience animation
-    window.teacherExperienceData = normalizedData.teacherExperience || { years: 0, students: 0, schools: 0 };
-    
-    return normalizedData;
-}
+
 
 // Render Courses Teaching section
 function updateCoursesTeachingGrid(subjects) {
