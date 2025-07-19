@@ -1351,30 +1351,84 @@ async function handlePasswordChange(e) {
         // Send password change request to API
         console.log('Sending password change request...');
         
-        // Try JSON first, fallback to form data if needed
+        // Try multiple approaches due to server configuration issues
         let response;
+        let methodUsed = '';
+        
+        // Method 1: GET request with URL parameters (most compatible)
         try {
-            response = await fetch('api.php?action=changePassword', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    currentPassword: currentPassword,
-                    newPassword: newPassword
-                })
+            console.log('Trying GET request with URL parameters...');
+            const params = new URLSearchParams({
+                action: 'changePassword',
+                currentPassword: currentPassword,
+                newPassword: newPassword
             });
-        } catch (jsonError) {
-            console.log('JSON request failed, trying form data...', jsonError);
-            // Fallback to form data
-            const formData = new FormData();
-            formData.append('currentPassword', currentPassword);
-            formData.append('newPassword', newPassword);
             
-            response = await fetch('api.php?action=changePassword', {
-                method: 'POST',
-                body: formData
+            response = await fetch(`api.php?${params.toString()}`, {
+                method: 'GET'
             });
+            methodUsed = 'GET with URL params';
+            
+            if (response.ok) {
+                console.log('GET request successful');
+            } else {
+                throw new Error(`GET request failed: ${response.status}`);
+            }
+        } catch (getError) {
+            console.log('GET request failed, trying POST with JSON...', getError);
+            
+            // Method 2: POST with JSON
+            try {
+                response = await fetch('api.php?action=changePassword', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        currentPassword: currentPassword,
+                        newPassword: newPassword
+                    })
+                });
+                methodUsed = 'POST with JSON';
+                
+                if (response.ok) {
+                    console.log('POST with JSON successful');
+                } else {
+                    throw new Error(`POST with JSON failed: ${response.status}`);
+                }
+            } catch (jsonError) {
+                console.log('POST with JSON failed, trying POST with form data...', jsonError);
+                
+                // Method 3: POST with form data
+                try {
+                    const formData = new FormData();
+                    formData.append('currentPassword', currentPassword);
+                    formData.append('newPassword', newPassword);
+                    
+                    response = await fetch('api.php?action=changePassword', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    methodUsed = 'POST with form data';
+                    
+                    if (response.ok) {
+                        console.log('POST with form data successful');
+                    } else {
+                        throw new Error(`POST with form data failed: ${response.status}`);
+                    }
+                } catch (formError) {
+                    console.log('All methods failed:', formError);
+                    throw new Error(`All request methods failed. Server may be blocking all POST requests.`);
+                }
+            }
+        }
+        
+        console.log(`Request successful using method: ${methodUsed}`);
+        
+        // Security warning for GET requests
+        if (methodUsed === 'GET with URL params') {
+            console.warn('⚠️ SECURITY WARNING: Using GET request for password change. Passwords may be logged in server logs.');
+            showAdminAlert('warning', 'Password change completed using GET request. For better security, consider configuring your server to allow POST requests.');
         }
         
         console.log('Response status:', response.status);

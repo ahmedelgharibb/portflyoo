@@ -280,19 +280,25 @@ switch ($action) {
     case 'changePassword':
         // Change admin password
         error_log("Password change request received");
+        error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
         
-        // Check if this is a POST request
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        // Accept both GET and POST requests
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $currentPassword = $_GET['currentPassword'] ?? '';
+            $newPassword = $_GET['newPassword'] ?? '';
+            error_log("Using GET parameters");
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $currentPassword = $_POST['currentPassword'] ?? '';
+            $newPassword = $_POST['newPassword'] ?? '';
+            error_log("Using POST parameters");
+        } else {
             http_response_code(405);
             echo json_encode([
                 'success' => false,
-                'message' => 'Method not allowed. Only POST requests are accepted.'
+                'message' => 'Method not allowed. Only GET and POST requests are accepted.'
             ]);
             break;
         }
-        
-        $currentPassword = $_POST['currentPassword'] ?? '';
-        $newPassword = $_POST['newPassword'] ?? '';
         
         error_log("Current password length: " . strlen($currentPassword));
         error_log("New password length: " . strlen($newPassword));

@@ -90,7 +90,16 @@
     </div>
 
     <div class="test-section">
-        <h2>Test 4: Password Change (Form Data)</h2>
+        <h2>Test 4: Password Change (GET Request)</h2>
+        <p>Test password change with GET request (URL parameters):</p>
+        <input type="password" id="currentPassGet" placeholder="Current Password" value="admin123">
+        <input type="password" id="newPassGet" placeholder="New Password" value="NewPass123!">
+        <button onclick="testPasswordChangeGET()">Test GET Password Change</button>
+        <div id="passwordChangeGETResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 5: Password Change (Form Data)</h2>
         <p>Test password change with form data:</p>
         <input type="password" id="currentPassForm" placeholder="Current Password" value="admin123">
         <input type="password" id="newPassForm" placeholder="New Password" value="NewPass123!">
@@ -99,7 +108,7 @@
     </div>
 
     <div class="test-section">
-        <h2>Test 5: Get Data Endpoint</h2>
+        <h2>Test 6: Get Data Endpoint</h2>
         <p>Test the getData endpoint:</p>
         <button onclick="testGetData()">Test Get Data</button>
         <div id="getDataResult"></div>
@@ -212,6 +221,59 @@
                 resultDiv.innerHTML = `
                     <div class="error">
                         ❌ JSON password change test failed
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testPasswordChangeGET() {
+            const currentPassword = document.getElementById('currentPassGet').value;
+            const newPassword = document.getElementById('newPassGet').value;
+            const resultDiv = document.getElementById('passwordChangeGETResult');
+            
+            try {
+                console.log('Testing GET password change...');
+                const params = new URLSearchParams({
+                    action: 'changePassword',
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                });
+                
+                const response = await fetch(`api.php?${params.toString()}`, {
+                    method: 'GET'
+                });
+
+                console.log('Response status:', response.status);
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (parseError) {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            ❌ JSON parse error
+                            Status: ${response.status}
+                            Response text: ${responseText}
+                            Parse error: ${parseError.message}
+                        </div>
+                    `;
+                    return;
+                }
+                
+                resultDiv.innerHTML = `
+                    <div class="${result.success ? 'success' : 'error'}">
+                        ${result.success ? '✅' : '❌'} Password change ${result.success ? 'successful' : 'failed'}
+                        Status: ${response.status}
+                        Response: ${JSON.stringify(result, null, 2)}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ GET password change test failed
                         Error: ${error.message}
                     </div>
                 `;

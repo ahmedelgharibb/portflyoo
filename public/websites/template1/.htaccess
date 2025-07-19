@@ -1,0 +1,33 @@
+# Enable POST requests to PHP files
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Allow POST requests to api.php
+    <Files "api.php">
+        Order Allow,Deny
+        Allow from all
+    </Files>
+</IfModule>
+
+# Set proper headers for API
+<IfModule mod_headers.c>
+    <Files "api.php">
+        Header set Access-Control-Allow-Origin "*"
+        Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Header set Access-Control-Allow-Headers "Content-Type"
+    </Files>
+</IfModule>
+
+# Handle OPTIONS preflight requests
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ $1 [R=200,L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule> 
