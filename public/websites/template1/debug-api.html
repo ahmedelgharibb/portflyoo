@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { padding: 10px; margin: 10px 0; border: 1px solid #ccc; }
+        .error { background-color: #ffebee; color: #c62828; }
+        .success { background-color: #e8f5e8; color: #2e7d32; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <h1>🔍 API Debug Test</h1>
+    
+    <div>
+        <h2>Test 1: Direct API Call</h2>
+        <button onclick="testDirectAPI()">Test Direct API</button>
+        <div id="directResult"></div>
+    </div>
+    
+    <div>
+        <h2>Test 2: Check File Exists</h2>
+        <button onclick="checkFileExists()">Check if api.php exists</button>
+        <div id="fileResult"></div>
+    </div>
+    
+    <div>
+        <h2>Test 3: Raw Response</h2>
+        <button onclick="getRawResponse()">Get Raw Response</button>
+        <div id="rawResult"></div>
+    </div>
+    
+    <div>
+        <h2>Test 4: Simple PHP Test</h2>
+        <button onclick="testSimplePHP()">Test Simple PHP</button>
+        <div id="simplePHPResult"></div>
+    </div>
+
+    <script>
+        async function testDirectAPI() {
+            const resultDiv = document.getElementById('directResult');
+            resultDiv.innerHTML = '<div class="result">Testing...</div>';
+            
+            try {
+                console.log('Testing API endpoint...');
+                const response = await fetch('api.php?action=getData');
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const responseText = await response.text();
+                console.log('Raw response:', responseText);
+                
+                // Try to parse as JSON
+                try {
+                    const jsonData = JSON.parse(responseText);
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <h3>✅ API Response (JSON)</h3>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Content-Type:</strong> ${response.headers.get('content-type')}</p>
+                            <pre>${JSON.stringify(jsonData, null, 2)}</pre>
+                        </div>
+                    `;
+                } catch (parseError) {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <h3>❌ JSON Parse Error</h3>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Content-Type:</strong> ${response.headers.get('content-type')}</p>
+                            <p><strong>Parse Error:</strong> ${parseError.message}</p>
+                            <h4>Raw Response:</h4>
+                            <pre>${responseText}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ Fetch Error</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Type:</strong> ${error.name}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function checkFileExists() {
+            const resultDiv = document.getElementById('fileResult');
+            resultDiv.innerHTML = '<div class="result">Checking...</div>';
+            
+            try {
+                const response = await fetch('api.php');
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        <h3>✅ File Found</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Content-Type:</strong> ${response.headers.get('content-type')}</p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ File Not Found</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function getRawResponse() {
+            const resultDiv = document.getElementById('rawResult');
+            resultDiv.innerHTML = '<div class="result">Fetching...</div>';
+            
+            try {
+                const response = await fetch('api.php?action=getData');
+                const responseText = await response.text();
+                
+                resultDiv.innerHTML = `
+                    <div class="result">
+                        <h3>📄 Raw Response</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Content-Type:</strong> ${response.headers.get('content-type')}</p>
+                        <p><strong>Response Length:</strong> ${responseText.length} characters</p>
+                        <h4>First 500 characters:</h4>
+                        <pre>${responseText.substring(0, 500)}</pre>
+                        ${responseText.length > 500 ? '<p>... (truncated)</p>' : ''}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ Error</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testSimplePHP() {
+            const resultDiv = document.getElementById('simplePHPResult');
+            resultDiv.innerHTML = '<div class="result">Testing...</div>';
+            
+            try {
+                const response = await fetch('test-php.php');
+                const responseText = await response.text();
+                
+                try {
+                    const jsonData = JSON.parse(responseText);
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <h3>✅ PHP Working</h3>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Content-Type:</strong> ${response.headers.get('content-type')}</p>
+                            <pre>${JSON.stringify(jsonData, null, 2)}</pre>
+                        </div>
+                    `;
+                } catch (parseError) {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <h3>❌ PHP Response Not JSON</h3>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Content-Type:</strong> ${response.headers.get('content-type')}</p>
+                            <p><strong>Parse Error:</strong> ${parseError.message}</p>
+                            <h4>Raw Response:</h4>
+                            <pre>${responseText}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ PHP Test Failed</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', function() {
+            setTimeout(testDirectAPI, 1000);
+            setTimeout(testSimplePHP, 2000);
+        });
+    </script>
+</body>
+</html> 
