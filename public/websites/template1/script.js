@@ -2147,13 +2147,13 @@ function setupPasswordForm() {
     const changePasswordForm = document.getElementById('changePasswordForm');
     const showPasswordBtn = document.getElementById('showPasswordBtn');
     const clearPasswordBtn = document.getElementById('clearPasswordBtn');
+    const confirmPasswordBtn = document.getElementById('confirmPasswordBtn');
     const newPasswordInput = document.getElementById('newPassword');
     
     if (changePasswordForm) {
-        // Prevent form submission (we'll handle it in saveAdminChanges)
+        // Prevent form submission (we'll handle it with the confirm button)
         changePasswordForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            validateAndStorePasswordChange();
         });
     }
     
@@ -2165,6 +2165,10 @@ function setupPasswordForm() {
         clearPasswordBtn.addEventListener('click', clearPasswordForm);
     }
     
+    if (confirmPasswordBtn) {
+        confirmPasswordBtn.addEventListener('click', validateAndStorePasswordChange);
+    }
+    
     if (newPasswordInput) {
         newPasswordInput.addEventListener('input', function() {
             updatePasswordStrength(this.value);
@@ -2173,7 +2177,7 @@ function setupPasswordForm() {
 }
 
 // Validate and store password change (doesn't save to database yet)
-function validateAndStorePasswordChange() {
+async function validateAndStorePasswordChange() {
     const currentPassword = document.getElementById('currentPassword').value.trim();
     const newPassword = document.getElementById('newPassword').value.trim();
     const confirmPassword = document.getElementById('confirmPassword').value.trim();
@@ -2181,7 +2185,7 @@ function validateAndStorePasswordChange() {
     // Clear previous validation
     clearPasswordValidation();
     
-    // Validation
+    // Basic validation
     let isValid = true;
     let errorMessage = '';
     
@@ -2204,15 +2208,36 @@ function validateAndStorePasswordChange() {
         return false;
     }
     
-    // Store the pending password change
-    pendingPasswordChange = {
-        currentPassword: currentPassword,
-        newPassword: newPassword
-    };
-    
-    showPasswordValidationSuccess('Password change validated! Click "Save Changes" to apply.');
-    updatePasswordChangeStatus();
-    return true;
+    // Validate current password with backend
+    try {
+        const response = await fetch('/api/api?action=login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: currentPassword })
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            showPasswordValidationError('Current password is incorrect');
+            return false;
+        }
+        
+        // Current password is valid, store the pending password change
+        pendingPasswordChange = {
+            currentPassword: currentPassword,
+            newPassword: newPassword
+        };
+        
+        showPasswordValidationSuccess('Password change confirmed! Click "Save Changes" to apply the new password.');
+        updatePasswordChangeStatus();
+        return true;
+        
+    } catch (error) {
+        console.error('Error validating current password:', error);
+        showPasswordValidationError('Error validating current password. Please try again.');
+        return false;
+    }
 }
 
 // Clear password form
