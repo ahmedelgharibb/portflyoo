@@ -302,9 +302,15 @@ switch ($action) {
         $data = $_POST['data'] ?? null;
         
         if ($data) {
-            // Handle password change if present
+            // Handle password change if present (check both possible locations)
+            $passwordChange = null;
             if (isset($data['passwordChange'])) {
                 $passwordChange = $data['passwordChange'];
+            } elseif (isset($data['data']['passwordChange'])) {
+                $passwordChange = $data['data']['passwordChange'];
+            }
+            
+            if ($passwordChange) {
                 $currentPassword = $passwordChange['currentPassword'] ?? '';
                 $newPassword = $passwordChange['newPassword'] ?? '';
                 
@@ -327,18 +333,23 @@ switch ($action) {
                         $data['data']['admin'] = [];
                     }
                     $data['data']['admin']['passwordHash'] = hash_password($newPassword);
+                    error_log("Password hash added to database structure: " . $data['data']['admin']['passwordHash']);
                 } else {
                     // Local file structure
                     if (!isset($data['admin'])) {
                         $data['admin'] = [];
                     }
                     $data['admin']['passwordHash'] = hash_password($newPassword);
+                    error_log("Password hash added to local structure: " . $data['admin']['passwordHash']);
                 }
                 
                 error_log("Password hash added to data structure successfully");
                 
-                // Remove password change data from the main data object
+                // Remove password change data from both possible locations
                 unset($data['passwordChange']);
+                if (isset($data['data']['passwordChange'])) {
+                    unset($data['data']['passwordChange']);
+                }
             }
             
             // Preserve admin section when saving data
@@ -354,11 +365,31 @@ switch ($action) {
                     $data['data'] = [];
                 }
                 $dataToSave = $existingData;
-                $dataToSave['data'] = array_merge($existingData['data'], $data['data']);
+                
+                // Merge data sections, but ensure admin section is preserved
+                $mergedData = $existingData['data'];
+                
+                // If there's a password change, ensure admin section is properly set
+                if (isset($data['data']['admin'])) {
+                    $mergedData['admin'] = $data['data']['admin'];
+                }
+                
+                // Merge all other data
+                foreach ($data['data'] as $key => $value) {
+                    if ($key !== 'admin') { // Skip admin as we already handled it
+                        $mergedData[$key] = $value;
+                    }
+                }
+                
+                $dataToSave['data'] = $mergedData;
+                error_log("Merged database structure with admin section preserved");
             } else {
                 // Local file structure
                 $dataToSave = array_merge($existingData, $data);
             }
+            
+            // Log what we're about to save for debugging
+            error_log("About to save data structure: " . json_encode($dataToSave, JSON_PRETTY_PRINT));
             
             file_put_contents($dataFile, json_encode($dataToSave, JSON_PRETTY_PRINT));
             echo json_encode([
