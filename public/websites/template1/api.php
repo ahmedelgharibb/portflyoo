@@ -114,29 +114,83 @@ if ($method === 'POST') {
 $dataFile = 'siteData.json';
 // Path to reviews file
 $reviewsFile = 'reviews.json';
-// Path to password file
-$passwordFile = 'password.txt';
 
-// Helper to get current password
-function getCurrentPassword() {
-    global $passwordFile;
-    if (!file_exists($passwordFile)) {
-        file_put_contents($passwordFile, 'admin123');
-        return 'admin123';
+// Helper to get current password hash from siteData.json
+function getCurrentPasswordHash() {
+    global $dataFile;
+    if (!file_exists($dataFile)) {
+        // Create default site data with hashed password
+        $defaultData = [
+            'admin' => [
+                'passwordHash' => hash_password('admin123')
+            ],
+            'personal' => [
+                'name' => 'Dr. Ahmed Mahmoud',
+                'title' => 'Mathematics Educator',
+                'subtitle' => 'STEM Specialist',
+                'heroHeading' => 'Inspiring Minds Through Mathematics',
+                'experience' => '15+ years teaching experience',
+                'philosophy' => 'I believe in making mathematics accessible and exciting for all students.',
+                'qualifications' => [
+                    'Ph.D. in Mathematics Education',
+                    'M.Sc. in Applied Mathematics',
+                    'B.Sc. in Mathematics'
+                ]
+            ],
+            'teacherExperience' => [
+                'years' => 15,
+                'students' => 500,
+                'schools' => 8
+            ],
+            'heroImage' => 'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg',
+            'aboutImage' => 'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg'
+        ];
+        file_put_contents($dataFile, json_encode($defaultData, JSON_PRETTY_PRINT));
+        return $defaultData['admin']['passwordHash'];
     }
-    return trim(file_get_contents($passwordFile));
+    
+    $data = json_decode(file_get_contents($dataFile), true);
+    if (!$data || !isset($data['admin']['passwordHash'])) {
+        // If no admin section exists, create it with default password
+        $data = $data ?: [];
+        $data['admin'] = ['passwordHash' => hash_password('admin123')];
+        file_put_contents($dataFile, json_encode($data, JSON_PRETTY_PRINT));
+        return $data['admin']['passwordHash'];
+    }
+    
+    return $data['admin']['passwordHash'];
 }
 
-// Helper to set new password
-function setNewPassword($newPassword) {
-    global $passwordFile;
-    file_put_contents($passwordFile, $newPassword);
+// Helper to set new password hash in siteData.json
+function setNewPasswordHash($newPassword) {
+    global $dataFile;
+    
+    if (!file_exists($dataFile)) {
+        // Create new file with just the admin section
+        $data = [
+            'admin' => [
+                'passwordHash' => hash_password($newPassword)
+            ]
+        ];
+    } else {
+        // Read existing data and update admin section
+        $data = json_decode(file_get_contents($dataFile), true) ?: [];
+        $data['admin'] = [
+            'passwordHash' => hash_password($newPassword)
+        ];
+    }
+    
+    file_put_contents($dataFile, json_encode($data, JSON_PRETTY_PRINT));
+    error_log("Password hash updated successfully");
 }
 
 // Function to verify admin password
 function verifyPassword($password) {
-    error_log("Verifying password: $password");
-    return $password === getCurrentPassword();
+    error_log("Verifying password");
+    $storedHash = getCurrentPasswordHash();
+    $isValid = verify_password($password, $storedHash);
+    error_log("Password verification result: " . ($isValid ? 'valid' : 'invalid'));
+    return $isValid;
 }
 
 // Route API requests
@@ -179,15 +233,26 @@ switch ($action) {
         } else {
             // Default site data if file doesn't exist
             $defaultData = [
-                'personalInfo' => [
+                'admin' => [
+                    'passwordHash' => hash_password('admin123')
+                ],
+                'personal' => [
                     'name' => 'Dr. Ahmed Mahmoud',
                     'title' => 'Mathematics Educator',
+                    'subtitle' => 'STEM Specialist',
+                    'heroHeading' => 'Inspiring Minds Through Mathematics',
+                    'experience' => '15+ years teaching experience',
+                    'philosophy' => 'I believe in making mathematics accessible and exciting for all students.',
                     'qualifications' => [
                         'Ph.D. in Mathematics Education',
-                        'Master\'s in Applied Mathematics',
-                        'Bachelor\'s in Mathematics'
-                    ],
-                    'experience' => '15+ years of teaching experience'
+                        'M.Sc. in Applied Mathematics',
+                        'B.Sc. in Mathematics'
+                    ]
+                ],
+                'teacherExperience' => [
+                    'years' => 15,
+                    'students' => 500,
+                    'schools' => 8
                 ],
                 'experience' => [
                     'schools' => [
@@ -200,7 +265,7 @@ switch ($action) {
                         'Advanced Learning Institute',
                         'STEM Education Hub'
                     ],
-                    'onlinePlatforms' => [
+                    'platforms' => [
                         'MathPro Online',
                         'EduTech Academy',
                         'Virtual Learning Center'
@@ -217,7 +282,9 @@ switch ($action) {
                 'contact' => [
                     'email' => 'teacher@example.com',
                     'formUrl' => 'https://forms.google.com/your-form-link'
-                ]
+                ],
+                'heroImage' => 'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg',
+                'aboutImage' => 'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg'
             ];
             $json = json_encode($defaultData);
             echo $json;
@@ -258,15 +325,24 @@ switch ($action) {
                     break;
                 }
                 
-                // Update password
-                setNewPassword($newPassword);
+                // Update password hash
+                setNewPasswordHash($newPassword);
                 error_log("Password changed successfully");
                 
                 // Remove password change data from the main data object
                 unset($data['passwordChange']);
             }
             
-            file_put_contents($dataFile, json_encode($data, JSON_PRETTY_PRINT));
+            // Preserve admin section when saving data
+            $existingData = [];
+            if (file_exists($dataFile)) {
+                $existingData = json_decode(file_get_contents($dataFile), true) ?: [];
+            }
+            
+            // Merge existing admin section with new data
+            $dataToSave = array_merge($existingData, $data);
+            
+            file_put_contents($dataFile, json_encode($dataToSave, JSON_PRETTY_PRINT));
             echo json_encode([
                 'success' => true,
                 'message' => 'Data saved successfully'
