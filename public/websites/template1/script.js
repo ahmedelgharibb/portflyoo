@@ -1349,18 +1349,55 @@ async function handlePasswordChange(e) {
     
     try {
         // Send password change request to API
-        const response = await fetch('api.php?action=changePassword', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                currentPassword: currentPassword,
-                newPassword: newPassword
-            })
-        });
+        console.log('Sending password change request...');
         
-        const result = await response.json();
+        // Try JSON first, fallback to form data if needed
+        let response;
+        try {
+            response = await fetch('api.php?action=changePassword', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                })
+            });
+        } catch (jsonError) {
+            console.log('JSON request failed, trying form data...', jsonError);
+            // Fallback to form data
+            const formData = new FormData();
+            formData.append('currentPassword', currentPassword);
+            formData.append('newPassword', newPassword);
+            
+            response = await fetch('api.php?action=changePassword', {
+                method: 'POST',
+                body: formData
+            });
+        }
+        
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        // Check if response is ok
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Get response text first for debugging
+        const responseText = await response.text();
+        console.log('Response text:', responseText);
+        
+        // Try to parse JSON
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            console.error('Response text was:', responseText);
+            throw new Error('Invalid JSON response from server');
+        }
         
         if (result.success) {
             showAdminAlert('success', 'Password changed successfully! You will need to log in again with your new password.');
@@ -1404,7 +1441,23 @@ async function handlePasswordChange(e) {
         }
     } catch (error) {
         console.error('Error changing password:', error);
-        showAdminAlert('error', 'An error occurred while changing password. Please try again.');
+        
+        // Provide more specific error messages
+        let errorMessage = 'An error occurred while changing password. Please try again.';
+        
+        if (error.message.includes('405')) {
+            errorMessage = 'Server configuration issue: Method not allowed. Please contact the administrator.';
+        } else if (error.message.includes('404')) {
+            errorMessage = 'API endpoint not found. Please check the server configuration.';
+        } else if (error.message.includes('500')) {
+            errorMessage = 'Server error occurred. Please try again later.';
+        } else if (error.message.includes('JSON')) {
+            errorMessage = 'Invalid response from server. Please try again.';
+        } else if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
+            errorMessage = 'Network error. Please check your internet connection and try again.';
+        }
+        
+        showAdminAlert('error', errorMessage);
     } finally {
         // Re-enable button
         if (changePasswordBtn) {

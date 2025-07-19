@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Endpoint Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Basic API Connection</h2>
+        <p>Test if the API is accessible:</p>
+        <button onclick="testBasicConnection()">Test Connection</button>
+        <div id="basicResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Login Endpoint</h2>
+        <p>Test the login endpoint:</p>
+        <input type="password" id="loginPassword" placeholder="Password" value="admin123">
+        <button onclick="testLogin()">Test Login</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Password Change (JSON)</h2>
+        <p>Test password change with JSON:</p>
+        <input type="password" id="currentPass" placeholder="Current Password" value="admin123">
+        <input type="password" id="newPass" placeholder="New Password" value="NewPass123!">
+        <button onclick="testPasswordChangeJSON()">Test JSON Password Change</button>
+        <div id="passwordChangeJSONResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Password Change (Form Data)</h2>
+        <p>Test password change with form data:</p>
+        <input type="password" id="currentPassForm" placeholder="Current Password" value="admin123">
+        <input type="password" id="newPassForm" placeholder="New Password" value="NewPass123!">
+        <button onclick="testPasswordChangeForm()">Test Form Password Change</button>
+        <div id="passwordChangeFormResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 5: Get Data Endpoint</h2>
+        <p>Test the getData endpoint:</p>
+        <button onclick="testGetData()">Test Get Data</button>
+        <div id="getDataResult"></div>
+    </div>
+
+    <script>
+        async function testBasicConnection() {
+            const resultDiv = document.getElementById('basicResult');
+            
+            try {
+                const response = await fetch('api.php?action=getData');
+                const result = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        ✅ API is accessible
+                        Status: ${response.status}
+                        Response: ${JSON.stringify(result, null, 2)}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ API connection failed
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testLogin() {
+            const password = document.getElementById('loginPassword').value;
+            const resultDiv = document.getElementById('loginResult');
+            
+            try {
+                const response = await fetch('api.php?action=login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        password: password
+                    })
+                });
+
+                const result = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="${result.success ? 'success' : 'error'}">
+                        ${result.success ? '✅' : '❌'} Login ${result.success ? 'successful' : 'failed'}
+                        Status: ${response.status}
+                        Response: ${JSON.stringify(result, null, 2)}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Login test failed
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testPasswordChangeJSON() {
+            const currentPassword = document.getElementById('currentPass').value;
+            const newPassword = document.getElementById('newPass').value;
+            const resultDiv = document.getElementById('passwordChangeJSONResult');
+            
+            try {
+                console.log('Testing JSON password change...');
+                const response = await fetch('api.php?action=changePassword', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        currentPassword: currentPassword,
+                        newPassword: newPassword
+                    })
+                });
+
+                console.log('Response status:', response.status);
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (parseError) {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            ❌ JSON parse error
+                            Status: ${response.status}
+                            Response text: ${responseText}
+                            Parse error: ${parseError.message}
+                        </div>
+                    `;
+                    return;
+                }
+                
+                resultDiv.innerHTML = `
+                    <div class="${result.success ? 'success' : 'error'}">
+                        ${result.success ? '✅' : '❌'} Password change ${result.success ? 'successful' : 'failed'}
+                        Status: ${response.status}
+                        Response: ${JSON.stringify(result, null, 2)}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ JSON password change test failed
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testPasswordChangeForm() {
+            const currentPassword = document.getElementById('currentPassForm').value;
+            const newPassword = document.getElementById('newPassForm').value;
+            const resultDiv = document.getElementById('passwordChangeFormResult');
+            
+            try {
+                console.log('Testing form data password change...');
+                const formData = new FormData();
+                formData.append('currentPassword', currentPassword);
+                formData.append('newPassword', newPassword);
+                
+                const response = await fetch('api.php?action=changePassword', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                console.log('Response status:', response.status);
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (parseError) {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            ❌ JSON parse error
+                            Status: ${response.status}
+                            Response text: ${responseText}
+                            Parse error: ${parseError.message}
+                        </div>
+                    `;
+                    return;
+                }
+                
+                resultDiv.innerHTML = `
+                    <div class="${result.success ? 'success' : 'error'}">
+                        ${result.success ? '✅' : '❌'} Password change ${result.success ? 'successful' : 'failed'}
+                        Status: ${response.status}
+                        Response: ${JSON.stringify(result, null, 2)}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Form data password change test failed
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testGetData() {
+            const resultDiv = document.getElementById('getDataResult');
+            
+            try {
+                const response = await fetch('api.php?action=getData');
+                const result = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        ✅ Get data successful
+                        Status: ${response.status}
+                        Data keys: ${Object.keys(result).join(', ')}
+                        Sample data: ${JSON.stringify(result, null, 2).substring(0, 500)}...
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Get data failed
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 
