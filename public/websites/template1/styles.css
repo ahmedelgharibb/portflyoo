@@ -1086,35 +1086,7 @@
           }
       }
       
-      /* Dark mode styles for password change section */
-      .dark-mode #changePasswordSection {
-          background-color: var(--card-bg);
-          border-color: var(--border-color);
-      }
-      
-      .dark-mode #changePasswordSection h3 {
-          color: var(--primary-color);
-      }
-      
-      .dark-mode #changePasswordSection input {
-          background-color: var(--bg-color);
-          border-color: var(--border-color);
-          color: var(--text-color);
-      }
-      
-      .dark-mode #changePasswordSection input:focus {
-          border-color: var(--primary-color);
-          box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
-      }
-      
-      .dark-mode #changePasswordSection button[type="submit"] {
-          background-color: var(--primary-color);
-          color: white;
-      }
-      
-      .dark-mode #changePasswordSection button[type="submit"]:hover {
-          background-color: var(--primary-dark);
-      }
+
 
       /* Years of Experience Box Styles */
       .experience-card .bg-gradient-to-br {
@@ -2556,93 +2528,8 @@
         border-color: #14509e;
       }
 
-      /* --- Security Settings Section --- */
-      .admin-security-card {
-        background: #1e293b;
-        border-radius: 1rem;
-        box-shadow: 0 2px 16px rgba(30, 41, 59, 0.10);
-        padding: 2.5rem 2rem;
-        max-width: 600px;
-        margin: 2.5rem auto;
-        color: #f3f4f6;
-      }
-      .admin-security-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #f3f4f6;
-        margin-bottom: 1.5rem;
-        letter-spacing: -0.5px;
-      }
-      .admin-security-label {
-        font-size: 0.98rem;
-        font-weight: 500;
-        color: #e0e7ef;
-        margin-bottom: 0.5rem;
-        display: block;
-      }
-      .admin-security-row {
-        display: flex;
-        align-items: center;
-        gap: 1.2rem;
-        max-width: 500px;
-        margin: 0 auto 1.2rem auto;
-      }
-      .admin-security-input {
-        flex: 1;
-        min-width: 0;
-        border: 2px solid #3b82f6;
-        border-radius: 0.5rem;
-        padding: 0.9rem 1.2rem;
-        font-size: 1.15rem;
-        background: #f8fafc;
-        color: #1e293b;
-        outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
-        font-family: 'Inter', 'Poppins', Arial, sans-serif;
-        box-shadow: 0 2px 8px rgba(30,41,59,0.04);
-        margin-right: 0.5rem;
-      }
-      .admin-security-input:focus {
-        border-color: #2563eb;
-        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.10);
-        background: #fff;
-      }
-      .admin-security-input::placeholder {
-        color: #94a3b8;
-        opacity: 1;
-        font-weight: 400;
-      }
-      @media (max-width: 600px) {
-        .admin-security-input {
-          margin-right: 0;
-          margin-bottom: 0.5rem;
-        }
-      }
-      #changePasswordBtn {
-        min-width: 160px;
-        white-space: nowrap;
-        margin-left: 0.5rem;
-        margin-top: 0;
-        align-self: stretch;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      @media (max-width: 600px) {
-        .admin-security-row {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 0.75rem;
-        }
-        #changePasswordBtn {
-          width: 100%;
-          min-width: 0;
-          margin-left: 0;
-          margin-top: 0.5rem;
-          height: auto;
-        }
-      }
+
+
       .admin-success-msg {
         color: #22c55e;
         background: #f0fdf4;

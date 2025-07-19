@@ -1392,18 +1392,7 @@ function initDOMElements() {
     adminResultsContainer = document.getElementById('admin-results-container');
     adminAlert = document.getElementById('adminAlertContainer');
     
-    // Add new password change elements
-    const showChangePasswordBtn = document.getElementById('showChangePasswordBtn');
-    const changePasswordSection = document.getElementById('changePasswordSection');
-    const hidePasswordSection = document.getElementById('hidePasswordSection');
-    const changePasswordFormSection = document.getElementById('changePasswordFormSection');
-    const changePasswordSectionBtn = document.getElementById('changePasswordSectionBtn');
-    if (showChangePasswordBtn && changePasswordSection && hidePasswordSection && changePasswordFormSection && changePasswordSectionBtn) {
-        showChangePasswordBtn.addEventListener('click', showChangePasswordSection);
-        hidePasswordSection.addEventListener('click', hideChangePasswordSection);
-        // Remove submit event, use button click instead
-        changePasswordSectionBtn.addEventListener('click', handlePasswordChange);
-    }
+
     
     console.log('DOM elements initialized');
     
@@ -1413,9 +1402,7 @@ function initDOMElements() {
         adminBtnMobile: !!adminBtnMobile,
         adminPanel: !!adminPanel,
         adminLoginModal: !!adminLoginModal,
-        exitLoginBtn: !!exitLoginBtn,
-        showChangePasswordBtn: !!showChangePasswordBtn,
-        changePasswordSection: !!changePasswordSection
+        exitLoginBtn: !!exitLoginBtn
     });
 
     // Ensure logout and close (X) buttons work in admin panel
@@ -1444,56 +1431,7 @@ function initDOMElements() {
     }
 }
 
-// Show password change section
-function showChangePasswordSection() {
-    console.log('Showing password change section');
-    const changePasswordSection = document.getElementById('changePasswordSection');
-    if (changePasswordSection) {
-        changePasswordSection.classList.remove('hidden');
-        document.getElementById('currentPassword').focus();
-    }
-}
 
-// Hide password change section
-function hideChangePasswordSection() {
-    console.log('Hiding password change section');
-    const changePasswordSection = document.getElementById('changePasswordSection');
-    if (changePasswordSection) {
-        changePasswordSection.classList.add('hidden');
-        // Reset the form
-        document.getElementById('changePasswordFormSection').reset();
-    }
-}
-
-// Handle password change
-async function handlePasswordChange(e) {
-    e.preventDefault();
-    console.log('Handling password change');
-    const currentPassword = document.getElementById('currentPassword').value;
-    const newPassword = document.getElementById('newPassword').value;
-    if (!currentPassword || !newPassword) {
-        showAdminAlert('error', 'Please fill in all password fields.');
-        return;
-    }
-    try {
-        const res = await fetch('/api/api?action=changePassword', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ oldPassword: currentPassword, newPassword })
-        });
-        const data = await res.json();
-        if (data.success) {
-            showAdminAlert('success', 'Password changed successfully!');
-            hideChangePasswordSection();
-            document.getElementById('changePasswordFormSection').reset();
-        } else {
-            showAdminAlert('error', data.message || 'Failed to change password.');
-        }
-    } catch (error) {
-        console.error('Error changing password:', error);
-        showAdminAlert('error', 'Failed to change password. Please try again.');
-    }
-}
 
 // Update site content with new data
 function updateSiteContent(data) {
