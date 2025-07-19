@@ -1961,10 +1961,13 @@ async function saveAdminChanges() {
             }
         };
 
-        // Add password change to the data object if pending
-        if (pendingPasswordChange) {
-            newData.passwordChange = pendingPasswordChange;
+        // Preserve existing admin section if it exists
+        if (currentData?.data?.admin) {
+            newData.admin = currentData.data.admin;
         }
+        
+        // Note: Password change is handled separately by the backend API
+        // We don't include passwordChange in the data structure
 
         // Defensive: Ensure empty arrays for empty lists
         if (!qualifications.length) newData.personal.qualifications = [];
@@ -1986,11 +1989,19 @@ async function saveAdminChanges() {
         // Apply the theme immediately
         applyTheme(currentColor, currentMode);
 
+        // Prepare data for backend API
+        const dataToSend = { id: currentSiteId, data: newData };
+        
+        // Add password change to the data if pending
+        if (pendingPasswordChange) {
+            dataToSend.data.passwordChange = pendingPasswordChange;
+        }
+        
         // Save to backend API
         const saveResponse = await fetch('/api/api?action=saveData', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: { id: currentSiteId, data: newData } })
+            body: JSON.stringify({ data: dataToSend })
         });
         const saveResult = await saveResponse.json();
         if (!saveResult.success) throw new Error(saveResult.message || 'Failed to save data');
