@@ -110,7 +110,7 @@ if ($method === 'POST') {
     error_log("Parsed POST data: " . print_r($_POST, true));
 }
 
-// Define the data file path
+// Define the data file path - this should point to your database or a sync file
 $dataFile = 'siteData.json';
 // Path to reviews file
 $reviewsFile = 'reviews.json';
@@ -118,65 +118,26 @@ $reviewsFile = 'reviews.json';
 // Helper to get current password hash from siteData.json or database
 function getCurrentPasswordHash() {
     global $dataFile;
-    if (!file_exists($dataFile)) {
-        // Create default site data with hashed password
-        $defaultData = [
-            'admin' => [
-                'passwordHash' => hash_password('admin123')
-            ],
-            'personal' => [
-                'name' => 'Dr. Ahmed Mahmoud',
-                'title' => 'Mathematics Educator',
-                'subtitle' => 'STEM Specialist',
-                'heroHeading' => 'Inspiring Minds Through Mathematics',
-                'experience' => '15+ years teaching experience',
-                'philosophy' => 'I believe in making mathematics accessible and exciting for all students.',
-                'qualifications' => [
-                    'Ph.D. in Mathematics Education',
-                    'M.Sc. in Applied Mathematics',
-                    'B.Sc. in Mathematics'
-                ]
-            ],
-            'teacherExperience' => [
-                'years' => 15,
-                'students' => 500,
-                'schools' => 8
-            ],
-            'heroImage' => 'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg',
-            'aboutImage' => 'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg'
-        ];
-        file_put_contents($dataFile, json_encode($defaultData, JSON_PRETTY_PRINT));
-        return $defaultData['admin']['passwordHash'];
-    }
     
-    $data = json_decode(file_get_contents($dataFile), true);
-    
-    // Check if this is a database structure (has 'id' and 'data' fields)
-    if ($data && isset($data['id']) && isset($data['data'])) {
-        // Database structure - look for admin section within data
-        if (!isset($data['data']['admin']) || !isset($data['data']['admin']['passwordHash'])) {
-            // Create admin section in database structure
-            if (!isset($data['data']['admin'])) {
-                $data['data']['admin'] = [];
+    // First, try to get the current data from the file
+    if (file_exists($dataFile)) {
+        $data = json_decode(file_get_contents($dataFile), true);
+        
+        // Check if this is a database structure (has 'id' and 'data' fields)
+        if ($data && isset($data['id']) && isset($data['data'])) {
+            // Database structure - look for admin section within data
+            if (isset($data['data']['admin']) && isset($data['data']['admin']['passwordHash'])) {
+                return $data['data']['admin']['passwordHash'];
             }
-            $data['data']['admin']['passwordHash'] = hash_password('admin123');
-            file_put_contents($dataFile, json_encode($data, JSON_PRETTY_PRINT));
-            error_log("Created admin section in database structure with default password");
-            return $data['data']['admin']['passwordHash'];
+        } else if ($data && isset($data['admin']['passwordHash'])) {
+            // Local file structure
+            return $data['admin']['passwordHash'];
         }
-        return $data['data']['admin']['passwordHash'];
     }
     
-    // Local file structure
-    if (!$data || !isset($data['admin']['passwordHash'])) {
-        // If no admin section exists, create it with default password
-        $data = $data ?: [];
-        $data['admin'] = ['passwordHash' => hash_password('admin123')];
-        file_put_contents($dataFile, json_encode($data, JSON_PRETTY_PRINT));
-        return $data['admin']['passwordHash'];
-    }
-    
-    return $data['admin']['passwordHash'];
+    // If no password hash found, return default
+    error_log("No password hash found, using default password");
+    return hash_password('admin123');
 }
 
 // Helper to set new password hash in siteData.json or database
@@ -359,9 +320,22 @@ switch ($action) {
                     break;
                 }
                 
-                // Update password hash
-                setNewPasswordHash($newPassword);
-                error_log("Password changed successfully");
+                // Add the new password hash directly to the data structure
+                if (isset($data['data'])) {
+                    // Database structure
+                    if (!isset($data['data']['admin'])) {
+                        $data['data']['admin'] = [];
+                    }
+                    $data['data']['admin']['passwordHash'] = hash_password($newPassword);
+                } else {
+                    // Local file structure
+                    if (!isset($data['admin'])) {
+                        $data['admin'] = [];
+                    }
+                    $data['admin']['passwordHash'] = hash_password($newPassword);
+                }
+                
+                error_log("Password hash added to data structure successfully");
                 
                 // Remove password change data from the main data object
                 unset($data['passwordChange']);
