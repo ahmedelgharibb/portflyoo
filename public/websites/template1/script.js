@@ -1985,6 +1985,17 @@ async function saveAdminChanges() {
         const platformsInputs = document.querySelectorAll('#platforms-list input');
         const platforms = Array.from(platformsInputs).map(input => input.value.trim()).filter(Boolean);
 
+        // Collect teacher experience data
+        const yearsInput = document.getElementById('admin-years-experience');
+        const studentsInput = document.getElementById('admin-students-taught');
+        const schoolsTaughtInput = document.getElementById('admin-schools-taught');
+        
+        const teacherExperience = {
+            years: yearsInput ? parseInt(yearsInput.value) || 0 : (currentData?.data?.teacherExperience?.years || 0),
+            students: studentsInput ? parseInt(studentsInput.value) || 0 : (currentData?.data?.teacherExperience?.students || 0),
+            schools: schoolsTaughtInput ? parseInt(schoolsTaughtInput.value) || 0 : (currentData?.data?.teacherExperience?.schools || 0)
+        };
+
         // Start with current data to preserve all existing values
         const newData = {
             id: currentSiteId,
@@ -2000,6 +2011,7 @@ async function saveAdminChanges() {
                 philosophy: philosophyInput ? philosophyInput.value : '',
                 qualifications: qualifications
             },
+            teacherExperience: teacherExperience,
             experience: {
                 schools: schools,
                 centers: centers,
