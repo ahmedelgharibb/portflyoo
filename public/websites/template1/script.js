@@ -1985,15 +1985,29 @@ async function saveAdminChanges() {
         };
 
         // Preserve admin password from siteData if it exists
+        let adminPassword = null;
+        
+        // Check both possible locations for admin password
         if (siteData && siteData.data && siteData.data.admin && siteData.data.admin.password) {
+            // Nested structure: siteData.data.admin.password
+            adminPassword = siteData.data.admin.password;
+            console.log('[Save Changes] Found admin password in siteData.data.admin.password:', adminPassword);
+        } else if (siteData && siteData.admin && siteData.admin.password) {
+            // Flat structure: siteData.admin.password
+            adminPassword = siteData.admin.password;
+            console.log('[Save Changes] Found admin password in siteData.admin.password:', adminPassword);
+        }
+        
+        // Store the admin password in the correct location for saving
+        if (adminPassword) {
             if (!newData.data) {
                 newData.data = {};
             }
             if (!newData.data.admin) {
                 newData.data.admin = {};
             }
-            newData.data.admin.password = siteData.data.admin.password;
-            console.log('[Save Changes] Preserving admin password from siteData:', siteData.data.admin.password);
+            newData.data.admin.password = adminPassword;
+            console.log('[Save Changes] Preserving admin password in newData.data.admin.password:', adminPassword);
         }
 
         // Defensive: Ensure empty arrays for empty lists
@@ -4169,15 +4183,20 @@ function setupPasswordChange() {
 
             if (result.success) {
                 // Store the hashed password in siteData
-                if (!siteData.data) {
-                    siteData.data = {};
+                // Check if siteData has the nested data structure or flat structure
+                if (siteData.data && siteData.data.admin) {
+                    // Nested structure: siteData.data.admin.password
+                    siteData.data.admin.password = result.hashedPassword;
+                    console.log('[Password Change] Hashed password stored in siteData.data.admin.password:', result.hashedPassword);
+                } else {
+                    // Flat structure: siteData.admin.password
+                    if (!siteData.admin) {
+                        siteData.admin = {};
+                    }
+                    siteData.admin.password = result.hashedPassword;
+                    console.log('[Password Change] Hashed password stored in siteData.admin.password:', result.hashedPassword);
                 }
-                if (!siteData.data.admin) {
-                    siteData.data.admin = {};
-                }
-                siteData.data.admin.password = result.hashedPassword;
                 
-                console.log('[Password Change] Hashed password stored in siteData:', result.hashedPassword);
                 showPasswordMessage('success', result.message);
                 
                 // Clear form
