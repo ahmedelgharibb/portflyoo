@@ -117,26 +117,67 @@ $reviewsFile = 'reviews.json';
 // Path to password file
 $passwordFile = 'password.txt';
 
-// Helper to get current password
+// Helper to get current password from JSON data
 function getCurrentPassword() {
-    global $passwordFile;
-    if (!file_exists($passwordFile)) {
-        file_put_contents($passwordFile, 'admin123');
-        return 'admin123';
+    global $dataFile;
+    
+    if (file_exists($dataFile)) {
+        $data = json_decode(file_get_contents($dataFile), true);
+        
+        // Check if this is the new structure with nested data
+        if ($data && isset($data['data']['admin']['password'])) {
+            return $data['data']['admin']['password'];
+        }
+        // Fallback to old structure if needed
+        else if ($data && isset($data['admin']['password'])) {
+            return $data['admin']['password'];
+        }
     }
-    return trim(file_get_contents($passwordFile));
+    
+    // Default password if file doesn't exist or structure is invalid
+    return 'admin123';
 }
 
-// Helper to set new password
+// Helper to set new password in JSON data
 function setNewPassword($newPassword) {
-    global $passwordFile;
-    file_put_contents($passwordFile, $newPassword);
+    global $dataFile;
+    
+    if (file_exists($dataFile)) {
+        $data = json_decode(file_get_contents($dataFile), true);
+        
+        // Update password in the new structure
+        if ($data && isset($data['data']['admin'])) {
+            $data['data']['admin']['password'] = $newPassword;
+        }
+        // Fallback to old structure if needed
+        else if ($data && isset($data['admin'])) {
+            $data['admin']['password'] = $newPassword;
+        }
+        // Create new structure if it doesn't exist
+        else {
+            $data = [
+                'id' => 1,
+                'data' => [
+                    'id' => 1,
+                    'admin' => [
+                        'password' => $newPassword
+                    ]
+                ]
+            ];
+        }
+        
+        file_put_contents($dataFile, json_encode($data, JSON_PRETTY_PRINT));
+    }
 }
 
 // Function to verify admin password
 function verifyPassword($password) {
     error_log("Verifying password: $password");
-    return $password === getCurrentPassword();
+    $storedPassword = getCurrentPassword();
+    error_log("Stored password: $storedPassword");
+    $isValid = $password === $storedPassword;
+    error_log("Password validation result: " . ($isValid ? 'valid' : 'invalid'));
+    return $isValid;
 }
 
 // Route API requests
