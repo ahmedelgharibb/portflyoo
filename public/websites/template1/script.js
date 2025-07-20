@@ -860,7 +860,7 @@ function hideAdminLogin() {
 }
 
 // Handle admin login
-function handleAdminLogin(e) {
+async function handleAdminLogin(e) {
     e.preventDefault(); // Prevent form submission
     console.log('Admin login attempt');
     
@@ -891,36 +891,48 @@ function handleAdminLogin(e) {
         return;
     }
     
-    // Direct password check for demo purposes - we do this immediately
-    // In production, this should be a secure authentication process
-    if (password === 'admin123') {
-        clearAdminAlerts();
-        console.log('Admin login successful');
+    // Call the cloud API to validate password
+    try {
+        const response = await fetch('/api/api?action=login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: password })
+        });
         
-        // Save login state consistently
-        sessionStorage.setItem('adminLoggedIn', 'true');
-        isLoggedIn = true;
+        const result = await response.json();
         
-        // Show success message
-        showAdminAlert('success', 'Login successful!', true);
-        
-        // Close login modal and open admin panel immediately
-        hideAdminLogin();
-        openAdminPanel();
-        
-        // Reset form
-        document.getElementById('adminLoginForm').reset();
-    } else {
-        console.log('Admin login failed: Invalid password');
-        
-        // Show error message
-        showAdminAlert('error', 'Invalid password. Please try again.', true);
-        
-        // Reset button
-        if (loginBtn) {
-            loginBtn.disabled = false;
-            loginBtn.innerHTML = 'Login';
+        if (result.success) {
+            clearAdminAlerts();
+            console.log('Admin login successful');
+            
+            // Save login state consistently
+            sessionStorage.setItem('adminLoggedIn', 'true');
+            isLoggedIn = true;
+            
+            // Show success message
+            showAdminAlert('success', 'Login successful!', true);
+            
+            // Close login modal and open admin panel immediately
+            hideAdminLogin();
+            openAdminPanel();
+            
+            // Reset form
+            document.getElementById('adminLoginForm').reset();
+        } else {
+            console.log('Admin login failed:', result.message);
+            
+            // Show error message
+            showAdminAlert('error', result.message || 'Invalid password. Please try again.', true);
         }
+    } catch (error) {
+        console.error('Login API error:', error);
+        showAdminAlert('error', 'Connection error. Please try again.', true);
+    }
+    
+    // Reset button
+    if (loginBtn) {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = 'Login';
     }
 }
 

@@ -42,6 +42,43 @@ export default async function handler(req, res) {
   const { action } = req.query;
 
   switch (action) {
+    case 'login': {
+      const { password } = req.body;
+      if (!password) {
+        return res.status(400).json({ success: false, message: 'Password is required' });
+      }
+      
+      try {
+        // Get the admin password from the database
+        const { data, error } = await supabase
+          .from('teachers_websites')
+          .select('data')
+          .limit(1)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('[API:login] Supabase error:', error.message);
+          return res.status(500).json({ success: false, message: 'Database error' });
+        }
+        
+        // Check if admin password exists in the data
+        let storedPassword = 'admin1234'; // Default fallback
+        if (data && data.data && data.data.admin && data.data.admin.password) {
+          storedPassword = data.data.admin.password;
+        }
+        
+        const isValid = password === storedPassword;
+        console.log('[API:login] Password validation:', { provided: password, stored: storedPassword, valid: isValid });
+        
+        return res.status(200).json({
+          success: isValid,
+          message: isValid ? 'Login successful' : 'Invalid password'
+        });
+      } catch (err) {
+        console.error('[API:login] Unexpected error:', err);
+        return res.status(500).json({ success: false, message: 'Server error' });
+      }
+    }
     case 'getData': {
       const { data, error } = await supabase
         .from('teachers_websites')
