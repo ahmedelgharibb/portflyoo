@@ -62,12 +62,15 @@ export default async function handler(req, res) {
         }
         
         // Check if admin password exists in the data
-        let storedPassword = 'admin1234'; // Default fallback
-        if (data && data.data && data.data.admin && data.data.admin.password) {
-          storedPassword = data.data.admin.password;
+        if (!data || !data.data || !data.data.admin || !data.data.admin.password) {
+          console.error('[API:login] No password found in database');
+          return res.status(500).json({ success: false, message: 'No password configured in database' });
         }
         
+        const storedPassword = data.data.admin.password;
+        
         const isValid = password === storedPassword;
+        console.log('[API:login] Database data:', data);
         console.log('[API:login] Password validation:', { provided: password, stored: storedPassword, valid: isValid });
         
         return res.status(200).json({
