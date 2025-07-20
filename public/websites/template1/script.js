@@ -1180,6 +1180,9 @@ async function openAdminPanel() {
         showAdminImagePreview('hero', adminData.heroImage);
         showAdminImagePreview('about', adminData.aboutImage);
         console.log('Admin data loaded for results:', adminData.results);
+        
+        // Setup password change functionality
+        setupPasswordChange();
     } catch (error) {
         console.error('Error opening admin panel:', error);
         showAdminAlert('error', 'Failed to load admin panel: ' + error.message);
@@ -4082,3 +4085,113 @@ function showBackupList() {
 }
 
 // Migration UI removed from frontend - functions still available in console
+
+// Password Change Functionality
+function setupPasswordChange() {
+    const changePasswordBtn = document.getElementById('changePasswordBtn');
+    const showPasswordBtn = document.getElementById('showPasswordBtn');
+    const currentPasswordInput = document.getElementById('currentPassword');
+    const newPasswordInput = document.getElementById('newPassword');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const passwordMessage = document.getElementById('passwordMessage');
+
+    if (!changePasswordBtn || !showPasswordBtn) {
+        console.warn('Password change elements not found');
+        return;
+    }
+
+    // Show/Hide password functionality
+    showPasswordBtn.addEventListener('click', function() {
+        const inputs = [currentPasswordInput, newPasswordInput, confirmPasswordInput];
+        const isVisible = inputs[0].type === 'text';
+        
+        inputs.forEach(input => {
+            input.type = isVisible ? 'password' : 'text';
+        });
+        
+        showPasswordBtn.innerHTML = isVisible ? 
+            '<i class="fas fa-eye mr-2"></i> Show/Hide' : 
+            '<i class="fas fa-eye-slash mr-2"></i> Show/Hide';
+    });
+
+    // Change password functionality
+    changePasswordBtn.addEventListener('click', async function() {
+        const currentPassword = currentPasswordInput.value.trim();
+        const newPassword = newPasswordInput.value.trim();
+        const confirmPassword = confirmPasswordInput.value.trim();
+
+        // Clear previous messages
+        passwordMessage.className = 'hidden';
+        passwordMessage.textContent = '';
+
+        // Validation
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            showPasswordMessage('error', 'All fields are required');
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            showPasswordMessage('error', 'New password must be at least 8 characters long');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            showPasswordMessage('error', 'New passwords do not match');
+            return;
+        }
+
+        if (newPassword === currentPassword) {
+            showPasswordMessage('error', 'New password must be different from current password');
+            return;
+        }
+
+        // Show loading state
+        changePasswordBtn.disabled = true;
+        changePasswordBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Changing Password...';
+
+        try {
+            const response = await fetch('/api/api?action=changePassword', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showPasswordMessage('success', 'Password changed successfully!');
+                // Clear form
+                currentPasswordInput.value = '';
+                newPasswordInput.value = '';
+                confirmPasswordInput.value = '';
+            } else {
+                showPasswordMessage('error', result.message || 'Failed to change password');
+            }
+        } catch (error) {
+            console.error('Password change error:', error);
+            showPasswordMessage('error', 'Network error. Please try again.');
+        } finally {
+            // Reset button state
+            changePasswordBtn.disabled = false;
+            changePasswordBtn.innerHTML = '<i class="fas fa-key mr-2"></i> Change Password';
+        }
+    });
+
+    function showPasswordMessage(type, message) {
+        passwordMessage.className = `p-3 rounded-md text-sm ${type === 'success' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}`;
+        passwordMessage.textContent = message;
+        passwordMessage.classList.remove('hidden');
+        
+        // Auto-hide success messages after 5 seconds
+        if (type === 'success') {
+            setTimeout(() => {
+                passwordMessage.classList.add('hidden');
+            }, 5000);
+        }
+    }
+}
