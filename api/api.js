@@ -49,55 +49,49 @@ export default async function handler(req, res) {
       }
       
       try {
-        // Get the admin password from the database
-        let { data, error } = await supabase
+        console.log('[API:login] Starting login process for password:', password);
+        console.log('[API:login] Supabase URL:', process.env.SUPABASE_URL ? 'Set' : 'Not set');
+        console.log('[API:login] Supabase Key:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Not set');
+        
+        // First, try to get data using getData logic
+        const { data: getDataResult, error: getDataError } = await supabase
           .from('teachers_websites')
           .select('*')
           .limit(1)
           .maybeSingle();
         
-        // If no data found, try a different approach
-        if (!data) {
-          console.log('[API:login] No data found with select(*), trying select(data)');
-          const result = await supabase
-            .from('teachers_websites')
-            .select('data')
-            .limit(1)
-            .maybeSingle();
-          data = result.data;
-          error = result.error;
+        console.log('[API:login] getData query result:', { data: getDataResult, error: getDataError });
+        
+        if (getDataError) {
+          console.error('[API:login] getData query error:', getDataError);
+          return res.status(500).json({ success: false, message: 'Database connection error' });
         }
         
-        console.log('[API:login] Raw database response:', { data, error });
-        
-        if (error) {
-          console.error('[API:login] Supabase error:', error.message);
-          return res.status(500).json({ success: false, message: 'Database error' });
+        if (!getDataResult) {
+          console.error('[API:login] No data found in teachers_websites table');
+          return res.status(500).json({ success: false, message: 'No website data found in database' });
         }
         
-        if (!data) {
-          console.error('[API:login] No data returned from database');
-          return res.status(500).json({ success: false, message: 'No data found in database' });
-        }
+        // Extract admin password from the data structure
+        let adminPassword = null;
         
-        console.log('[API:login] Data structure check:', {
-          hasData: !!data,
-          hasDataData: !!(data && data.data),
-          hasAdmin: !!(data && data.data && data.data.admin),
-          hasPassword: !!(data && data.data && data.data.admin && data.data.admin.password)
-        });
-        
-        // Check if admin password exists in the data
-        if (!data.data || !data.data.admin || !data.data.admin.password) {
-          console.error('[API:login] No password found in database structure');
+        // Try different possible data structures
+        if (getDataResult.data && getDataResult.data.admin && getDataResult.data.admin.password) {
+          adminPassword = getDataResult.data.admin.password;
+          console.log('[API:login] Found password in data.admin.password');
+        } else if (getDataResult.admin && getDataResult.admin.password) {
+          adminPassword = getDataResult.admin.password;
+          console.log('[API:login] Found password in admin.password');
+        } else {
+          console.error('[API:login] No admin password found in data structure');
+          console.log('[API:login] Available data structure:', JSON.stringify(getDataResult, null, 2));
           return res.status(500).json({ success: false, message: 'No password configured in database' });
         }
         
-        const storedPassword = data.data.admin.password;
+        console.log('[API:login] Stored password:', adminPassword);
         
-        const isValid = password === storedPassword;
-        console.log('[API:login] Database data:', data);
-        console.log('[API:login] Password validation:', { provided: password, stored: storedPassword, valid: isValid });
+        const isValid = password === adminPassword;
+        console.log('[API:login] Password validation:', { provided: password, stored: adminPassword, valid: isValid });
         
         return res.status(200).json({
           success: isValid,
@@ -105,7 +99,7 @@ export default async function handler(req, res) {
         });
       } catch (err) {
         console.error('[API:login] Unexpected error:', err);
-        return res.status(500).json({ success: false, message: 'Server error' });
+        return res.status(500).json({ success: false, message: 'Server error: ' + err.message });
       }
     }
     case 'getData': {
