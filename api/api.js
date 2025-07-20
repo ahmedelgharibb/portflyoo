@@ -1,6 +1,7 @@
 // Vercel Serverless Function: API replacement for api.php
 // WARNING: File writes are not persistent on Vercel. Use a database for production.
 import { createClient } from '@supabase/supabase-js';
+import bcrypt from 'bcryptjs';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -119,7 +120,6 @@ export default async function handler(req, res) {
         console.log('[API:login] Stored password:', adminPassword);
         
         // Hash the provided password and compare with stored hash
-        const bcrypt = require('bcryptjs');
         const isValid = await bcrypt.compare(password, adminPassword);
         console.log('[API:login] Password validation:', { provided: password, stored: adminPassword, valid: isValid });
         
@@ -159,7 +159,6 @@ export default async function handler(req, res) {
         }
         
         const currentStoredPassword = getDataResult.data.data.admin.password;
-        const bcrypt = require('bcryptjs');
         
         // Verify current password
         const isCurrentValid = await bcrypt.compare(currentPassword, currentStoredPassword);
@@ -270,7 +269,6 @@ export default async function handler(req, res) {
       // Hash password if it's being updated
       let dataToSave = req.body.data;
       if (dataToSave.data && dataToSave.data.admin && dataToSave.data.admin.password) {
-        const bcrypt = require('bcryptjs');
         const saltRounds = 12;
         const hashedPassword = await bcrypt.hash(dataToSave.data.admin.password, saltRounds);
         dataToSave.data.admin.password = hashedPassword;

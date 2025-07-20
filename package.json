@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.49.8",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "bcryptjs": "^2.4.3"
   }
 }
