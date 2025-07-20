@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 3px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>🔐 Cloud API Login Test</h1>
+    
+    <div class="test-section">
+        <h3>Test 1: Manual Password Test</h3>
+        <input type="password" id="testPassword" placeholder="Enter password to test">
+        <button onclick="testManualLogin()">Test Login</button>
+        <div id="manualResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 2: Quick Tests</h3>
+        <button onclick="testCorrectPassword()">Test admin12345</button>
+        <button onclick="testWrongPassword()">Test Wrong Password</button>
+        <button onclick="testEmptyPassword()">Test Empty Password</button>
+        <div id="quickResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 3: Database Data Check</h3>
+        <button onclick="checkDatabaseData()">Check Database Data</button>
+        <div id="databaseResult"></div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        async function testManualLogin() {
+            const password = document.getElementById('testPassword').value;
+            if (!password) {
+                showResult('manualResult', 'Please enter a password', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/api?action=login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: password })
+                });
+                
+                const result = await response.json();
+                const message = `
+                    <strong>Status:</strong> ${response.status}<br>
+                    <strong>Response:</strong> ${JSON.stringify(result, null, 2)}<br>
+                    <strong>Success:</strong> ${result.success ? '✅ YES' : '❌ NO'}
+                `;
+                showResult('manualResult', message, result.success ? 'success' : 'error');
+            } catch (error) {
+                showResult('manualResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCorrectPassword() {
+            try {
+                const response = await fetch('/api/api?action=login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: 'admin12345' })
+                });
+                
+                const result = await response.json();
+                const message = `Testing admin12345: ${result.success ? '✅ SUCCESS' : '❌ FAILED'} - ${result.message}`;
+                showResult('quickResult', message, result.success ? 'success' : 'error');
+            } catch (error) {
+                showResult('quickResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWrongPassword() {
+            try {
+                const response = await fetch('/api/api?action=login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: 'wrongpassword' })
+                });
+                
+                const result = await response.json();
+                const message = `Testing wrong password: ${result.success ? '❌ SHOULD FAIL' : '✅ CORRECTLY FAILED'} - ${result.message}`;
+                showResult('quickResult', message, result.success ? 'error' : 'success');
+            } catch (error) {
+                showResult('quickResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testEmptyPassword() {
+            try {
+                const response = await fetch('/api/api?action=login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: '' })
+                });
+                
+                const result = await response.json();
+                const message = `Testing empty password: ${result.success ? '❌ SHOULD FAIL' : '✅ CORRECTLY FAILED'} - ${result.message}`;
+                showResult('quickResult', message, result.success ? 'error' : 'success');
+            } catch (error) {
+                showResult('quickResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkDatabaseData() {
+            try {
+                const response = await fetch('/api/api?action=getData');
+                const result = await response.json();
+                
+                let message = `<strong>Database Data:</strong><br>`;
+                message += `<pre>${JSON.stringify(result, null, 2)}</pre><br>`;
+                
+                if (result.admin && result.admin.password) {
+                    message += `✅ Admin password found: ${result.admin.password}`;
+                } else {
+                    message += `❌ No admin password found in response`;
+                }
+                
+                showResult('databaseResult', message, 'info');
+            } catch (error) {
+                showResult('databaseResult', `Error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html> 

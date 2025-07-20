@@ -53,17 +53,17 @@ export default async function handler(req, res) {
         console.log('[API:login] Supabase URL:', process.env.SUPABASE_URL ? 'Set' : 'Not set');
         console.log('[API:login] Supabase Key:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Not set');
         
-        // First, try to get data using getData logic
+        // Get the raw database structure (not flattened like getData)
         const { data: getDataResult, error: getDataError } = await supabase
           .from('teachers_websites')
-          .select('*')
+          .select('data')
           .limit(1)
           .maybeSingle();
         
-        console.log('[API:login] getData query result:', { data: getDataResult, error: getDataError });
+        console.log('[API:login] Raw database query result:', { data: getDataResult, error: getDataError });
         
         if (getDataError) {
-          console.error('[API:login] getData query error:', getDataError);
+          console.error('[API:login] Database query error:', getDataError);
           return res.status(500).json({ success: false, message: 'Database connection error' });
         }
         
@@ -72,19 +72,21 @@ export default async function handler(req, res) {
           return res.status(500).json({ success: false, message: 'No website data found in database' });
         }
         
-        // Extract admin password from the data structure
+        // Extract admin password from the raw data structure
         let adminPassword = null;
         
-        // Try different possible data structures
+        console.log('[API:login] Raw data structure received:', JSON.stringify(getDataResult, null, 2));
+        
+        // The raw data should have the structure: { data: { admin: { password: "..." } } }
         if (getDataResult.data && getDataResult.data.admin && getDataResult.data.admin.password) {
           adminPassword = getDataResult.data.admin.password;
-          console.log('[API:login] Found password in data.admin.password');
-        } else if (getDataResult.admin && getDataResult.admin.password) {
-          adminPassword = getDataResult.admin.password;
-          console.log('[API:login] Found password in admin.password');
+          console.log('[API:login] Found password in data.admin.password:', adminPassword);
         } else {
-          console.error('[API:login] No admin password found in data structure');
-          console.log('[API:login] Available data structure:', JSON.stringify(getDataResult, null, 2));
+          console.error('[API:login] No admin password found in expected location');
+          console.log('[API:login] Available keys:', Object.keys(getDataResult));
+          if (getDataResult.data) {
+            console.log('[API:login] Data keys:', Object.keys(getDataResult.data));
+          }
           return res.status(500).json({ success: false, message: 'No password configured in database' });
         }
         
