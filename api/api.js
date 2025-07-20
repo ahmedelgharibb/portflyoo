@@ -17,6 +17,29 @@ export default async function handler(req, res) {
   res.setHeader('Expect-CT', 'max-age=86400, enforce');
   res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
   res.setHeader('X-XSS-Protection', '1; mode=block');
+  
+  // Rate limiting for login attempts
+  const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const rateLimitKey = `login_attempts_${clientIP}`;
+  
+  // Simple in-memory rate limiting (in production, use Redis or similar)
+  if (!global.rateLimitStore) {
+    global.rateLimitStore = new Map();
+  }
+  
+  const now = Date.now();
+  const windowMs = 15 * 60 * 1000; // 15 minutes
+  const maxAttempts = 5;
+  
+  const attempts = global.rateLimitStore.get(rateLimitKey) || [];
+  const recentAttempts = attempts.filter(time => now - time < windowMs);
+  
+  if (recentAttempts.length >= maxAttempts) {
+    return res.status(429).json({ 
+      success: false, 
+      message: 'Too many login attempts. Please try again in 15 minutes.' 
+    });
+  }
 
   // Parse JSON body if needed (Vercel does not do this automatically)
   if (req.method === 'POST' && !req.body) {
@@ -95,8 +118,18 @@ export default async function handler(req, res) {
         
         console.log('[API:login] Stored password:', adminPassword);
         
-        const isValid = password === adminPassword;
+        // Hash the provided password and compare with stored hash
+        const bcrypt = require('bcryptjs');
+        const isValid = await bcrypt.compare(password, adminPassword);
         console.log('[API:login] Password validation:', { provided: password, stored: adminPassword, valid: isValid });
+        
+        // Track login attempts for rate limiting
+        recentAttempts.push(now);
+        global.rateLimitStore.set(rateLimitKey, recentAttempts);
+        
+        if (!isValid) {
+          console.log(`[API:login] Failed login attempt from IP: ${clientIP}`);
+        }
         
         return res.status(200).json({
           success: isValid,
@@ -105,6 +138,58 @@ export default async function handler(req, res) {
       } catch (err) {
         console.error('[API:login] Unexpected error:', err);
         return res.status(500).json({ success: false, message: 'Server error: ' + err.message });
+      }
+    }
+    case 'changePassword': {
+      const { currentPassword, newPassword } = req.body;
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ success: false, message: 'Current and new password are required' });
+      }
+      
+      try {
+        // First verify current password
+        const { data: getDataResult, error: getDataError } = await supabase
+          .from('teachers_websites')
+          .select('data')
+          .limit(1)
+          .maybeSingle();
+        
+        if (getDataError || !getDataResult) {
+          return res.status(500).json({ success: false, message: 'Database error' });
+        }
+        
+        const currentStoredPassword = getDataResult.data.data.admin.password;
+        const bcrypt = require('bcryptjs');
+        
+        // Verify current password
+        const isCurrentValid = await bcrypt.compare(currentPassword, currentStoredPassword);
+        if (!isCurrentValid) {
+          return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+        }
+        
+        // Hash new password
+        const saltRounds = 12;
+        const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+        
+        // Update password in database
+        const updatedData = { ...getDataResult.data };
+        updatedData.data.admin.password = hashedNewPassword;
+        
+        const { error: updateError } = await supabase
+          .from('teachers_websites')
+          .update({ data: updatedData })
+          .eq('id', getDataResult.id);
+        
+        if (updateError) {
+          console.error('[API:changePassword] Update error:', updateError);
+          return res.status(500).json({ success: false, message: 'Failed to update password' });
+        }
+        
+        console.log('[API:changePassword] Password updated successfully');
+        return res.status(200).json({ success: true, message: 'Password updated successfully' });
+      } catch (err) {
+        console.error('[API:changePassword] Unexpected error:', err);
+        return res.status(500).json({ success: false, message: 'Server error' });
       }
     }
     case 'getData': {
@@ -181,16 +266,27 @@ export default async function handler(req, res) {
     case 'saveData': {
       // Log incoming data for debugging
       console.log('[API:saveData] Incoming data:', JSON.stringify(req.body.data, null, 2));
+      
+      // Hash password if it's being updated
+      let dataToSave = req.body.data;
+      if (dataToSave.data && dataToSave.data.admin && dataToSave.data.admin.password) {
+        const bcrypt = require('bcryptjs');
+        const saltRounds = 12;
+        const hashedPassword = await bcrypt.hash(dataToSave.data.admin.password, saltRounds);
+        dataToSave.data.admin.password = hashedPassword;
+        console.log('[API:saveData] Password hashed before saving');
+      }
+      
       // Save the entire site data object in the 'data' column
       const { data, error } = await supabase
         .from('teachers_websites')
-        .upsert([{ id: req.body.data.id, data: req.body.data }]);
+        .upsert([{ id: req.body.data.id, data: dataToSave }]);
       if (error) {
         // Log full error object for debugging
         console.error('[API:saveData] Supabase error:', error.message, error.details, error.hint);
         return res.status(500).json({ error: error.message, details: error.details, hint: error.hint });
       }
-      console.log('[API:saveData] Success. Data saved:', req.body.data);
+      console.log('[API:saveData] Success. Data saved:', dataToSave);
       res.status(200).json({ success: true, message: 'Data saved successfully' });
       break;
     }
