@@ -1984,6 +1984,18 @@ async function saveAdminChanges() {
             }
         };
 
+        // Preserve admin password from siteData if it exists
+        if (siteData && siteData.data && siteData.data.admin && siteData.data.admin.password) {
+            if (!newData.data) {
+                newData.data = {};
+            }
+            if (!newData.data.admin) {
+                newData.data.admin = {};
+            }
+            newData.data.admin.password = siteData.data.admin.password;
+            console.log('[Save Changes] Preserving admin password from siteData:', siteData.data.admin.password);
+        }
+
         // Defensive: Ensure empty arrays for empty lists
         if (!qualifications.length) newData.personal.qualifications = [];
         if (!schools.length) newData.experience.schools = [];
