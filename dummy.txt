@@ -1,1 +1,1 @@
-# Dummy commit
+This is a dummy file for testing purposes.
