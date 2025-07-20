@@ -50,20 +50,46 @@ export default async function handler(req, res) {
       
       try {
         // Get the admin password from the database
-        const { data, error } = await supabase
+        let { data, error } = await supabase
           .from('teachers_websites')
-          .select('data')
+          .select('*')
           .limit(1)
           .maybeSingle();
+        
+        // If no data found, try a different approach
+        if (!data) {
+          console.log('[API:login] No data found with select(*), trying select(data)');
+          const result = await supabase
+            .from('teachers_websites')
+            .select('data')
+            .limit(1)
+            .maybeSingle();
+          data = result.data;
+          error = result.error;
+        }
+        
+        console.log('[API:login] Raw database response:', { data, error });
         
         if (error) {
           console.error('[API:login] Supabase error:', error.message);
           return res.status(500).json({ success: false, message: 'Database error' });
         }
         
+        if (!data) {
+          console.error('[API:login] No data returned from database');
+          return res.status(500).json({ success: false, message: 'No data found in database' });
+        }
+        
+        console.log('[API:login] Data structure check:', {
+          hasData: !!data,
+          hasDataData: !!(data && data.data),
+          hasAdmin: !!(data && data.data && data.data.admin),
+          hasPassword: !!(data && data.data && data.data.admin && data.data.admin.password)
+        });
+        
         // Check if admin password exists in the data
-        if (!data || !data.data || !data.data.admin || !data.data.admin.password) {
-          console.error('[API:login] No password found in database');
+        if (!data.data || !data.data.admin || !data.data.admin.password) {
+          console.error('[API:login] No password found in database structure');
           return res.status(500).json({ success: false, message: 'No password configured in database' });
         }
         
