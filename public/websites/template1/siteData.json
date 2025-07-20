@@ -3,7 +3,7 @@
   "data": {
     "id": 1,
     "admin": {
-      "password": "admin123"
+      "password": "admin1234"
     },
     "theme": {
       "mode": "light",

@@ -111,7 +111,7 @@ if ($method === 'POST') {
 }
 
 // Define the data file path
-$dataFile = 'siteData.json';
+$dataFile = 'public/websites/template1/siteData.json';
 // Path to reviews file
 $reviewsFile = 'reviews.json';
 // Path to password file
