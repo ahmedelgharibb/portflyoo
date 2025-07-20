@@ -147,6 +147,8 @@ export default async function handler(req, res) {
       }
       
       try {
+        console.log('[API:changePassword] Starting password change process');
+        
         // First verify current password
         const { data: getDataResult, error: getDataError } = await supabase
           .from('teachers_websites')
@@ -154,8 +156,26 @@ export default async function handler(req, res) {
           .limit(1)
           .maybeSingle();
         
+        console.log('[API:changePassword] Database query result:', { data: getDataResult, error: getDataError });
+        
         if (getDataError || !getDataResult) {
+          console.error('[API:changePassword] Database error or no data:', getDataError);
           return res.status(500).json({ success: false, message: 'Database error' });
+        }
+        
+        console.log('[API:changePassword] Raw data structure:', JSON.stringify(getDataResult, null, 2));
+        
+        // Check if admin password exists in the expected location
+        if (!getDataResult.data || !getDataResult.data.data || !getDataResult.data.data.admin || !getDataResult.data.data.admin.password) {
+          console.error('[API:changePassword] No admin password found in expected location');
+          console.log('[API:changePassword] Available keys:', Object.keys(getDataResult));
+          if (getDataResult.data) {
+            console.log('[API:changePassword] Data keys:', Object.keys(getDataResult.data));
+            if (getDataResult.data.data) {
+              console.log('[API:changePassword] Data.data keys:', Object.keys(getDataResult.data.data));
+            }
+          }
+          return res.status(500).json({ success: false, message: 'No password configured in database' });
         }
         
         const currentStoredPassword = getDataResult.data.data.admin.password;
@@ -173,6 +193,9 @@ export default async function handler(req, res) {
         // Update password in database
         const updatedData = { ...getDataResult.data };
         updatedData.data.admin.password = hashedNewPassword;
+        
+        console.log('[API:changePassword] Updating password in database with ID:', getDataResult.id);
+        console.log('[API:changePassword] Updated data structure:', JSON.stringify(updatedData, null, 2));
         
         const { error: updateError } = await supabase
           .from('teachers_websites')
