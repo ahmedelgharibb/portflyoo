@@ -77,15 +77,18 @@ export default async function handler(req, res) {
         
         console.log('[API:login] Raw data structure received:', JSON.stringify(getDataResult, null, 2));
         
-        // The raw data should have the structure: { data: { admin: { password: "..." } } }
-        if (getDataResult.data && getDataResult.data.admin && getDataResult.data.admin.password) {
-          adminPassword = getDataResult.data.admin.password;
-          console.log('[API:login] Found password in data.admin.password:', adminPassword);
+        // The raw data should have the structure: { data: { data: { admin: { password: "..." } } } }
+        if (getDataResult.data && getDataResult.data.data && getDataResult.data.data.admin && getDataResult.data.data.admin.password) {
+          adminPassword = getDataResult.data.data.admin.password;
+          console.log('[API:login] Found password in data.data.admin.password:', adminPassword);
         } else {
           console.error('[API:login] No admin password found in expected location');
           console.log('[API:login] Available keys:', Object.keys(getDataResult));
           if (getDataResult.data) {
             console.log('[API:login] Data keys:', Object.keys(getDataResult.data));
+            if (getDataResult.data.data) {
+              console.log('[API:login] Data.data keys:', Object.keys(getDataResult.data.data));
+            }
           }
           return res.status(500).json({ success: false, message: 'No password configured in database' });
         }
