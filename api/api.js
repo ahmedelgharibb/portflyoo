@@ -149,50 +149,18 @@ export default async function handler(req, res) {
       try {
         console.log('[API:changePassword] Starting password change process');
         
-        // Get current data from database
-        const { data: getDataResult, error: getDataError } = await supabase
-          .from('teachers_websites')
-          .select('data')
-          .limit(1)
-          .maybeSingle();
-        
-        console.log('[API:changePassword] Database query result:', { data: getDataResult, error: getDataError });
-        
-        if (getDataError || !getDataResult) {
-          console.error('[API:changePassword] Database error or no data:', getDataError);
-          return res.status(500).json({ success: false, message: 'Database error' });
-        }
-        
-        console.log('[API:changePassword] Raw data structure:', JSON.stringify(getDataResult, null, 2));
-        
-        // Check if admin section exists, create if it doesn't
-        if (!getDataResult.data.data.admin) {
-          getDataResult.data.data.admin = {};
-        }
-        
-        // Hash new password
+        // Hash the new password
         const saltRounds = 12;
         const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
         
-        // Update password in database
-        const updatedData = { ...getDataResult.data };
-        updatedData.data.admin.password = hashedNewPassword;
+        console.log('[API:changePassword] Password hashed successfully');
         
-        console.log('[API:changePassword] Updating password in database with ID:', getDataResult.id);
-        console.log('[API:changePassword] Updated data structure:', JSON.stringify(updatedData, null, 2));
-        
-        const { error: updateError } = await supabase
-          .from('teachers_websites')
-          .update({ data: updatedData })
-          .eq('id', getDataResult.id);
-        
-        if (updateError) {
-          console.error('[API:changePassword] Update error:', updateError);
-          return res.status(500).json({ success: false, message: 'Failed to update password' });
-        }
-        
-        console.log('[API:changePassword] Password updated successfully');
-        return res.status(200).json({ success: true, message: 'Password updated successfully' });
+        // Return the hashed password to be stored in frontend data
+        return res.status(200).json({ 
+          success: true, 
+          message: 'Password hashed successfully. Click "Save Changes" to update the database.',
+          hashedPassword: hashedNewPassword
+        });
       } catch (err) {
         console.error('[API:changePassword] Unexpected error:', err);
         return res.status(500).json({ success: false, message: 'Server error' });
@@ -273,13 +241,10 @@ export default async function handler(req, res) {
       // Log incoming data for debugging
       console.log('[API:saveData] Incoming data:', JSON.stringify(req.body.data, null, 2));
       
-      // Hash password if it's being updated
+      // Password should already be hashed from changePassword API
       let dataToSave = req.body.data;
       if (dataToSave.data && dataToSave.data.admin && dataToSave.data.admin.password) {
-        const saltRounds = 12;
-        const hashedPassword = await bcrypt.hash(dataToSave.data.admin.password, saltRounds);
-        dataToSave.data.admin.password = hashedPassword;
-        console.log('[API:saveData] Password hashed before saving');
+        console.log('[API:saveData] Password already hashed, saving as is');
       }
       
       // Save the entire site data object in the 'data' column

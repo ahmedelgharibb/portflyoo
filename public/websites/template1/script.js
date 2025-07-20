@@ -4156,7 +4156,18 @@ function setupPasswordChange() {
             const result = await response.json();
 
             if (result.success) {
-                showPasswordMessage('success', 'Password changed successfully!');
+                // Store the hashed password in siteData
+                if (!siteData.data) {
+                    siteData.data = {};
+                }
+                if (!siteData.data.admin) {
+                    siteData.data.admin = {};
+                }
+                siteData.data.admin.password = result.hashedPassword;
+                
+                console.log('[Password Change] Hashed password stored in siteData:', result.hashedPassword);
+                showPasswordMessage('success', result.message);
+                
                 // Clear form
                 newPasswordInput.value = '';
                 confirmPasswordInput.value = '';
