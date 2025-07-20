@@ -1949,10 +1949,19 @@ async function saveAdminChanges() {
             schools: schoolsTaughtInput ? parseInt(schoolsTaughtInput.value) || 0 : (currentData?.data?.teacherExperience?.schools || 0)
         };
 
-        // Start with current data to preserve all existing values
+        // Start with current data to preserve all existing values, but exclude admin to avoid duplicates
+        const currentDataWithoutAdmin = { ...(currentData?.data || {}) };
+        // Remove any existing admin section to prevent duplicates
+        if (currentDataWithoutAdmin.admin) {
+            delete currentDataWithoutAdmin.admin;
+        }
+        if (currentDataWithoutAdmin.data && currentDataWithoutAdmin.data.admin) {
+            delete currentDataWithoutAdmin.data.admin;
+        }
+        
         const newData = {
             id: currentSiteId,
-            ...(currentData?.data || {}),
+            ...currentDataWithoutAdmin,
             heroImage: (websiteData.heroImage || currentData?.data?.heroImage),
             aboutImage: (websiteData.aboutImage || currentData?.data?.aboutImage),
             personal: {
@@ -2008,6 +2017,12 @@ async function saveAdminChanges() {
             }
             newData.data.admin.password = adminPassword;
             console.log('[Save Changes] Preserving admin password in newData.data.admin.password:', adminPassword);
+        }
+        
+        // Clean up: Remove any old admin passwords from the root level to prevent duplicates
+        if (newData.admin) {
+            console.log('[Save Changes] Removing old admin section from root level to prevent duplicates');
+            delete newData.admin;
         }
 
         // Defensive: Ensure empty arrays for empty lists
