@@ -4090,7 +4090,6 @@ function showBackupList() {
 function setupPasswordChange() {
     const changePasswordBtn = document.getElementById('changePasswordBtn');
     const showPasswordBtn = document.getElementById('showPasswordBtn');
-    const currentPasswordInput = document.getElementById('currentPassword');
     const newPasswordInput = document.getElementById('newPassword');
     const confirmPasswordInput = document.getElementById('confirmPassword');
     const passwordMessage = document.getElementById('passwordMessage');
@@ -4102,7 +4101,7 @@ function setupPasswordChange() {
 
     // Show/Hide password functionality
     showPasswordBtn.addEventListener('click', function() {
-        const inputs = [currentPasswordInput, newPasswordInput, confirmPasswordInput];
+        const inputs = [newPasswordInput, confirmPasswordInput];
         const isVisible = inputs[0].type === 'text';
         
         inputs.forEach(input => {
@@ -4116,7 +4115,6 @@ function setupPasswordChange() {
 
     // Change password functionality
     changePasswordBtn.addEventListener('click', async function() {
-        const currentPassword = currentPasswordInput.value.trim();
         const newPassword = newPasswordInput.value.trim();
         const confirmPassword = confirmPasswordInput.value.trim();
 
@@ -4125,7 +4123,7 @@ function setupPasswordChange() {
         passwordMessage.textContent = '';
 
         // Validation
-        if (!currentPassword || !newPassword || !confirmPassword) {
+        if (!newPassword || !confirmPassword) {
             showPasswordMessage('error', 'All fields are required');
             return;
         }
@@ -4140,11 +4138,6 @@ function setupPasswordChange() {
             return;
         }
 
-        if (newPassword === currentPassword) {
-            showPasswordMessage('error', 'New password must be different from current password');
-            return;
-        }
-
         // Show loading state
         changePasswordBtn.disabled = true;
         changePasswordBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Changing Password...';
@@ -4156,7 +4149,6 @@ function setupPasswordChange() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    currentPassword: currentPassword,
                     newPassword: newPassword
                 })
             });
@@ -4166,7 +4158,6 @@ function setupPasswordChange() {
             if (result.success) {
                 showPasswordMessage('success', 'Password changed successfully!');
                 // Clear form
-                currentPasswordInput.value = '';
                 newPasswordInput.value = '';
                 confirmPasswordInput.value = '';
             } else {

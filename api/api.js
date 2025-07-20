@@ -141,15 +141,15 @@ export default async function handler(req, res) {
       }
     }
     case 'changePassword': {
-      const { currentPassword, newPassword } = req.body;
-      if (!currentPassword || !newPassword) {
-        return res.status(400).json({ success: false, message: 'Current and new password are required' });
+      const { newPassword } = req.body;
+      if (!newPassword) {
+        return res.status(400).json({ success: false, message: 'New password is required' });
       }
       
       try {
         console.log('[API:changePassword] Starting password change process');
         
-        // First verify current password
+        // Get current data from database
         const { data: getDataResult, error: getDataError } = await supabase
           .from('teachers_websites')
           .select('data')
@@ -165,25 +165,9 @@ export default async function handler(req, res) {
         
         console.log('[API:changePassword] Raw data structure:', JSON.stringify(getDataResult, null, 2));
         
-        // Check if admin password exists in the expected location
-        if (!getDataResult.data || !getDataResult.data.data || !getDataResult.data.data.admin || !getDataResult.data.data.admin.password) {
-          console.error('[API:changePassword] No admin password found in expected location');
-          console.log('[API:changePassword] Available keys:', Object.keys(getDataResult));
-          if (getDataResult.data) {
-            console.log('[API:changePassword] Data keys:', Object.keys(getDataResult.data));
-            if (getDataResult.data.data) {
-              console.log('[API:changePassword] Data.data keys:', Object.keys(getDataResult.data.data));
-            }
-          }
-          return res.status(500).json({ success: false, message: 'No password configured in database' });
-        }
-        
-        const currentStoredPassword = getDataResult.data.data.admin.password;
-        
-        // Verify current password
-        const isCurrentValid = await bcrypt.compare(currentPassword, currentStoredPassword);
-        if (!isCurrentValid) {
-          return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+        // Check if admin section exists, create if it doesn't
+        if (!getDataResult.data.data.admin) {
+          getDataResult.data.data.admin = {};
         }
         
         // Hash new password
