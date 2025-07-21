@@ -1958,11 +1958,20 @@ async function saveAdminChanges() {
             delete currentDataWithoutAdmin.data.admin;
         }
         
+        // Get the updated password from siteData (set during password change)
+        const updatedPassword = siteData?.data?.admin?.password || currentData?.data?.admin?.password || '';
+        
+        console.log('[Save Changes] Password debug:', {
+            'siteData.data.admin.password': siteData?.data?.admin?.password,
+            'currentData.data.admin.password': currentData?.data?.admin?.password,
+            'updatedPassword': updatedPassword
+        });
+        
         // Build the newData object with all fields under data, and admin includes id
         const newData = {
             admin: {
                 id: currentSiteId,
-                password: adminPassword || ''
+                password: updatedPassword
             },
             heroImage: (websiteData.heroImage || currentData?.data?.heroImage),
             aboutImage: (websiteData.aboutImage || currentData?.data?.aboutImage),
@@ -4166,6 +4175,17 @@ function setupPasswordChange() {
                     siteData.admin.password = result.hashedPassword;
                     console.log('[Password Change] Hashed password stored in siteData.admin.password:', result.hashedPassword);
                 }
+                
+                // Ensure siteData is properly initialized with nested structure if needed
+                if (!siteData.data) {
+                    siteData.data = {};
+                }
+                if (!siteData.data.admin) {
+                    siteData.data.admin = {};
+                }
+                // Always update the nested structure to ensure consistency
+                siteData.data.admin.password = result.hashedPassword;
+                console.log('[Password Change] Final siteData.data.admin.password:', siteData.data.admin.password);
                 
                 showPasswordMessage('success', result.message);
                 
