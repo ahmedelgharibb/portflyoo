@@ -1951,7 +1951,6 @@ async function saveAdminChanges() {
 
         // Start with current data to preserve all existing values, but exclude admin to avoid duplicates
         const currentDataWithoutAdmin = { ...(currentData?.data || {}) };
-        // Remove any existing admin section to prevent duplicates
         if (currentDataWithoutAdmin.admin) {
             delete currentDataWithoutAdmin.admin;
         }
@@ -1959,9 +1958,12 @@ async function saveAdminChanges() {
             delete currentDataWithoutAdmin.data.admin;
         }
         
+        // Build the newData object with all fields under data, and admin includes id
         const newData = {
-            id: currentSiteId,
-            ...currentDataWithoutAdmin,
+            admin: {
+                id: currentSiteId,
+                password: adminPassword || ''
+            },
             heroImage: (websiteData.heroImage || currentData?.data?.heroImage),
             aboutImage: (websiteData.aboutImage || currentData?.data?.aboutImage),
             personal: {
@@ -1992,64 +1994,17 @@ async function saveAdminChanges() {
                 mode: currentMode
             }
         };
-
-        // Preserve admin password from siteData if it exists
-        let adminPassword = null;
-        
-        // Check both possible locations for admin password
-        if (siteData && siteData.data && siteData.data.admin && siteData.data.admin.password) {
-            // Nested structure: siteData.data.admin.password
-            adminPassword = siteData.data.admin.password;
-            console.log('[Save Changes] Found admin password in siteData.data.admin.password:', adminPassword);
-        } else if (siteData && siteData.admin && siteData.admin.password) {
-            // Flat structure: siteData.admin.password
-            adminPassword = siteData.admin.password;
-            console.log('[Save Changes] Found admin password in siteData.admin.password:', adminPassword);
-        }
-        
-        // Store the admin password in the correct location for saving
-        if (adminPassword) {
-            if (!newData.data) {
-                newData.data = {};
-            }
-            if (!newData.data.admin) {
-                newData.data.admin = {};
-            }
-            newData.data.admin.password = adminPassword;
-            console.log('[Save Changes] Preserving admin password in newData.data.admin.password:', adminPassword);
-        }
-        
-        // Clean up: Remove any old admin passwords from the root level to prevent duplicates
-        if (newData.admin) {
-            console.log('[Save Changes] Removing old admin section from root level to prevent duplicates');
-            delete newData.admin;
-        }
-
         // Defensive: Ensure empty arrays for empty lists
         if (!qualifications.length) newData.personal.qualifications = [];
         if (!schools.length) newData.experience.schools = [];
         if (!centers.length) newData.experience.centers = [];
         if (!platforms.length) newData.experience.platforms = [];
-
-        console.log('Saving data:', JSON.stringify(newData, null, 2));
         
-        // Update our global state
-        siteData = newData;
-        
-        // Also update current theme
-        currentTheme = { 
-            color: currentColor,
-            mode: currentMode
-        };
-
-        // Apply the theme immediately
-        applyTheme(currentColor, currentMode);
-
         // Save to backend API
         const saveResponse = await fetch('/api/api?action=saveData', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: { id: currentSiteId, ...newData } })
+            body: JSON.stringify({ id: currentSiteId, data: newData })
         });
         const saveResult = await saveResponse.json();
         if (!saveResult.success) throw new Error(saveResult.message || 'Failed to save data');
