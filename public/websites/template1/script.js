@@ -1887,7 +1887,7 @@ async function saveAdminChanges() {
         const currentData = await response.json();
 
         // Always get the current site id
-        let currentSiteId = typeof currentSiteId !== 'undefined' ? currentSiteId : await getCurrentSiteId();
+        const currentSiteId = await getCurrentSiteId();
 
         // Initialize all input elements with correct IDs
         const nameInput = document.getElementById('admin-name');
