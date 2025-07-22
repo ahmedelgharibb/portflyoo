@@ -331,10 +331,13 @@ async function restoreDataToSupabase() {
     console.log('About to save this data to Supabase:', JSON.stringify(siteData, null, 2));
     try {
         // Save this data to backend API
+        const currentSiteId = await getCurrentSiteId();
+        const wrapped = { id: currentSiteId, data: siteData };
+        logSaveOperation('restoreDataToSupabase', wrapped);
         const response = await fetch('/api/api?action=saveData', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: siteData })
+            body: JSON.stringify(wrapped)
         });
         const result = await response.json();
         if (!result.success) throw new Error(result.message || 'Failed to save data');
@@ -423,7 +426,10 @@ function initializeWithDefaultData() {
     
     // Save default data to localStorage for future use
     try {
-        localStorage.setItem('siteData', JSON.stringify(siteData));
+        const currentSiteId = 1;
+        const wrapped = { id: currentSiteId, data: siteData };
+        logSaveOperation('initializeWithDefaultData', wrapped);
+        localStorage.setItem('siteData', JSON.stringify(wrapped));
         console.log('Default data saved to localStorage');
     } catch (error) {
         console.error('Failed to save default data to localStorage:', error);
@@ -1881,7 +1887,7 @@ async function saveAdminChanges() {
         const currentData = await response.json();
 
         // Always get the current site id
-        const currentSiteId = await getCurrentSiteId();
+        let currentSiteId = typeof currentSiteId !== 'undefined' ? currentSiteId : await getCurrentSiteId();
 
         // Initialize all input elements with correct IDs
         const nameInput = document.getElementById('admin-name');
@@ -2010,10 +2016,12 @@ async function saveAdminChanges() {
         if (!platforms.length) newData.experience.platforms = [];
         
         // Save to backend API
+        const wrapped = { id: currentSiteId, data: newData };
+        logSaveOperation('saveAdminChanges', wrapped);
         const saveResponse = await fetch('/api/api?action=saveData', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: currentSiteId, data: newData })
+            body: JSON.stringify(wrapped)
         });
         const saveResult = await saveResponse.json();
         if (!saveResult.success) throw new Error(saveResult.message || 'Failed to save data');
@@ -3092,17 +3100,18 @@ async function saveWebsiteData() {
         const response = await fetch('/api/api?action=getData');
         if (!response.ok) throw new Error('Failed to fetch current data');
         const currentData = await response.json();
-        const currentSiteId = await getCurrentSiteId();
+        let currentSiteId = typeof currentSiteId !== 'undefined' ? currentSiteId : await getCurrentSiteId();
         const dataToSave = {
             ...(currentData?.data || {}),
             heroImage: websiteData.heroImage || currentData?.data?.heroImage,
             aboutImage: websiteData.aboutImage || currentData?.data?.aboutImage
         };
-        // Save to backend API (wrap in {id, data})
+        const wrapped = { id: currentSiteId, data: dataToSave };
+        logSaveOperation('saveWebsiteData', wrapped);
         const saveResponse = await fetch('/api/api?action=saveData', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: { id: currentSiteId, data: dataToSave } })
+            body: JSON.stringify(wrapped)
         });
         const saveResult = await saveResponse.json();
         if (!saveResult.success) throw new Error(saveResult.message || 'Failed to save image data');
@@ -4217,4 +4226,11 @@ function setupPasswordChange() {
             }, 5000);
         }
     }
+}
+
+// Logging utility for save operations
+function logSaveOperation(functionName, data) {
+    console.log(`[SAVE-TRACE] Function: ${functionName}`);
+    console.log(`[SAVE-TRACE] Data:`, JSON.stringify(data, null, 2));
+    console.log(`[SAVE-TRACE] Stack:`, new Error().stack);
 }
