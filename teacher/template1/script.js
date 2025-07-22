@@ -358,17 +358,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Handle image removal
     async function handleImageRemove(type) {
         try {
+            const currentSiteId = await getCurrentSiteId();
             // Get current data
             const { data: currentData, error: fetchError } = await supabase
                 .from('teachers_websites')
                 .select('*')
-                .order('created_at', { ascending: false })
-                .limit(1);
-
+                .eq('id', currentSiteId)
+                .single();
             if (fetchError) throw fetchError;
-
-            let websiteData = currentData && currentData.length > 0 ? currentData[0].data : {};
-            
+            let websiteData = currentData?.data || {};
             // Delete image from storage if exists
             if (websiteData[`${type}Image`]) {
                 const filename = websiteData[`${type}Image`].split('/').pop();
@@ -376,31 +374,27 @@ document.addEventListener('DOMContentLoaded', async function() {
                     .from('website-images')
                     .remove([filename]);
             }
-
             // Remove image URL from data
             delete websiteData[`${type}Image`];
-
+            // Always wrap in { id, data }
+            const wrapped = { id: currentSiteId, data: websiteData };
             // Update the database
             const { error: updateError } = await supabase
                 .from('teachers_websites')
-                .upsert([{ data: websiteData }]);
-
+                .upsert(wrapped, { onConflict: 'id' });
             if (updateError) throw updateError;
-
             // Hide preview
             if (type === 'hero') {
                 heroPreview.classList.add('hidden');
             } else {
                 aboutPreview.classList.add('hidden');
             }
-
             showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image removed successfully`);
-            
             // Update the website content
             updateSiteContent(websiteData);
         } catch (error) {
             console.error('Error removing image:', error);
-            showAdminAlert('error', error.message || 'Failed to remove image. Please try again.');
+            showAdminAlert('error', 'Failed to remove image: ' + error.message);
         }
     }
     
@@ -493,13 +487,12 @@ async function restoreDataToSupabase() {
     
     // Then save this data to Supabase with proper error handling
     try {
+        const currentSiteId = await getCurrentSiteId();
+        const wrapped = { id: currentSiteId, data: siteData };
         // Use upsert with onConflict to handle existing records
         const { data, error } = await supabase
             .from('teachers_websites')
-            .upsert({ 
-                id: 1, 
-                data: siteData 
-            }, { 
+            .upsert(wrapped, { 
                 onConflict: 'id',
                 returning: 'minimal'
             });
@@ -513,7 +506,7 @@ async function restoreDataToSupabase() {
         const { data: verifyData, error: verifyError } = await supabase
             .from('teachers_websites')
             .select('data')
-            .eq('id', 1)
+            .eq('id', currentSiteId)
             .single();
             
         if (verifyError) {
@@ -535,7 +528,9 @@ async function restoreDataToSupabase() {
         
         // Fall back to localStorage only
         try {
-            localStorage.setItem('siteData', JSON.stringify(siteData));
+            const currentSiteId = await getCurrentSiteId();
+            const wrapped = { id: currentSiteId, data: siteData };
+            localStorage.setItem('siteData', JSON.stringify(wrapped));
             console.log('✅ Fallback: Data saved to localStorage successfully');
             alert('Data has been saved to local storage as a fallback.');
         } catch (localError) {
@@ -607,7 +602,10 @@ function initializeWithDefaultData() {
     
     // Save default data to localStorage for future use
     try {
-        localStorage.setItem('siteData', JSON.stringify(siteData));
+        // Always wrap in { id, data }
+        const currentSiteId = 1; // Default fallback
+        const wrapped = { id: currentSiteId, data: siteData };
+        localStorage.setItem('siteData', JSON.stringify(wrapped));
         console.log('Default data saved to localStorage');
     } catch (error) {
         console.error('Failed to save default data to localStorage:', error);
