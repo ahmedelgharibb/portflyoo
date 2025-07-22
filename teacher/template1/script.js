@@ -357,6 +357,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Handle image removal
     async function handleImageRemove(type) {
+        logSaveOperation('handleImageRemove', arguments);
         try {
             const currentSiteId = await getCurrentSiteId();
             // Get current data
@@ -392,6 +393,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             showAdminAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} image removed successfully`);
             // Update the website content
             updateSiteContent(websiteData);
+            logSaveOperation('handleImageRemove - Supabase', wrapped);
         } catch (error) {
             console.error('Error removing image:', error);
             showAdminAlert('error', 'Failed to remove image: ' + error.message);
@@ -477,6 +479,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // Function to restore data to Supabase when it's missing
 async function restoreDataToSupabase() {
+    logSaveOperation('restoreDataToSupabase', arguments);
     console.log('Restoring default data to Supabase');
     
     // First initialize with default data for the site
@@ -522,6 +525,7 @@ async function restoreDataToSupabase() {
         console.log('✅ Data verification successful:', verifyData);
         console.log('✅ Data successfully restored to Supabase!');
         alert('Data has been restored to the database successfully!');
+        logSaveOperation('restoreDataToSupabase - Supabase', wrapped);
     } catch (restoreError) {
         console.error('Exception during data restoration:', restoreError);
         alert('Error restoring data to Supabase: ' + restoreError.message);
@@ -533,6 +537,7 @@ async function restoreDataToSupabase() {
             localStorage.setItem('siteData', JSON.stringify(wrapped));
             console.log('✅ Fallback: Data saved to localStorage successfully');
             alert('Data has been saved to local storage as a fallback.');
+            logSaveOperation('restoreDataToSupabase - localStorage', wrapped);
         } catch (localError) {
             console.error('Failed to save to localStorage as fallback:', localError);
             alert('Warning: Could not save data to any storage location. Your changes may be lost.');
@@ -542,6 +547,7 @@ async function restoreDataToSupabase() {
 
 // Initialize with default data
 function initializeWithDefaultData() {
+    logSaveOperation('initializeWithDefaultData', arguments);
     console.log('Using default data');
     
     // Create a consistent data structure
@@ -607,6 +613,7 @@ function initializeWithDefaultData() {
         const wrapped = { id: currentSiteId, data: siteData };
         localStorage.setItem('siteData', JSON.stringify(wrapped));
         console.log('Default data saved to localStorage');
+        logSaveOperation('initializeWithDefaultData - localStorage', wrapped);
     } catch (error) {
         console.error('Failed to save default data to localStorage:', error);
     }

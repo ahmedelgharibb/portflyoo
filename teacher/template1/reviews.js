@@ -118,8 +118,16 @@ async function fetchAllReviewsFromTeachersWebsites() {
     return (data && data.data && Array.isArray(data.data.reviews)) ? data.data.reviews : [];
 }
 
+// Logging utility for save operations
+function logSaveOperation(functionName, data) {
+    console.log(`[SAVE-TRACE] Function: ${functionName}`);
+    console.log(`[SAVE-TRACE] Data:`, JSON.stringify(data, null, 2));
+    console.log(`[SAVE-TRACE] Stack:`, new Error().stack);
+}
+
 // Helper to save all reviews to teachers_websites
 async function saveAllReviewsToTeachersWebsites(reviews) {
+    logSaveOperation('saveAllReviewsToTeachersWebsites', reviews);
     const { data: row, error: fetchError } = await window.supabaseClient
         .from('teachers_websites')
         .select('data')
@@ -129,6 +137,7 @@ async function saveAllReviewsToTeachersWebsites(reviews) {
     const newData = { ...(row?.data || {}), reviews };
     // Always wrap in { id, data }
     const wrapped = { id: 1, data: newData };
+    logSaveOperation('saveAllReviewsToTeachersWebsites - Supabase', wrapped);
     console.log('Upserting to table: teachers_websites [operation: upsert]');
     const { error } = await window.supabaseClient
         .from('teachers_websites')
