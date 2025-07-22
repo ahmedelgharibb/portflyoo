@@ -332,7 +332,7 @@ async function restoreDataToSupabase() {
     try {
         // Save this data to backend API
         const currentSiteId = await getCurrentSiteId();
-        const wrapped = { id: currentSiteId, data: { data: siteData } };
+        const wrapped = { id: currentSiteId, data: { id:currentSiteIddata: siteData } };
         logSaveOperation('restoreDataToSupabase', wrapped);
         const response = await fetch('/api/api?action=saveData', {
             method: 'POST',
