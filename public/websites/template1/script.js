@@ -332,7 +332,7 @@ async function restoreDataToSupabase() {
     try {
         // Save this data to backend API
         const currentSiteId = await getCurrentSiteId();
-        const wrapped = { id: currentSiteId, data: siteData };
+        const wrapped = { id: currentSiteId, data: { data: siteData } };
         logSaveOperation('restoreDataToSupabase', wrapped);
         const response = await fetch('/api/api?action=saveData', {
             method: 'POST',
@@ -427,7 +427,7 @@ function initializeWithDefaultData() {
     // Save default data to localStorage for future use
     try {
         const currentSiteId = 1;
-        const wrapped = { id: currentSiteId, data: siteData };
+        const wrapped = { id: currentSiteId, data: { data: siteData } };
         logSaveOperation('initializeWithDefaultData', wrapped);
         localStorage.setItem('siteData', JSON.stringify(wrapped));
         console.log('Default data saved to localStorage');
@@ -2016,7 +2016,7 @@ async function saveAdminChanges() {
         if (!platforms.length) newData.experience.platforms = [];
         
         // Save to backend API
-        const wrapped = { id: currentSiteId, data: newData };
+        const wrapped = { id: currentSiteId, data: { data: newData } };
         logSaveOperation('saveAdminChanges', wrapped);
         const saveResponse = await fetch('/api/api?action=saveData', {
             method: 'POST',
@@ -3106,7 +3106,7 @@ async function saveWebsiteData() {
             heroImage: websiteData.heroImage || currentData?.data?.heroImage,
             aboutImage: websiteData.aboutImage || currentData?.data?.aboutImage
         };
-        const wrapped = { id: currentSiteId, data: dataToSave };
+        const wrapped = { id: currentSiteId, data: { data: dataToSave } };
         logSaveOperation('saveWebsiteData', wrapped);
         const saveResponse = await fetch('/api/api?action=saveData', {
             method: 'POST',
