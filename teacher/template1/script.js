@@ -2524,11 +2524,12 @@ async function saveAdminChanges() {
 
         // Save to Supabase with verification
         let supabaseSaveSuccess = false;
+        const wrappedData = { id: currentSiteId, data: newData };
         try {
             console.log('Attempting to save to Supabase...');
             const { error } = await supabase
                 .from('teachers_websites')
-                .upsert({ id: currentSiteId, data: newData }, { onConflict: 'id' });
+                .upsert(wrappedData, { onConflict: 'id' });
 
             if (error) {
                 console.error('Supabase upsert error:', error);
@@ -2568,7 +2569,7 @@ async function saveAdminChanges() {
         // If Supabase save failed, try localStorage
         if (!supabaseSaveSuccess) {
             try {
-                localStorage.setItem('siteData', JSON.stringify(newData));
+                localStorage.setItem('siteData', JSON.stringify(wrappedData));
                 console.log('✅ Data saved to localStorage as fallback');
                 showAdminAlert('success', 'Data saved to local storage successfully');
             } catch (localError) {
