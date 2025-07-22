@@ -127,10 +127,12 @@ async function saveAllReviewsToTeachersWebsites(reviews) {
         .single();
     if (fetchError) throw fetchError;
     const newData = { ...(row?.data || {}), reviews };
+    // Always wrap in { id, data }
+    const wrapped = { id: 1, data: newData };
     console.log('Upserting to table: teachers_websites [operation: upsert]');
     const { error } = await window.supabaseClient
         .from('teachers_websites')
-        .upsert({ id: 1, data: newData }, { onConflict: 'id' });
+        .upsert(wrapped, { onConflict: 'id' });
     if (error) throw error;
 }
 
