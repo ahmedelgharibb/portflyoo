@@ -239,22 +239,29 @@ export default async function handler(req, res) {
     }
     case 'saveData': {
       // Log incoming data for debugging
-      console.log('[API:saveData] Incoming data:', JSON.stringify(req.body.data, null, 2));
+      console.log('[API:saveData] Incoming request body:', JSON.stringify(req.body, null, 2));
+      
+      // Handle the correct structure: { id: number, data: object }
+      const { id, data: dataToSave } = req.body;
+      
+      if (!id || !dataToSave) {
+        console.error('[API:saveData] Missing required fields: id or data');
+        return res.status(400).json({ success: false, message: 'Missing required fields: id or data' });
+      }
       
       // Password should already be hashed from changePassword API
-      let dataToSave = req.body.data;
-      if (dataToSave.data && dataToSave.data.admin && dataToSave.data.admin.password) {
+      if (dataToSave.admin && dataToSave.admin.password) {
         console.log('[API:saveData] Password already hashed, saving as is');
       }
       
       // Save the entire site data object in the 'data' column
       const { data, error } = await supabase
         .from('teachers_websites')
-        .upsert([{ id: req.body.data.id, data: dataToSave }]);
+        .upsert([{ id: id, data: dataToSave }]);
       if (error) {
         // Log full error object for debugging
         console.error('[API:saveData] Supabase error:', error.message, error.details, error.hint);
-        return res.status(500).json({ error: error.message, details: error.details, hint: error.hint });
+        return res.status(500).json({ success: false, message: error.message, details: error.details, hint: error.hint });
       }
       console.log('[API:saveData] Success. Data saved:', dataToSave);
       res.status(200).json({ success: true, message: 'Data saved successfully' });
