@@ -2855,5 +2855,12 @@
           gap: 0.7rem;
         }
       }
+
+      body.main-content-hidden > *:not(#siteLoader) {
+        display: none !important;
+      }
+      body.main-content-hidden #siteLoader {
+        display: flex !important;
+      }
   
   

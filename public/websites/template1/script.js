@@ -1636,6 +1636,7 @@ function updateSiteContent(data) {
         if (siteLoader) siteLoader.classList.add('hide');
         window.mainDataLoaded = true;
         maybeHidePreloader();
+        document.body.classList.remove('main-content-hidden');
 
         // Render Courses Teaching section
         updateCoursesTeachingGrid(data.results);
