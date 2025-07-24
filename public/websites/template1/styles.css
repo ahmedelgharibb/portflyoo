@@ -3039,5 +3039,34 @@
         margin-left: 0.5em;
         text-shadow: none;
       }
+
+      .modern-hero-title {
+        font-family: 'Poppins', 'Inter', 'Montserrat', system-ui, sans-serif;
+        font-weight: 800;
+        font-size: 2.5rem;
+        letter-spacing: -0.01em;
+        color: #1e3a8a;
+        text-shadow: 0 2px 8px rgba(30,41,59,0.06);
+        line-height: 1.1;
+      }
+      @media (min-width: 640px) {
+        .modern-hero-title {
+          font-size: 3rem;
+        }
+      }
+      @media (min-width: 1024px) {
+        .modern-hero-title {
+          font-size: 4rem;
+        }
+      }
+      .modern-hero-subtitle {
+        font-family: 'Poppins', 'Inter', 'Montserrat', system-ui, sans-serif;
+        font-weight: 600;
+        font-size: 1.35rem;
+        color: #2563eb;
+        letter-spacing: 0.01em;
+        margin-top: 0.5em;
+        margin-bottom: 1.2em;
+      }
   
   
