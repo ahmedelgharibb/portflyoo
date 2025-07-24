@@ -4748,8 +4748,8 @@ function renderExperienceList(listId, items, btnId) {
 
 // Character limits for admin panel fields
 const ADMIN_FIELD_LIMITS = {
-    'admin-name': 32,
-    'admin-title': 40,
+    'admin-name': 20,
+    'admin-title': 25,
     'admin-subtitle': 40,
     'admin-hero-heading': 60,
     'admin-philosophy': 300
