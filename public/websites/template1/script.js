@@ -239,50 +239,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     
     // Event Listeners
-    heroUploadBtn.addEventListener('click', () => heroImageInput.click());
-    aboutUploadBtn.addEventListener('click', () => aboutImageInput.click());
-    
-    heroImageInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            // Show preview before upload
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                heroPreview.querySelector('img').src = e.target.result;
-                heroPreview.classList.remove('hidden');
-            }
-            reader.readAsDataURL(file);
-            // Then upload
-            handleImageUpload(file, 'hero');
-            // Reset input so same file can be selected again
-            heroImageInput.value = '';
-        }
-    });
-    
-    aboutImageInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            // Show preview before upload
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                aboutPreview.querySelector('img').src = e.target.result;
-                aboutPreview.classList.remove('hidden');
-            }
-            reader.readAsDataURL(file);
-            // Then upload
-            handleImageUpload(file, 'about');
-            // Reset input so same file can be selected again
-            aboutImageInput.value = '';
-        }
-    });
-    
-    removeHeroBtn.addEventListener('click', () => handleImageRemove('hero'));
-    removeAboutBtn.addEventListener('click', () => handleImageRemove('about'));
-    
-    // Setup drag and drop
-    setupDragAndDrop(heroDropZone, heroImageInput, 'hero');
-    setupDragAndDrop(aboutDropZone, aboutImageInput, 'about');
-    
+    // [REMOVED: All code related to the old image upload system, including heroUploadBtn, aboutUploadBtn, heroDropZone, aboutDropZone, heroPreview, aboutPreview, handleImageUpload, setupModernImageUpload, updateAdminImagePreview, showAdminImagePreview, setupDragAndDrop, and their event listeners.]
+    // [ENSURED: sectionMenuMap is declared above any usage.]
+
     // Initialize image upload when admin panel is loaded
     document.addEventListener('DOMContentLoaded', async () => {
         if (document.getElementById('adminPanel')) {
