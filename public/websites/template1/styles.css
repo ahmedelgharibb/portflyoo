@@ -2892,5 +2892,40 @@
         background: #fff;
         transition: box-shadow 0.2s;
       }
+
+      .scrollable-list {
+        max-height: 180px;
+        overflow: hidden;
+        transition: max-height 0.3s cubic-bezier(.4,0,.2,1);
+      }
+      .scrollable-list.expanded {
+        max-height: 350px;
+        overflow-y: auto;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        background: #f8fafc;
+      }
+      .scrollable-list::-webkit-scrollbar {
+        width: 8px;
+        background: #f1f1f1;
+      }
+      .scrollable-list::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+      .show-more-btn {
+        background: #fff;
+        color: #2563eb;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 4px 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+      }
+      .show-more-btn:hover {
+        background: #2563eb;
+        color: #fff;
+      }
   
   

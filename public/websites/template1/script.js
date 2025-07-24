@@ -1423,6 +1423,7 @@ function updateSiteContent(data) {
     if (data && data.data) data = data.data;
     // Define personalData for all later references
     const personalData = data.personal || {};
+    const experienceData = data.experience || {};
     try {
         console.log('Updating site content with data:', data);
 
@@ -1624,6 +1625,10 @@ function updateSiteContent(data) {
             schools: schoolsInput ? parseInt(schoolsInput.value, 10) || 0 : 0
         };
         // ... existing code ...
+        renderExperienceList('schools-list', experienceData.schools || [], 'schools-show-more');
+        renderExperienceList('centers-list', experienceData.centers || [], 'centers-show-more');
+        renderExperienceList('platforms-list', experienceData.platforms || [], 'platforms-show-more');
+        // ... rest of updateSiteContent ...
     } catch (error) {
         console.error('Error updating site content:', error);
     }
@@ -4648,3 +4653,47 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// ... existing code ...
+function renderExperienceList(listId, items, btnId) {
+  const listEl = document.getElementById(listId);
+  const btnEl = document.getElementById(btnId);
+  if (!listEl) return;
+  const maxVisible = 3;
+  let expanded = false;
+  function render() {
+    listEl.innerHTML = '';
+    const toShow = expanded ? items : items.slice(0, maxVisible);
+    toShow.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'py-1 px-2 rounded hover:bg-blue-50 text-blue-700 text-base text-left';
+      div.textContent = item;
+      listEl.appendChild(div);
+    });
+    if (items.length > maxVisible) {
+      btnEl.classList.remove('hidden');
+      btnEl.textContent = expanded ? 'Show Less' : 'Show More';
+      listEl.classList.toggle('expanded', expanded);
+    } else {
+      btnEl.classList.add('hidden');
+      listEl.classList.remove('expanded');
+    }
+  }
+  if (btnEl) {
+    btnEl.onclick = () => {
+      expanded = !expanded;
+      render();
+      if (expanded) {
+        listEl.focus();
+      }
+    };
+    btnEl.setAttribute('aria-expanded', 'false');
+    btnEl.setAttribute('tabindex', '0');
+  }
+  render();
+}
+// In updateSiteContent or wherever experience lists are rendered:
+// renderExperienceList('schools-list', experienceData.schools || [], 'schools-show-more');
+// renderExperienceList('centers-list', experienceData.centers || [], 'centers-show-more');
+// renderExperienceList('platforms-list', experienceData.platforms || [], 'platforms-show-more');
+// ... existing code ...
