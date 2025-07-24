@@ -3600,23 +3600,22 @@ function setupModernImageUpload({
         }
         // Show spinner
         if (spinner) spinner.classList.remove('hidden');
-        // Show preview immediately using object URL for better performance
-        const objectUrl = URL.createObjectURL(file);
+        // Show preview using base64 (CSP compliant)
         const img = preview.querySelector('img');
         if (img) {
-            img.src = objectUrl;
-            preview.classList.remove('hidden');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result; // data: URL
+                preview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
         }
         // Upload logic
         try {
             await handleImageUpload(file, type);
             fileInput.value = '';
-            // Clean up object URL after upload
-            URL.revokeObjectURL(objectUrl);
         } catch (err) {
             showAdminAlert('error', `Failed to upload image: ${err.message}`);
-            // Clean up object URL on error
-            URL.revokeObjectURL(objectUrl);
         } finally {
             if (spinner) spinner.classList.add('hidden');
         }
