@@ -3263,8 +3263,12 @@ if (!document.getElementById('shake-animation-style')) {
 async function loadSiteData() {
     const response = await fetch('/api/api?action=getData');
     if (!response.ok) throw new Error('Failed to load site data');
-    const data = await response.json();
+    const apiResponse = await response.json();
+    
+    // Extract the nested data structure
+    const data = apiResponse.data || apiResponse;
     const siteContent = data.data || data;
+    
     // Set global for teacher experience animation
     window.teacherExperienceData = siteContent.teacherExperience || { years: 10, students: 500, schools: 8 };
     return siteContent;
@@ -3437,7 +3441,10 @@ function normalizeResults(data) {
 async function loadSiteData() {
     const response = await fetch('/api/api?action=getData');
     if (!response.ok) throw new Error('Failed to load site data');
-    const data = await response.json();
+    const apiResponse = await response.json();
+    
+    // Extract the nested data structure
+    const data = apiResponse.data || apiResponse;
     const normalizedData = normalizeResults(data);
     
     // Set global for teacher experience animation
