@@ -4673,10 +4673,12 @@ function renderExperienceList(listId, items, btnId) {
     if (items.length > maxVisible) {
       btnEl.classList.remove('hidden');
       btnEl.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      btnEl.querySelector('.chevron').style.display = '';
       btnEl.querySelector('.chevron').style.transform = expanded ? 'rotate(-135deg)' : 'rotate(45deg)';
       listEl.classList.toggle('expanded', expanded);
     } else {
       btnEl.classList.add('hidden');
+      if (btnEl.querySelector('.chevron')) btnEl.querySelector('.chevron').style.display = 'none';
       listEl.classList.remove('expanded');
     }
   }
