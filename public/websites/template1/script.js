@@ -4626,3 +4626,59 @@ openAdminPanel = async function() {
 
 // Patch image upload and removal logic to update all previews
 // (Find the relevant places and call updateAllAdminImagePreviews after upload/removal)
+
+// --- Patch Remove button logic for new upload system ---
+document.addEventListener('DOMContentLoaded', function() {
+    // New Hero Remove
+    const newHeroRemoveBtn = document.getElementById('newHeroRemoveBtn');
+    const newHeroPreview = document.getElementById('newHeroPreview');
+    const newHeroPreviewImg = document.getElementById('newHeroPreviewImg');
+    if (newHeroRemoveBtn && newHeroPreview && newHeroPreviewImg) {
+        newHeroRemoveBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            newHeroPreview.classList.add('hidden');
+            newHeroPreviewImg.src = '';
+            websiteData.heroImage = '';
+            newDebugLog('Hero image removed: preview hidden and pending data cleared');
+        });
+    }
+    // New About Remove
+    const newAboutRemoveBtn = document.getElementById('newAboutRemoveBtn');
+    const newAboutPreview = document.getElementById('newAboutPreview');
+    const newAboutPreviewImg = document.getElementById('newAboutPreviewImg');
+    if (newAboutRemoveBtn && newAboutPreview && newAboutPreviewImg) {
+        newAboutRemoveBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            newAboutPreview.classList.add('hidden');
+            newAboutPreviewImg.src = '';
+            websiteData.aboutImage = '';
+            newDebugLog('About image removed: preview hidden and pending data cleared');
+        });
+    }
+});
+
+// --- Patch Remove button logic for old upload system ---
+document.addEventListener('DOMContentLoaded', function() {
+    const removeHeroBtn = document.getElementById('removeHeroBtn');
+    const heroPreview = document.getElementById('heroPreview');
+    if (removeHeroBtn && heroPreview) {
+        removeHeroBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            heroPreview.classList.add('hidden');
+            const img = heroPreview.querySelector('img');
+            if (img) img.src = '';
+            websiteData.heroImage = '';
+        });
+    }
+    const removeAboutBtn = document.getElementById('removeAboutBtn');
+    const aboutPreview = document.getElementById('aboutPreview');
+    if (removeAboutBtn && aboutPreview) {
+        removeAboutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            aboutPreview.classList.add('hidden');
+            const img = aboutPreview.querySelector('img');
+            if (img) img.src = '';
+            websiteData.aboutImage = '';
+        });
+    }
+});
