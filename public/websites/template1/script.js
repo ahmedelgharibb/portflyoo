@@ -4384,10 +4384,14 @@ async function handleNewFileSelection(file, type, preview, previewImg, spinner) 
         
         newDebugLog(`Processing ${type} image...`);
         
-        // Show preview
-        const objectUrl = URL.createObjectURL(file);
-        previewImg.src = objectUrl;
+        // Show preview using base64 (CSP compliant)
         preview.classList.remove('hidden');
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result; // This is a data: URL, CSP compliant
+            newDebugLog(`${type} image preview shown (base64)`);
+        };
+        reader.readAsDataURL(file);
         
         // Show spinner
         spinner.classList.remove('hidden');
@@ -4408,8 +4412,6 @@ async function handleNewFileSelection(file, type, preview, previewImg, spinner) 
         updateNewImageOnWebsite(type, uploadResult.url);
         newDebugLog(`${type} image updated on main website`);
         
-        // Cleanup
-        URL.revokeObjectURL(objectUrl);
         newDebugLog(`${type} image upload complete`);
         
     } catch (error) {
