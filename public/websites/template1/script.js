@@ -249,6 +249,23 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         });
     }
+
+    // Set teacher name in footer copyright
+    function setFooterTeacherName(name) {
+        const footerNameEl = document.getElementById('footerTeacherName');
+        if (footerNameEl) {
+            footerNameEl.textContent = name || 'Teacher Name';
+        }
+    }
+    // After site data is loaded, set the footer name
+    try {
+        const data = await loadSiteData();
+        const siteContent = data.data || data;
+        const teacherName = (siteContent.personal && siteContent.personal.name) || siteContent.name || 'Teacher Name';
+        setFooterTeacherName(teacherName);
+    } catch (e) {
+        setFooterTeacherName('Teacher Name');
+    }
 });
 
     
