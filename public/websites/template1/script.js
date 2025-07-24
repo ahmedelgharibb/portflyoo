@@ -1984,8 +1984,8 @@ async function saveAdminChanges() {
                 id: currentSiteId,
                 password: updatedPassword
             },
-            heroImage: (websiteData.heroImage || currentData?.data?.heroImage),
-            aboutImage: (websiteData.aboutImage || currentData?.data?.aboutImage),
+            heroImage: (typeof websiteData.heroImage !== 'undefined' ? websiteData.heroImage : currentData?.data?.heroImage),
+            aboutImage: (typeof websiteData.aboutImage !== 'undefined' ? websiteData.aboutImage : currentData?.data?.aboutImage),
             personal: {
                 name: nameInput?.value || currentData?.data?.personal?.name || '',
                 title: titleInput?.value || currentData?.data?.personal?.title || '',
