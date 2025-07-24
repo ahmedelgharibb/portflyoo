@@ -4760,18 +4760,15 @@ function setupAdminFieldLimits() {
         let warning = input.nextElementSibling;
         if (!warning || !warning.classList.contains('admin-char-warning')) {
             warning = document.createElement('div');
-            warning.className = 'admin-char-warning text-xs text-red-500 mt-1';
+            warning.className = 'admin-char-warning text-xs mt-1';
             input.parentNode.insertBefore(warning, input.nextSibling);
         }
         const updateWarning = () => {
             const len = input.value.length;
-            if (len > max) {
-                warning.textContent = `Too long! Max ${max} characters. (${len}/${max})`;
-            } else {
-                warning.textContent = '';
-            }
+            warning.innerHTML = `<span style='color:${len > max ? '#ef4444' : '#64748b'}'>${len}/${max}</span>`;
         };
         input.addEventListener('input', updateWarning);
+        updateWarning();
     });
 }
 
