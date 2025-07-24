@@ -4495,98 +4495,59 @@ async function uploadNewImage(base64, filename, type) {
     }
 }
 
-// Update image in website data
+// Update image in pending info (websiteData) - NOT saved to database yet
 async function updateNewImageInData(type, imageUrl) {
-    newDebugLog(`Updating ${type} image in website data...`);
+    newDebugLog(`Updating ${type} image in pending info (websiteData)...`);
     
     try {
-        // Load current data
-        newDebugLog('Loading current data...');
-        const response = await fetch('/api?action=getData');
-        newDebugLog(`Get data response status: ${response.status}`);
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            newDebugLog(`Get data error: ${errorText.substring(0, 200)}...`);
-            throw new Error(`Failed to load current data: ${response.status}`);
-        }
-        
-        const responseText = await response.text();
-        newDebugLog(`Get data response: ${responseText.substring(0, 200)}...`);
-        
-        let currentData;
-        try {
-            currentData = JSON.parse(responseText);
-        } catch (parseError) {
-            newDebugLog(`ERROR: Failed to parse getData response: ${parseError.message}`);
-            throw new Error('Invalid response from server');
-        }
-        
-        newDebugLog('Current data loaded successfully');
-        
-        // Update image URL
-        let websiteData = currentData.data || currentData;
+        // Update the global websiteData object (pending info)
         if (type === 'hero') {
             websiteData.heroImage = imageUrl;
         } else if (type === 'about') {
             websiteData.aboutImage = imageUrl;
         }
         
-        newDebugLog(`Updated ${type} image URL: ${imageUrl}`);
+        newDebugLog(`Updated ${type} image URL in pending info: ${imageUrl}`);
+        newDebugLog(`Current websiteData state: ${JSON.stringify(websiteData)}`);
         
-        // Save updated data
-        newDebugLog('Saving updated data...');
-        const saveResponse = await fetch('/api?action=saveData', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                id: 1,
-                data: websiteData
-            })
-        });
-        
-        newDebugLog(`Save data response status: ${saveResponse.status}`);
-        
-        if (!saveResponse.ok) {
-            const errorText = await saveResponse.text();
-            newDebugLog(`Save data error: ${errorText.substring(0, 200)}...`);
-            throw new Error(`Failed to save data: ${saveResponse.status}`);
-        }
-        
-        const saveText = await saveResponse.text();
-        newDebugLog(`Save data response: ${saveText.substring(0, 200)}...`);
-        
-        try {
-            const saveResult = JSON.parse(saveText);
-            newDebugLog('Website data updated successfully');
-        } catch (parseError) {
-            newDebugLog(`WARNING: Save response not JSON: ${saveText.substring(0, 100)}`);
-        }
+        // Show success message that image is ready to be saved
+        newDebugLog(`${type} image uploaded successfully and ready for saving. Click "Save Changes" to apply to website.`);
         
     } catch (error) {
-        newDebugLog(`ERROR: Failed to update website data - ${error.message}`);
+        newDebugLog(`ERROR: Failed to update pending info - ${error.message}`);
         throw error;
     }
 }
 
-// Update image on main website display
+// Update image preview in admin panel (not main website yet)
 function updateNewImageOnWebsite(type, imageUrl) {
-    newDebugLog(`Updating ${type} image on main website...`);
+    newDebugLog(`Updating ${type} image preview in admin panel...`);
     
-    if (type === 'hero') {
-        const heroImage = document.querySelector('#hero .hero-image img');
-        if (heroImage) {
-            heroImage.src = imageUrl;
-            newDebugLog('Hero image updated on main website');
+    try {
+        // Update the preview in the admin panel to show the uploaded image
+        if (type === 'hero') {
+            const heroPreview = document.querySelector('#heroPreview');
+            if (heroPreview) {
+                heroPreview.src = imageUrl;
+                newDebugLog('hero image preview updated in admin panel');
+            } else {
+                newDebugLog('WARNING: hero image preview element not found');
+            }
+        } else if (type === 'about') {
+            const aboutPreview = document.querySelector('#aboutPreview');
+            if (aboutPreview) {
+                aboutPreview.src = imageUrl;
+                newDebugLog('about image preview updated in admin panel');
+            } else {
+                newDebugLog('WARNING: about image preview element not found');
+            }
         }
-    } else if (type === 'about') {
-        const aboutImage = document.querySelector('#about .about-image img');
-        if (aboutImage) {
-            aboutImage.src = imageUrl;
-            newDebugLog('About image updated on main website');
-        }
+        
+        // Show success message that image is ready for saving
+        newDebugLog(`${type} image preview updated. Image will be applied to website when you click "Save Changes".`);
+        
+    } catch (error) {
+        newDebugLog(`ERROR: Failed to update image preview - ${error.message}`);
     }
 }
 
