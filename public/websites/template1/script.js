@@ -1189,6 +1189,10 @@ async function openAdminPanel() {
         
         // Setup password change functionality
         setupPasswordChange();
+        // After admin panel is opened and data loaded, update all previews
+        const heroUrl = websiteData.heroImage || '';
+        const aboutUrl = websiteData.aboutImage || '';
+        updateAllAdminImagePreviews(heroUrl, aboutUrl);
     } catch (error) {
         console.error('Error opening admin panel:', error);
         showAdminAlert('error', 'Failed to load admin panel: ' + error.message);
@@ -4559,3 +4563,66 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeNewImageUpload();
     }, 1000);
 });
+
+// --- Helper to update all admin image previews (old and new systems) ---
+function updateAllAdminImagePreviews(heroUrl, aboutUrl) {
+    // Old system
+    const heroPreview = document.getElementById('heroPreview');
+    const aboutPreview = document.getElementById('aboutPreview');
+    if (heroPreview) {
+        const img = heroPreview.querySelector('img');
+        if (img && heroUrl) {
+            img.src = heroUrl;
+            heroPreview.classList.remove('hidden');
+        } else if (img) {
+            img.src = '';
+            heroPreview.classList.add('hidden');
+        }
+    }
+    if (aboutPreview) {
+        const img = aboutPreview.querySelector('img');
+        if (img && aboutUrl) {
+            img.src = aboutUrl;
+            aboutPreview.classList.remove('hidden');
+        } else if (img) {
+            img.src = '';
+            aboutPreview.classList.add('hidden');
+        }
+    }
+    // New system
+    const newHeroPreview = document.getElementById('newHeroPreview');
+    const newHeroPreviewImg = document.getElementById('newHeroPreviewImg');
+    if (newHeroPreview && newHeroPreviewImg) {
+        if (heroUrl) {
+            newHeroPreviewImg.src = heroUrl;
+            newHeroPreview.classList.remove('hidden');
+        } else {
+            newHeroPreviewImg.src = '';
+            newHeroPreview.classList.add('hidden');
+        }
+    }
+    const newAboutPreview = document.getElementById('newAboutPreview');
+    const newAboutPreviewImg = document.getElementById('newAboutPreviewImg');
+    if (newAboutPreview && newAboutPreviewImg) {
+        if (aboutUrl) {
+            newAboutPreviewImg.src = aboutUrl;
+            newAboutPreview.classList.remove('hidden');
+        } else {
+            newAboutPreviewImg.src = '';
+            newAboutPreview.classList.add('hidden');
+        }
+    }
+}
+
+// Patch openAdminPanel to call updateAllAdminImagePreviews
+const originalOpenAdminPanel = openAdminPanel;
+openAdminPanel = async function() {
+    await originalOpenAdminPanel.apply(this, arguments);
+    // After admin panel is opened and data loaded, update all previews
+    const heroUrl = websiteData.heroImage || '';
+    const aboutUrl = websiteData.aboutImage || '';
+    updateAllAdminImagePreviews(heroUrl, aboutUrl);
+};
+
+// Patch image upload and removal logic to update all previews
+// (Find the relevant places and call updateAllAdminImagePreviews after upload/removal)
