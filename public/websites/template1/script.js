@@ -1875,6 +1875,23 @@ async function saveAdminChanges() {
         return;
     }
 
+    // Character limit validation
+    let charLimitErrors = [];
+    Object.entries(ADMIN_FIELD_LIMITS).forEach(([id, max]) => {
+        const input = document.getElementById(id);
+        if (input && input.value.length > max) {
+            charLimitErrors.push(`${input.previousElementSibling?.textContent || id} exceeds ${max} characters.`);
+        }
+    });
+    if (charLimitErrors.length > 0) {
+        showAdminAlert('error', charLimitErrors.join('<br>'));
+        saveBtn.innerHTML = originalBtnText;
+        saveBtn.disabled = false;
+        if (adminPanelLoader) adminPanelLoader.classList.add('hidden');
+        isAdminSaving = false;
+        return;
+    }
+
     try {
         // Fetch current data from backend API
         const response = await fetch('/api/api?action=getData');
@@ -4725,4 +4742,37 @@ function renderExperienceList(listId, items, btnId) {
 // renderExperienceList('schools-list', experienceData.schools || [], 'schools-show-more');
 // renderExperienceList('centers-list', experienceData.centers || [], 'centers-show-more');
 // renderExperienceList('platforms-list', experienceData.platforms || [], 'platforms-show-more');
+// ... existing code ...
+
+// Character limits for admin panel fields
+const ADMIN_FIELD_LIMITS = {
+    'admin-name': 32,
+    'admin-title': 40,
+    'admin-subtitle': 40,
+    'admin-hero-heading': 60,
+    'admin-philosophy': 300
+};
+
+function setupAdminFieldLimits() {
+    Object.entries(ADMIN_FIELD_LIMITS).forEach(([id, max]) => {
+        const input = document.getElementById(id);
+        if (!input) return;
+        let warning = input.nextElementSibling;
+        if (!warning || !warning.classList.contains('admin-char-warning')) {
+            warning = document.createElement('div');
+            warning.className = 'admin-char-warning text-xs text-red-500 mt-1';
+            input.parentNode.insertBefore(warning, input.nextSibling);
+        }
+        const updateWarning = () => {
+            const len = input.value.length;
+            if (len > max) {
+                warning.textContent = `Too long! Max ${max} characters. (${len}/${max})`;
+            } else {
+                warning.textContent = '';
+            }
+        };
+        input.addEventListener('input', updateWarning);
+    });
+}
+
 // ... existing code ...
