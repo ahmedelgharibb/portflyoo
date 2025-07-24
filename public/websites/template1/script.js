@@ -182,10 +182,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         // If data is nested under .data, flatten it
         const siteContent = data.data || data;
         updateSiteContent(siteContent);
+        // Set teacher name in footer copyright using the same data
+        const name = siteContent.personal && siteContent.personal.name ? siteContent.personal.name : (siteContent.name || 'Teacher Name');
+        setFooterTeacherName(name);
     } catch (err) {
         console.error('Failed to load site data:', err);
         // Fallback: use default data
         initializeWithDefaultData();
+        setFooterTeacherName('Teacher Name');
     }
 
     // Ensure logout and close (X) buttons work in admin panel
@@ -256,15 +260,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (footerNameEl) {
             footerNameEl.textContent = name || 'Teacher Name';
         }
-    }
-    // After site data is loaded, set the footer name
-    try {
-        const data = await loadSiteData();
-        const siteContent = data.data || data;
-        const teacherName = (siteContent.personal && siteContent.personal.name) || siteContent.name || 'Teacher Name';
-        setFooterTeacherName(teacherName);
-    } catch (e) {
-        setFooterTeacherName('Teacher Name');
     }
 });
 
