@@ -4450,26 +4450,49 @@ function convertFileToBase64(file) {
 async function uploadNewImage(base64, filename, type) {
     newDebugLog(`Uploading ${type} image to server...`);
     
-    const response = await fetch('/api?action=uploadImage', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            base64: base64,
-            filename: `${type}-${Date.now()}-${filename}`
-        })
-    });
-    
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Upload failed');
+    try {
+        const response = await fetch('/api?action=uploadImage', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                base64: base64,
+                filename: `${type}-${Date.now()}-${filename}`
+            })
+        });
+        
+        newDebugLog(`Response status: ${response.status}`);
+        newDebugLog(`Response headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`);
+        
+        if (!response.ok) {
+            const responseText = await response.text();
+            newDebugLog(`Error response text: ${responseText.substring(0, 200)}...`);
+            
+            try {
+                const errorData = JSON.parse(responseText);
+                throw new Error(errorData.error || `Upload failed with status ${response.status}`);
+            } catch (parseError) {
+                throw new Error(`Server error (${response.status}): ${responseText.substring(0, 100)}`);
+            }
+        }
+        
+        const responseText = await response.text();
+        newDebugLog(`Response text: ${responseText.substring(0, 200)}...`);
+        
+        try {
+            const result = JSON.parse(responseText);
+            newDebugLog(`Server response: ${JSON.stringify(result)}`);
+            return result;
+        } catch (parseError) {
+            newDebugLog(`ERROR: Failed to parse JSON response: ${parseError.message}`);
+            throw new Error(`Invalid server response: ${responseText.substring(0, 100)}`);
+        }
+        
+    } catch (error) {
+        newDebugLog(`ERROR: Upload request failed: ${error.message}`);
+        throw error;
     }
-    
-    const result = await response.json();
-    newDebugLog(`Server response: ${JSON.stringify(result)}`);
-    
-    return result;
 }
 
 // Update image in website data
@@ -4478,10 +4501,27 @@ async function updateNewImageInData(type, imageUrl) {
     
     try {
         // Load current data
+        newDebugLog('Loading current data...');
         const response = await fetch('/api?action=getData');
-        if (!response.ok) throw new Error('Failed to load current data');
+        newDebugLog(`Get data response status: ${response.status}`);
         
-        const currentData = await response.json();
+        if (!response.ok) {
+            const errorText = await response.text();
+            newDebugLog(`Get data error: ${errorText.substring(0, 200)}...`);
+            throw new Error(`Failed to load current data: ${response.status}`);
+        }
+        
+        const responseText = await response.text();
+        newDebugLog(`Get data response: ${responseText.substring(0, 200)}...`);
+        
+        let currentData;
+        try {
+            currentData = JSON.parse(responseText);
+        } catch (parseError) {
+            newDebugLog(`ERROR: Failed to parse getData response: ${parseError.message}`);
+            throw new Error('Invalid response from server');
+        }
+        
         newDebugLog('Current data loaded successfully');
         
         // Update image URL
@@ -4492,7 +4532,10 @@ async function updateNewImageInData(type, imageUrl) {
             websiteData.aboutImage = imageUrl;
         }
         
+        newDebugLog(`Updated ${type} image URL: ${imageUrl}`);
+        
         // Save updated data
+        newDebugLog('Saving updated data...');
         const saveResponse = await fetch('/api?action=saveData', {
             method: 'POST',
             headers: {
@@ -4504,10 +4547,23 @@ async function updateNewImageInData(type, imageUrl) {
             })
         });
         
-        if (!saveResponse.ok) throw new Error('Failed to save data');
+        newDebugLog(`Save data response status: ${saveResponse.status}`);
         
-        const saveResult = await saveResponse.json();
-        newDebugLog('Website data updated successfully');
+        if (!saveResponse.ok) {
+            const errorText = await saveResponse.text();
+            newDebugLog(`Save data error: ${errorText.substring(0, 200)}...`);
+            throw new Error(`Failed to save data: ${saveResponse.status}`);
+        }
+        
+        const saveText = await saveResponse.text();
+        newDebugLog(`Save data response: ${saveText.substring(0, 200)}...`);
+        
+        try {
+            const saveResult = JSON.parse(saveText);
+            newDebugLog('Website data updated successfully');
+        } catch (parseError) {
+            newDebugLog(`WARNING: Save response not JSON: ${saveText.substring(0, 100)}`);
+        }
         
     } catch (error) {
         newDebugLog(`ERROR: Failed to update website data - ${error.message}`);
