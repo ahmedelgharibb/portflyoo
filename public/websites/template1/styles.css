@@ -3018,5 +3018,17 @@
       .centered-chevron .chevron {
         margin: 0;
       }
+
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700&family=Poppins:wght@600;700&display=swap');
+
+      .modern-title {
+        font-family: 'Poppins', 'Inter', 'Montserrat', system-ui, sans-serif;
+        font-weight: 700;
+        font-size: 1.18rem;
+        letter-spacing: 0.01em;
+        color: #1e293b;
+        margin-bottom: 0.1em;
+        line-height: 1.2;
+      }
   
   
