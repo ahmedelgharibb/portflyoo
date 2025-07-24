@@ -4666,13 +4666,14 @@ function renderExperienceList(listId, items, btnId) {
     const toShow = expanded ? items : items.slice(0, maxVisible);
     toShow.forEach(item => {
       const div = document.createElement('div');
-      div.className = 'py-1 px-2 rounded hover:bg-blue-50 text-blue-700 text-base text-left';
+      div.className = 'py-1 px-0 rounded text-gray-600 text-[0.98rem] text-left experience-list-item';
       div.textContent = item;
       listEl.appendChild(div);
     });
     if (items.length > maxVisible) {
       btnEl.classList.remove('hidden');
-      btnEl.textContent = expanded ? 'Show Less' : 'Show More';
+      btnEl.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      btnEl.querySelector('.chevron').style.transform = expanded ? 'rotate(-135deg)' : 'rotate(45deg)';
       listEl.classList.toggle('expanded', expanded);
     } else {
       btnEl.classList.add('hidden');
