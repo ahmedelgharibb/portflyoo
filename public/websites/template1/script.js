@@ -235,6 +235,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         affiliationsSection.style.display = hasAffiliations ? '' : 'none';
         toggleMenuButton('experience', hasAffiliations);
     }
+
+    // Remove header adminBtn logic
+    // Add footer admin button logic
+    const footerAdminBtn = document.getElementById('footerAdminBtn');
+    if (footerAdminBtn) {
+        footerAdminBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (isLoggedIn) {
+                openAdminPanel();
+            } else {
+                showLoginForm();
+            }
+        });
+    }
 });
 
     

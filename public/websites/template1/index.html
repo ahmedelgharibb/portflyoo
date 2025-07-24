@@ -50,9 +50,6 @@
                     <li><a href="#contact" class="nav-link">Contact</a></li>
                 </ul>
                 <div class="flex items-center gap-x-4">
-                    <button id="adminBtn" class="admin-btn md:flex">
-                        <i class="fas fa-lock text-lg"></i>
-                    </button>
                     <button id="menuBtn" aria-label="Toggle Menu" class="md:hidden">
                         <i class="fas fa-bars"></i>
                     </button>
@@ -361,7 +358,7 @@
         </section>
     
         <!-- Footer -->
-        <footer class="bg-gray-900 text-white py-12">
+        <footer class="bg-gray-900 text-white py-12 relative">
             <div class="container mx-auto px-4">
                 <div class="flex flex-col items-center gap-4">
                     <a href="https://portflyo.online" target="_blank" rel="noopener" class="join-portflyo-btn mb-2">
@@ -378,6 +375,9 @@
                         <p>&copy; <span id="current-year">2024</span> Dr. Ahmed Mahmoud. All rights reserved.</p>
                     </div>
                 </div>
+                <button id="footerAdminBtn" class="admin-fab-btn" aria-label="Admin Login">
+                    <i class="fas fa-lock"></i>
+                </button>
             </div>
         </footer>
     
