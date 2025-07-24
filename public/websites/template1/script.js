@@ -1317,6 +1317,8 @@ function populateAdminForm(data) {
         if (yearsInput) yearsInput.value = teacherExp.years !== undefined ? teacherExp.years : '';
         if (studentsInput) studentsInput.value = teacherExp.students !== undefined ? teacherExp.students : '';
         if (schoolsInput) schoolsInput.value = teacherExp.schools !== undefined ? teacherExp.schools : '';
+        // Add this to ensure character warnings are visible after form is populated
+        setupAdminFieldLimits();
     } catch (error) {
         console.error('Error populating admin form:', error);
         showAdminAlert('error', `There was an error loading form fields: ${error.message}`);
