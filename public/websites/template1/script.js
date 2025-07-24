@@ -4235,3 +4235,309 @@ function logSaveOperation(functionName, data) {
     console.log(`[SAVE-TRACE] Data:`, JSON.stringify(data, null, 2));
     console.log(`[SAVE-TRACE] Stack:`, new Error().stack);
 }
+
+// ========================================
+// NEW IMAGE UPLOAD SYSTEM (COMPLETELY SEPARATE)
+// ========================================
+
+// Debug logging for new system
+function newDebugLog(message) {
+    const debugLog = document.getElementById('newDebugLog');
+    if (debugLog) {
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = document.createElement('div');
+        logEntry.className = 'mb-1';
+        logEntry.innerHTML = `<span class="text-gray-500">[${timestamp}]</span> ${message}`;
+        debugLog.appendChild(logEntry);
+        debugLog.scrollTop = debugLog.scrollHeight;
+    }
+    console.log('[NEW-UPLOAD]', message);
+}
+
+// Clear debug log
+function newClearDebugLog() {
+    const debugLog = document.getElementById('newDebugLog');
+    if (debugLog) {
+        debugLog.innerHTML = '<div class="text-gray-500">Debug log cleared...</div>';
+    }
+}
+
+// Initialize new image upload system
+function initializeNewImageUpload() {
+    newDebugLog('Initializing NEW image upload system...');
+    
+    // Setup debug clear button
+    const clearDebugBtn = document.getElementById('newClearDebugBtn');
+    if (clearDebugBtn) {
+        clearDebugBtn.addEventListener('click', newClearDebugLog);
+    }
+    
+    // Setup Hero Image Upload
+    setupNewImageUpload('hero');
+    
+    // Setup About Image Upload
+    setupNewImageUpload('about');
+    
+    newDebugLog('NEW image upload system initialized successfully');
+}
+
+// Setup individual image upload
+function setupNewImageUpload(type) {
+    const inputId = `new${type.charAt(0).toUpperCase() + type.slice(1)}ImageInput`;
+    const dropZoneId = `new${type.charAt(0).toUpperCase() + type.slice(1)}DropZone`;
+    const previewId = `new${type.charAt(0).toUpperCase() + type.slice(1)}Preview`;
+    const previewImgId = `new${type.charAt(0).toUpperCase() + type.slice(1)}PreviewImg`;
+    const removeBtnId = `new${type.charAt(0).toUpperCase() + type.slice(1)}RemoveBtn`;
+    const spinnerId = `new${type.charAt(0).toUpperCase() + type.slice(1)}Spinner`;
+    
+    const fileInput = document.getElementById(inputId);
+    const dropZone = document.getElementById(dropZoneId);
+    const preview = document.getElementById(previewId);
+    const previewImg = document.getElementById(previewImgId);
+    const removeBtn = document.getElementById(removeBtnId);
+    const spinner = document.getElementById(spinnerId);
+    
+    if (!fileInput || !dropZone || !preview || !previewImg || !removeBtn || !spinner) {
+        newDebugLog(`ERROR: Missing elements for ${type} upload`);
+        return;
+    }
+    
+    newDebugLog(`Setting up ${type} image upload...`);
+    
+    // Click handlers
+    dropZone.addEventListener('click', (e) => {
+        e.preventDefault();
+        newDebugLog(`${type} drop zone clicked`);
+        fileInput.click();
+    });
+    
+    // Touch events for iOS
+    dropZone.addEventListener('touchstart', (e) => {
+        newDebugLog(`${type} touch start`);
+    });
+    
+    dropZone.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        newDebugLog(`${type} touch end`);
+        fileInput.click();
+    });
+    
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+        newDebugLog(`${type} file input change event`);
+        if (fileInput.files && fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            newDebugLog(`${type} file selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+            handleNewFileSelection(file, type, preview, previewImg, spinner);
+        } else {
+            newDebugLog(`${type} no files selected`);
+        }
+    });
+    
+    // Remove button
+    removeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        newDebugLog(`${type} remove button clicked`);
+        preview.classList.add('hidden');
+        fileInput.value = '';
+        newDebugLog(`${type} image removed`);
+    });
+    
+    // Drag and drop
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-blue-400');
+    });
+    
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-blue-400');
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-blue-400');
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            const file = files[0];
+            newDebugLog(`${type} file dropped: ${file.name}`);
+            handleNewFileSelection(file, type, preview, previewImg, spinner);
+        }
+    });
+    
+    newDebugLog(`${type} image upload setup complete`);
+}
+
+// Handle file selection for new system
+async function handleNewFileSelection(file, type, preview, previewImg, spinner) {
+    try {
+        // Validate file
+        if (!file.type.startsWith('image/')) {
+            newDebugLog(`ERROR: Invalid file type: ${file.type}`);
+            return;
+        }
+        
+        if (file.size > 5 * 1024 * 1024) {
+            newDebugLog(`ERROR: File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+            return;
+        }
+        
+        newDebugLog(`Processing ${type} image...`);
+        
+        // Show preview
+        const objectUrl = URL.createObjectURL(file);
+        previewImg.src = objectUrl;
+        preview.classList.remove('hidden');
+        
+        // Show spinner
+        spinner.classList.remove('hidden');
+        
+        // Convert to base64
+        const base64 = await convertFileToBase64(file);
+        newDebugLog(`${type} image converted to base64 (${(base64.length / 1024).toFixed(2)}KB)`);
+        
+        // Upload to server
+        const uploadResult = await uploadNewImage(base64, file.name, type);
+        newDebugLog(`${type} image uploaded successfully: ${uploadResult.url}`);
+        
+        // Update website data
+        await updateNewImageInData(type, uploadResult.url);
+        newDebugLog(`${type} image data updated in website`);
+        
+        // Update main website display
+        updateNewImageOnWebsite(type, uploadResult.url);
+        newDebugLog(`${type} image updated on main website`);
+        
+        // Cleanup
+        URL.revokeObjectURL(objectUrl);
+        newDebugLog(`${type} image upload complete`);
+        
+    } catch (error) {
+        newDebugLog(`ERROR: ${type} upload failed - ${error.message}`);
+    } finally {
+        spinner.classList.add('hidden');
+    }
+}
+
+// Convert file to base64
+function convertFileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        
+        reader.onload = () => {
+            newDebugLog('FileReader: File converted successfully');
+            resolve(reader.result);
+        };
+        
+        reader.onerror = () => {
+            newDebugLog('FileReader: Error converting file');
+            reject(new Error('Failed to read file'));
+        };
+        
+        reader.onprogress = (e) => {
+            if (e.lengthComputable) {
+                const progress = (e.loaded / e.total) * 100;
+                newDebugLog(`FileReader: Progress ${progress.toFixed(1)}%`);
+            }
+        };
+        
+        newDebugLog('FileReader: Starting file conversion');
+        reader.readAsDataURL(file);
+    });
+}
+
+// Upload image to server
+async function uploadNewImage(base64, filename, type) {
+    newDebugLog(`Uploading ${type} image to server...`);
+    
+    const response = await fetch('/api?action=uploadImage', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            base64: base64,
+            filename: `${type}-${Date.now()}-${filename}`
+        })
+    });
+    
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
+    }
+    
+    const result = await response.json();
+    newDebugLog(`Server response: ${JSON.stringify(result)}`);
+    
+    return result;
+}
+
+// Update image in website data
+async function updateNewImageInData(type, imageUrl) {
+    newDebugLog(`Updating ${type} image in website data...`);
+    
+    try {
+        // Load current data
+        const response = await fetch('/api?action=getData');
+        if (!response.ok) throw new Error('Failed to load current data');
+        
+        const currentData = await response.json();
+        newDebugLog('Current data loaded successfully');
+        
+        // Update image URL
+        let websiteData = currentData.data || currentData;
+        if (type === 'hero') {
+            websiteData.heroImage = imageUrl;
+        } else if (type === 'about') {
+            websiteData.aboutImage = imageUrl;
+        }
+        
+        // Save updated data
+        const saveResponse = await fetch('/api?action=saveData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: 1,
+                data: websiteData
+            })
+        });
+        
+        if (!saveResponse.ok) throw new Error('Failed to save data');
+        
+        const saveResult = await saveResponse.json();
+        newDebugLog('Website data updated successfully');
+        
+    } catch (error) {
+        newDebugLog(`ERROR: Failed to update website data - ${error.message}`);
+        throw error;
+    }
+}
+
+// Update image on main website display
+function updateNewImageOnWebsite(type, imageUrl) {
+    newDebugLog(`Updating ${type} image on main website...`);
+    
+    if (type === 'hero') {
+        const heroImage = document.querySelector('#hero .hero-image img');
+        if (heroImage) {
+            heroImage.src = imageUrl;
+            newDebugLog('Hero image updated on main website');
+        }
+    } else if (type === 'about') {
+        const aboutImage = document.querySelector('#about .about-image img');
+        if (aboutImage) {
+            aboutImage.src = imageUrl;
+            newDebugLog('About image updated on main website');
+        }
+    }
+}
+
+// Initialize new system when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize after a short delay to ensure admin panel is loaded
+    setTimeout(() => {
+        initializeNewImageUpload();
+    }, 1000);
+});
