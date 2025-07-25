@@ -1317,6 +1317,18 @@ function populateAdminForm(data) {
         if (yearsInput) yearsInput.value = teacherExp.years !== undefined ? teacherExp.years : '';
         if (studentsInput) studentsInput.value = teacherExp.students !== undefined ? teacherExp.students : '';
         if (schoolsInput) schoolsInput.value = teacherExp.schools !== undefined ? teacherExp.schools : '';
+        // Contact fields: always initialize as '' if missing
+        const contact = data.contact || {};
+        const emailInput = document.getElementById('admin-email');
+        const formUrlInput = document.getElementById('admin-form-url');
+        const assistantFormUrlInput = document.getElementById('admin-assistant-form-url');
+        const phoneInput = document.getElementById('admin-phone');
+        const contactMessageInput = document.getElementById('admin-contact-message');
+        if (emailInput) emailInput.value = contact.email || '';
+        if (formUrlInput) formUrlInput.value = contact.formUrl || '';
+        if (assistantFormUrlInput) assistantFormUrlInput.value = contact.assistantFormUrl || '';
+        if (phoneInput) phoneInput.value = contact.phone || '';
+        if (contactMessageInput) contactMessageInput.value = contact.contactMessage || '';
         // Add this to ensure character warnings are visible after form is populated
         setupAdminFieldLimits();
     } catch (error) {
