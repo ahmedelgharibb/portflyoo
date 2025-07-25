@@ -4765,7 +4765,7 @@ function renderExperienceList(listId, items, btnId) {
 const ADMIN_FIELD_LIMITS = {
     'admin-name': 20,
     'admin-title': 25,
-    'admin-subtitle': 40,
+    'admin-subtitle': 25,
     'admin-hero-heading': 60,
     'admin-philosophy': 300
 };
