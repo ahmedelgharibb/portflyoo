@@ -1,6 +1,23 @@
 /* ===============================================
    SPORTS PLAYER PORTFOLIO - AGGRESSIVE CLEAN CSS
    =============================================== */
+
+/* Enhanced Favicon Styles */
+link[rel="icon"] {
+    transform: scale(1.2);
+}
+
+link[rel="apple-touch-icon"] {
+    transform: scale(1.5);
+}
+
+/* Favicon size enhancement for better visibility */
+link[rel="icon"][sizes="16x16"] { transform: scale(1.3); }
+link[rel="icon"][sizes="32x32"] { transform: scale(1.4); }
+link[rel="icon"][sizes="48x48"] { transform: scale(1.5); }
+link[rel="icon"][sizes="192x192"] { transform: scale(1.6); }
+link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
+
         /* Theme CSS Variables */
         :root {
           /* Default theme colors - Blue */
