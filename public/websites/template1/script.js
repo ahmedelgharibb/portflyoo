@@ -1319,7 +1319,7 @@ function populateAdminForm(data) {
         if (schoolsInput) schoolsInput.value = teacherExp.schools !== undefined ? teacherExp.schools : '';
         
         // Contact data
-        const contactData = data.contact || {};
+        const contactData = data.data?.contact || data.contact || {};
         console.log('Contact data to populate:', contactData);
         
         // Get contact form elements
