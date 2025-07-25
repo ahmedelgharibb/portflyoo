@@ -2228,7 +2228,6 @@ function setupThemeToggle() {
     // Get theme elements
     const themeColorInputs = document.querySelectorAll('input[name="theme-color"]');
     const themeModeInputs = document.querySelectorAll('input[name="theme-mode"]');
-    const previewThemeBtn = document.getElementById('previewThemeBtn');
     
     // Set initial values based on current theme
     if (currentTheme) {
@@ -2244,51 +2243,9 @@ function setupThemeToggle() {
             modeInput.checked = true;
         }
     }
-    
-    // Add preview button click handler
-    if (previewThemeBtn) {
-        previewThemeBtn.addEventListener('click', previewSelectedTheme);
-    }
 }
 
-// Preview the selected theme without saving
-function previewSelectedTheme() {
-    const selectedColor = document.querySelector('input[name="theme-color"]:checked').value;
-    const selectedMode = document.querySelector('input[name="theme-mode"]:checked').value;
-    
-    console.log(`Previewing theme: ${selectedColor} color, ${selectedMode} mode`);
-    
-    // Get preview button for animation
-    const previewBtn = document.getElementById('previewThemeBtn');
-    if (previewBtn) {
-        previewBtn.innerHTML = '<div class="admin-loading"></div> Applying Theme...';
-        previewBtn.disabled = true;
-    }
-    
-    // Add transition animation to body
-    document.body.classList.add('theme-transition');
-    
-    // Apply the theme with a slight delay for better visual effect
-    setTimeout(() => {
-        applyTheme(selectedColor, selectedMode);
-        
-        // Reset button after animation
-        if (previewBtn) {
-            setTimeout(() => {
-                previewBtn.innerHTML = '<i class="fas fa-eye mr-2"></i> Preview Theme';
-                previewBtn.disabled = false;
-                
-                // Show alert to inform user this is a preview
-                showAdminAlert('info', 'Theme preview applied. Save changes to make it permanent.', false, 3000);
-            }, 600);
-        }
-        
-        // Remove animation class after it completes
-        setTimeout(() => {
-            document.body.classList.remove('theme-transition');
-        }, 500);
-    }, 100);
-}
+
 
 // Apply theme to the website
 function applyTheme(color, mode) {
