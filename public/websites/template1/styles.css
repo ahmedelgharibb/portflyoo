@@ -872,6 +872,19 @@
           transition: all 0.3s ease;
       }
       
+      /* Ensure color swatches are visible */
+      .theme-color-option label {
+          display: block !important;
+          background-color: inherit !important;
+      }
+      
+      /* Specific color overrides for circular swatches */
+      #theme-blue + label { background-color: #2563eb !important; }
+      #theme-green + label { background-color: #059669 !important; }
+      #theme-purple + label { background-color: #7c3aed !important; }
+      #theme-red + label { background-color: #dc2626 !important; }
+      #theme-gray + label { background-color: #4b5563 !important; }
+      
       .theme-mode-option input:checked + label {
           transform: scale(1.05);
           box-shadow: 0 0 0 2px var(--primary-color);
