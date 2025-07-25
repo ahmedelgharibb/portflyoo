@@ -609,11 +609,18 @@ body.dark-mode #hero {
   text-decoration: none;
 }
 
-/* --- Theme Color Swatches --- */
+/* --- Theme Color Swatch Styles --- */
+.theme-color-option input:checked + label {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 3px var(--primary-color), 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
 /* Ensure color swatches are visible */
 .theme-color-option label {
-  display: block !important;
-  background-color: inherit !important;
+    display: block !important;
+    background-color: inherit !important;
 }
 
 /* Specific color overrides for circular swatches */
@@ -622,5 +629,11 @@ body.dark-mode #hero {
 #theme-purple + label { background-color: #7c3aed !important; }
 #theme-red + label { background-color: #dc2626 !important; }
 #theme-gray + label { background-color: #4b5563 !important; }
+
+.theme-mode-option input:checked + label {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 2px var(--primary-color);
+    transition: all 0.2s ease;
+}
   
   

@@ -3085,7 +3085,8 @@ function applyColorTheme(color) {
     
     // Update theme option labels
     document.querySelectorAll('.theme-color-option input:checked + label').forEach(label => {
-        label.style.boxShadow = `0 0 0 2px var(--primary-color)`;
+        label.style.boxShadow = `0 0 0 3px var(--primary-color), 0 4px 12px rgba(0, 0, 0, 0.15)`;
+        label.style.borderColor = `var(--primary-color)`;
     });
     
     // Update theme mode labels when checked
