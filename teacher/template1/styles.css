@@ -608,5 +608,19 @@ body.dark-mode #hero {
   box-shadow: 0 4px 16px rgba(37,99,235,0.10);
   text-decoration: none;
 }
+
+/* --- Theme Color Swatches --- */
+/* Ensure color swatches are visible */
+.theme-color-option label {
+  display: block !important;
+  background-color: inherit !important;
+}
+
+/* Specific color overrides for circular swatches */
+#theme-blue + label { background-color: #2563eb !important; }
+#theme-green + label { background-color: #059669 !important; }
+#theme-purple + label { background-color: #7c3aed !important; }
+#theme-red + label { background-color: #dc2626 !important; }
+#theme-gray + label { background-color: #4b5563 !important; }
   
   
