@@ -1068,14 +1068,11 @@ async function openAdminPanel() {
             const response = await fetch('/api/api?action=getData');
             if (!response.ok) throw new Error('Failed to fetch site data');
             const data = await response.json();
-            console.log('🔍 Raw API response:', data);
             // Accept any non-error API response as valid
             if (data && typeof data === 'object' && Object.keys(data).length > 0) {
                 adminData = data.data || data;
                 dataSource = 'api';
                 console.log('✅ Data loaded for admin panel from API successfully');
-                console.log('🔍 Admin data structure:', adminData);
-                console.log('🔍 Contact data:', adminData.contact);
             } else {
                 console.log('No usable data found in API for admin panel');
                 showAdminAlert('error', 'No usable data found in database. Using local storage or default values.');
@@ -1157,7 +1154,6 @@ async function openAdminPanel() {
         websiteData.heroImage = adminData.heroImage;
         websiteData.aboutImage = adminData.aboutImage;
         console.log(`Admin data loaded from ${dataSource}:`, adminData);
-        console.log('🔍 About to populate form with data:', adminData);
         populateAdminForm(adminData);
         saveChangesBtn = document.getElementById('saveChangesBtn');
         if (saveChangesBtn) {
@@ -1321,18 +1317,6 @@ function populateAdminForm(data) {
         if (yearsInput) yearsInput.value = teacherExp.years !== undefined ? teacherExp.years : '';
         if (studentsInput) studentsInput.value = teacherExp.students !== undefined ? teacherExp.students : '';
         if (schoolsInput) schoolsInput.value = teacherExp.schools !== undefined ? teacherExp.schools : '';
-        // Contact fields: always initialize as '' if missing
-        const contact = data.contact || {};
-        const emailInput = document.getElementById('admin-email');
-        const formUrlInput = document.getElementById('admin-form-url');
-        const assistantFormUrlInput = document.getElementById('admin-assistant-form-url');
-        const phoneInput = document.getElementById('admin-phone');
-        const contactMessageInput = document.getElementById('admin-contact-message');
-        if (emailInput) emailInput.value = contact.email || '';
-        if (formUrlInput) formUrlInput.value = contact.formUrl || '';
-        if (assistantFormUrlInput) assistantFormUrlInput.value = contact.assistantFormUrl || '';
-        if (phoneInput) phoneInput.value = contact.phone || '';
-        if (contactMessageInput) contactMessageInput.value = contact.contactMessage || '';
         // Add this to ensure character warnings are visible after form is populated
         setupAdminFieldLimits();
     } catch (error) {
