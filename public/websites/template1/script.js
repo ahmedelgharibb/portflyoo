@@ -1317,6 +1317,63 @@ function populateAdminForm(data) {
         if (yearsInput) yearsInput.value = teacherExp.years !== undefined ? teacherExp.years : '';
         if (studentsInput) studentsInput.value = teacherExp.students !== undefined ? teacherExp.students : '';
         if (schoolsInput) schoolsInput.value = teacherExp.schools !== undefined ? teacherExp.schools : '';
+        
+        // Contact data
+        const contactData = data.contact || {};
+        console.log('Contact data to populate:', contactData);
+        
+        // Get contact form elements
+        const emailInput = document.getElementById('admin-email');
+        const formUrlInput = document.getElementById('admin-form-url');
+        const assistantFormUrlInput = document.getElementById('admin-assistant-form-url');
+        const phoneInput = document.getElementById('admin-phone');
+        const contactMessageInput = document.getElementById('admin-contact-message');
+        
+        // Log which elements were found
+        console.log('Contact form elements found:', {
+            emailInput: !!emailInput,
+            formUrlInput: !!formUrlInput,
+            assistantFormUrlInput: !!assistantFormUrlInput,
+            phoneInput: !!phoneInput,
+            contactMessageInput: !!contactMessageInput
+        });
+        
+        // Set values with detailed logging
+        if (emailInput) {
+            emailInput.value = contactData.email || '';
+            console.log(`Set email input to "${contactData.email || ''}"`);
+        } else {
+            console.error('admin-email input not found in DOM');
+        }
+        
+        if (formUrlInput) {
+            formUrlInput.value = contactData.formUrl || '';
+            console.log(`Set form URL input to "${contactData.formUrl || ''}"`);
+        } else {
+            console.error('admin-form-url input not found in DOM');
+        }
+        
+        if (assistantFormUrlInput) {
+            assistantFormUrlInput.value = contactData.assistantFormUrl || '';
+            console.log(`Set assistant form URL input to "${contactData.assistantFormUrl || ''}"`);
+        } else {
+            console.error('admin-assistant-form-url input not found in DOM');
+        }
+        
+        if (phoneInput) {
+            phoneInput.value = contactData.phone || '';
+            console.log(`Set phone input to "${contactData.phone || ''}"`);
+        } else {
+            console.error('admin-phone input not found in DOM');
+        }
+        
+        if (contactMessageInput) {
+            contactMessageInput.value = contactData.contactMessage || '';
+            console.log(`Set contact message input to "${contactData.contactMessage || ''}"`);
+        } else {
+            console.error('admin-contact-message input not found in DOM');
+        }
+        
         // Add this to ensure character warnings are visible after form is populated
         setupAdminFieldLimits();
     } catch (error) {
