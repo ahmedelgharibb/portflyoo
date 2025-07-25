@@ -4274,45 +4274,15 @@ function logSaveOperation(functionName, data) {
 // NEW IMAGE UPLOAD SYSTEM (COMPLETELY SEPARATE)
 // ========================================
 
-// Debug logging for new system
-function newDebugLog(message) {
-    const debugLog = document.getElementById('newDebugLog');
-    if (debugLog) {
-        const timestamp = new Date().toLocaleTimeString();
-        const logEntry = document.createElement('div');
-        logEntry.className = 'mb-1';
-        logEntry.innerHTML = `<span class="text-gray-500">[${timestamp}]</span> ${message}`;
-        debugLog.appendChild(logEntry);
-        debugLog.scrollTop = debugLog.scrollHeight;
-    }
-    console.log('[NEW-UPLOAD]', message);
-}
 
-// Clear debug log
-function newClearDebugLog() {
-    const debugLog = document.getElementById('newDebugLog');
-    if (debugLog) {
-        debugLog.innerHTML = '<div class="text-gray-500">Debug log cleared...</div>';
-    }
-}
 
 // Initialize new image upload system
 function initializeNewImageUpload() {
-    newDebugLog('Initializing NEW image upload system...');
-    
-    // Setup debug clear button
-    const clearDebugBtn = document.getElementById('newClearDebugBtn');
-    if (clearDebugBtn) {
-        clearDebugBtn.addEventListener('click', newClearDebugLog);
-    }
-    
     // Setup Hero Image Upload
     setupNewImageUpload('hero');
     
     // Setup About Image Upload
     setupNewImageUpload('about');
-    
-    newDebugLog('NEW image upload system initialized successfully');
 }
 
 // Setup individual image upload
@@ -4332,49 +4302,38 @@ function setupNewImageUpload(type) {
     const spinner = document.getElementById(spinnerId);
     
     if (!fileInput || !dropZone || !preview || !previewImg || !removeBtn || !spinner) {
-        newDebugLog(`ERROR: Missing elements for ${type} upload`);
         return;
     }
-    
-    newDebugLog(`Setting up ${type} image upload...`);
     
     // Click handlers
     dropZone.addEventListener('click', (e) => {
         e.preventDefault();
-        newDebugLog(`${type} drop zone clicked`);
         fileInput.click();
     });
     
     // Touch events for iOS
     dropZone.addEventListener('touchstart', (e) => {
-        newDebugLog(`${type} touch start`);
+        // Touch start event
     });
     
     dropZone.addEventListener('touchend', (e) => {
         e.preventDefault();
-        newDebugLog(`${type} touch end`);
         fileInput.click();
     });
     
     // File input change
     fileInput.addEventListener('change', (e) => {
-        newDebugLog(`${type} file input change event`);
         if (fileInput.files && fileInput.files.length > 0) {
             const file = fileInput.files[0];
-            newDebugLog(`${type} file selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
             handleNewFileSelection(file, type, preview, previewImg, spinner);
-        } else {
-            newDebugLog(`${type} no files selected`);
         }
     });
     
     // Remove button
     removeBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        newDebugLog(`${type} remove button clicked`);
         preview.classList.add('hidden');
         fileInput.value = '';
-        newDebugLog(`${type} image removed`);
     });
     
     // Drag and drop
@@ -4394,12 +4353,9 @@ function setupNewImageUpload(type) {
         const files = e.dataTransfer.files;
         if (files && files.length > 0) {
             const file = files[0];
-            newDebugLog(`${type} file dropped: ${file.name}`);
             handleNewFileSelection(file, type, preview, previewImg, spinner);
         }
     });
-    
-    newDebugLog(`${type} image upload setup complete`);
 }
 
 // Handle file selection for new system
@@ -4407,23 +4363,18 @@ async function handleNewFileSelection(file, type, preview, previewImg, spinner) 
     try {
         // Validate file
         if (!file.type.startsWith('image/')) {
-            newDebugLog(`ERROR: Invalid file type: ${file.type}`);
             return;
         }
         
         if (file.size > 5 * 1024 * 1024) {
-            newDebugLog(`ERROR: File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
             return;
         }
-        
-        newDebugLog(`Processing ${type} image...`);
         
         // Show preview using base64 (CSP compliant)
         preview.classList.remove('hidden');
         const reader = new FileReader();
         reader.onload = function(e) {
             previewImg.src = e.target.result; // This is a data: URL, CSP compliant
-            newDebugLog(`${type} image preview shown (base64)`);
         };
         reader.readAsDataURL(file);
         
@@ -4432,24 +4383,18 @@ async function handleNewFileSelection(file, type, preview, previewImg, spinner) 
         
         // Convert to base64
         const base64 = await convertFileToBase64(file);
-        newDebugLog(`${type} image converted to base64 (${(base64.length / 1024).toFixed(2)}KB)`);
         
         // Upload to server
         const uploadResult = await uploadNewImage(base64, file.name, type);
-        newDebugLog(`${type} image uploaded successfully: ${uploadResult.url}`);
         
         // Update website data
         await updateNewImageInData(type, uploadResult.url);
-        newDebugLog(`${type} image data updated in website`);
         
         // Update main website display
         updateNewImageOnWebsite(type, uploadResult.url);
-        newDebugLog(`${type} image updated on main website`);
-        
-        newDebugLog(`${type} image upload complete`);
         
     } catch (error) {
-        newDebugLog(`ERROR: ${type} upload failed - ${error.message}`);
+        console.error(`Error uploading ${type} image:`, error);
     } finally {
         spinner.classList.add('hidden');
     }
@@ -4461,31 +4406,19 @@ function convertFileToBase64(file) {
         const reader = new FileReader();
         
         reader.onload = () => {
-            newDebugLog('FileReader: File converted successfully');
             resolve(reader.result);
         };
         
         reader.onerror = () => {
-            newDebugLog('FileReader: Error converting file');
             reject(new Error('Failed to read file'));
         };
         
-        reader.onprogress = (e) => {
-            if (e.lengthComputable) {
-                const progress = (e.loaded / e.total) * 100;
-                newDebugLog(`FileReader: Progress ${progress.toFixed(1)}%`);
-            }
-        };
-        
-        newDebugLog('FileReader: Starting file conversion');
         reader.readAsDataURL(file);
     });
 }
 
 // Upload image to server
 async function uploadNewImage(base64, filename, type) {
-    newDebugLog(`Uploading ${type} image to server...`);
-    
     try {
         const response = await fetch('/api?action=uploadImage', {
             method: 'POST',
@@ -4498,12 +4431,8 @@ async function uploadNewImage(base64, filename, type) {
             })
         });
         
-        newDebugLog(`Response status: ${response.status}`);
-        newDebugLog(`Response headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`);
-        
         if (!response.ok) {
             const responseText = await response.text();
-            newDebugLog(`Error response text: ${responseText.substring(0, 200)}...`);
             
             try {
                 const errorData = JSON.parse(responseText);
@@ -4514,27 +4443,21 @@ async function uploadNewImage(base64, filename, type) {
         }
         
         const responseText = await response.text();
-        newDebugLog(`Response text: ${responseText.substring(0, 200)}...`);
         
         try {
             const result = JSON.parse(responseText);
-            newDebugLog(`Server response: ${JSON.stringify(result)}`);
             return result;
         } catch (parseError) {
-            newDebugLog(`ERROR: Failed to parse JSON response: ${parseError.message}`);
             throw new Error(`Invalid server response: ${responseText.substring(0, 100)}`);
         }
         
     } catch (error) {
-        newDebugLog(`ERROR: Upload request failed: ${error.message}`);
         throw error;
     }
 }
 
 // Update image in pending info (websiteData) - NOT saved to database yet
 async function updateNewImageInData(type, imageUrl) {
-    newDebugLog(`Updating ${type} image in pending info (websiteData)...`);
-    
     try {
         // Update the global websiteData object (pending info)
         if (type === 'hero') {
@@ -4543,47 +4466,29 @@ async function updateNewImageInData(type, imageUrl) {
             websiteData.aboutImage = imageUrl;
         }
         
-        newDebugLog(`Updated ${type} image URL in pending info: ${imageUrl}`);
-        newDebugLog(`Current websiteData state: ${JSON.stringify(websiteData)}`);
-        
-        // Show success message that image is ready to be saved
-        newDebugLog(`${type} image uploaded successfully and ready for saving. Click "Save Changes" to apply to website.`);
-        
     } catch (error) {
-        newDebugLog(`ERROR: Failed to update pending info - ${error.message}`);
         throw error;
     }
 }
 
 // Update image preview in admin panel (not main website yet)
 function updateNewImageOnWebsite(type, imageUrl) {
-    newDebugLog(`Updating ${type} image preview in admin panel...`);
-    
     try {
         // Update the preview in the admin panel to show the uploaded image
         if (type === 'hero') {
             const heroPreview = document.querySelector('#heroPreview');
             if (heroPreview) {
                 heroPreview.src = imageUrl;
-                newDebugLog('hero image preview updated in admin panel');
-            } else {
-                newDebugLog('WARNING: hero image preview element not found');
             }
         } else if (type === 'about') {
             const aboutPreview = document.querySelector('#aboutPreview');
             if (aboutPreview) {
                 aboutPreview.src = imageUrl;
-                newDebugLog('about image preview updated in admin panel');
-            } else {
-                newDebugLog('WARNING: about image preview element not found');
             }
         }
         
-        // Show success message that image is ready for saving
-        newDebugLog(`${type} image preview updated. Image will be applied to website when you click "Save Changes".`);
-        
     } catch (error) {
-        newDebugLog(`ERROR: Failed to update image preview - ${error.message}`);
+        console.error('Error updating image preview:', error);
     }
 }
 
@@ -4670,7 +4575,6 @@ document.addEventListener('DOMContentLoaded', function() {
             newHeroPreview.classList.add('hidden');
             newHeroPreviewImg.src = '';
             websiteData.heroImage = '';
-            newDebugLog('Hero image removed: preview hidden and pending data cleared');
         });
     }
     // New About Remove
@@ -4683,7 +4587,6 @@ document.addEventListener('DOMContentLoaded', function() {
             newAboutPreview.classList.add('hidden');
             newAboutPreviewImg.src = '';
             websiteData.aboutImage = '';
-            newDebugLog('About image removed: preview hidden and pending data cleared');
         });
     }
 });
