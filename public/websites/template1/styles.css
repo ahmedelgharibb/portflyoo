@@ -865,8 +865,14 @@
       }
       
       /* Theme option selectors enhanced styling */
-      .theme-color-option:checked + label,
-      .theme-mode-option:checked + label {
+      .theme-color-option input:checked + label {
+          transform: scale(1.1);
+          box-shadow: 0 0 0 3px var(--primary-color), 0 4px 12px rgba(0, 0, 0, 0.15);
+          border-color: var(--primary-color);
+          transition: all 0.3s ease;
+      }
+      
+      .theme-mode-option input:checked + label {
           transform: scale(1.05);
           box-shadow: 0 0 0 2px var(--primary-color);
           transition: all 0.2s ease;
