@@ -520,7 +520,7 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
       .dark-mode .text-gray-600, 
       .dark-mode .text-gray-700, 
       .dark-mode .text-gray-800 {
-          color: var(--text-light) !important;
+          color: #ffffff !important;
       }
       
       .dark-mode header {
@@ -533,11 +533,12 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
       }
       
       .dark-mode .nav-link {
-          color: var(--text-color);
+          color: #ffffff;
       }
       
       .dark-mode .nav-link:hover {
-          text-shadow: 0 0 8px var(--primary-color);
+          color: #ffffff;
+          text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
       }
       
       .dark-mode .experience-card,
@@ -551,16 +552,16 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
       .dark-mode .form-input {
           background-color: rgba(31, 41, 55, 0.8);
           border-color: var(--border-color);
-          color: var(--text-color);
+          color: #ffffff;
       }
       
       .dark-mode .form-input:focus {
-          box-shadow: 0 0 0 2px var(--primary-color);
+          box-shadow: 0 0 0 2px #ffffff;
       }
       
       .dark-mode .section-title::after {
-          background-color: var(--primary-color);
-          box-shadow: 0 0 8px var(--primary-color);
+          background-color: #ffffff;
+          box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
       }
       
       .dark-mode #hero .absolute.inset-0.bg-gradient-to-r {
@@ -831,6 +832,11 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
           color: var(--primary-color);
       }
       
+      .dark-mode .text-blue-600, 
+      .dark-mode .nav-link:hover {
+          color: #ffffff;
+      }
+      
       .btn-primary:hover {
           background-color: var(--primary-dark);
       }
@@ -853,6 +859,18 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
       .fa-star, .fa-money-bill-wave, .fa-calendar-alt, 
       .fa-clock, .fa-video, .fa-users {
           color: var(--primary-color);
+      }
+      
+      .dark-mode .fa-graduation-cap, 
+      .dark-mode .fa-check, 
+      .dark-mode .section-title::after,
+      .dark-mode .fa-star, 
+      .dark-mode .fa-money-bill-wave, 
+      .dark-mode .fa-calendar-alt, 
+      .dark-mode .fa-clock, 
+      .dark-mode .fa-video, 
+      .dark-mode .fa-users {
+          color: #ffffff;
       }
       
       /* Theme change animation */
@@ -1027,25 +1045,25 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
       }
       
       .dark-mode .mobile-nav-link {
-          color: var(--text-color);
+          color: #ffffff;
           border-bottom: 1px solid var(--border-color);
       }
       
       .dark-mode .mobile-nav-link:hover {
-          background-color: rgba(59, 130, 246, 0.1);
-          color: var(--primary-color);
+          background-color: rgba(255, 255, 255, 0.1);
+          color: #ffffff;
       }
       
       .dark-mode #closeMenuBtn,
       .dark-mode #menuBtn,
       .dark-mode #adminBtnMobile {
           background-color: var(--card-bg);
-          color: var(--text-color);
+          color: #ffffff;
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
       }
       
       .dark-mode #adminBtnMobileNav {
-          color: var(--primary-color);
+          color: #ffffff;
           border-top: 1px solid var(--border-color);
       }
       
@@ -1132,13 +1150,17 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
       .experience-card .text-blue-600 {
           color: var(--primary-color);
       }
-
-      .dark-mode .experience-card .text-gray-800 {
-          color: var(--text-color);
+      
+      .dark-mode .experience-card .text-blue-600 {
+          color: #ffffff;
       }
 
+            .dark-mode .experience-card .text-gray-800 {
+          color: #ffffff;
+      }
+      
       .dark-mode .experience-card .text-gray-600 {
-          color: var(--text-light);
+          color: #ffffff;
       }
 
       .dark-mode .experience-card .bg-gradient-to-br {
@@ -1209,11 +1231,11 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
       }
 
       .dark-mode .loader-text {
-          color: var(--card-bg);
+          color: #ffffff;
       }
 
       .dark-mode .loader-subtext {
-          color: var(--text-light);
+          color: #ffffff;
       }
 
       .card {
