@@ -396,7 +396,7 @@ function initializeWithDefaultData() {
             formUrl: 'https://forms.google.com/your-form-link',
             assistantFormUrl: 'https://forms.google.com/assistant-form-link',
             phone: '+1 123-456-7890',
-            contactMessage: 'Thank you for your interest in my teaching services. I will get back to you as soon as possible.'
+            contactMessage: ''
         },
         theme: {
             color: 'blue',
@@ -1138,7 +1138,7 @@ async function openAdminPanel() {
                     email: 'teacher@example.com',
                     formUrl: 'https://forms.google.com/your-form-link',
                     phone: '+1 234 567 890',
-                    contactMessage: 'Feel free to reach out with any questions about tutoring.'
+                    contactMessage: ''
                 },
                 theme: {
                     color: 'blue',
@@ -1203,7 +1203,6 @@ function validateFormPopulation(data) {
     const formUrlInput = document.getElementById('admin-form-url');
     const assistantFormUrlInput = document.getElementById('admin-assistant-form-url');
     const phoneInput = document.getElementById('admin-phone');
-    const contactMessageInput = document.getElementById('admin-contact-message');
     
     // Get the actual values in the form fields
     const formValues = {
@@ -1220,8 +1219,7 @@ function validateFormPopulation(data) {
         email: emailInput ? emailInput.value : 'element not found',
         formUrl: formUrlInput ? formUrlInput.value : 'element not found',
         assistantFormUrl: assistantFormUrlInput ? assistantFormUrlInput.value : '',
-        phone: phoneInput ? phoneInput.value : '',
-        contactMessage: contactMessageInput ? contactMessageInput.value : ''
+        phone: phoneInput ? phoneInput.value : ''
     };
     
     console.log('FORM VALIDATION - Current form values:', formValues);
@@ -1234,8 +1232,7 @@ function validateFormPopulation(data) {
         email: 'ahmed.mahmoud@mathseducator.com',
         formUrl: 'https://forms.google.com/your-form-link',
         assistantFormUrl: 'https://forms.google.com/assistant-form-link',
-        phone: '+1 123-456-7890',
-        contactMessage: 'Thank you for your interest in my teaching services. I will get back to you as soon as possible.'
+        phone: '+1 123-456-7890'
     };
 
     // Check for empty required fields, only treat actual form fields as required
@@ -1327,15 +1324,13 @@ function populateAdminForm(data) {
         const formUrlInput = document.getElementById('admin-form-url');
         const assistantFormUrlInput = document.getElementById('admin-assistant-form-url');
         const phoneInput = document.getElementById('admin-phone');
-        const contactMessageInput = document.getElementById('admin-contact-message');
         
         // Log which elements were found
         console.log('Contact form elements found:', {
             emailInput: !!emailInput,
             formUrlInput: !!formUrlInput,
             assistantFormUrlInput: !!assistantFormUrlInput,
-            phoneInput: !!phoneInput,
-            contactMessageInput: !!contactMessageInput
+            phoneInput: !!phoneInput
         });
         
         // Set values with detailed logging
@@ -1367,12 +1362,7 @@ function populateAdminForm(data) {
             console.error('admin-phone input not found in DOM');
         }
         
-        if (contactMessageInput) {
-            contactMessageInput.value = contactData.contactMessage || '';
-            console.log(`Set contact message input to "${contactData.contactMessage || ''}"`);
-        } else {
-            console.error('admin-contact-message input not found in DOM');
-        }
+
         
         // Add this to ensure character warnings are visible after form is populated
         setupAdminFieldLimits();
@@ -1606,13 +1596,12 @@ function updateSiteContent(data) {
         // Update contact info
         const contactData = data.contact || {};
         const contactPhone = contactData.phone || '+1 123-456-7890';
-        const contactMessage = contactData.contactMessage || 'Thank you for your interest in my teaching services.';
+        const contactMessage = contactData.contactMessage || '';
         
         const contactPhoneEl = document.querySelector('.contact-phone');
         if (contactPhoneEl) contactPhoneEl.textContent = contactPhone;
 
-        const contactMessageEl = document.querySelector('.contact-message');
-        if (contactMessageEl) contactMessageEl.textContent = contactMessage;
+
         
         // Apply theme
         if (data.theme) {
@@ -1975,7 +1964,6 @@ async function saveAdminChanges() {
         const formUrlInput = document.getElementById('admin-form-url');
         const assistantFormUrlInput = document.getElementById('admin-assistant-form-url');
         const phoneInput = document.getElementById('admin-phone');
-        const contactMessageInput = document.getElementById('admin-contact-message');
 
         // Get current theme values from radio buttons with fallbacks
         const colorRadio = document.querySelector('input[name="theme-color"]:checked');
@@ -2001,8 +1989,7 @@ async function saveAdminChanges() {
             emailInput: emailInput ? 'found' : 'not found',
             formUrlInput: formUrlInput ? 'found' : 'not found',
             assistantFormUrlInput: assistantFormUrlInput ? 'found' : 'not found',
-            phoneInput: phoneInput ? 'found' : 'not found',
-            contactMessageInput: contactMessageInput ? 'found' : 'not found'
+            phoneInput: phoneInput ? 'found' : 'not found'
         });
 
         // Collect dynamic input values for qualifications, schools, centers, platforms
@@ -2072,8 +2059,7 @@ async function saveAdminChanges() {
                 email: emailInput ? emailInput.value.trim() : '',
                 formUrl: formUrlInput ? formUrlInput.value : (currentData?.data?.contact?.formUrl || ''),
                 assistantFormUrl: assistantFormUrlInput ? assistantFormUrlInput.value : (currentData?.data?.contact?.assistantFormUrl || ''),
-                phone: phoneInput?.value || currentData?.data?.contact?.phone || '',
-                contactMessage: contactMessageInput?.value || currentData?.data?.contact?.contactMessage || ''
+                phone: phoneInput?.value || currentData?.data?.contact?.phone || ''
             },
             theme: {
                 color: currentColor,
