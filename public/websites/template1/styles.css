@@ -3314,5 +3314,27 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
       .dark-mode .modern-hero-subtitle {
         color: #ffffff !important;
       }
+      
+      /* Enhanced theme color option styling */
+      .theme-color-option input:checked + label i {
+        opacity: 1 !important;
+      }
+      
+      .theme-color-option label:hover i {
+        opacity: 0.7;
+      }
+      
+      .theme-color-option label {
+        position: relative;
+        transition: all 0.3s ease;
+      }
+      
+      .theme-color-option label i {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        transition: opacity 0.3s ease;
+      }
   
   
