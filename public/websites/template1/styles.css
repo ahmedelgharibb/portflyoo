@@ -3297,5 +3297,22 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
       .admin-footer-btn i {
         font-size: 1.25em;
       }
+      
+      /* Dark mode text color overrides for specific homepage elements */
+      .dark-mode h3.text-2xl.font-bold.text-gray-800 {
+        color: #ffffff !important;
+      }
+      
+      .dark-mode .card-title.modern-title.text-lg.font-semibold.text-gray-800 {
+        color: #ffffff !important;
+      }
+      
+      .dark-mode .text-lg.font-medium.text-gray-700 {
+        color: #ffffff !important;
+      }
+      
+      .dark-mode .modern-hero-subtitle {
+        color: #ffffff !important;
+      }
   
   
