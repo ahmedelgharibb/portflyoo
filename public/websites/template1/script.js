@@ -1299,7 +1299,7 @@ function populateAdminForm(data) {
         // Qualifications: always use data.personal.qualifications
         renderQualificationsInputs(Array.isArray(personal.qualifications) ? personal.qualifications : []);
         // Experience: schools, centers, platforms
-        const experience = data.experience || {};
+        const experience = data.data?.experience || data.experience || {};
         renderExperienceInputs('schools', Array.isArray(experience.schools) ? experience.schools : []);
         renderExperienceInputs('centers', Array.isArray(experience.centers) ? experience.centers : []);
         renderExperienceInputs('platforms', Array.isArray(experience.platforms) ? experience.platforms : []);
@@ -1498,7 +1498,7 @@ function updateSiteContent(data) {
     if (data && data.data) data = data.data;
     // Define personalData for all later references
     const personalData = data.personal || {};
-    const experienceData = data.experience || {};
+    const experienceData = data.data?.experience || data.experience || {};
     try {
         console.log('Updating site content with data:', data);
 
@@ -1569,7 +1569,7 @@ function updateSiteContent(data) {
         if (name && title) document.title = `${name} - ${title}`;
         
         // Update experience section
-        const experienceData = data.experience || {};
+        const experienceData = data.data?.experience || data.experience || {};
         console.log('Experience data:', experienceData);
 
         const experienceSection = document.getElementById('experience');
