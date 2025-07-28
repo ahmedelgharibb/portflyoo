@@ -1307,7 +1307,7 @@ function populateAdminForm(data) {
         console.log('Populating results form with:', data.results);
         populateResultsForm(Array.isArray(data.results) ? data.results : []);
         // Teacher Experience fields (admin panel)
-        const teacherExp = data.teacherExperience || { years: '', students: '', schools: '' };
+        const teacherExp = data.data?.teacherExperience || data.teacherExperience || { years: '', students: '', schools: '' };
         const yearsInput = document.getElementById('admin-years-experience');
         const studentsInput = document.getElementById('admin-students-taught');
         const schoolsInput = document.getElementById('admin-schools-taught');
@@ -1680,7 +1680,7 @@ function updateSiteContent(data) {
         updateCoursesTeachingGrid(data.results);
 
         // --- Fix: Update Teacher Experience Section (public only) ---
-        const teacherExpPublic = data.teacherExperience || { years: 10, students: 500, schools: 8 };
+        const teacherExpPublic = data.data?.teacherExperience || data.teacherExperience || { years: 10, students: 500, schools: 8 };
         const yearsExpEl = document.getElementById('yearsExperience');
         const studentsTaughtEl = document.getElementById('studentsTaught');
         const schoolsTaughtEl = document.getElementById('schoolsTaught');
