@@ -1299,7 +1299,7 @@ function populateAdminForm(data) {
         // Qualifications: always use data.personal.qualifications
         renderQualificationsInputs(Array.isArray(personal.qualifications) ? personal.qualifications : []);
         // Experience: schools, centers, platforms
-        const experience = data.data?.experience || data.experience || {};
+        const experience = data.experience || {};
         renderExperienceInputs('schools', Array.isArray(experience.schools) ? experience.schools : []);
         renderExperienceInputs('centers', Array.isArray(experience.centers) ? experience.centers : []);
         renderExperienceInputs('platforms', Array.isArray(experience.platforms) ? experience.platforms : []);
@@ -1307,7 +1307,7 @@ function populateAdminForm(data) {
         console.log('Populating results form with:', data.results);
         populateResultsForm(Array.isArray(data.results) ? data.results : []);
         // Teacher Experience fields (admin panel)
-        const teacherExp = data.data?.teacherExperience || data.teacherExperience || { years: '', students: '', schools: '' };
+        const teacherExp = data.teacherExperience || { years: '', students: '', schools: '' };
         const yearsInput = document.getElementById('admin-years-experience');
         const studentsInput = document.getElementById('admin-students-taught');
         const schoolsInput = document.getElementById('admin-schools-taught');
@@ -1316,7 +1316,7 @@ function populateAdminForm(data) {
         if (schoolsInput) schoolsInput.value = teacherExp.schools !== undefined ? teacherExp.schools : '';
         
         // Contact data
-        const contactData = data.data?.contact || data.contact || {};
+        const contactData = data.contact || {};
         console.log('Contact data to populate:', contactData);
         
         // Get contact form elements
@@ -1498,7 +1498,7 @@ function updateSiteContent(data) {
     if (data && data.data) data = data.data;
     // Define personalData for all later references
     const personalData = data.personal || {};
-    const experienceData = data.data?.experience || data.experience || {};
+    const experienceData = data.experience || {};
     try {
         console.log('Updating site content with data:', data);
 
@@ -1569,7 +1569,7 @@ function updateSiteContent(data) {
         if (name && title) document.title = `${name} - ${title}`;
         
         // Update experience section
-        const experienceData = data.data?.experience || data.experience || {};
+        const experienceData = data.experience || {};
         console.log('Experience data:', experienceData);
 
         const experienceSection = document.getElementById('experience');
@@ -1680,7 +1680,7 @@ function updateSiteContent(data) {
         updateCoursesTeachingGrid(data.results);
 
         // --- Fix: Update Teacher Experience Section (public only) ---
-        const teacherExpPublic = data.data?.teacherExperience || data.teacherExperience || { years: 10, students: 500, schools: 8 };
+        const teacherExpPublic = data.teacherExperience || { years: 10, students: 500, schools: 8 };
         const yearsExpEl = document.getElementById('yearsExperience');
         const studentsTaughtEl = document.getElementById('studentsTaught');
         const schoolsTaughtEl = document.getElementById('schoolsTaught');
