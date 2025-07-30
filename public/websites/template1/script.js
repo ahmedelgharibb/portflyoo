@@ -712,10 +712,10 @@ document.querySelectorAll('.bg-white.rounded-lg').forEach(card => {
     });
 });
 
-// Add smooth reveal animation to sections
-document.querySelectorAll('section').forEach(section => {
-    section.classList.add('opacity-0', 'transform', 'translate-y-10', 'transition-all', 'duration-700');
-});
+// Remove section reveal animation to prevent flickering
+// document.querySelectorAll('section').forEach(section => {
+//     section.classList.add('opacity-0', 'transform', 'translate-y-10', 'transition-all', 'duration-700');
+// });
 
 function revealSection() {
     document.querySelectorAll('section').forEach(section => {
@@ -2256,7 +2256,7 @@ function applyTheme(color, mode) {
     // Remove transition class after animation completes
     setTimeout(() => {
         document.body.classList.remove('theme-transition');
-    }, 500);
+    }, 200); // Reduced from 500ms to 200ms for faster theme transitions
     
     // Add 3D effect to sections
     addSectionDepthEffect(mode);
@@ -3257,7 +3257,7 @@ function hidePreloader() {
             preloader.classList.add('fade-out');
             setTimeout(() => {
                 preloader.style.display = 'none';
-            }, 600); // Match your CSS transition duration
+            }, 300); // Reduced from 600ms to 300ms for faster fade-out
         });
     }
 }
