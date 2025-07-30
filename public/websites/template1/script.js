@@ -273,20 +273,22 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.addEventListener('DOMContentLoaded', async () => {
         if (document.getElementById('adminPanel')) {
             try {
+                // Skip data fetching if already done to prevent duplicate updates
+                if (window.siteContentUpdated) {
+                    console.log('Site content already updated, skipping duplicate data fetch');
+                    return;
+                }
+                
                 // Fetch data from backend API
                 const response = await fetch('/api/api?action=getData');
                 if (!response.ok) throw new Error('Failed to fetch site data');
                 const currentData = await response.json();
                 console.log('Fetched site data:', currentData);
-                // Only update site content if not already updated
-                if (!window.siteContentUpdated) {
-                    try {
-                        updateSiteContent(currentData);
-                        window.siteContentUpdated = true;
-                    } catch (e) {
-                        console.error('Error updating site content:', e);
-                    }
-                }
+                
+                // Skip site content update since it's already handled in main initialization
+                console.log('Skipping duplicate site content update - already handled in main initialization');
+                window.siteContentUpdated = true;
+                
                 const websiteData = currentData?.data || currentData;
 
                 // Make sure heroPreview and aboutPreview are defined
