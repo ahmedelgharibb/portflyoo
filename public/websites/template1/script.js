@@ -1300,6 +1300,10 @@ function populateAdminForm(data) {
         renderQualificationsInputs(Array.isArray(personal.qualifications) ? personal.qualifications : []);
         // Experience: schools, centers, platforms
         const experience = data.experience || {};
+        console.log('Experience data for admin panel:', experience);
+        console.log('Schools:', experience.schools);
+        console.log('Centers:', experience.centers);
+        console.log('Platforms:', experience.platforms);
         renderExperienceInputs('schools', Array.isArray(experience.schools) ? experience.schools : []);
         renderExperienceInputs('centers', Array.isArray(experience.centers) ? experience.centers : []);
         renderExperienceInputs('platforms', Array.isArray(experience.platforms) ? experience.platforms : []);
@@ -3770,8 +3774,12 @@ function renderQualificationsInputs(qualifications) {
 }
 
 function renderExperienceInputs(field, values) {
+    console.log(`renderExperienceInputs called for ${field} with values:`, values);
     const list = document.getElementById(`${field}-list`);
-    if (!list) return;
+    if (!list) {
+        console.error(`Element with id '${field}-list' not found`);
+        return;
+    }
     list.innerHTML = '';
     const showDelete = (values && values.length > 1);
     (values && values.length ? values : ['']).forEach((val, idx, arr) => {
