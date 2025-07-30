@@ -1218,7 +1218,6 @@ function validateFormPopulation(data) {
         subtitle: subtitleInput ? subtitleInput.value : 'element not found',
         heroHeading: heroHeadingInput ? heroHeadingInput.value : 'element not found',
         experience: experienceInput ? experienceInput.value : 'element not found',
-        philosophy: philosophyInput ? philosophyInput.value : 'element not found',
         qualifications: qualificationsInput ? qualificationsInput.value : 'element not found',
         schools: schoolsInput ? schoolsInput.value : 'element not found',
         centers: centersInput ? centersInput.value : 'element not found',
@@ -1290,13 +1289,11 @@ function populateAdminForm(data) {
         const titleValue = personal.title || '';
         const subtitleValue = personal.subtitle || '';
         const heroHeadingValue = personal.heroHeading || '';
-        const philosophyValue = personal.philosophy || '';
         // Get form elements
         const nameInput = document.getElementById('admin-name');
         const titleInput = document.getElementById('admin-title');
         const subtitleInput = document.getElementById('admin-subtitle');
         const heroHeadingInput = document.getElementById('admin-hero-heading');
-        const philosophyInput = document.getElementById('admin-philosophy');
         // Set values
         if (nameInput) nameInput.value = nameValue;
         if (titleInput) titleInput.value = titleValue;
@@ -4647,7 +4644,7 @@ const ADMIN_FIELD_LIMITS = {
     'admin-title': 25,
     'admin-subtitle': 25,
     'admin-hero-heading': 60,
-    'admin-philosophy': 300
+    
 };
 
 function setupAdminFieldLimits() {
