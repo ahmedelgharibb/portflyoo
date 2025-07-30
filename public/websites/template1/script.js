@@ -3780,8 +3780,10 @@ function renderExperienceInputs(field, values) {
         console.error(`Element with id '${field}-list' not found`);
         return;
     }
+    console.log(`Found element ${field}-list:`, list);
     list.innerHTML = '';
     const showDelete = (values && values.length > 1);
+    console.log(`showDelete for ${field}:`, showDelete);
     (values && values.length ? values : ['']).forEach((val, idx, arr) => {
         const wrapper = document.createElement('div');
         wrapper.className = 'flex items-center gap-2';
