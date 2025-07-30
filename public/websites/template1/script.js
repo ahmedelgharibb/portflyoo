@@ -1299,7 +1299,6 @@ function populateAdminForm(data) {
         if (titleInput) titleInput.value = titleValue;
         if (subtitleInput) subtitleInput.value = subtitleValue;
         if (heroHeadingInput) heroHeadingInput.value = heroHeadingValue;
-        if (philosophyInput) philosophyInput.value = philosophyValue;
         // Qualifications: always use data.personal.qualifications
         renderQualificationsInputs(Array.isArray(personal.qualifications) ? personal.qualifications : []);
         // Experience: schools, centers, platforms
@@ -1513,7 +1512,6 @@ function updateSiteContent(data) {
         const heroHeading = data.personal && data.personal.heroHeading ? data.personal.heroHeading : (data.heroHeading || 'Inspiring Minds Through Mathematics');
         const heroDescText = data.personal && data.personal.heroDescription ? data.personal.heroDescription : (data.heroDescription || title);
         const qualifications = data.personal && data.personal.qualifications ? data.personal.qualifications : (data.qualifications || []);
-        const philosophy = data.personal && data.personal.philosophy ? data.personal.philosophy : (data.philosophy || '');
 
         // Update name and title in nav
         document.querySelectorAll('.nav-brand-name').forEach(el => el.textContent = name);
@@ -1943,7 +1941,6 @@ async function saveAdminChanges() {
         const subtitleInput = document.getElementById('admin-subtitle');
         const heroHeadingInput = document.getElementById('admin-hero-heading');
         const experienceInput = document.getElementById('admin-experience');
-        const philosophyInput = document.getElementById('admin-philosophy');
         const qualificationsInput = document.getElementById('admin-qualifications');
         const schoolsInput = document.getElementById('admin-schools');
         const centersInput = document.getElementById('admin-centers');
@@ -1969,7 +1966,7 @@ async function saveAdminChanges() {
             subtitleInput: subtitleInput ? 'found' : 'not found',
             heroHeadingInput: heroHeadingInput ? 'found' : 'not found',
             experienceInput: experienceInput ? 'found' : 'not found',
-            philosophyInput: philosophyInput ? 'found' : 'not found',
+
             qualificationsInput: qualificationsInput ? 'found' : 'not found',
             schoolsInput: schoolsInput ? 'found' : 'not found',
             centersInput: centersInput ? 'found' : 'not found',
@@ -2033,7 +2030,6 @@ async function saveAdminChanges() {
                 subtitle: subtitleInput?.value || currentData?.data?.personal?.subtitle || 'History Teacher',
                 heroHeading: heroHeadingInput?.value || currentData?.data?.personal?.heroHeading || 'Inspiring Minds Through Mathematics',
                 experience: experienceInput?.value || currentData?.data?.personal?.experience || '',
-                philosophy: philosophyInput ? philosophyInput.value : '',
                 qualifications: qualifications
             },
             teacherExperience: teacherExperience,
