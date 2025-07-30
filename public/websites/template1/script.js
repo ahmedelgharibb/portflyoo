@@ -3832,9 +3832,7 @@ function addExperienceInput(field) {
 document.addEventListener('DOMContentLoaded', () => {
     // Ensure at least one input and X button is visible for each dynamic list
     renderQualificationsInputs([]);
-    renderExperienceInputs('schools', []);
-    renderExperienceInputs('centers', []);
-    renderExperienceInputs('platforms', []);
+    // Don't initialize experience inputs here - they will be populated when admin panel opens
 
     const addBtn = document.getElementById('add-qualification-btn');
     if (addBtn) {
