@@ -1304,9 +1304,9 @@ function populateAdminForm(data) {
         console.log('Schools:', experience.schools);
         console.log('Centers:', experience.centers);
         console.log('Platforms:', experience.platforms);
-        renderExperienceInputs('schools', Array.isArray(experience.schools) ? experience.schools : []);
-        renderExperienceInputs('centers', Array.isArray(experience.centers) ? experience.centers : []);
-        renderExperienceInputs('platforms', Array.isArray(experience.platforms) ? experience.platforms : []);
+        renderExperienceInputs('admin-schools', Array.isArray(experience.schools) ? experience.schools : []);
+        renderExperienceInputs('admin-centers', Array.isArray(experience.centers) ? experience.centers : []);
+        renderExperienceInputs('admin-platforms', Array.isArray(experience.platforms) ? experience.platforms : []);
         // ... keep rest of the function unchanged ...
         console.log('Populating results form with:', data.results);
         populateResultsForm(Array.isArray(data.results) ? data.results : []);
@@ -3842,15 +3842,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const addSchoolsBtn = document.getElementById('add-schools-btn');
     if (addSchoolsBtn) {
-        addSchoolsBtn.addEventListener('click', () => addExperienceInput('schools'));
+        addSchoolsBtn.addEventListener('click', () => addExperienceInput('admin-schools'));
     }
     const addCentersBtn = document.getElementById('add-centers-btn');
     if (addCentersBtn) {
-        addCentersBtn.addEventListener('click', () => addExperienceInput('centers'));
+        addCentersBtn.addEventListener('click', () => addExperienceInput('admin-centers'));
     }
     const addPlatformsBtn = document.getElementById('add-platforms-btn');
     if (addPlatformsBtn) {
-        addPlatformsBtn.addEventListener('click', () => addExperienceInput('platforms'));
+        addPlatformsBtn.addEventListener('click', () => addExperienceInput('admin-platforms'));
     }
 });
 // ... existing code ...
