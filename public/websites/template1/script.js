@@ -1300,13 +1300,9 @@ function populateAdminForm(data) {
         renderQualificationsInputs(Array.isArray(personal.qualifications) ? personal.qualifications : []);
         // Experience: schools, centers, platforms
         const experience = data.experience || {};
-        console.log('Experience data for admin panel:', experience);
-        console.log('Schools:', experience.schools);
-        console.log('Centers:', experience.centers);
-        console.log('Platforms:', experience.platforms);
-        renderExperienceInputs('admin-schools', Array.isArray(experience.schools) ? experience.schools : []);
-        renderExperienceInputs('admin-centers', Array.isArray(experience.centers) ? experience.centers : []);
-        renderExperienceInputs('admin-platforms', Array.isArray(experience.platforms) ? experience.platforms : []);
+        renderExperienceInputs('schools', Array.isArray(experience.schools) ? experience.schools : []);
+        renderExperienceInputs('centers', Array.isArray(experience.centers) ? experience.centers : []);
+        renderExperienceInputs('platforms', Array.isArray(experience.platforms) ? experience.platforms : []);
         // ... keep rest of the function unchanged ...
         console.log('Populating results form with:', data.results);
         populateResultsForm(Array.isArray(data.results) ? data.results : []);
@@ -1320,7 +1316,7 @@ function populateAdminForm(data) {
         if (schoolsInput) schoolsInput.value = teacherExp.schools !== undefined ? teacherExp.schools : '';
         
         // Contact data
-        const contactData = data.contact || {};
+        const contactData = data.data?.contact || data.contact || {};
         console.log('Contact data to populate:', contactData);
         
         // Get contact form elements
@@ -3774,16 +3770,10 @@ function renderQualificationsInputs(qualifications) {
 }
 
 function renderExperienceInputs(field, values) {
-    console.log(`renderExperienceInputs called for ${field} with values:`, values);
     const list = document.getElementById(`${field}-list`);
-    if (!list) {
-        console.error(`Element with id '${field}-list' not found`);
-        return;
-    }
-    console.log(`Found element ${field}-list:`, list);
+    if (!list) return;
     list.innerHTML = '';
     const showDelete = (values && values.length > 1);
-    console.log(`showDelete for ${field}:`, showDelete);
     (values && values.length ? values : ['']).forEach((val, idx, arr) => {
         const wrapper = document.createElement('div');
         wrapper.className = 'flex items-center gap-2';
@@ -3834,7 +3824,9 @@ function addExperienceInput(field) {
 document.addEventListener('DOMContentLoaded', () => {
     // Ensure at least one input and X button is visible for each dynamic list
     renderQualificationsInputs([]);
-    // Don't initialize experience inputs here - they will be populated when admin panel opens
+    renderExperienceInputs('schools', []);
+    renderExperienceInputs('centers', []);
+    renderExperienceInputs('platforms', []);
 
     const addBtn = document.getElementById('add-qualification-btn');
     if (addBtn) {
@@ -3842,15 +3834,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const addSchoolsBtn = document.getElementById('add-schools-btn');
     if (addSchoolsBtn) {
-        addSchoolsBtn.addEventListener('click', () => addExperienceInput('admin-schools'));
+        addSchoolsBtn.addEventListener('click', () => addExperienceInput('schools'));
     }
     const addCentersBtn = document.getElementById('add-centers-btn');
     if (addCentersBtn) {
-        addCentersBtn.addEventListener('click', () => addExperienceInput('admin-centers'));
+        addCentersBtn.addEventListener('click', () => addExperienceInput('centers'));
     }
     const addPlatformsBtn = document.getElementById('add-platforms-btn');
     if (addPlatformsBtn) {
-        addPlatformsBtn.addEventListener('click', () => addExperienceInput('admin-platforms'));
+        addPlatformsBtn.addEventListener('click', () => addExperienceInput('platforms'));
     }
 });
 // ... existing code ...
