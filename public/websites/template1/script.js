@@ -1540,11 +1540,7 @@ function updateSiteContent(data) {
             `).join('');
         }
         
-        // Update teaching philosophy text
-        const philosophyText = document.querySelector('#about .bg-gradient-to-r.from-green-50 p.text-lg');
-        if (philosophyText && philosophy.trim()) {
-            philosophyText.textContent = philosophy;
-        }
+        // Teaching philosophy section removed - no longer needed
 
         // Update hero images
         if (data.heroImage) {
