@@ -1530,32 +1530,20 @@ function updateSiteContent(data) {
         if (heroDescEl) heroDescEl.textContent = heroDescText;
 
         // Update about section qualifications
-        const qualsList = document.querySelector('#about ul');
+        const qualsList = document.querySelector('#qualifications-list');
         if (qualsList && Array.isArray(qualifications)) {
             qualsList.innerHTML = qualifications.map(qual => `
-                <li class="flex items-center">
-                    <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
-                    <span>${qual}</span>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-blue-600 mr-4 mt-1 text-xl"></i>
+                    <span class="text-lg font-medium text-gray-700 leading-relaxed">${qual}</span>
                 </li>
             `).join('');
         }
         
         // Update teaching philosophy text
-        const philosophyText = document.querySelector('#about p.text-gray-600, #about p.mb-8');
-        if (philosophyText) {
-            if (philosophy.trim()) {
-                philosophyText.textContent = philosophy;
-                philosophyText.style.display = '';
-            } else {
-                philosophyText.style.display = 'none';
-            }
-        }
-
-        // Hide Teaching Philosophy title if missing
-        const philosophyTitle = Array.from(document.querySelectorAll('#about h2, #about h3'))
-            .find(el => el.textContent.trim().toLowerCase() === 'teaching philosophy');
-        if (philosophyTitle) {
-            philosophyTitle.style.display = philosophy.trim() ? '' : 'none';
+        const philosophyText = document.querySelector('#about .bg-gradient-to-r.from-green-50 p.text-lg');
+        if (philosophyText && philosophy.trim()) {
+            philosophyText.textContent = philosophy;
         }
 
         // Update hero images
