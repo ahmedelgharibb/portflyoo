@@ -96,7 +96,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
         });
     } else {
-        console.warn('Admin button not found in the DOM');
+        // Admin button not found - this is expected since we removed public-facing admin buttons
+        console.log('Admin button not found in the DOM (expected - removed from public interface)');
     }
     
     // Mobile admin button
@@ -277,10 +278,14 @@ document.addEventListener('DOMContentLoaded', async function() {
                 if (!response.ok) throw new Error('Failed to fetch site data');
                 const currentData = await response.json();
                 console.log('Fetched site data:', currentData);
-                try {
-                  updateSiteContent(currentData);
-                } catch (e) {
-                  console.error('Error updating site content:', e);
+                // Only update site content if not already updated
+                if (!window.siteContentUpdated) {
+                    try {
+                        updateSiteContent(currentData);
+                        window.siteContentUpdated = true;
+                    } catch (e) {
+                        console.error('Error updating site content:', e);
+                    }
                 }
                 const websiteData = currentData?.data || currentData;
 
@@ -289,7 +294,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 const aboutPreview = document.getElementById('aboutPreview');
 
                 if (!heroPreview || !aboutPreview) {
-                    console.warn('Preview elements not found in the DOM');
+                    console.log('Preview elements not found in the DOM - this is normal for initial load');
                     return;
                 }
                     
