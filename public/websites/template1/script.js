@@ -3311,12 +3311,10 @@ async function loadSiteData() {
 
 // Example: Save site data to backend
 async function saveSiteData(data) {
-    // Always wrap to satisfy API expecting either data, data.data, or data.data.data
-    const wrapped = { data: { data } };
     const response = await fetch('/api/api?action=saveData', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(wrapped)
+        body: JSON.stringify({ data })
     });
     const result = await response.json();
     if (!result.success) throw new Error(result.message || 'Failed to save site data');
@@ -3474,20 +3472,19 @@ function normalizeResults(data) {
     return data;
 }
 
-// Accept any of data.data.data, data.data, or data
-function normalizeShape(raw) {
-    const d = raw?.data?.data || raw?.data || raw || {};
-    return normalizeResults(d);
-}
-
 // Patch all data loads to normalize results
 async function loadSiteData() {
     const response = await fetch('/api/api?action=getData');
     if (!response.ok) throw new Error('Failed to load site data');
     const apiResponse = await response.json();
-    const normalizedData = normalizeShape(apiResponse);
+    
+    // Extract the nested data structure
+    const data = apiResponse.data || apiResponse;
+    const normalizedData = normalizeResults(data);
+    
     // Set global for teacher experience animation
     window.teacherExperienceData = normalizedData.teacherExperience || { years: 0, students: 0, schools: 0 };
+    
     return normalizedData;
 }
 
