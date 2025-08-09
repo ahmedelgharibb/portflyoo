@@ -129,15 +129,14 @@ export default async function handler(req, res) {
           return res.status(404).json({ success: false, message: 'No website data found for this site' });
         }
         
-        // Extract admin password from any supported nesting
+        // Extract admin password from the raw data structure
         let adminPassword = null;
         console.log('[API:login] Raw data structure received:', JSON.stringify(getDataResult, null, 2));
-        adminPassword =
-          getDataResult?.data?.data?.admin?.password ||
-          getDataResult?.data?.admin?.password ||
-          getDataResult?.admin?.password || null;
-        if (!adminPassword) {
-          console.error('[API:login] No admin password found in supported locations');
+        if (getDataResult.data && getDataResult.data.data && getDataResult.data.data.admin && getDataResult.data.data.admin.password) {
+          adminPassword = getDataResult.data.data.admin.password;
+          console.log('[API:login] Found password in data.data.admin.password:', !!adminPassword);
+        } else {
+          console.error('[API:login] No admin password found in expected location');
           return res.status(500).json({ success: false, message: 'No password configured in database' });
         }
         
@@ -195,11 +194,8 @@ export default async function handler(req, res) {
           console.error('[API:getData] Supabase error:', error.message);
           return res.status(500).json({ error: error.message });
         }
-        if (data) {
-          // Normalize any of: data.data.data, data.data, data
-          const normalized = data?.data?.data || data?.data || data;
-          // Keep original flattened shape for index.js route
-          const { personal = {}, ...rest } = normalized;
+        if (data && data.data) {
+          const { personal = {}, ...rest } = data.data;
           const result = { ...personal, ...rest };
           console.log('[API:getData] Success. Flattened data sent for site', siteId);
           res.status(200).json(result);
