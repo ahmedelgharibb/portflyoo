@@ -2,10 +2,42 @@
 // WARNING: File writes are not persistent on Vercel. Use a database for production.
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
+import fs from 'fs/promises';
+import path from 'path';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Resolve website context from explicit params or by inferring from Referer path
+async function resolveWebsiteContext(req) {
+  // 1) Explicit website_id in query or body
+  const rawId = (req.query && req.query.website_id) || (req.body && req.body.website_id);
+  const parsedId = rawId ? parseInt(rawId, 10) : NaN;
+  if (!Number.isNaN(parsedId) && parsedId > 0) {
+    return { siteId: parsedId };
+  }
+  // 2) Infer from Referer folder and local site.config.json
+  try {
+    const referer = req.headers && (req.headers.referer || req.headers.origin);
+    if (referer) {
+      const urlObj = new URL(referer);
+      const firstSegment = urlObj.pathname.split('/').filter(Boolean)[0];
+      if (firstSegment) {
+        const configPath = path.join(process.cwd(), 'public', 'websites', firstSegment, 'site.config.json');
+        const json = await fs.readFile(configPath, 'utf-8');
+        const cfg = JSON.parse(json);
+        if (cfg && Number.isInteger(cfg.site_id)) {
+          return { siteId: cfg.site_id, directory: firstSegment };
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[API] resolveWebsiteContext fallback due to error:', e.message);
+  }
+  // 3) Default
+  return { siteId: 1 };
+}
 
 export default async function handler(req, res) {
   // Set CSP header with frame-ancestors directive
@@ -73,15 +105,16 @@ export default async function handler(req, res) {
       }
       
       try {
-        console.log('[API:login] Starting login process for password:', password);
+        const { siteId } = await resolveWebsiteContext(req);
+        console.log('[API:login] Site ID resolved:', siteId);
         console.log('[API:login] Supabase URL:', process.env.SUPABASE_URL ? 'Set' : 'Not set');
         console.log('[API:login] Supabase Key:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Not set');
         
-        // Get the raw database structure (not flattened like getData)
+        // Get the raw database structure for this site
         const { data: getDataResult, error: getDataError } = await supabase
           .from('teachers_websites')
           .select('data')
-          .limit(1)
+          .eq('id', siteId)
           .maybeSingle();
         
         console.log('[API:login] Raw database query result:', { data: getDataResult, error: getDataError });
@@ -92,45 +125,28 @@ export default async function handler(req, res) {
         }
         
         if (!getDataResult) {
-          console.error('[API:login] No data found in teachers_websites table');
-          return res.status(500).json({ success: false, message: 'No website data found in database' });
+          console.error('[API:login] No data found in teachers_websites for site', siteId);
+          return res.status(404).json({ success: false, message: 'No website data found for this site' });
         }
         
         // Extract admin password from the raw data structure
         let adminPassword = null;
-        
         console.log('[API:login] Raw data structure received:', JSON.stringify(getDataResult, null, 2));
-        
-        // The raw data should have the structure: { data: { data: { admin: { password: "..." } } } }
         if (getDataResult.data && getDataResult.data.data && getDataResult.data.data.admin && getDataResult.data.data.admin.password) {
           adminPassword = getDataResult.data.data.admin.password;
-          console.log('[API:login] Found password in data.data.admin.password:', adminPassword);
+          console.log('[API:login] Found password in data.data.admin.password:', !!adminPassword);
         } else {
           console.error('[API:login] No admin password found in expected location');
-          console.log('[API:login] Available keys:', Object.keys(getDataResult));
-          if (getDataResult.data) {
-            console.log('[API:login] Data keys:', Object.keys(getDataResult.data));
-            if (getDataResult.data.data) {
-              console.log('[API:login] Data.data keys:', Object.keys(getDataResult.data.data));
-            }
-          }
           return res.status(500).json({ success: false, message: 'No password configured in database' });
         }
         
-        console.log('[API:login] Stored password:', adminPassword);
-        
-        // Hash the provided password and compare with stored hash
+        // Compare with stored hash
         const isValid = await bcrypt.compare(password, adminPassword);
-        console.log('[API:login] Password validation:', { provided: password, stored: adminPassword, valid: isValid });
-        
-        // Track login attempts for rate limiting
         recentAttempts.push(now);
         global.rateLimitStore.set(rateLimitKey, recentAttempts);
-        
         if (!isValid) {
-          console.log(`[API:login] Failed login attempt from IP: ${clientIP}`);
+          console.log(`[API:login] Failed login attempt from IP: ${clientIP} for site ${siteId}`);
         }
-        
         return res.status(200).json({
           success: isValid,
           message: isValid ? 'Login successful' : 'Invalid password'
@@ -167,73 +183,79 @@ export default async function handler(req, res) {
       }
     }
     case 'getData': {
-      const { data, error } = await supabase
-        .from('teachers_websites')
-        .select('*')
-        .limit(1)
-        .maybeSingle();
-      if (error) {
-        console.error('[API:getData] Supabase error:', error.message);
-        return res.status(500).json({ error: error.message });
-      }
-      if (data && data.data) {
-        const { personal = {}, ...rest } = data.data;
-        const result = { ...personal, ...rest };
-        console.log('[API:getData] Success. Flattened data sent:', result);
-        res.status(200).json(result);
-      } else {
-        // Return a default data structure if no data is found
-        const defaultData = {
-          personal: {
-            name: 'Dr. Ahmed Mahmoud',
-            title: 'Mathematics Educator',
-            subtitle: 'Inspiring the next generation',
-            heroHeading: 'Inspiring Minds Through Mathematics',
-            experience: '15+ years teaching experience',
-            philosophy: 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.',
-            qualifications: [
-              'Ph.D. in Mathematics Education',
-              'Master\'s in Applied Mathematics',
-              'Bachelor\'s in Mathematics'
-            ]
-          },
-          experience: {
-            schools: [
-              'International School of Mathematics',
-              'Elite Academy',
-              'Science High School'
+      try {
+        const { siteId } = await resolveWebsiteContext(req);
+        const { data, error } = await supabase
+          .from('teachers_websites')
+          .select('*')
+          .eq('id', siteId)
+          .maybeSingle();
+        if (error) {
+          console.error('[API:getData] Supabase error:', error.message);
+          return res.status(500).json({ error: error.message });
+        }
+        if (data && data.data) {
+          const { personal = {}, ...rest } = data.data;
+          const result = { ...personal, ...rest };
+          console.log('[API:getData] Success. Flattened data sent for site', siteId);
+          res.status(200).json(result);
+        } else {
+          // Return a default data structure if no data is found
+          const defaultData = {
+            personal: {
+              name: 'Dr. Ahmed Mahmoud',
+              title: 'Mathematics Educator',
+              subtitle: 'Inspiring the next generation',
+              heroHeading: 'Inspiring Minds Through Mathematics',
+              experience: '15+ years teaching experience',
+              philosophy: 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.',
+              qualifications: [
+                'Ph.D. in Mathematics Education',
+                'Master\'s in Applied Mathematics',
+                'Bachelor\'s in Mathematics'
+              ]
+            },
+            experience: {
+              schools: [
+                'International School of Mathematics',
+                'Elite Academy',
+                'Science High School'
+              ],
+              centers: [
+                'Math Excellence Center',
+                'Advanced Learning Institute',
+                'STEM Education Hub'
+              ],
+              platforms: [
+                'MathPro Online',
+                'EduTech Academy',
+                'Virtual Learning Center'
+              ]
+            },
+            results: [
+              { subject: 'Mathematics', astar: 10, a: 15, other: 5 },
+              { subject: 'Physics', astar: 8, a: 12, other: 7 },
+              { subject: 'Chemistry', astar: 6, a: 10, other: 9 },
+              { subject: 'Biology', astar: 5, a: 8, other: 12 }
             ],
-            centers: [
-              'Math Excellence Center',
-              'Advanced Learning Institute',
-              'STEM Education Hub'
-            ],
-            platforms: [
-              'MathPro Online',
-              'EduTech Academy',
-              'Virtual Learning Center'
-            ]
-          },
-          results: [
-            { subject: 'Mathematics', astar: 10, a: 15, other: 5 },
-            { subject: 'Physics', astar: 8, a: 12, other: 7 },
-            { subject: 'Chemistry', astar: 6, a: 10, other: 9 },
-            { subject: 'Biology', astar: 5, a: 8, other: 12 }
-          ],
-          contact: {
-            email: 'ahmed.mahmoud@mathseducator.com',
-            formUrl: 'https://forms.google.com/your-form-link',
-            assistantFormUrl: 'https://forms.google.com/assistant-form-link',
-            phone: '+1 123-456-7890',
-            contactMessage: 'Thank you for your interest in my teaching services. I will get back to you as soon as possible.'
-          },
-          theme: {
-            color: 'blue',
-            mode: 'light'
-          }
-        };
-        console.warn('[API:getData] No data found. Returning default data structure.');
-        res.status(200).json(defaultData);
+            contact: {
+              email: 'ahmed.mahmoud@mathseducator.com',
+              formUrl: 'https://forms.google.com/your-form-link',
+              assistantFormUrl: 'https://forms.google.com/assistant-form-link',
+              phone: '+1 123-456-7890',
+              contactMessage: 'Thank you for your interest in my teaching services. I will get back to you as soon as possible.'
+            },
+            theme: {
+              color: 'blue',
+              mode: 'light'
+            }
+          };
+          console.warn('[API:getData] No data found for site', siteId, '. Returning default data structure.');
+          res.status(200).json(defaultData);
+        }
+      } catch (e) {
+        console.error('[API:getData] Unexpected error:', e);
+        return res.status(500).json({ error: 'Server error' });
       }
       break;
     }
@@ -242,7 +264,14 @@ export default async function handler(req, res) {
       console.log('[API:saveData] Incoming request body:', JSON.stringify(req.body, null, 2));
       
       // Handle the correct structure: { id: number, data: object }
-      const { id, data: dataToSave } = req.body;
+      let { id, data: dataToSave } = req.body;
+      
+      // Fallback: infer id from context when not provided
+      if (!id) {
+        const { siteId } = await resolveWebsiteContext(req);
+        id = siteId;
+        console.log('[API:saveData] No id provided. Using resolved site id:', id);
+      }
       
       if (!id || !dataToSave) {
         console.error('[API:saveData] Missing required fields: id or data');
@@ -263,14 +292,18 @@ export default async function handler(req, res) {
         console.error('[API:saveData] Supabase error:', error.message, error.details, error.hint);
         return res.status(500).json({ success: false, message: error.message, details: error.details, hint: error.hint });
       }
-      console.log('[API:saveData] Success. Data saved:', dataToSave);
+      console.log('[API:saveData] Success. Data saved for site', id);
       res.status(200).json({ success: true, message: 'Data saved successfully' });
       break;
     }
     case 'getReviews': {
-      let reviews = [];
-      if (req.query.website_id || req.body.website_id) {
-        const websiteId = req.query.website_id || req.body.website_id;
+      try {
+        let websiteId = req.query.website_id || (req.body && req.body.website_id);
+        if (!websiteId) {
+          const ctx = await resolveWebsiteContext(req);
+          websiteId = ctx.siteId;
+        }
+        let reviews = [];
         const { data, error } = await supabase
           .from('reviews')
           .select('*')
@@ -281,19 +314,12 @@ export default async function handler(req, res) {
           return res.status(500).json({ error: error.message });
         }
         reviews = data;
-      } else {
-        const { data, error } = await supabase
-          .from('reviews')
-          .select('*')
-          .order('created_at', { ascending: false });
-        if (error) {
-          console.error('[API:getReviews] Supabase error:', error.message);
-          return res.status(500).json({ error: error.message });
-        }
-        reviews = data;
+        console.log('[API:getReviews] Success. Reviews sent for site', websiteId);
+        res.status(200).json({ reviews });
+      } catch (e) {
+        console.error('[API:getReviews] Unexpected error:', e);
+        return res.status(500).json({ error: 'Server error' });
       }
-      console.log('[API:getReviews] Success. Reviews sent:', reviews);
-      res.status(200).json({ reviews });
       break;
     }
     case 'saveReviews': {
