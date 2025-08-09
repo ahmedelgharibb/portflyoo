@@ -277,23 +277,20 @@ export default async function handler(req, res) {
         console.log('[API:saveData] No id provided. Using resolved site id:', id);
       }
       
-      // Normalize incoming data shape to support data, data.data, or data.data.data
-      const normalizedToSave = dataToSave?.data?.data || dataToSave?.data || dataToSave;
-      
-      if (!id || !normalizedToSave) {
+      if (!id || !dataToSave) {
         console.error('[API:saveData] Missing required fields: id or data');
         return res.status(400).json({ success: false, message: 'Missing required fields: id or data' });
       }
       
       // Password should already be hashed from changePassword API
-      if (normalizedToSave.admin && normalizedToSave.admin.password) {
+      if (dataToSave.admin && dataToSave.admin.password) {
         console.log('[API:saveData] Password already hashed, saving as is');
       }
       
       // Save the entire site data object in the 'data' column
       const { data, error } = await supabase
         .from('teachers_websites')
-        .upsert([{ id: id, data: normalizedToSave }]);
+        .upsert([{ id: id, data: dataToSave }]);
       if (error) {
         // Log full error object for debugging
         console.error('[API:saveData] Supabase error:', error.message, error.details, error.hint);
