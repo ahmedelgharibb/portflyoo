@@ -3793,8 +3793,13 @@ function renderQualificationsInputs(qualifications) {
 }
 
 function renderExperienceInputs(field, values) {
-    const list = document.getElementById(`${field}-list`);
-    if (!list) return;
+    console.log(`renderExperienceInputs called with field: ${field}, values:`, values);
+    const list = document.getElementById(`admin-${field}-list`);
+    if (!list) {
+        console.error(`❌ admin-${field}-list element not found in DOM`);
+        return;
+    }
+    console.log(`✅ admin-${field}-list element found, rendering inputs`);
     list.innerHTML = '';
     const showDelete = (values && values.length > 1);
     (values && values.length ? values : ['']).forEach((val, idx, arr) => {
@@ -3823,6 +3828,7 @@ function renderExperienceInputs(field, values) {
         }
         list.appendChild(wrapper);
     });
+    console.log(`✅ ${field} inputs rendered successfully`);
 }
 // ... existing code ...
 
@@ -3842,11 +3848,17 @@ function addQualificationInput() {
 }
 
 function addExperienceInput(field) {
-    const list = document.getElementById(`${field}-list`);
-    if (!list) return;
+    console.log(`addExperienceInput called for field: ${field}`);
+    const list = document.getElementById(`admin-${field}-list`);
+    if (!list) {
+        console.error(`❌ admin-${field}-list element not found in addExperienceInput`);
+        return;
+    }
+    console.log(`✅ admin-${field}-list element found, adding new input`);
     // Gather current values
     const values = Array.from(list.querySelectorAll('input')).map(input => input.value);
     values.push('');
+    console.log(`Current values for ${field}:`, values);
     renderExperienceInputs(field, values);
 }
 
