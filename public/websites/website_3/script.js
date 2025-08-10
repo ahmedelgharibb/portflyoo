@@ -3783,12 +3783,12 @@ document.addEventListener('DOMContentLoaded', handleTeacherExperienceAnimation);
 // Helper to render qualifications as multiple input boxes
 function renderQualificationsInputs(qualifications) {
     console.log('renderQualificationsInputs called with:', qualifications);
-    const list = document.getElementById('qualifications-list');
+    const list = document.getElementById('admin-qualifications-list');
     if (!list) {
-        console.error('❌ qualifications-list element not found in DOM');
+        console.error('❌ admin-qualifications-list element not found in DOM');
         return;
     }
-    console.log('✅ qualifications-list element found, rendering inputs');
+    console.log('✅ admin-qualifications-list element found, rendering inputs');
     list.innerHTML = '';
     const showDelete = (qualifications && qualifications.length > 1);
     (qualifications && qualifications.length ? qualifications : ['']).forEach((qual, idx, arr) => {
@@ -3856,12 +3856,12 @@ function renderExperienceInputs(field, values) {
 
 function addQualificationInput() {
     console.log('addQualificationInput called');
-    const list = document.getElementById('qualifications-list');
+    const list = document.getElementById('admin-qualifications-list');
     if (!list) {
-        console.error('❌ qualifications-list element not found in addQualificationInput');
+        console.error('❌ admin-qualifications-list element not found in addQualificationInput');
         return;
     }
-    console.log('✅ qualifications-list element found, adding new input');
+    console.log('✅ admin-qualifications-list element found, adding new input');
     // Gather current values
     const values = Array.from(list.querySelectorAll('input')).map(input => input.value);
     values.push('');
