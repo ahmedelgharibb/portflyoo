@@ -65,6 +65,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Initialize DOM elements
     initDOMElements();
     
+    // Fix mobile keyboard viewport issues
+    fixMobileKeyboardViewport();
+    
     // Define elements (example selectors)
     const adminBtn = document.querySelector('#adminBtn');
     const adminBtnMobile = document.querySelector('#adminBtnMobile');
@@ -610,6 +613,56 @@ function initDOMElements() {
             addNewResult();
         });
     }
+}
+
+// Fix mobile keyboard viewport issues
+function fixMobileKeyboardViewport() {
+    // Only apply on mobile devices
+    if (window.innerWidth > 768) return;
+    
+    let initialViewportHeight = window.innerHeight;
+    let currentViewportHeight = initialViewportHeight;
+    
+    // Function to handle viewport changes
+    function handleViewportChange() {
+        currentViewportHeight = window.innerHeight;
+        
+        // If viewport height decreased significantly, keyboard is likely open
+        if (currentViewportHeight < initialViewportHeight * 0.8) {
+            // Add class to body to adjust layout
+            document.body.classList.add('keyboard-open');
+            
+            // Adjust viewport meta tag temporarily
+            const viewport = document.querySelector('meta[name="viewport"]');
+            if (viewport) {
+                viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, height=device-height');
+            }
+        } else {
+            // Remove class when keyboard closes
+            document.body.classList.remove('keyboard-open');
+            
+            // Restore original viewport meta tag
+            const viewport = document.querySelector('meta[name="viewport"]');
+            if (viewport) {
+                viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+            }
+        }
+    }
+    
+    // Listen for resize events (keyboard open/close)
+    window.addEventListener('resize', handleViewportChange);
+    
+    // Listen for orientation changes
+    window.addEventListener('orientationchange', () => {
+        // Wait for orientation change to complete
+        setTimeout(() => {
+            initialViewportHeight = window.innerHeight;
+            handleViewportChange();
+        }, 100);
+    });
+    
+    // Initial check
+    handleViewportChange();
 }
 
 // Gallery Hover Effect
