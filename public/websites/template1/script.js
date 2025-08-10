@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     try {
-        // Fetch site data from backend
+        // Fetch site data from backend (with caching to prevent duplicate calls)
         const data = await loadSiteData();
         // Handle all possible data structures: data.data.data, data.data, or data
         const siteContent = (data && data.data && data.data.data) ? data.data.data : (data && data.data ? data.data : data);
@@ -189,6 +189,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Set teacher name in footer copyright using the same data
         const name = siteContent.personal && siteContent.personal.name ? siteContent.personal.name : (siteContent.name || 'Teacher Name');
         setFooterTeacherName(name);
+        // Mark that site content has been updated to prevent duplicate calls
+        window.siteContentUpdated = true;
     } catch (err) {
         console.error('Failed to load site data:', err);
         // Fallback: use default data
@@ -282,11 +284,18 @@ document.addEventListener('DOMContentLoaded', async function() {
                     return;
                 }
                 
-                // Fetch data from backend API
-                const response = await fetch('/api/api?action=getData');
-                if (!response.ok) throw new Error('Failed to fetch site data');
-                const currentData = await response.json();
-                console.log('Fetched site data:', currentData);
+                // Use cached data if available, otherwise fetch from backend API
+                let currentData;
+                if (window.siteData) {
+                    console.log('Using cached site data for image initialization');
+                    currentData = window.siteData;
+                } else {
+                    console.log('No cached data, fetching from backend API');
+                    const response = await fetch('/api/api?action=getData');
+                    if (!response.ok) throw new Error('Failed to fetch site data');
+                    currentData = await response.json();
+                    console.log('Fetched site data:', currentData);
+                }
                 
                 // Skip site content update since it's already handled in main initialization
                 console.log('Skipping duplicate site content update - already handled in main initialization');
@@ -3414,8 +3423,21 @@ if (!document.getElementById('shake-animation-style')) {
 
 // [SECURITY] All data load/save logic now uses backend API endpoints (api.php). No Supabase logic or secrets remain in frontend.
 
-// Example: Load site data from backend
+// Global cache for site data to prevent duplicate API calls
+let siteDataCache = null;
+let siteDataCacheTime = 0;
+const CACHE_DURATION = 30000; // 30 seconds cache
+
+// Example: Load site data from backend with caching
 async function loadSiteData() {
+    // Check if we have valid cached data
+    const now = Date.now();
+    if (siteDataCache && (now - siteDataCacheTime) < CACHE_DURATION) {
+        console.log('Using cached site data (age:', now - siteDataCacheTime, 'ms)');
+        return siteDataCache;
+    }
+    
+    console.log('Fetching fresh site data from API');
     const response = await fetch('/api/api?action=getData');
     if (!response.ok) throw new Error('Failed to load site data');
     const apiResponse = await response.json();
@@ -3425,7 +3447,12 @@ async function loadSiteData() {
     const siteContent = (data && data.data && data.data.data) ? data.data.data : (data && data.data) ? data.data : data;
     
     // Set global for teacher experience animation
-            window.teacherExperienceData = siteContent.teacherExperience || { years: '', students: '', schools: '' };
+    window.teacherExperienceData = siteContent.teacherExperience || { years: '', students: '', schools: '' };
+    
+    // Cache the result
+    siteDataCache = siteContent;
+    siteDataCacheTime = now;
+    
     return siteContent;
 }
 
@@ -3438,6 +3465,10 @@ async function saveSiteData(data) {
     });
     const result = await response.json();
     if (!result.success) throw new Error(result.message || 'Failed to save site data');
+    
+    // Clear cache after saving to ensure fresh data on next load
+    siteDataCache = null;
+    siteDataCacheTime = 0;
 }
 
 // Drag and drop setup for image upload zones
