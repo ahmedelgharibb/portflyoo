@@ -9,6 +9,23 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Helper function to normalize data structure - handles data.data.data, data.data, or data
+function normalizeDataStructure(data) {
+  if (data && data.data && data.data.data) {
+    return data.data.data; // Triple nested: data.data.data
+  } else if (data && data.data) {
+    return data.data; // Double nested: data.data
+  } else {
+    return data; // Flat: data
+  }
+}
+
+// Helper function to get admin password from any data structure
+function getAdminPassword(data) {
+  const normalized = normalizeDataStructure(data);
+  return normalized && normalized.admin && normalized.admin.password ? normalized.admin.password : null;
+}
+
 // Resolve website context from explicit params or by inferring from Referer path
 async function resolveWebsiteContext(req) {
   // 1) Explicit website_id in query or body
@@ -129,16 +146,19 @@ export default async function handler(req, res) {
           return res.status(404).json({ success: false, message: 'No website data found for this site' });
         }
         
-        // Extract admin password from the raw data structure
+        // Extract admin password from the raw data structure using helper function
         let adminPassword = null;
         console.log('[API:login] Raw data structure received:', JSON.stringify(getDataResult, null, 2));
-        if (getDataResult.data && getDataResult.data.data && getDataResult.data.data.admin && getDataResult.data.data.admin.password) {
-          adminPassword = getDataResult.data.data.admin.password;
-          console.log('[API:login] Found password in data.data.admin.password:', !!adminPassword);
-        } else {
-          console.error('[API:login] No admin password found in expected location');
+        
+        // Use helper function to get admin password from any data structure
+        adminPassword = getAdminPassword(getDataResult);
+        
+        if (!adminPassword) {
+          console.error('[API:login] No admin password found in any expected location');
           return res.status(500).json({ success: false, message: 'No password configured in database' });
         }
+        
+        console.log('[API:login] Found password using normalized structure:', !!adminPassword);
         
         // Compare with stored hash
         const isValid = await bcrypt.compare(password, adminPassword);
@@ -194,10 +214,12 @@ export default async function handler(req, res) {
           console.error('[API:getData] Supabase error:', error.message);
           return res.status(500).json({ error: error.message });
         }
-        if (data && data.data) {
-          const { personal = {}, ...rest } = data.data;
+        if (data) {
+          // Use helper function to normalize data structure
+          const normalizedData = normalizeDataStructure(data);
+          const { personal = {}, ...rest } = normalizedData;
           const result = { ...personal, ...rest };
-          console.log('[API:getData] Success. Flattened data sent for site', siteId);
+          console.log('[API:getData] Success. Normalized and flattened data sent for site', siteId);
           res.status(200).json(result);
         } else {
           // Return a default data structure if no data is found
@@ -363,4 +385,4 @@ export default async function handler(req, res) {
       console.warn('[API] Unknown action:', action);
       res.status(400).json({ success: false, message: 'Unknown action' });
   }
-} 
+}

@@ -7,6 +7,23 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Helper function to normalize data structure - handles data.data.data, data.data, or data
+function normalizeDataStructure(data) {
+  if (data && data.data && data.data.data) {
+    return data.data.data; // Triple nested: data.data.data
+  } else if (data && data.data) {
+    return data.data; // Double nested: data.data
+  } else {
+    return data; // Flat: data
+  }
+}
+
+// Helper function to get admin password from any data structure
+function getAdminPassword(data) {
+  const normalized = normalizeDataStructure(data);
+  return normalized && normalized.admin && normalized.admin.password ? normalized.admin.password : null;
+}
+
 export default async function handler(req, res) {
   // Set CSP header with frame-ancestors directive
   res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';");
@@ -96,17 +113,16 @@ export default async function handler(req, res) {
           return res.status(500).json({ success: false, message: 'No website data found in database' });
         }
         
-        // Extract admin password from the raw data structure
+        // Extract admin password from the raw data structure using helper function
         let adminPassword = null;
         
         console.log('[API:login] Raw data structure received:', JSON.stringify(getDataResult, null, 2));
         
-        // The raw data should have the structure: { data: { data: { admin: { password: "..." } } } }
-        if (getDataResult.data && getDataResult.data.data && getDataResult.data.data.admin && getDataResult.data.data.admin.password) {
-          adminPassword = getDataResult.data.data.admin.password;
-          console.log('[API:login] Found password in data.data.admin.password:', adminPassword);
-        } else {
-          console.error('[API:login] No admin password found in expected location');
+        // Use helper function to get admin password from any data structure
+        adminPassword = getAdminPassword(getDataResult);
+        
+        if (!adminPassword) {
+          console.error('[API:login] No admin password found in any expected location');
           console.log('[API:login] Available keys:', Object.keys(getDataResult));
           if (getDataResult.data) {
             console.log('[API:login] Data keys:', Object.keys(getDataResult.data));
@@ -116,6 +132,8 @@ export default async function handler(req, res) {
           }
           return res.status(500).json({ success: false, message: 'No password configured in database' });
         }
+        
+        console.log('[API:login] Found password using normalized structure:', adminPassword);
         
         console.log('[API:login] Stored password:', adminPassword);
         
@@ -176,12 +194,14 @@ export default async function handler(req, res) {
         console.error('[API:getData] Supabase error:', error.message);
         return res.status(500).json({ error: error.message });
       }
-      if (data && data.data) {
-        const { personal = {}, ...rest } = data.data;
-        const result = { ...personal, ...rest };
-        console.log('[API:getData] Success. Flattened data sent:', result);
-        res.status(200).json(result);
-      } else {
+              if (data) {
+          // Use helper function to normalize data structure
+          const normalizedData = normalizeDataStructure(data);
+          const { personal = {}, ...rest } = normalizedData;
+          const result = { ...personal, ...rest };
+          console.log('[API:getData] Success. Normalized and flattened data sent:', result);
+          res.status(200).json(result);
+        } else {
         // Return a default data structure if no data is found
         const defaultData = {
           personal: {

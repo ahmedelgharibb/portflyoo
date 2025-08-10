@@ -180,8 +180,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         // Fetch site data from backend
         const data = await loadSiteData();
-        // If data is nested under .data, flatten it
-        const siteContent = data.data || data;
+        // Handle all possible data structures: data.data.data, data.data, or data
+        const siteContent = (data && data.data && data.data.data) ? data.data.data : (data && data.data ? data.data : data);
         updateSiteContent(siteContent);
         // Set teacher name in footer copyright using the same data
         const name = siteContent.personal && siteContent.personal.name ? siteContent.personal.name : (siteContent.name || 'Teacher Name');
@@ -1077,7 +1077,7 @@ async function openAdminPanel() {
             const data = await response.json();
             // Accept any non-error API response as valid
             if (data && typeof data === 'object' && Object.keys(data).length > 0) {
-                adminData = data.data || data;
+                adminData = (data && data.data && data.data.data) ? data.data.data : (data && data.data ? data.data : data);
                 dataSource = 'api';
                 console.log('✅ Data loaded for admin panel from API successfully');
             } else {
@@ -1319,7 +1319,7 @@ function populateAdminForm(data) {
         if (schoolsInput) schoolsInput.value = teacherExp.schools !== undefined ? teacherExp.schools : '';
         
         // Contact data
-        const contactData = data.data?.contact || data.contact || {};
+        const contactData = (data && data.data && data.data.data) ? (data.data.data.contact || {}) : (data && data.data) ? (data.data.contact || {}) : (data.contact || {});
         console.log('Contact data to populate:', contactData);
         
         // Get contact form elements
@@ -1497,8 +1497,13 @@ function initDOMElements() {
 
 // Update site content with new data
 function updateSiteContent(data) {
-    // Unwrap nested 'data' property if present
-    if (data && data.data) data = data.data;
+    // Handle all possible data structures: data.data.data, data.data, or data
+    if (data && data.data && data.data.data) {
+        data = data.data.data; // Triple nested: data.data.data
+    } else if (data && data.data) {
+        data = data.data; // Double nested: data.data
+    }
+    // If data is flat, keep as is
     // Define personalData for all later references
     const personalData = data.personal || {};
     const experienceData = data.experience || {};
@@ -2007,12 +2012,22 @@ async function saveAdminChanges() {
             delete currentDataWithoutAdmin.data.admin;
         }
         
-        // Get the updated password from siteData (set during password change)
-        const updatedPassword = siteData?.data?.admin?.password || currentData?.data?.admin?.password || '';
+        // Get the updated password from siteData using normalized structure
+        // Handle all possible data structures: data.data.data, data.data, or data
+        const updatedPassword = (siteData && siteData.data && siteData.data.data && siteData.data.data.admin && siteData.data.data.admin.password) ? siteData.data.data.admin.password :
+                               (siteData && siteData.data && siteData.data.admin && siteData.data.admin.password) ? siteData.data.admin.password :
+                               (siteData && siteData.admin && siteData.admin.password) ? siteData.admin.password :
+                               (currentData && currentData.data && currentData.data.data && currentData.data.data.admin && currentData.data.data.admin.password) ? currentData.data.data.admin.password :
+                               (currentData && currentData.data && currentData.data.admin && currentData.data.admin.password) ? currentData.data.admin.password :
+                               (currentData && currentData.admin && currentData.admin.password) ? currentData.admin.password : '';
         
         console.log('[Save Changes] Password debug:', {
+            'siteData.data.data.admin.password': siteData?.data?.data?.admin?.password,
             'siteData.data.admin.password': siteData?.data?.admin?.password,
+            'siteData.admin.password': siteData?.admin?.password,
+            'currentData.data.data.admin.password': currentData?.data?.data?.admin?.password,
             'currentData.data.admin.password': currentData?.data?.admin?.password,
+            'currentData.admin.password': currentData?.admin?.password,
             'updatedPassword': updatedPassword
         });
         
@@ -3300,9 +3315,9 @@ async function loadSiteData() {
     if (!response.ok) throw new Error('Failed to load site data');
     const apiResponse = await response.json();
     
-    // Extract the nested data structure
-    const data = apiResponse.data || apiResponse;
-    const siteContent = data.data || data;
+    // Handle all possible data structures: data.data.data, data.data, or data
+    const data = (apiResponse && apiResponse.data && apiResponse.data.data) ? apiResponse.data.data : (apiResponse && apiResponse.data) ? apiResponse.data : apiResponse;
+    const siteContent = (data && data.data && data.data.data) ? data.data.data : (data && data.data) ? data.data : data;
     
     // Set global for teacher experience animation
     window.teacherExperienceData = siteContent.teacherExperience || { years: 10, students: 500, schools: 8 };
@@ -4175,10 +4190,14 @@ function setupPasswordChange() {
             const result = await response.json();
 
             if (result.success) {
-                // Store the hashed password in siteData
-                // Check if siteData has the nested data structure or flat structure
-                if (siteData.data && siteData.data.admin) {
-                    // Nested structure: siteData.data.admin.password
+                // Store the hashed password in siteData using normalized structure
+                // Handle all possible data structures: siteData.data.data, siteData.data, or siteData
+                if (siteData && siteData.data && siteData.data.data && siteData.data.data.admin) {
+                    // Triple nested structure: siteData.data.data.admin.password
+                    siteData.data.data.admin.password = result.hashedPassword;
+                    console.log('[Password Change] Hashed password stored in siteData.data.data.admin.password:', result.hashedPassword);
+                } else if (siteData && siteData.data && siteData.data.admin) {
+                    // Double nested structure: siteData.data.admin.password
                     siteData.data.admin.password = result.hashedPassword;
                     console.log('[Password Change] Hashed password stored in siteData.data.admin.password:', result.hashedPassword);
                 } else {
@@ -4190,14 +4209,14 @@ function setupPasswordChange() {
                     console.log('[Password Change] Hashed password stored in siteData.admin.password:', result.hashedPassword);
                 }
                 
-                // Ensure siteData is properly initialized with nested structure if needed
+                // Ensure siteData has the proper nested structure for consistency
                 if (!siteData.data) {
                     siteData.data = {};
                 }
                 if (!siteData.data.admin) {
                     siteData.data.admin = {};
                 }
-                // Always update the nested structure to ensure consistency
+                // Always update the double nested structure to ensure consistency
                 siteData.data.admin.password = result.hashedPassword;
                 console.log('[Password Change] Final siteData.data.admin.password:', siteData.data.admin.password);
                 
