@@ -1283,12 +1283,12 @@ function populateAdminForm(data) {
             initializeWithDefaultData();
             data = siteData;
         }
-        // Always use data.personal for personal info
+        // Handle both flattened and nested data structures for personal info
         const personal = data.personal || {};
-        const nameValue = personal.name || '';
-        const titleValue = personal.title || '';
-        const subtitleValue = personal.subtitle || '';
-        const heroHeadingValue = personal.heroHeading || '';
+        const nameValue = personal.name || data.name || '';
+        const titleValue = personal.title || data.title || '';
+        const subtitleValue = personal.subtitle || data.subtitle || '';
+        const heroHeadingValue = personal.heroHeading || data.heroHeading || '';
         // Get form elements
         const nameInput = document.getElementById('admin-name');
         const titleInput = document.getElementById('admin-title');
@@ -1299,17 +1299,22 @@ function populateAdminForm(data) {
         if (titleInput) titleInput.value = titleValue;
         if (subtitleInput) subtitleInput.value = subtitleValue;
         if (heroHeadingInput) heroHeadingInput.value = heroHeadingValue;
-        // Qualifications: always use data.personal.qualifications
-        renderQualificationsInputs(Array.isArray(personal.qualifications) ? personal.qualifications : []);
-        // Experience: schools, centers, platforms
+        // Qualifications: handle both flattened and nested data structures
+        const qualifications = personal.qualifications || data.qualifications || [];
+        renderQualificationsInputs(Array.isArray(qualifications) ? qualifications : []);
+        // Experience: schools, centers, platforms - handle both structures
         const experience = data.experience || {};
-        renderExperienceInputs('schools', Array.isArray(experience.schools) ? experience.schools : []);
-        renderExperienceInputs('centers', Array.isArray(experience.centers) ? experience.centers : []);
-        renderExperienceInputs('platforms', Array.isArray(experience.platforms) ? experience.platforms : []);
-        // ... keep rest of the function unchanged ...
-        console.log('Populating results form with:', data.results);
-        populateResultsForm(Array.isArray(data.results) ? data.results : []);
-        // Teacher Experience fields (admin panel)
+        const schools = experience.schools || data.schools || [];
+        const centers = experience.centers || data.centers || [];
+        const platforms = experience.platforms || data.platforms || [];
+        renderExperienceInputs('schools', Array.isArray(schools) ? schools : []);
+        renderExperienceInputs('centers', Array.isArray(centers) ? centers : []);
+        renderExperienceInputs('platforms', Array.isArray(platforms) ? platforms : []);
+        // Results: handle both structures
+        const results = data.results || [];
+        console.log('Populating results form with:', results);
+        populateResultsForm(Array.isArray(results) ? results : []);
+        // Teacher Experience fields (admin panel) - handle both structures
         const teacherExp = data.teacherExperience || { years: '', students: '', schools: '' };
         const yearsInput = document.getElementById('admin-years-experience');
         const studentsInput = document.getElementById('admin-students-taught');
