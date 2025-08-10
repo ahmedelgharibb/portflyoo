@@ -1689,13 +1689,24 @@ function updateSiteContent(data) {
         updateCoursesTeachingGrid(data.results);
 
         // --- Fix: Update Teacher Experience Section (public only) ---
-        const teacherExpPublic = data.teacherExperience || { years: 10, students: 500, schools: 8 };
+        const teacherExpPublic = data.teacherExperience || { years: '', students: '', schools: '' };
         const yearsExpEl = document.getElementById('yearsExperience');
         const studentsTaughtEl = document.getElementById('studentsTaught');
         const schoolsTaughtEl = document.getElementById('schoolsTaught');
-        if (yearsExpEl) yearsExpEl.textContent = teacherExpPublic.years + '+';
-        if (studentsTaughtEl) studentsTaughtEl.textContent = teacherExpPublic.students + '+';
-        if (schoolsTaughtEl) schoolsTaughtEl.textContent = teacherExpPublic.schools + '+';
+        
+        // Update the display values (only show if not empty)
+        if (yearsExpEl && teacherExpPublic.years && teacherExpPublic.years !== '' && teacherExpPublic.years !== 0) {
+            yearsExpEl.textContent = teacherExpPublic.years + '+';
+        }
+        if (studentsTaughtEl && teacherExpPublic.students && teacherExpPublic.students !== '' && teacherExpPublic.students !== 0) {
+            studentsTaughtEl.textContent = teacherExpPublic.students + '+';
+        }
+        if (schoolsTaughtEl && teacherExpPublic.schools && teacherExpPublic.schools !== '' && teacherExpPublic.schools !== 0) {
+            schoolsTaughtEl.textContent = teacherExpPublic.schools + '+';
+        }
+        
+        // Update visibility based on data
+        updateTeacherExperienceVisibility(teacherExpPublic);
         // --- End Fix ---
 
         // Teacher Experience (admin panel only, not public)
@@ -2016,9 +2027,9 @@ async function saveAdminChanges() {
         const schoolsTaughtInput = document.getElementById('admin-schools-taught');
         
         const teacherExperience = {
-            years: yearsInput ? parseInt(yearsInput.value) || 0 : (currentData?.data?.teacherExperience?.years || 0),
-            students: studentsInput ? parseInt(studentsInput.value) || 0 : (currentData?.data?.teacherExperience?.students || 0),
-            schools: schoolsTaughtInput ? parseInt(schoolsTaughtInput.value) || 0 : (currentData?.data?.teacherExperience?.schools || 0)
+            years: yearsInput && yearsInput.value.trim() ? parseInt(yearsInput.value) || '' : '',
+            students: studentsInput && studentsInput.value.trim() ? parseInt(studentsInput.value) || '' : '',
+            schools: schoolsTaughtInput && schoolsTaughtInput.value.trim() ? parseInt(schoolsTaughtInput.value) || '' : ''
         };
 
         // Start with current data to preserve all existing values, but exclude admin to avoid duplicates
@@ -3338,7 +3349,7 @@ async function loadSiteData() {
     const siteContent = (data && data.data && data.data.data) ? data.data.data : (data && data.data) ? data.data : data;
     
     // Set global for teacher experience animation
-    window.teacherExperienceData = siteContent.teacherExperience || { years: 10, students: 500, schools: 8 };
+            window.teacherExperienceData = siteContent.teacherExperience || { years: '', students: '', schools: '' };
     return siteContent;
 }
 
@@ -3516,7 +3527,7 @@ async function loadSiteData() {
     const normalizedData = normalizeResults(data);
     
     // Set global for teacher experience animation
-    window.teacherExperienceData = normalizedData.teacherExperience || { years: 0, students: 0, schools: 0 };
+            window.teacherExperienceData = normalizedData.teacherExperience || { years: '', students: '', schools: '' };
     
     return normalizedData;
 }
@@ -4772,3 +4783,84 @@ function setupAdminFieldLimits() {
 }
 
 // ... existing code ...
+
+// Function to update Teacher Experience visibility
+function updateTeacherExperienceVisibility(teacherExpData) {
+    console.log('🔄 Updating Teacher Experience visibility with data:', teacherExpData);
+    
+    const section = document.getElementById('teacher-experience');
+    if (!section) {
+        console.error('❌ Teacher Experience section not found');
+        return;
+    }
+    
+    // Get the individual cards
+    const yearsCard = document.querySelector('#teacher-experience .grid > div:nth-child(1)');
+    const studentsCard = document.querySelector('#teacher-experience .grid > div:nth-child(2)');
+    const schoolsCard = document.querySelector('#teacher-experience .grid > div:nth-child(3)');
+    
+    if (!yearsCard || !studentsCard || !schoolsCard) {
+        console.error('❌ Teacher Experience cards not found');
+        return;
+    }
+    
+    // Helper function to check if a value is empty
+    const isEmpty = (value) => {
+        return value === null || value === undefined || value === '' || value === 0 || value === '0';
+    };
+    
+    // Check each field and hide/show cards accordingly
+    const yearsValue = teacherExpData?.years;
+    const studentsValue = teacherExpData?.students;
+    const schoolsValue = teacherExpData?.schools;
+    
+    console.log('📊 Teacher Experience values:', { years: yearsValue, students: studentsValue, schools: schoolsValue });
+    
+    // Hide/show individual cards
+    if (isEmpty(yearsValue)) {
+        yearsCard.style.display = 'none';
+        console.log('✅ Hidden Years card (empty)');
+    } else {
+        yearsCard.style.display = 'flex';
+        console.log('✅ Shown Years card');
+    }
+    
+    if (isEmpty(studentsValue)) {
+        studentsCard.style.display = 'none';
+        console.log('✅ Hidden Students card (empty)');
+    } else {
+        studentsCard.style.display = 'flex';
+        console.log('✅ Shown Students card');
+    }
+    
+    if (isEmpty(schoolsValue)) {
+        schoolsCard.style.display = 'none';
+        console.log('✅ Hidden Schools card (empty)');
+    } else {
+        schoolsCard.style.display = 'flex';
+        console.log('✅ Shown Schools card');
+    }
+    
+    // Check if all fields are empty
+    const allEmpty = isEmpty(yearsValue) && isEmpty(studentsValue) && isEmpty(schoolsValue);
+    
+    if (allEmpty) {
+        // Hide the entire section
+        section.style.display = 'none';
+        console.log('✅ Hidden entire Teacher Experience section (all fields empty)');
+        
+        // Hide the navigation menu item
+        toggleMenuButton('teacher-experience', false);
+        console.log('✅ Hidden Teacher Experience from navigation menu');
+    } else {
+        // Show the section
+        section.style.display = 'block';
+        console.log('✅ Shown Teacher Experience section');
+        
+        // Show the navigation menu item
+        toggleMenuButton('teacher-experience', true);
+        console.log('✅ Shown Teacher Experience in navigation menu');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', handleTeacherExperienceAnimation);
