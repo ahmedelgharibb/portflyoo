@@ -1558,6 +1558,9 @@ function updateSiteContent(data) {
             `).join('');
         }
         
+        // Update qualifications visibility
+        updateQualificationsVisibility(qualifications);
+        
         // Teaching philosophy section removed - no longer needed
 
         // Update hero images
@@ -4864,3 +4867,29 @@ function updateTeacherExperienceVisibility(teacherExpData) {
 }
 
 document.addEventListener('DOMContentLoaded', handleTeacherExperienceAnimation);
+
+// Function to update Qualifications visibility
+function updateQualificationsVisibility(qualifications) {
+    console.log('🔄 Updating Qualifications visibility with data:', qualifications);
+    
+    const qualificationsSection = document.querySelector('#about .bg-gradient-to-r.from-blue-50.to-indigo-50');
+    if (!qualificationsSection) {
+        console.error('❌ Qualifications section not found in DOM');
+        return;
+    }
+    
+    // Helper function to check if qualifications are empty
+    const isEmpty = (quals) => {
+        return !quals || !Array.isArray(quals) || quals.length === 0 || quals.every(q => !q || q.trim() === '');
+    };
+    
+    if (isEmpty(qualifications)) {
+        // Hide the qualifications section
+        qualificationsSection.style.display = 'none';
+        console.log('✅ Hidden Qualifications section (empty)');
+    } else {
+        // Show the qualifications section
+        qualificationsSection.style.display = 'block';
+        console.log('✅ Shown Qualifications section');
+    }
+}
