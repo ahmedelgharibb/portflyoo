@@ -2234,13 +2234,13 @@ async function saveAdminChanges() {
         });
 
         // Collect dynamic input values for qualifications, schools, centers, platforms
-        const qualificationsInputs = document.querySelectorAll('#qualifications-list input');
+        const qualificationsInputs = document.querySelectorAll('#admin-qualifications-list input');
         const qualifications = Array.from(qualificationsInputs).map(input => input.value.trim()).filter(Boolean);
-        const schoolsInputs = document.querySelectorAll('#schools-list input');
+        const schoolsInputs = document.querySelectorAll('#admin-schools-list input');
         const schools = Array.from(schoolsInputs).map(input => input.value.trim()).filter(Boolean);
-        const centersInputs = document.querySelectorAll('#centers-list input');
+        const centersInputs = document.querySelectorAll('#admin-centers-list input');
         const centers = Array.from(centersInputs).map(input => input.value.trim()).filter(Boolean);
-        const platformsInputs = document.querySelectorAll('#platforms-list input');
+        const platformsInputs = document.querySelectorAll('#admin-platforms-list input');
         const platforms = Array.from(platformsInputs).map(input => input.value.trim()).filter(Boolean);
 
         // Collect teacher experience data
