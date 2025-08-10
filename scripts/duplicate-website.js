@@ -147,7 +147,7 @@ async function getDefaultDataAndOwner() {
     if (fs.existsSync(filePath)) {
       let content = fs.readFileSync(filePath, 'utf-8');
       
-      // Replace hardcoded template1 paths with relative paths
+      // Replace hardcoded template1 paths with website-specific paths
       content = content.replace(
         new RegExp(`/websites/template1/`, 'g'),
         ''
@@ -165,7 +165,25 @@ async function getDefaultDataAndOwner() {
         '#'
       );
       
-      // Ensure all file references are relative
+      // Make file paths explicit to the website's own folder
+      content = content.replace(
+        /href=["']styles\.css["']/g,
+        `href="${websiteName}/styles.css"`
+      );
+      content = content.replace(
+        /src=["']script\.js["']/g,
+        `src="${websiteName}/script.js"`
+      );
+      content = content.replace(
+        /src=["']reviews\.js["']/g,
+        `src="${websiteName}/reviews.js"`
+      );
+      content = content.replace(
+        /href=["']favicon\.ico["']/g,
+        `href="${websiteName}/favicon.ico"`
+      );
+      
+      // Ensure all other file references are relative
       content = content.replace(
         /href=["']\/(?!\/)/g,
         'href="'

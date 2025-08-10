@@ -75,6 +75,43 @@ async function fixWebsiteForUniversalAPI(websiteFolder) {
         console.log(`⚠️  Fixed hardcoded template1 paths in ${path.basename(filePath)}`);
       }
       
+      // Make file paths explicit to the website's own folder
+      if (content.includes('href="styles.css"') || content.includes("href='styles.css'")) {
+        content = content.replace(
+          /href=["']styles\.css["']/g,
+          `href="${websiteFolder}/styles.css"`
+        );
+        wasFixed = true;
+        console.log(`⚠️  Made styles.css path explicit in ${path.basename(filePath)}`);
+      }
+      
+      if (content.includes('src="script.js"') || content.includes("src='script.js'")) {
+        content = content.replace(
+          /src=["']script\.js["']/g,
+          `src="${websiteFolder}/script.js"`
+        );
+        wasFixed = true;
+        console.log(`⚠️  Made script.js path explicit in ${path.basename(filePath)}`);
+      }
+      
+      if (content.includes('src="reviews.js"') || content.includes("src='reviews.js'")) {
+        content = content.replace(
+          /src=["']reviews\.js["']/g,
+          `src="${websiteFolder}/reviews.js"`
+        );
+        wasFixed = true;
+        console.log(`⚠️  Made reviews.js path explicit in ${path.basename(filePath)}`);
+      }
+      
+      if (content.includes('href="favicon.ico"') || content.includes("href='favicon.ico'")) {
+        content = content.replace(
+          /href=["']favicon\.ico["']/g,
+          `href="${websiteFolder}/favicon.ico"`
+        );
+        wasFixed = true;
+        console.log(`⚠️  Made favicon.ico path explicit in ${path.basename(filePath)}`);
+      }
+      
       // Remove hardcoded template1 navigation
       if (content.includes('template1/index.html')) {
         content = content.replace(
