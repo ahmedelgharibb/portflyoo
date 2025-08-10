@@ -206,75 +206,75 @@ export default async function handler(req, res) {
       try {
         const { siteId } = await resolveWebsiteContext(req);
         console.log('[API:getData] Fetching data from database with site ID:', siteId);
-        const { data, error } = await supabase
-          .from('teachers_websites')
-          .select('*')
+      const { data, error } = await supabase
+        .from('teachers_websites')
+        .select('*')
           .eq('id', siteId)
-          .maybeSingle();
-        if (error) {
-          console.error('[API:getData] Supabase error:', error.message);
-          return res.status(500).json({ error: error.message });
-        }
+        .maybeSingle();
+      if (error) {
+        console.error('[API:getData] Supabase error:', error.message);
+        return res.status(500).json({ error: error.message });
+      }
         if (data) {
           // Use helper function to normalize data structure
           const normalizedData = normalizeDataStructure(data);
           const { personal = {}, ...rest } = normalizedData;
-          const result = { ...personal, ...rest };
+        const result = { ...personal, ...rest };
           console.log('[API:getData] Success. Normalized and flattened data sent for site', siteId);
-          res.status(200).json(result);
-        } else {
-          // Return a default data structure if no data is found
-          const defaultData = {
-            personal: {
-              name: 'Dr. Ahmed Mahmoud',
-              title: 'Mathematics Educator',
-              subtitle: 'Inspiring the next generation',
-              heroHeading: 'Inspiring Minds Through Mathematics',
-              experience: '15+ years teaching experience',
-              philosophy: 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.',
-              qualifications: [
-                'Ph.D. in Mathematics Education',
-                'Master\'s in Applied Mathematics',
-                'Bachelor\'s in Mathematics'
-              ]
-            },
-            experience: {
-              schools: [
-                'International School of Mathematics',
-                'Elite Academy',
-                'Science High School'
-              ],
-              centers: [
-                'Math Excellence Center',
-                'Advanced Learning Institute',
-                'STEM Education Hub'
-              ],
-              platforms: [
-                'MathPro Online',
-                'EduTech Academy',
-                'Virtual Learning Center'
-              ]
-            },
-            results: [
-              { subject: 'Mathematics', astar: 10, a: 15, other: 5 },
-              { subject: 'Physics', astar: 8, a: 12, other: 7 },
-              { subject: 'Chemistry', astar: 6, a: 10, other: 9 },
-              { subject: 'Biology', astar: 5, a: 8, other: 12 }
+        res.status(200).json(result);
+      } else {
+        // Return a default data structure if no data is found
+        const defaultData = {
+          personal: {
+            name: 'Dr. Ahmed Mahmoud',
+            title: 'Mathematics Educator',
+            subtitle: 'Inspiring the next generation',
+            heroHeading: 'Inspiring Minds Through Mathematics',
+            experience: '15+ years teaching experience',
+            philosophy: 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.',
+            qualifications: [
+              'Ph.D. in Mathematics Education',
+              'Master\'s in Applied Mathematics',
+              'Bachelor\'s in Mathematics'
+            ]
+          },
+          experience: {
+            schools: [
+              'International School of Mathematics',
+              'Elite Academy',
+              'Science High School'
             ],
-            contact: {
-              email: 'ahmed.mahmoud@mathseducator.com',
-              formUrl: 'https://forms.google.com/your-form-link',
-              assistantFormUrl: 'https://forms.google.com/assistant-form-link',
-              phone: '+1 123-456-7890',
-              contactMessage: 'Thank you for your interest in my teaching services. I will get back to you as soon as possible.'
-            },
-            theme: {
-              color: 'blue',
-              mode: 'light'
-            }
-          };
+            centers: [
+              'Math Excellence Center',
+              'Advanced Learning Institute',
+              'STEM Education Hub'
+            ],
+            platforms: [
+              'MathPro Online',
+              'EduTech Academy',
+              'Virtual Learning Center'
+            ]
+          },
+          results: [
+            { subject: 'Mathematics', astar: 10, a: 15, other: 5 },
+            { subject: 'Physics', astar: 8, a: 12, other: 7 },
+            { subject: 'Chemistry', astar: 6, a: 10, other: 9 },
+            { subject: 'Biology', astar: 5, a: 8, other: 12 }
+          ],
+          contact: {
+            email: 'ahmed.mahmoud@mathseducator.com',
+            formUrl: 'https://forms.google.com/your-form-link',
+            assistantFormUrl: 'https://forms.google.com/assistant-form-link',
+            phone: '+1 123-456-7890',
+            contactMessage: 'Thank you for your interest in my teaching services. I will get back to you as soon as possible.'
+          },
+          theme: {
+            color: 'blue',
+            mode: 'light'
+          }
+        };
           console.warn('[API:getData] No data found for site', siteId, '. Returning default data structure.');
-          res.status(200).json(defaultData);
+        res.status(200).json(defaultData);
         }
       } catch (e) {
         console.error('[API:getData] Unexpected error:', e);
@@ -327,7 +327,7 @@ export default async function handler(req, res) {
           const ctx = await resolveWebsiteContext(req);
           websiteId = ctx.siteId;
         }
-        let reviews = [];
+      let reviews = [];
         const { data, error } = await supabase
           .from('reviews')
           .select('*')
@@ -387,4 +387,4 @@ export default async function handler(req, res) {
       console.warn('[API] Unknown action:', action);
       res.status(400).json({ success: false, message: 'Unknown action' });
   }
-}
+} 
