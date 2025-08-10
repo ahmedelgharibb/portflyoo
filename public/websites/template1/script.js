@@ -405,7 +405,7 @@ function initializeWithDefaultData() {
             email: 'ahmed.mahmoud@mathseducator.com',
             formUrl: 'https://forms.google.com/your-form-link',
             assistantFormUrl: 'https://forms.google.com/assistant-form-link',
-            phone: '+1 123-456-7890',
+            phone: '',
             contactMessage: ''
         },
         theme: {
@@ -1199,7 +1199,7 @@ async function openAdminPanel() {
                 contact: {
                     email: 'teacher@example.com',
                     formUrl: 'https://forms.google.com/your-form-link',
-                    phone: '+1 234 567 890',
+                    phone: '',
                     contactMessage: ''
                 },
                 theme: {
@@ -1297,7 +1297,7 @@ function validateFormPopulation(data) {
         email: 'ahmed.mahmoud@mathseducator.com',
         formUrl: 'https://forms.google.com/your-form-link',
         assistantFormUrl: 'https://forms.google.com/assistant-form-link',
-        phone: '+1 123-456-7890'
+        phone: ''
     };
 
     // Check for empty required fields, only treat actual form fields as required
@@ -1680,7 +1680,7 @@ function updateSiteContent(data) {
 
         // Update contact info
         const contactData = data.contact || {};
-        const contactPhone = contactData.phone || '+1 123-456-7890';
+        const contactPhone = contactData.phone || '';
         const contactMessage = contactData.contactMessage || '';
         
         const contactPhoneEl = document.querySelector('.contact-phone');
