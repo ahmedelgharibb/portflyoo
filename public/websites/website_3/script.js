@@ -1305,6 +1305,13 @@ function populateAdminForm(data) {
         if (philosophyInput) philosophyInput.value = philosophyValue;
         // Qualifications: handle both flattened and nested data structures
         const qualifications = personal.qualifications || data.qualifications || [];
+        console.log('Qualifications data extracted:', {
+            personal: personal,
+            data: data,
+            personalQualifications: personal.qualifications,
+            dataQualifications: data.qualifications,
+            finalQualifications: qualifications
+        });
         renderQualificationsInputs(Array.isArray(qualifications) ? qualifications : []);
         // Experience: schools, centers, platforms - handle both structures
         const experience = data.experience || {};

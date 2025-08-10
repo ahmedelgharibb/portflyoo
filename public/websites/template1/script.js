@@ -1077,7 +1077,9 @@ async function openAdminPanel() {
             const data = await response.json();
             // Accept any non-error API response as valid
             if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+                console.log('🔍 Raw API response data:', JSON.stringify(data, null, 2));
                 adminData = (data && data.data && data.data.data) ? data.data.data : (data && data.data ? data.data : data);
+                console.log('🔍 Processed adminData:', JSON.stringify(adminData, null, 2));
                 dataSource = 'api';
                 console.log('✅ Data loaded for admin panel from API successfully');
             } else {
@@ -1305,6 +1307,13 @@ function populateAdminForm(data) {
         if (heroHeadingInput) heroHeadingInput.value = heroHeadingValue;
         // Qualifications: handle both flattened and nested data structures
         const qualifications = personal.qualifications || data.qualifications || [];
+        console.log('Qualifications data extracted:', {
+            personal: personal,
+            data: data,
+            personalQualifications: personal.qualifications,
+            dataQualifications: data.qualifications,
+            finalQualifications: qualifications
+        });
         renderQualificationsInputs(Array.isArray(qualifications) ? qualifications : []);
         // Experience: schools, centers, platforms - handle both structures
         const experience = data.experience || {};
