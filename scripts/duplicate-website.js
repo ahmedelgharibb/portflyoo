@@ -140,7 +140,9 @@ async function getDefaultDataAndOwner() {
   // 5. Fix hardcoded paths in HTML and JS files
   const filesToFix = [
     path.join(newWebsiteDir, 'index.html'),
-    path.join(newWebsiteDir, 'script.js')
+    path.join(newWebsiteDir, 'script.js'),
+    path.join(newWebsiteDir, 'reviews.js'),
+    path.join(newWebsiteDir, 'api.php')
   ];
   
   for (const filePath of filesToFix) {
@@ -188,6 +190,20 @@ async function getDefaultDataAndOwner() {
         /fetch\(['"]site\.config\.json['"]\)/g,
         `fetch('websites/${websiteName}/site.config.json')`
       );
+      
+      // Fix hardcoded template1 references in reviews.js
+      content = content.replace(
+        /fetch\(['"]websites\/template1\/site\.config\.json['"]\)/g,
+        `fetch('websites/${websiteName}/site.config.json')`
+      );
+      
+      // Fix api.php data file path
+      if (path.basename(filePath) === 'api.php') {
+        content = content.replace(
+          /public\/websites\/template1\/siteData\.json/g,
+          `public/websites/${websiteName}/siteData.json`
+        );
+      }
       
       // Ensure all other file references are relative
       content = content.replace(
