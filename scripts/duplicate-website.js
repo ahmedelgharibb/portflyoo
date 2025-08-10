@@ -151,8 +151,8 @@ async function getDefaultDataAndOwner() {
       
       // Replace hardcoded template1 paths with website-specific paths
       content = content.replace(
-        new RegExp(`/websites/template1/`, 'g'),
-        `/websites/${websiteName}/`
+        new RegExp(`websites/template1/`, 'g'),
+        `websites/${websiteName}/`
       );
       
       // Remove hardcoded template1 navigation
