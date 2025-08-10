@@ -137,7 +137,21 @@ async function getDefaultDataAndOwner() {
   // 4. Create a new row in Supabase
   await createSupabaseRow(newId);
 
+  // 5. Ensure the new website uses universal API (remove any website-specific API files)
+  const apiFiles = [
+    path.join(newWebsiteDir, 'api.js'),
+    path.join(newWebsiteDir, 'reviews-api.js')
+  ];
+  
+  for (const apiFile of apiFiles) {
+    if (fs.existsSync(apiFile)) {
+      fs.unlinkSync(apiFile);
+      console.log('Removed website-specific API file:', path.basename(apiFile));
+    }
+  }
+
   console.log('Website duplicated and registered successfully:', websiteName, '(id:', newId, ')');
+  console.log('✅ The new website is configured to use the universal API automatically!');
 })().catch(e => {
   console.error('Error:', e);
   process.exit(1);
