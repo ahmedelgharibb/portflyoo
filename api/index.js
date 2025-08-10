@@ -205,6 +205,7 @@ export default async function handler(req, res) {
     case 'getData': {
       try {
         const { siteId } = await resolveWebsiteContext(req);
+        console.log('[API:getData] Fetching data from database with site ID:', siteId);
         const { data, error } = await supabase
           .from('teachers_websites')
           .select('*')
@@ -306,6 +307,7 @@ export default async function handler(req, res) {
       }
       
       // Save the entire site data object in the 'data' column
+      console.log('[API:saveData] Saving data to database with site ID:', id);
       const { data, error } = await supabase
         .from('teachers_websites')
         .upsert([{ id: id, data: dataToSave }]);
