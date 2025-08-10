@@ -2027,9 +2027,9 @@ async function saveAdminChanges() {
         const schoolsTaughtInput = document.getElementById('admin-schools-taught');
         
         const teacherExperience = {
-            years: yearsInput && yearsInput.value.trim() ? parseInt(yearsInput.value) || '' : '',
-            students: studentsInput && studentsInput.value.trim() ? parseInt(studentsInput.value) || '' : '',
-            schools: schoolsTaughtInput && schoolsTaughtInput.value.trim() ? parseInt(schoolsTaughtInput.value) || '' : ''
+            years: yearsInput && yearsInput.value.trim() !== '' ? parseInt(yearsInput.value) || '' : '',
+            students: studentsInput && studentsInput.value.trim() !== '' ? parseInt(studentsInput.value) || '' : '',
+            schools: schoolsTaughtInput && schoolsTaughtInput.value.trim() !== '' ? parseInt(schoolsTaughtInput.value) || '' : ''
         };
 
         // Start with current data to preserve all existing values, but exclude admin to avoid duplicates
