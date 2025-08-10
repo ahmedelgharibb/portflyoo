@@ -165,22 +165,22 @@ async function getDefaultDataAndOwner() {
         '#'
       );
       
-      // Make file paths explicit to the website's own folder
+      // Make file paths explicit to the website's own folder (deployed structure)
       content = content.replace(
         /href=["']styles\.css["']/g,
-        `href="${websiteName}/styles.css"`
+        `href="websites/${websiteName}/styles.css"`
       );
       content = content.replace(
         /src=["']script\.js["']/g,
-        `src="${websiteName}/script.js"`
+        `src="websites/${websiteName}/script.js"`
       );
       content = content.replace(
         /src=["']reviews\.js["']/g,
-        `src="${websiteName}/reviews.js"`
+        `src="websites/${websiteName}/reviews.js"`
       );
       content = content.replace(
         /href=["']favicon\.ico["']/g,
-        `href="${websiteName}/favicon.ico"`
+        `href="websites/${websiteName}/favicon.ico"`
       );
       
       // Ensure all other file references are relative
