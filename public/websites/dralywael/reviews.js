@@ -87,7 +87,7 @@ async function getCurrentSiteId() {
 // Helper to get current website ID
 async function getCurrentWebsiteId() {
   try {
-    const response = await fetch('site.config.json');
+    const response = await fetch('websites/dralywael/site.config.json');
     if (!response.ok) throw new Error('Failed to load site.config.json');
     const config = await response.json();
     if (!config.site_id) {

@@ -112,6 +112,16 @@ async function fixWebsiteForUniversalAPI(websiteFolder) {
         console.log(`⚠️  Made favicon.ico path explicit in ${path.basename(filePath)}`);
       }
       
+      // Fix site.config.json path in reviews.js
+      if (content.includes('fetch(\'site.config.json\')') || content.includes('fetch("site.config.json")')) {
+        content = content.replace(
+          /fetch\(['"]site\.config\.json['"]\)/g,
+          `fetch('websites/${websiteFolder}/site.config.json')`
+        );
+        wasFixed = true;
+        console.log(`⚠️  Fixed site.config.json path in ${path.basename(filePath)}`);
+      }
+      
       // Remove hardcoded template1 navigation
       if (content.includes('template1/index.html')) {
         content = content.replace(

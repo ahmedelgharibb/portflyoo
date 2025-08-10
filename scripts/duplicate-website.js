@@ -183,6 +183,12 @@ async function getDefaultDataAndOwner() {
         `href="websites/${websiteName}/favicon.ico"`
       );
       
+      // Fix site.config.json path in reviews.js
+      content = content.replace(
+        /fetch\(['"]site\.config\.json['"]\)/g,
+        `fetch('websites/${websiteName}/site.config.json')`
+      );
+      
       // Ensure all other file references are relative
       content = content.replace(
         /href=["']\/(?!\/)/g,
