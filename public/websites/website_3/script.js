@@ -4865,7 +4865,7 @@ function setupDynamicInputButtons() {
     }
     
     // Setup Add School button
-    const addSchoolBtn = document.getElementById('add-school-btn');
+    const addSchoolBtn = document.getElementById('add-schools-btn');
     if (addSchoolBtn) {
         const newAddSchoolBtn = addSchoolBtn.cloneNode(true);
         addSchoolBtn.parentNode.replaceChild(newAddSchoolBtn, addSchoolBtn);
@@ -4876,7 +4876,7 @@ function setupDynamicInputButtons() {
     }
     
     // Setup Add Center button
-    const addCenterBtn = document.getElementById('add-center-btn');
+    const addCenterBtn = document.getElementById('add-centers-btn');
     if (addCenterBtn) {
         const newAddCenterBtn = addCenterBtn.cloneNode(true);
         addCenterBtn.parentNode.replaceChild(newAddCenterBtn, addCenterBtn);
@@ -4887,7 +4887,7 @@ function setupDynamicInputButtons() {
     }
     
     // Setup Add Platform button
-    const addPlatformBtn = document.getElementById('add-platform-btn');
+    const addPlatformBtn = document.getElementById('add-platforms-btn');
     if (addPlatformBtn) {
         const newAddPlatformBtn = addPlatformBtn.cloneNode(true);
         addPlatformBtn.parentNode.replaceChild(newAddPlatformBtn, addPlatformBtn);
