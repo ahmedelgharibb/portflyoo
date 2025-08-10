@@ -194,12 +194,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     } catch (err) {
         console.error('Failed to load site data:', err);
         
-        // Show server error message to user
+        // Show server error message and hide website content
         showServerError();
-        
-        // Fallback: use generic default data
-        initializeWithDefaultData();
-        setFooterTeacherName('Teacher Name');
+        hideWebsiteContent();
     }
 
     // Ensure logout and close (X) buttons work in admin panel
@@ -400,7 +397,7 @@ function showServerError() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
             </svg>
-            <span>⚠️ Server temporarily unavailable. Showing demo data.</span>
+            <span>⚠️ Server is down. Please try again later.</span>
         </div>
     `;
     
@@ -433,6 +430,84 @@ function showServerError() {
             }, 500);
         }
     }, 8000);
+}
+
+// Hide website content when server is down
+function hideWebsiteContent() {
+    // Hide the main content
+    const mainContent = document.querySelector('main');
+    if (mainContent) {
+        mainContent.style.display = 'none';
+    }
+    
+    // Hide the header
+    const header = document.querySelector('header');
+    if (header) {
+        header.style.display = 'none';
+    }
+    
+    // Hide the footer
+    const footer = document.querySelector('footer');
+    if (footer) {
+        footer.style.display = 'none';
+    }
+    
+    // Hide any other content sections
+    const contentSections = document.querySelectorAll('section');
+    contentSections.forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // Hide the preloader if it's still showing
+    const preloader = document.getElementById('siteLoader');
+    if (preloader) {
+        preloader.style.display = 'none';
+    }
+    
+    // Set body background to indicate server is down
+    document.body.style.background = 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)';
+    document.body.style.minHeight = '100vh';
+    document.body.style.display = 'flex';
+    document.body.style.alignItems = 'center';
+    document.body.style.justifyContent = 'center';
+    
+    // Add a centered message
+    const serverDownMessage = document.createElement('div');
+    serverDownMessage.id = 'serverDownMessage';
+    serverDownMessage.style.cssText = `
+        text-align: center;
+        padding: 40px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        max-width: 500px;
+        margin: 20px;
+    `;
+    
+    serverDownMessage.innerHTML = `
+        <div style="font-size: 48px; margin-bottom: 20px;">🔧</div>
+        <h2 style="color: #333; margin-bottom: 15px; font-family: 'Inter', sans-serif;">Server Maintenance</h2>
+        <p style="color: #666; line-height: 1.6; font-family: 'Inter', sans-serif;">
+            We're currently experiencing technical difficulties. 
+            Please check back later or contact support if the issue persists.
+        </p>
+        <button onclick="location.reload()" style="
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: transform 0.2s;
+        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            🔄 Try Again
+        </button>
+    `;
+    
+    document.body.appendChild(serverDownMessage);
 }
 
 // Initialize with generic default data
