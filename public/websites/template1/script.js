@@ -193,7 +193,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         window.siteContentUpdated = true;
     } catch (err) {
         console.error('Failed to load site data:', err);
-        // Fallback: use default data
+        
+        // Show server error message to user
+        showServerError();
+        
+        // Fallback: use generic default data
         initializeWithDefaultData();
         setFooterTeacherName('Teacher Name');
     }
@@ -368,50 +372,109 @@ async function restoreDataToSupabase() {
     }
 }
 
-// Initialize with default data
-function initializeWithDefaultData() {
-    console.log('Using default data');
+// Show server error message to user
+function showServerError() {
+    // Create error message element
+    const errorDiv = document.createElement('div');
+    errorDiv.id = 'serverError';
+    errorDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 10000;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        text-align: center;
+        max-width: 90%;
+        animation: slideDown 0.5s ease-out;
+    `;
     
-    // Create a consistent data structure
+    errorDiv.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span>⚠️ Server temporarily unavailable. Showing demo data.</span>
+        </div>
+    `;
+    
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(0); opacity: 1; }
+            to { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Add to page
+    document.body.appendChild(errorDiv);
+    
+    // Auto-remove after 8 seconds
+    setTimeout(() => {
+        if (errorDiv.parentNode) {
+            errorDiv.style.animation = 'slideUp 0.5s ease-in';
+            errorDiv.style.animationFillMode = 'forwards';
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.parentNode.removeChild(errorDiv);
+                }
+            }, 500);
+        }
+    }, 8000);
+}
+
+// Initialize with generic default data
+function initializeWithDefaultData() {
+    console.log('Using generic default data');
+    
+    // Create a consistent data structure with generic values
     siteData = {
         personal: {
-            name: 'Dr. Ahmed Mahmoud',
-            title: 'Mathematics Educator',
+            name: 'Teacher Name',
+            title: 'Subject Educator',
             qualifications: [
-                'Ph.D. in Mathematics Education',
-                'Master\'s in Applied Mathematics',
-                'Bachelor\'s in Mathematics'
+                'Bachelor\'s Degree in Education',
+                'Teaching Certification',
+                'Professional Development Certificate'
             ],
-            experience: '15+ years of teaching experience'
+            experience: '5+ years of teaching experience'
         },
         experience: {
             schools: [
-                'International School of Mathematics',
-                'Elite Academy',
-                'Science High School'
+                'Local High School',
+                'Community Academy',
+                'Public School District'
             ],
             centers: [
-                'Math Excellence Center',
-                'Advanced Learning Institute',
-                'STEM Education Hub'
+                'Learning Center',
+                'Education Institute',
+                'Training Hub'
             ],
             platforms: [
-                'Khan Academy',
-                'Coursera - Mathematics for Machine Learning',
-                'Udemy - Advanced Calculus',
-                'edX - Linear Algebra',
-                'YouTube Math Channel'
+                'Online Learning Platform',
+                'Educational Website',
+                'Virtual Classroom'
             ]
         },
-        // FIXED: Use correct structure for results
         results: [
-            { subject: 'Mathematics', astar: 10, a: 15, other: 5 },
-            { subject: 'Physics', astar: 8, a: 12, other: 7 },
-            { subject: 'Chemistry', astar: 6, a: 10, other: 9 },
-            { subject: 'Biology', astar: 5, a: 8, other: 12 }
+            { subject: 'Subject 1', astar: 5, a: 10, other: 3 },
+            { subject: 'Subject 2', astar: 4, a: 8, other: 5 },
+            { subject: 'Subject 3', astar: 3, a: 6, other: 7 }
         ],
         contact: {
-            email: 'ahmed.mahmoud@mathseducator.com',
+            email: 'teacher@example.com',
             formUrl: 'https://forms.google.com/your-form-link',
             assistantFormUrl: 'https://forms.google.com/assistant-form-link',
             phone: '',
@@ -1168,41 +1231,40 @@ async function openAdminPanel() {
         if (!adminData) {
             adminData = {
                 personal: {
-                    name: 'Dr. Ahmed Mahmoud',
-                    title: 'Mathematics Educator',
+                    name: 'Teacher Name',
+                    title: 'Subject Educator',
                     subtitle: 'Inspiring the next generation',
-                    heroHeading: 'Inspiring Minds Through Mathematics',
-                    experience: '15+ years teaching experience',
-                    philosophy: 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.',
+                    heroHeading: 'Inspiring Minds Through Education',
+                    experience: '5+ years teaching experience',
+                    philosophy: 'I believe in creating an engaging and supportive learning environment where students can develop their critical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make learning accessible and enjoyable.',
                     qualifications: [
-                        'Ph.D. in Mathematics Education',
-                        'Master\'s in Applied Mathematics',
-                        'Bachelor\'s in Mathematics'
+                        'Bachelor\'s Degree in Education',
+                        'Teaching Certification',
+                        'Professional Development Certificate'
                     ]
                 },
                 experience: {
                     schools: [
-                        'International School of Mathematics',
-                        'Elite Academy',
-                        'Science High School'
+                        'Local High School',
+                        'Community Academy',
+                        'Public School District'
                     ],
                     centers: [
-                        'Math Excellence Center',
-                        'Advanced Learning Institute',
-                        'STEM Education Hub'
+                        'Learning Center',
+                        'Education Institute',
+                        'Training Hub'
                     ],
                     platforms: [
-                        'MathPro Online',
-                        'EduTech Academy',
-                        'Virtual Learning Center'
+                        'Online Learning Platform',
+                        'Educational Website',
+                        'Virtual Classroom'
                     ]
                 },
                 results: {
                     subjects: [
-                        { name: 'Mathematics', score: 85 },
-                        { name: 'Physics', score: 78 },
-                        { name: 'Chemistry', score: 82 },
-                        { name: 'Biology', score: 75 }
+                        { name: 'Subject 1', score: 75 },
+                        { name: 'Subject 2', score: 70 },
+                        { name: 'Subject 3', score: 65 }
                     ]
                 },
                 contact: {
@@ -1300,10 +1362,10 @@ function validateFormPopulation(data) {
     
     // Provide default values for missing fields
     const defaultValues = {
-        schools: ['International School of Mathematics', 'Elite Academy', 'Science High School'],
-        centers: ['Math Excellence Center', 'Advanced Learning Institute', 'STEM Education Hub'],
-        platforms: ['MathPro Online', 'EduTech Academy', 'Virtual Learning Center'],
-        email: 'ahmed.mahmoud@mathseducator.com',
+        schools: ['Local High School', 'Community Academy', 'Public School District'],
+        centers: ['Learning Center', 'Education Institute', 'Training Hub'],
+        platforms: ['Online Learning Platform', 'Educational Website', 'Virtual Classroom'],
+        email: 'teacher@example.com',
         formUrl: 'https://forms.google.com/your-form-link',
         assistantFormUrl: 'https://forms.google.com/assistant-form-link',
         phone: ''
