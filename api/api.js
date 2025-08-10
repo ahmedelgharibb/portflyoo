@@ -2,6 +2,8 @@
 // WARNING: File writes are not persistent on Vercel. Use a database for production.
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
+import fs from 'fs/promises';
+import path from 'path';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -22,6 +24,36 @@ function normalizeDataStructure(data) {
 function getAdminPassword(data) {
   const normalized = normalizeDataStructure(data);
   return normalized && normalized.admin && normalized.admin.password ? normalized.admin.password : null;
+}
+
+// Function to resolve website context and get site ID
+async function resolveWebsiteContext(req) {
+  // 1) Explicit website_id in query or body
+  const rawId = (req.query && req.query.website_id) || (req.body && req.body.website_id);
+  const parsedId = rawId ? parseInt(rawId, 10) : NaN;
+  if (!Number.isNaN(parsedId) && parsedId > 0) {
+    return { siteId: parsedId };
+  }
+  // 2) Infer from Referer folder and local site.config.json
+  try {
+    const referer = req.headers && (req.headers.referer || req.headers.origin);
+    if (referer) {
+      const urlObj = new URL(referer);
+      const firstSegment = urlObj.pathname.split('/').filter(Boolean)[0];
+      if (firstSegment) {
+        const configPath = path.join(process.cwd(), 'public', 'websites', firstSegment, 'site.config.json');
+        const json = await fs.readFile(configPath, 'utf-8');
+        const cfg = JSON.parse(json);
+        if (cfg && Number.isInteger(cfg.site_id)) {
+          return { siteId: cfg.site_id, directory: firstSegment };
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[API] resolveWebsiteContext fallback due to error:', e.message);
+  }
+  // 3) Default
+  return { siteId: 1 };
 }
 
 export default async function handler(req, res) {
@@ -185,76 +217,82 @@ export default async function handler(req, res) {
       }
     }
     case 'getData': {
-      console.log('[API:getData] Fetching data from database using limit(1) - no specific ID');
-      const { data, error } = await supabase
-        .from('teachers_websites')
-        .select('*')
-        .limit(1)
-        .maybeSingle();
-      if (error) {
-        console.error('[API:getData] Supabase error:', error.message);
-        return res.status(500).json({ error: error.message });
-      }
-              if (data) {
+      try {
+        const { siteId } = await resolveWebsiteContext(req);
+        console.log('[API:getData] Fetching data from database with site ID:', siteId);
+        const { data, error } = await supabase
+          .from('teachers_websites')
+          .select('*')
+          .eq('id', siteId)
+          .maybeSingle();
+              if (error) {
+          console.error('[API:getData] Supabase error:', error.message);
+          return res.status(500).json({ error: error.message });
+        }
+        if (data) {
           // Use helper function to normalize data structure
           const normalizedData = normalizeDataStructure(data);
           const { personal = {}, ...rest } = normalizedData;
           const result = { ...personal, ...rest };
-          console.log('[API:getData] Success. Normalized and flattened data sent:', result);
+          console.log('[API:getData] Success. Normalized and flattened data sent for site', siteId);
           res.status(200).json(result);
         } else {
-        // Return a default data structure if no data is found
-        const defaultData = {
-          personal: {
-            name: 'Dr. Ahmed Mahmoud',
-            title: 'Mathematics Educator',
-            subtitle: 'Inspiring the next generation',
-            heroHeading: 'Inspiring Minds Through Mathematics',
-            experience: '15+ years teaching experience',
-            philosophy: 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.',
-            qualifications: [
-              'Ph.D. in Mathematics Education',
-              'Master\'s in Applied Mathematics',
-              'Bachelor\'s in Mathematics'
-            ]
-          },
-          experience: {
-            schools: [
-              'International School of Mathematics',
-              'Elite Academy',
-              'Science High School'
+          // Return a default data structure if no data is found
+          const defaultData = {
+            personal: {
+              name: 'Dr. Ahmed Mahmoud',
+              title: 'Mathematics Educator',
+              subtitle: 'Inspiring the next generation',
+              heroHeading: 'Inspiring Minds Through Mathematics',
+              experience: '15+ years teaching experience',
+              philosophy: 'I believe in creating an engaging and supportive learning environment where students can develop their mathematical thinking and problem-solving skills. My approach combines theoretical knowledge with practical applications to make mathematics accessible and enjoyable.',
+              qualifications: [
+                'Ph.D. in Mathematics Education',
+                'Master\'s in Applied Mathematics',
+                'Bachelor\'s in Mathematics'
+              ]
+            },
+            experience: {
+              schools: [
+                'International School of Mathematics',
+                'Elite Academy',
+                'Science High School'
+              ],
+              centers: [
+                'Math Excellence Center',
+                'Advanced Learning Institute',
+                'STEM Education Hub'
+              ],
+              platforms: [
+                'MathPro Online',
+                'EduTech Academy',
+                'Virtual Learning Center'
+              ]
+            },
+            results: [
+              { subject: 'Mathematics', astar: 10, a: 15, other: 5 },
+              { subject: 'Physics', astar: 8, a: 12, other: 7 },
+              { subject: 'Chemistry', astar: 6, a: 10, other: 9 },
+              { subject: 'Biology', astar: 5, a: 8, other: 12 }
             ],
-            centers: [
-              'Math Excellence Center',
-              'Advanced Learning Institute',
-              'STEM Education Hub'
-            ],
-            platforms: [
-              'MathPro Online',
-              'EduTech Academy',
-              'Virtual Learning Center'
-            ]
-          },
-          results: [
-            { subject: 'Mathematics', astar: 10, a: 15, other: 5 },
-            { subject: 'Physics', astar: 8, a: 12, other: 7 },
-            { subject: 'Chemistry', astar: 6, a: 10, other: 9 },
-            { subject: 'Biology', astar: 5, a: 8, other: 12 }
-          ],
-          contact: {
-            email: 'ahmed.mahmoud@mathseducator.com',
-            formUrl: 'https://forms.google.com/your-form-link',
-            assistantFormUrl: 'https://forms.google.com/assistant-form-link',
-            phone: '+1 123-456-7890',
-            contactMessage: 'Thank you for your interest in my teaching services. I will get back to you as soon as possible.'
-          },
-          theme: {
-            color: 'blue',
-            mode: 'light'
-          }
-        };
-        console.warn('[API:getData] No data found. Returning default data structure.');
-        res.status(200).json(defaultData);
+            contact: {
+              email: 'ahmed.mahmoud@mathseducator.com',
+              formUrl: 'https://forms.google.com/your-form-link',
+              assistantFormUrl: 'https://forms.google.com/assistant-form-link',
+              phone: '+1 123-456-7890',
+              contactMessage: 'Thank you for your interest in my teaching services. I will get back to you as soon as possible.'
+            },
+            theme: {
+              color: 'blue',
+              mode: 'light'
+            }
+          };
+          console.warn('[API:getData] No data found for site', siteId, '. Returning default data structure.');
+          res.status(200).json(defaultData);
+        }
+      } catch (e) {
+        console.error('[API:getData] Unexpected error:', e);
+        return res.status(500).json({ error: 'Server error' });
       }
       break;
     }
@@ -263,7 +301,14 @@ export default async function handler(req, res) {
       console.log('[API:saveData] Incoming request body:', JSON.stringify(req.body, null, 2));
       
       // Handle the correct structure: { id: number, data: object }
-      const { id, data: dataToSave } = req.body;
+      let { id, data: dataToSave } = req.body;
+      
+      // Fallback: infer id from context when not provided
+      if (!id) {
+        const { siteId } = await resolveWebsiteContext(req);
+        id = siteId;
+        console.log('[API:saveData] No id provided. Using resolved site id:', id);
+      }
       
       if (!id || !dataToSave) {
         console.error('[API:saveData] Missing required fields: id or data');
