@@ -1440,6 +1440,26 @@ function populateAdminForm(data) {
         
         // Add this to ensure character warnings are visible after form is populated
         setupAdminFieldLimits();
+        
+        // Setup image upload functionality
+        setupModernImageUpload({
+            dropZoneId: 'heroDropZone',
+            inputId: 'heroImageInput',
+            previewId: 'heroPreview',
+            uploadBtnId: 'heroUploadBtn',
+            removeBtnId: 'newHeroRemoveBtn',
+            spinnerId: 'heroUploadSpinner',
+            type: 'hero'
+        });
+        setupModernImageUpload({
+            dropZoneId: 'aboutDropZone',
+            inputId: 'aboutImageInput',
+            previewId: 'aboutPreview',
+            uploadBtnId: 'aboutUploadBtn',
+            removeBtnId: 'newAboutRemoveBtn',
+            spinnerId: 'aboutUploadSpinner',
+            type: 'about'
+        });
     } catch (error) {
         console.error('Error populating admin form:', error);
         showAdminAlert('error', `There was an error loading form fields: ${error.message}`);
@@ -3727,25 +3747,7 @@ function setupModernImageUpload({
     }
 }
 
-// Initialize both hero and about image uploaders
-setupModernImageUpload({
-    dropZoneId: 'heroDropZone',
-    inputId: 'heroImageInput',
-    previewId: 'heroPreview',
-    uploadBtnId: 'heroUploadBtn',
-    removeBtnId: 'removeHeroBtn',
-    spinnerId: 'heroUploadSpinner',
-    type: 'hero'
-});
-setupModernImageUpload({
-    dropZoneId: 'aboutDropZone',
-    inputId: 'aboutImageInput',
-    previewId: 'aboutPreview',
-    uploadBtnId: 'aboutUploadBtn',
-    removeBtnId: 'removeAboutBtn',
-    spinnerId: 'aboutUploadSpinner',
-    type: 'about'
-});
+// Image upload setup will be called when admin panel opens
 
 document.addEventListener('DOMContentLoaded', function() {
   // All Reviews page navigation

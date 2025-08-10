@@ -1944,9 +1944,9 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
       }
 
       #admin-results-container .result-input.subject-input {
-          width: 168px; /* 1.4x of 120px */
-          min-width: 140px;
-          max-width: 220px;
+          width: 250px; /* Increased from 168px to 250px for wider subject field */
+          min-width: 200px;
+          max-width: 300px;
           margin-left: -28px; /* Stronger shift to the left */
       }
       #admin-results-container .result-label.other-label {
@@ -1954,6 +1954,9 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
       }
       @media (max-width: 900px) {
         #admin-results-container .result-input.subject-input {
+          width: 100%; /* Full width on mobile */
+          min-width: 100%;
+          max-width: 100%;
           margin-left: 0; /* Remove shift on mobile for full width */
         }
         #admin-results-container .result-item {
