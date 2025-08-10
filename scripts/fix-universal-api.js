@@ -85,6 +85,30 @@ async function fixWebsiteForUniversalAPI(websiteFolder) {
         console.log(`⚠️  Removed hardcoded template1 navigation from ${path.basename(filePath)}`);
       }
       
+      // Remove absolute domain references
+      if (content.includes('https://portflyo.online')) {
+        content = content.replace(
+          /https:\/\/portflyo\.online/g,
+          '#'
+        );
+        wasFixed = true;
+        console.log(`⚠️  Removed absolute domain references from ${path.basename(filePath)}`);
+      }
+      
+      // Ensure all file references are relative
+      if (content.includes('href="/') || content.includes('src="/')) {
+        content = content.replace(
+          /href=["']\/(?!\/)/g,
+          'href="'
+        );
+        content = content.replace(
+          /src=["']\/(?!\/)/g,
+          'src="'
+        );
+        wasFixed = true;
+        console.log(`⚠️  Fixed absolute file paths to relative in ${path.basename(filePath)}`);
+      }
+      
       if (wasFixed) {
         fs.writeFileSync(filePath, content);
         console.log(`✅ Updated ${path.basename(filePath)}`);

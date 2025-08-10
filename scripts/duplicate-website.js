@@ -159,6 +159,22 @@ async function getDefaultDataAndOwner() {
         '// Removed hardcoded template1 navigation'
       );
       
+      // Remove any absolute domain references
+      content = content.replace(
+        /https:\/\/portflyo\.online/g,
+        '#'
+      );
+      
+      // Ensure all file references are relative
+      content = content.replace(
+        /href=["']\/(?!\/)/g,
+        'href="'
+      );
+      content = content.replace(
+        /src=["']\/(?!\/)/g,
+        'src="'
+      );
+      
       fs.writeFileSync(filePath, content);
       console.log('Fixed hardcoded paths in:', path.basename(filePath));
     }
