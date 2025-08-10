@@ -32,19 +32,28 @@ async function resolveWebsiteContext(req) {
   const rawId = (req.query && req.query.website_id) || (req.body && req.body.website_id);
   const parsedId = rawId ? parseInt(rawId, 10) : NaN;
   if (!Number.isNaN(parsedId) && parsedId > 0) {
+    console.log('[API] Using explicit website_id:', parsedId);
     return { siteId: parsedId };
   }
   // 2) Infer from Referer folder and local site.config.json
   try {
     const referer = req.headers && (req.headers.referer || req.headers.origin);
+    console.log('[API] Referer header:', referer);
     if (referer) {
       const urlObj = new URL(referer);
-      const firstSegment = urlObj.pathname.split('/').filter(Boolean)[0];
+      console.log('[API] URL pathname:', urlObj.pathname);
+      const pathSegments = urlObj.pathname.split('/').filter(Boolean);
+      console.log('[API] Path segments:', pathSegments);
+      const firstSegment = pathSegments[0];
+      console.log('[API] First segment:', firstSegment);
       if (firstSegment) {
         const configPath = path.join(process.cwd(), 'public', 'websites', firstSegment, 'site.config.json');
+        console.log('[API] Config path:', configPath);
         const json = await fs.readFile(configPath, 'utf-8');
         const cfg = JSON.parse(json);
+        console.log('[API] Config content:', cfg);
         if (cfg && Number.isInteger(cfg.site_id)) {
+          console.log('[API] Resolved site_id:', cfg.site_id, 'for directory:', firstSegment);
           return { siteId: cfg.site_id, directory: firstSegment };
         }
       }
@@ -53,6 +62,7 @@ async function resolveWebsiteContext(req) {
     console.warn('[API] resolveWebsiteContext fallback due to error:', e.message);
   }
   // 3) Default
+  console.log('[API] Using default site_id: 1');
   return { siteId: 1 };
 }
 
