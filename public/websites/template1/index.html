@@ -404,7 +404,7 @@
                 <form id="adminLoginForm" class="space-y-4">
                     <div>
                         <label for="adminPassword" class="form-label">Password</label>
-                        <input type="password" id="adminPassword" class="form-input display-block width-100 padding-075-1 z-index-10 position-relative" placeholder="Enter password" required autocomplete="current-password" />
+                        <input type="password" id="adminPassword" class="form-input display-block width-100 padding-075-1 z-index-10 position-relative" placeholder="Enter password" required autocomplete="off" />
                     </div>
                     <div class="flex justify-end space-x-2">
                         <button type="button" id="cancelLogin" class="btn btn-secondary">Cancel</button>
@@ -699,14 +699,14 @@
                     <div class="space-y-4">
                         <div>
                             <label for="newPassword" class="admin-panel-label">New Password</label>
-                            <input type="password" id="newPassword" class="admin-panel-input" placeholder="Enter your new password" />
+                            <input type="password" id="newPassword" class="admin-panel-input" placeholder="Enter your new password" autocomplete="off" />
                             <div class="text-xs text-gray-500 mt-1">
                                 Password must be at least 8 characters long
                             </div>
                         </div>
                         <div>
                             <label for="confirmPassword" class="admin-panel-label">Confirm New Password</label>
-                            <input type="password" id="confirmPassword" class="admin-panel-input" placeholder="Confirm your new password" />
+                            <input type="password" id="confirmPassword" class="admin-panel-input" placeholder="Confirm your new password" autocomplete="off" />
                         </div>
                         <div class="flex gap-4">
                             <button id="changePasswordBtn" class="admin-panel-btn bg-white-600 hover:bg-blue-700">
