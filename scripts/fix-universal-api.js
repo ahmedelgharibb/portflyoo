@@ -54,7 +54,70 @@ async function fixWebsiteForUniversalAPI(websiteFolder) {
     console.log(`⚠️  ${websiteFolder} has no API calls detected`);
   }
   
-  // 6. Remove any website-specific API files if they exist
+  // 6. Fix hardcoded paths in HTML and JS files
+  const filesToFix = [
+    path.join(websitePath, 'index.html'),
+    path.join(websitePath, 'script.js')
+  ];
+  
+  for (const filePath of filesToFix) {
+    if (fs.existsSync(filePath)) {
+      let content = fs.readFileSync(filePath, 'utf-8');
+      let wasFixed = false;
+      
+      // Fix hardcoded template1 paths
+      if (content.includes('/websites/template1/')) {
+        content = content.replace(
+          new RegExp(`/websites/template1/`, 'g'),
+          ''
+        );
+        wasFixed = true;
+        console.log(`⚠️  Fixed hardcoded template1 paths in ${path.basename(filePath)}`);
+      }
+      
+      // Remove hardcoded template1 navigation
+      if (content.includes('template1/index.html')) {
+        content = content.replace(
+          /window\.location\.href\s*=\s*['"]template1\/index\.html['"];?/g,
+          '// Removed hardcoded template1 navigation'
+        );
+        wasFixed = true;
+        console.log(`⚠️  Removed hardcoded template1 navigation from ${path.basename(filePath)}`);
+      }
+      
+      if (wasFixed) {
+        fs.writeFileSync(filePath, content);
+        console.log(`✅ Updated ${path.basename(filePath)}`);
+      } else {
+        console.log(`✅ ${path.basename(filePath)} already has correct paths`);
+      }
+    }
+  }
+
+  // 7. Fix reviews.js if it exists
+  const reviewsPath = path.join(websitePath, 'reviews.js');
+  if (fs.existsSync(reviewsPath)) {
+    let reviewsContent = fs.readFileSync(reviewsPath, 'utf-8');
+    
+    // Fix hardcoded website references in reviews
+    const hardcodedWebsiteRef = reviewsContent.includes('/websites/' + websiteFolder);
+    if (hardcodedWebsiteRef) {
+      console.log(`⚠️  ${websiteFolder}/reviews.js has hardcoded website reference, fixing...`);
+      
+      // Replace hardcoded website path with relative path
+      reviewsContent = reviewsContent.replace(
+        new RegExp(`/websites/${websiteFolder}/site.config.json`, 'g'),
+        'site.config.json'
+      );
+      
+      fs.writeFileSync(reviewsPath, reviewsContent);
+      console.log(`✅ Fixed ${websiteFolder}/reviews.js to use relative config path`);
+    } else {
+      console.log(`✅ ${websiteFolder}/reviews.js is already using relative config path`);
+    }
+  }
+  
+  // 8. Remove any website-specific API files if they exist
   const apiFiles = [
     path.join(websitePath, 'api.js'),
     path.join(websitePath, 'reviews-api.js')

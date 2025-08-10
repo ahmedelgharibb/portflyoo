@@ -3696,12 +3696,7 @@ setupModernImageUpload({
 
 document.addEventListener('DOMContentLoaded', function() {
   // All Reviews page navigation
-  const goToTemplate1 = document.getElementById('goToTemplate1');
-  if (goToTemplate1) {
-    goToTemplate1.addEventListener('click', function() {
-      window.location.href = 'template1/index.html';
-    });
-  }
+  // Removed hardcoded template1 navigation - not needed for dralywael
   // Sort buttons (hover handled by CSS)
   // FFF Explore Features button
   const exploreFeaturesBtn = document.getElementById('exploreFeaturesBtn');

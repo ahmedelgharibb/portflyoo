@@ -137,7 +137,34 @@ async function getDefaultDataAndOwner() {
   // 4. Create a new row in Supabase
   await createSupabaseRow(newId);
 
-  // 5. Ensure the new website uses universal API (remove any website-specific API files)
+  // 5. Fix hardcoded paths in HTML and JS files
+  const filesToFix = [
+    path.join(newWebsiteDir, 'index.html'),
+    path.join(newWebsiteDir, 'script.js')
+  ];
+  
+  for (const filePath of filesToFix) {
+    if (fs.existsSync(filePath)) {
+      let content = fs.readFileSync(filePath, 'utf-8');
+      
+      // Replace hardcoded template1 paths with relative paths
+      content = content.replace(
+        new RegExp(`/websites/template1/`, 'g'),
+        ''
+      );
+      
+      // Remove hardcoded template1 navigation
+      content = content.replace(
+        /window\.location\.href\s*=\s*['"]template1\/index\.html['"];?/g,
+        '// Removed hardcoded template1 navigation'
+      );
+      
+      fs.writeFileSync(filePath, content);
+      console.log('Fixed hardcoded paths in:', path.basename(filePath));
+    }
+  }
+
+  // 6. Ensure the new website uses universal API (remove any website-specific API files)
   const apiFiles = [
     path.join(newWebsiteDir, 'api.js'),
     path.join(newWebsiteDir, 'reviews-api.js')
