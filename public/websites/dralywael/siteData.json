@@ -1,0 +1,73 @@
+{
+  "id": 1,
+  "data": {
+    "id": 1,
+    "admin": {
+      "password": "admin1234"
+    },
+    "theme": {
+      "mode": "light",
+      "color": "blue"
+    },
+    "contact": {
+      "email": "",
+      "phone": "",
+      "formUrl": "",
+      "contactMessage": "",
+      "assistantFormUrl": ""
+    },
+    "results": [
+      {
+        "a": 97,
+        "name": "Computer Science",
+        "astar": 95,
+        "other": 20,
+        "subject": "Computer Science"
+      },
+      {
+        "a": 93,
+        "name": "Data Structures",
+        "astar": 91,
+        "other": 30,
+        "subject": "Data Structures"
+      }
+    ],
+    "personal": {
+      "name": "Mr. Omar Khaled",
+      "title": "Computer Science Educator",
+      "subtitle": "Secondary School CS Teacher",
+      "experience": "",
+      "philosophy": "I believe in creating an engaging and & supportive learning enviroment",
+      "heroHeading": "Inspiring Minds Through Mathematics",
+      "qualifications": [
+        "Computer Science Bachelor Degree"
+      ]
+    },
+    "heroImage": "https://bqpchhitrbyfleqpyydz.supabase.co/storage/v1/object/public/website-images/hero-image-1752800582788.jpeg",
+    "aboutImage": "https://bqpchhitrbyfleqpyydz.supabase.co/storage/v1/object/public/website-images/about-image-1752800619490.jpg",
+    "experience": {
+      "centers": [
+        "CodeCamp MENA",
+        "Arab Digital Academy",
+        "STEM Innovation Center"
+      ],
+      "schools": [
+        "Future Tech International School",
+        "STEM High School for Boys - 6th October",
+        "American International School in Egypt (AISE)"
+      ],
+      "platforms": [
+        "YouTube – Channel: Code with Mr. Omar",
+        "Udemy – Instructor: 'Intro to Web Development'",
+        "edX – Contributor, 'CS50 for High School'",
+        "GitHub – github.com/omarkhaledcs",
+        "Coursera – Project Reviewer, Meta Front-End Course"
+      ]
+    },
+    "teacherExperience": {
+      "years": 6,
+      "schools": 15,
+      "students": 10000
+    }
+  }
+}
