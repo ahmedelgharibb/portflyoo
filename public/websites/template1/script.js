@@ -3699,7 +3699,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const goToTemplate1 = document.getElementById('goToTemplate1');
   if (goToTemplate1) {
     goToTemplate1.addEventListener('click', function() {
-      window.location.href = 'template1/index.html';
+      // Removed hardcoded template1 navigation
     });
   }
   // Sort buttons (hover handled by CSS)
