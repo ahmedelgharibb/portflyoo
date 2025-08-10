@@ -1174,6 +1174,10 @@ async function openAdminPanel() {
         
         // Setup password change functionality
         setupPasswordChange();
+        
+        // Setup dynamic input buttons (Add Qualification, Add School, etc.)
+        setupDynamicInputButtons();
+        
         // After admin panel is opened and data loaded, update all previews
         const heroUrl = websiteData.heroImage || '';
         const aboutUrl = websiteData.aboutImage || '';
@@ -3771,8 +3775,13 @@ document.addEventListener('DOMContentLoaded', handleTeacherExperienceAnimation);
 // ... existing code ...
 // Helper to render qualifications as multiple input boxes
 function renderQualificationsInputs(qualifications) {
+    console.log('renderQualificationsInputs called with:', qualifications);
     const list = document.getElementById('qualifications-list');
-    if (!list) return;
+    if (!list) {
+        console.error('❌ qualifications-list element not found in DOM');
+        return;
+    }
+    console.log('✅ qualifications-list element found, rendering inputs');
     list.innerHTML = '';
     const showDelete = (qualifications && qualifications.length > 1);
     (qualifications && qualifications.length ? qualifications : ['']).forEach((qual, idx, arr) => {
@@ -3801,6 +3810,7 @@ function renderQualificationsInputs(qualifications) {
         }
         list.appendChild(wrapper);
     });
+    console.log('✅ Qualifications inputs rendered successfully');
 }
 
 function renderExperienceInputs(field, values) {
@@ -3838,11 +3848,17 @@ function renderExperienceInputs(field, values) {
 // ... existing code ...
 
 function addQualificationInput() {
+    console.log('addQualificationInput called');
     const list = document.getElementById('qualifications-list');
-    if (!list) return;
+    if (!list) {
+        console.error('❌ qualifications-list element not found in addQualificationInput');
+        return;
+    }
+    console.log('✅ qualifications-list element found, adding new input');
     // Gather current values
     const values = Array.from(list.querySelectorAll('input')).map(input => input.value);
     values.push('');
+    console.log('Current values:', values);
     renderQualificationsInputs(values);
 }
 
@@ -4814,3 +4830,51 @@ function setupAdminFieldLimits() {
 }
 
 // ... existing code ...
+
+// Setup dynamic input buttons (Add Qualification, Add School, etc.)
+function setupDynamicInputButtons() {
+    // Setup Add Qualification button
+    const addQualificationBtn = document.getElementById('add-qualification-btn');
+    if (addQualificationBtn) {
+        // Remove any existing event listeners by cloning
+        const newAddQualificationBtn = addQualificationBtn.cloneNode(true);
+        addQualificationBtn.parentNode.replaceChild(newAddQualificationBtn, addQualificationBtn);
+        newAddQualificationBtn.addEventListener('click', addQualificationInput);
+        console.log('✅ Add Qualification button event listener attached');
+    } else {
+        console.error('❌ Add Qualification button not found in DOM');
+    }
+    
+    // Setup Add School button
+    const addSchoolBtn = document.getElementById('add-school-btn');
+    if (addSchoolBtn) {
+        const newAddSchoolBtn = addSchoolBtn.cloneNode(true);
+        addSchoolBtn.parentNode.replaceChild(newAddSchoolBtn, addSchoolBtn);
+        newAddSchoolBtn.addEventListener('click', () => addExperienceInput('schools'));
+        console.log('✅ Add School button event listener attached');
+    } else {
+        console.error('❌ Add School button not found in DOM');
+    }
+    
+    // Setup Add Center button
+    const addCenterBtn = document.getElementById('add-center-btn');
+    if (addCenterBtn) {
+        const newAddCenterBtn = addCenterBtn.cloneNode(true);
+        addCenterBtn.parentNode.replaceChild(newAddCenterBtn, addCenterBtn);
+        newAddCenterBtn.addEventListener('click', () => addExperienceInput('centers'));
+        console.log('✅ Add Center button event listener attached');
+    } else {
+        console.error('❌ Add Center button not found in DOM');
+    }
+    
+    // Setup Add Platform button
+    const addPlatformBtn = document.getElementById('add-platform-btn');
+    if (addPlatformBtn) {
+        const newAddPlatformBtn = addPlatformBtn.cloneNode(true);
+        addPlatformBtn.parentNode.replaceChild(newAddPlatformBtn, addPlatformBtn);
+        newAddPlatformBtn.addEventListener('click', () => addExperienceInput('platforms'));
+        console.log('✅ Add Platform button event listener attached');
+    } else {
+        console.error('❌ Add Platform button not found in DOM');
+    }
+}
