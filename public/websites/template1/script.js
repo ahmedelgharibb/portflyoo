@@ -1805,11 +1805,24 @@ function updateSiteContent(data) {
 
         const experienceSection = document.getElementById('experience');
         const experienceCards = document.querySelectorAll('#experience .experience-card');
+        
+        console.log('Experience section found:', !!experienceSection);
+        console.log('Experience cards found:', experienceCards.length);
+        
         const hasSchools = Array.isArray(experienceData.schools) && experienceData.schools.length > 0;
         const hasCenters = Array.isArray(experienceData.centers) && experienceData.centers.length > 0;
         const hasPlatforms = Array.isArray(experienceData.platforms) && experienceData.platforms.length > 0;
         const showAffiliations = hasSchools || hasCenters || hasPlatforms;
-        if (experienceSection) experienceSection.style.display = showAffiliations ? '' : 'none';
+        
+        console.log('Has schools:', hasSchools, 'Has centers:', hasCenters, 'Has platforms:', hasPlatforms);
+        console.log('Show affiliations:', showAffiliations);
+        
+        if (experienceSection) {
+            experienceSection.style.display = showAffiliations ? '' : 'none';
+            console.log('Experience section display set to:', experienceSection.style.display);
+        } else {
+            console.log('❌ Experience section not found!');
+        }
         toggleMenuButton('experience', showAffiliations);
         // Render each card and hide if empty
         const updateList = (cardIndex, items) => {
@@ -5127,3 +5140,33 @@ function updateQualificationsVisibility(qualifications) {
         console.log('✅ Shown Qualifications section');
     }
 }
+
+        // Update experience section
+        const experienceData = data.experience || {};
+        console.log('🔍 DEBUG: Experience data:', experienceData);
+
+        const experienceSection = document.getElementById('experience');
+        const experienceCards = document.querySelectorAll('#experience .experience-card');
+        
+        console.log('🔍 DEBUG: Experience section found:', !!experienceSection);
+        console.log('🔍 DEBUG: Experience cards found:', experienceCards.length);
+        
+        const hasSchools = Array.isArray(experienceData.schools) && experienceData.schools.length > 0;
+        const hasCenters = Array.isArray(experienceData.centers) && experienceData.centers.length > 0;
+        const hasPlatforms = Array.isArray(experienceData.platforms) && experienceData.platforms.length > 0;
+        const showAffiliations = hasSchools || hasCenters || hasPlatforms;
+        
+        console.log('🔍 DEBUG: Has schools:', hasSchools, 'schools array:', experienceData.schools);
+        console.log('🔍 DEBUG: Has centers:', hasCenters, 'centers array:', experienceData.centers);
+        console.log('🔍 DEBUG: Has platforms:', hasPlatforms, 'platforms array:', experienceData.platforms);
+        console.log('🔍 DEBUG: Show affiliations:', showAffiliations);
+        
+        if (experienceSection) {
+            const oldDisplay = experienceSection.style.display;
+            experienceSection.style.display = showAffiliations ? '' : 'none';
+            console.log('🔍 DEBUG: Experience section display changed from:', oldDisplay, 'to:', experienceSection.style.display);
+            console.log('🔍 DEBUG: Experience section computed style display:', window.getComputedStyle(experienceSection).display);
+        } else {
+            console.log('❌ ERROR: Experience section not found!');
+        }
+        toggleMenuButton('experience', showAffiliations);
