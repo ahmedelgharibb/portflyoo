@@ -238,8 +238,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Hide Teaching Affiliations section immediately if all affiliations are empty
     const affiliationsSection = document.getElementById('experience');
     if (affiliationsSection) {
-        const data = window.siteData || {};
-        const experience = data.experience || {};
+        const siteData = window.siteData || {};
+        const experience = siteData.experience || {};
         const hasAffiliations = (Array.isArray(experience.schools) && experience.schools.length > 0) ||
                                 (Array.isArray(experience.centers) && experience.centers.length > 0) ||
                                 (Array.isArray(experience.platforms) && experience.platforms.length > 0);
@@ -5141,32 +5141,3 @@ function updateQualificationsVisibility(qualifications) {
     }
 }
 
-        // Update experience section
-        const experienceData = data.experience || {};
-        console.log('🔍 DEBUG: Experience data:', experienceData);
-
-        const experienceSection = document.getElementById('experience');
-        const experienceCards = document.querySelectorAll('#experience .experience-card');
-        
-        console.log('🔍 DEBUG: Experience section found:', !!experienceSection);
-        console.log('🔍 DEBUG: Experience cards found:', experienceCards.length);
-        
-        const hasSchools = Array.isArray(experienceData.schools) && experienceData.schools.length > 0;
-        const hasCenters = Array.isArray(experienceData.centers) && experienceData.centers.length > 0;
-        const hasPlatforms = Array.isArray(experienceData.platforms) && experienceData.platforms.length > 0;
-        const showAffiliations = hasSchools || hasCenters || hasPlatforms;
-        
-        console.log('🔍 DEBUG: Has schools:', hasSchools, 'schools array:', experienceData.schools);
-        console.log('🔍 DEBUG: Has centers:', hasCenters, 'centers array:', experienceData.centers);
-        console.log('🔍 DEBUG: Has platforms:', hasPlatforms, 'platforms array:', experienceData.platforms);
-        console.log('🔍 DEBUG: Show affiliations:', showAffiliations);
-        
-        if (experienceSection) {
-            const oldDisplay = experienceSection.style.display;
-            experienceSection.style.display = showAffiliations ? '' : 'none';
-            console.log('🔍 DEBUG: Experience section display changed from:', oldDisplay, 'to:', experienceSection.style.display);
-            console.log('🔍 DEBUG: Experience section computed style display:', window.getComputedStyle(experienceSection).display);
-        } else {
-            console.log('❌ ERROR: Experience section not found!');
-        }
-        toggleMenuButton('experience', showAffiliations);
