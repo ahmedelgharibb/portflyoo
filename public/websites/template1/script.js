@@ -1815,8 +1815,19 @@ function updateSiteContent(data) {
         const updateList = (cardIndex, items) => {
             const card = experienceCards[cardIndex];
             if (card) {
-                const list = card.querySelector('ul');
-                if (list) list.innerHTML = items.map(i => `<li>${i}</li>`).join('');
+                // Look for the specific list container by ID
+                let listContainer;
+                if (cardIndex === 0) {
+                    listContainer = card.querySelector('#schools-list');
+                } else if (cardIndex === 1) {
+                    listContainer = card.querySelector('#centers-list');
+                } else if (cardIndex === 2) {
+                    listContainer = card.querySelector('#platforms-list');
+                }
+                
+                if (listContainer) {
+                    listContainer.innerHTML = items.map(i => `<div class="experience-item">${i}</div>`).join('');
+                }
                 card.style.display = items.length ? '' : 'none';
             }
         };

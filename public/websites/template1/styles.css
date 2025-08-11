@@ -1347,6 +1347,23 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
       }
 
+      .experience-item {
+          padding: 0.75rem 0;
+          border-bottom: 1px solid #f3f4f6;
+          font-size: 0.95rem;
+          color: #374151;
+          line-height: 1.5;
+      }
+
+      .experience-item:last-child {
+          border-bottom: none;
+      }
+
+      .experience-item:hover {
+          color: var(--primary-color, #3b82f6);
+          transition: color 0.2s ease;
+      }
+
       /* Feature card styles */
       .feature-card {
           background: var(--card-bg);
