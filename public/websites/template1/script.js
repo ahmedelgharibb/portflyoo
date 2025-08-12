@@ -1866,6 +1866,28 @@ function updateSiteContent(data) {
                     console.log('🔍 DEBUG: Final computed style display:', window.getComputedStyle(experienceSection).display);
                     console.log('🔍 DEBUG: Final computed style visibility:', window.getComputedStyle(experienceSection).visibility);
                     console.log('🔍 DEBUG: Final computed style opacity:', window.getComputedStyle(experienceSection).opacity);
+                    
+                    // If still hidden, try a more aggressive approach
+                    if (window.getComputedStyle(experienceSection).display === 'none') {
+                        console.log('🔍 DEBUG: Section still hidden, applying aggressive fix');
+                        experienceSection.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative !important; z-index: 9999 !important;';
+                        
+                        // Also check if any parent has display: none
+                        let currentParent = experienceSection.parentElement;
+                        while (currentParent && currentParent !== document.body) {
+                            const parentDisplay = window.getComputedStyle(currentParent).display;
+                            if (parentDisplay === 'none') {
+                                console.log('🔍 DEBUG: Found hidden parent, fixing:', currentParent.tagName);
+                                currentParent.style.setProperty('display', 'block', 'important');
+                            }
+                            currentParent = currentParent.parentElement;
+                        }
+                        
+                        // Final check
+                        setTimeout(() => {
+                            console.log('🔍 DEBUG: After aggressive fix - display:', window.getComputedStyle(experienceSection).display);
+                        }, 50);
+                    }
                 }, 100);
             }
         } else {
