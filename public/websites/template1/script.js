@@ -1839,9 +1839,29 @@ function updateSiteContent(data) {
                 experienceSection.style.setProperty('display', 'block', 'important');
                 console.log('🔍 DEBUG: FORCED experience section with !important');
                 
+                // Check parent elements for hidden state
+                let parent = experienceSection.parentElement;
+                let parentLevel = 0;
+                while (parent && parentLevel < 5) {
+                    const parentDisplay = window.getComputedStyle(parent).display;
+                    console.log(`🔍 DEBUG: Parent level ${parentLevel} display:`, parentDisplay, 'Tag:', parent.tagName, 'Classes:', parent.className);
+                    if (parentDisplay === 'none') {
+                        console.log(`🔍 DEBUG: Found hidden parent at level ${parentLevel}!`);
+                        parent.style.setProperty('display', 'block', 'important');
+                    }
+                    parent = parent.parentElement;
+                    parentLevel++;
+                }
+                
+                // Try multiple approaches to force display
+                experienceSection.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+                console.log('🔍 DEBUG: Applied cssText override');
+                
                 // Check computed style again
                 setTimeout(() => {
                     console.log('🔍 DEBUG: Final computed style display:', window.getComputedStyle(experienceSection).display);
+                    console.log('🔍 DEBUG: Final computed style visibility:', window.getComputedStyle(experienceSection).visibility);
+                    console.log('🔍 DEBUG: Final computed style opacity:', window.getComputedStyle(experienceSection).opacity);
                 }, 100);
             }
         } else {
