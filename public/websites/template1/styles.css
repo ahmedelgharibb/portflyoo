@@ -3459,7 +3459,7 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
           }
           
           /* Admin Panel Header */
-          #adminPanel .flex.justify-between {
+          #adminPanel .flex.justify-between.items-center.mb-8 {
               padding: 0.75rem 1rem;
               position: fixed;
               top: 0;
