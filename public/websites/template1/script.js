@@ -1801,33 +1801,47 @@ function updateSiteContent(data) {
         
         // Update experience section
         const experienceData = data.experience || {};
-        console.log('Experience data:', experienceData);
+        console.log('🔍 DEBUG: Experience data:', experienceData);
 
         const experienceSection = document.getElementById('experience');
         const experienceCards = document.querySelectorAll('#experience .experience-card');
         
-        console.log('Experience section found:', !!experienceSection);
-        console.log('Experience cards found:', experienceCards.length);
+        console.log('🔍 DEBUG: Experience section found:', !!experienceSection);
+        console.log('🔍 DEBUG: Experience cards found:', experienceCards.length);
         
         const hasSchools = Array.isArray(experienceData.schools) && experienceData.schools.length > 0;
         const hasCenters = Array.isArray(experienceData.centers) && experienceData.centers.length > 0;
         const hasPlatforms = Array.isArray(experienceData.platforms) && experienceData.platforms.length > 0;
         const showAffiliations = hasSchools || hasCenters || hasPlatforms;
         
-        console.log('Has schools:', hasSchools, 'Has centers:', hasCenters, 'Has platforms:', hasPlatforms);
-        console.log('Show affiliations:', showAffiliations);
+        console.log('🔍 DEBUG: Has schools:', hasSchools, 'schools array:', experienceData.schools);
+        console.log('🔍 DEBUG: Has centers:', hasCenters, 'centers array:', experienceData.centers);
+        console.log('🔍 DEBUG: Has platforms:', hasPlatforms, 'platforms array:', experienceData.platforms);
+        console.log('🔍 DEBUG: Show affiliations:', showAffiliations);
         
         if (experienceSection) {
+            const oldDisplay = experienceSection.style.display;
             experienceSection.style.display = showAffiliations ? '' : 'none';
-            console.log('Experience section display set to:', experienceSection.style.display);
+            console.log('🔍 DEBUG: Experience section display changed from:', oldDisplay, 'to:', experienceSection.style.display);
+            console.log('🔍 DEBUG: Experience section computed style display:', window.getComputedStyle(experienceSection).display);
+            
+            // Force show for debugging if we have data
+            if (showAffiliations) {
+                experienceSection.style.display = 'block';
+                console.log('🔍 DEBUG: FORCED experience section to display: block');
+            }
         } else {
-            console.log('❌ Experience section not found!');
+            console.log('❌ ERROR: Experience section not found!');
         }
         toggleMenuButton('experience', showAffiliations);
         // Render each card and hide if empty
         const updateList = (cardIndex, items) => {
             const card = experienceCards[cardIndex];
+            console.log(`🔍 DEBUG: updateList called for card ${cardIndex} with items:`, items);
+            
             if (card) {
+                console.log(`🔍 DEBUG: Card ${cardIndex} found in DOM`);
+                
                 // Look for the specific list container by ID
                 let listContainer;
                 if (cardIndex === 0) {
@@ -1838,10 +1852,21 @@ function updateSiteContent(data) {
                     listContainer = card.querySelector('#platforms-list');
                 }
                 
+                console.log(`🔍 DEBUG: List container for card ${cardIndex} found:`, !!listContainer);
+                
                 if (listContainer) {
-                    listContainer.innerHTML = items.map(i => `<div class="experience-item">${i}</div>`).join('');
+                    const html = items.map(i => `<div class="experience-item">${i}</div>`).join('');
+                    listContainer.innerHTML = html;
+                    console.log(`🔍 DEBUG: Populated card ${cardIndex} with HTML:`, html);
+                } else {
+                    console.log(`❌ ERROR: List container not found for card ${cardIndex}`);
                 }
+                
+                const oldDisplay = card.style.display;
                 card.style.display = items.length ? '' : 'none';
+                console.log(`🔍 DEBUG: Card ${cardIndex} display changed from ${oldDisplay} to ${card.style.display}`);
+            } else {
+                console.log(`❌ ERROR: Card ${cardIndex} not found in DOM`);
             }
         };
         updateList(0, experienceData.schools || []);
