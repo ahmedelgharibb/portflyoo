@@ -1829,6 +1829,20 @@ function updateSiteContent(data) {
             if (showAffiliations) {
                 experienceSection.style.display = 'block';
                 console.log('🔍 DEBUG: FORCED experience section to display: block');
+                
+                // Check if there are any CSS classes that might be hiding it
+                console.log('🔍 DEBUG: Experience section classes:', experienceSection.className);
+                console.log('🔍 DEBUG: Experience section has display-none class:', experienceSection.classList.contains('display-none'));
+                
+                // Remove any display-none class and force with !important
+                experienceSection.classList.remove('display-none');
+                experienceSection.style.setProperty('display', 'block', 'important');
+                console.log('🔍 DEBUG: FORCED experience section with !important');
+                
+                // Check computed style again
+                setTimeout(() => {
+                    console.log('🔍 DEBUG: Final computed style display:', window.getComputedStyle(experienceSection).display);
+                }, 100);
             }
         } else {
             console.log('❌ ERROR: Experience section not found!');
