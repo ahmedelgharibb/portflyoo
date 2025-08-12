@@ -3445,6 +3445,7 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
           /* Admin Panel Container */
           #adminPanel {
               padding: 0.5rem;
+              padding-top: 4rem; /* Account for fixed header */
               overflow-y: auto;
               -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
           }
@@ -3459,12 +3460,18 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
           
           /* Admin Panel Header */
           #adminPanel .flex.justify-between {
-              padding: 0.75rem;
-              position: sticky;
+              padding: 0.75rem 1rem;
+              position: fixed;
               top: 0;
-              background: #f8f9fa;
-              z-index: 10;
+              left: 0;
+              right: 0;
+              width: 100%;
+              background: #ffffff;
+              z-index: 100001;
               border-bottom: 1px solid #e9ecef;
+              margin: 0;
+              box-shadow: none;
+              border-radius: 0;
           }
           
           /* Close Button */
