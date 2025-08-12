@@ -1827,6 +1827,10 @@ function updateSiteContent(data) {
             
             // Force show for debugging if we have data
             if (showAffiliations) {
+                // Remove the main-content-hidden class that's hiding all content
+                document.body.classList.remove('main-content-hidden');
+                console.log('🔍 DEBUG: Removed main-content-hidden class from body');
+                
                 experienceSection.style.display = 'block';
                 console.log('🔍 DEBUG: FORCED experience section to display: block');
                 
