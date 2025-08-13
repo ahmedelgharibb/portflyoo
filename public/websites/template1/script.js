@@ -1870,7 +1870,7 @@ function updateSiteContent(data) {
                     // If still hidden, try a more aggressive approach
                     if (window.getComputedStyle(experienceSection).display === 'none') {
                         console.log('🔍 DEBUG: Section still hidden, applying aggressive fix');
-                        experienceSection.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative !important; z-index: 9999 !important;';
+                        experienceSection.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: relative !important; ';
                         
                         // Also check if any parent has display: none
                         let currentParent = experienceSection.parentElement;
