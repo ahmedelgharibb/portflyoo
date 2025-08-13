@@ -224,10 +224,52 @@ export default async function handler(req, res) {
         
         console.log('[API:changePassword] Password hashed successfully');
         
-        // Return the hashed password to be stored in frontend data
+        // Get current site data
+        const { siteId } = await resolveWebsiteContext(req);
+        const { data: currentData, error: getError } = await supabase
+          .from('teachers_websites')
+          .select('data')
+          .eq('id', siteId)
+          .maybeSingle();
+        
+        if (getError) {
+          console.error('[API:changePassword] Error fetching current data:', getError);
+          return res.status(500).json({ success: false, message: 'Failed to fetch current data' });
+        }
+        
+        // Update the password in the data structure
+        let updatedData = currentData?.data || {};
+        
+        // Handle different data structures
+        if (updatedData.data && updatedData.data.admin) {
+          // Triple nested: data.data.admin.password
+          updatedData.data.admin.password = hashedNewPassword;
+        } else if (updatedData.admin) {
+          // Double nested: data.admin.password
+          updatedData.admin.password = hashedNewPassword;
+        } else {
+          // Flat structure: admin.password
+          if (!updatedData.admin) {
+            updatedData.admin = {};
+          }
+          updatedData.admin.password = hashedNewPassword;
+        }
+        
+        // Save the updated data to database
+        const { error: saveError } = await supabase
+          .from('teachers_websites')
+          .upsert([{ id: siteId, data: updatedData }]);
+        
+        if (saveError) {
+          console.error('[API:changePassword] Error saving password:', saveError);
+          return res.status(500).json({ success: false, message: 'Failed to save password to database' });
+        }
+        
+        console.log('[API:changePassword] Password saved to database successfully');
+        
         return res.status(200).json({ 
           success: true, 
-          message: 'Password hashed successfully. Click "Save Changes" to update the database.',
+          message: 'Password changed successfully!',
           hashedPassword: hashedNewPassword
         });
       } catch (err) {

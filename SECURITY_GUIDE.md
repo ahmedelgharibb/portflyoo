@@ -24,6 +24,8 @@
 - ✅ **Current password verification** required
 - ✅ **Secure password update** endpoint
 - ✅ **Hashed storage** of new passwords
+- ✅ **Automatic database save** - no need to click "Save Changes"
+- ✅ **Immediate persistence** - password changes are saved instantly
 
 ## **Additional Security Recommendations**
 

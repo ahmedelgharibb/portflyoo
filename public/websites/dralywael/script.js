@@ -4517,8 +4517,8 @@ function setupPasswordChange() {
             const result = await response.json();
 
             if (result.success) {
-                // Store the hashed password in siteData using normalized structure
-                // Handle all possible data structures: siteData.data.data, siteData.data, or siteData
+                // Password is now automatically saved to database
+                // Store the hashed password in siteData for consistency
                 if (siteData && siteData.data && siteData.data.data && siteData.data.data.admin) {
                     // Triple nested structure: siteData.data.data.admin.password
                     siteData.data.data.admin.password = result.hashedPassword;
