@@ -11,7 +11,7 @@ session_start();
 // --- Rate Limiting (simple IP-based) ---
 $ip = $_SERVER['REMOTE_ADDR'];
 $rate_limit_file = sys_get_temp_dir() . '/api_rate_limit_' . md5($ip);
-$rate_limit = 10; // requests per minute
+$rate_limit = 30; // requests per minute (increased from 10)
 $window = 60; // seconds
 $now = time();
 $requests = [];
@@ -23,7 +23,12 @@ $requests[] = $now;
 file_put_contents($rate_limit_file, json_encode($requests));
 if (count($requests) > $rate_limit) {
     http_response_code(429);
-    die(json_encode(['error' => 'Too many requests. Please try again later.']));
+    $remaining_time = 60 - ($now - $requests[0]);
+    die(json_encode([
+        'error' => 'Too many requests. Please try again in ' . $remaining_time . ' seconds.',
+        'remaining_time' => $remaining_time,
+        'rate_limit' => $rate_limit
+    ]));
 }
 
 // --- Input Validation & Sanitization ---

@@ -88,16 +88,19 @@ export default async function handler(req, res) {
   }
   
   const now = Date.now();
-  const windowMs = 15 * 60 * 1000; // 15 minutes
-  const maxAttempts = 5;
+  const windowMs = 30 * 60 * 1000; // 30 minutes (increased from 15)
+  const maxAttempts = 10; // Increased from 5 to 10 attempts
   
   const attempts = global.rateLimitStore.get(rateLimitKey) || [];
   const recentAttempts = attempts.filter(time => now - time < windowMs);
   
   if (recentAttempts.length >= maxAttempts) {
+    const remainingTime = Math.ceil((recentAttempts[0] + windowMs - now) / (1000 * 60));
     return res.status(429).json({ 
       success: false, 
-      message: 'Too many login attempts. Please try again in 15 minutes.' 
+      message: `Too many login attempts. Please try again in ${remainingTime} minutes.`,
+      remainingAttempts: 0,
+      timeRemaining: remainingTime
     });
   }
 
@@ -189,11 +192,20 @@ export default async function handler(req, res) {
         
         if (!isValid) {
           console.log(`[API:login] Failed login attempt from IP: ${clientIP}`);
+          const remainingAttempts = maxAttempts - recentAttempts.length;
+          return res.status(200).json({
+            success: false,
+            message: `Invalid password. ${remainingAttempts} attempts remaining.`,
+            remainingAttempts: remainingAttempts,
+            timeRemaining: Math.ceil(windowMs / (1000 * 60))
+          });
         }
         
         return res.status(200).json({
-          success: isValid,
-          message: isValid ? 'Login successful' : 'Invalid password'
+          success: true,
+          message: 'Login successful',
+          remainingAttempts: maxAttempts,
+          timeRemaining: 0
         });
       } catch (err) {
         console.error('[API:login] Unexpected error:', err);
