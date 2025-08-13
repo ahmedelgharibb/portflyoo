@@ -78,7 +78,8 @@ export default async function handler(req, res) {
   res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   
-  // Rate limiting for login attempts
+  // Rate limiting for login attempts - DISABLED
+  /*
   const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   const rateLimitKey = `login_attempts_${clientIP}`;
   
@@ -103,6 +104,7 @@ export default async function handler(req, res) {
       timeRemaining: remainingTime
     });
   }
+  */
 
   // Parse JSON body if needed (Vercel does not do this automatically)
   if (req.method === 'POST' && !req.body) {
@@ -186,26 +188,21 @@ export default async function handler(req, res) {
         const isValid = await bcrypt.compare(password, adminPassword);
         console.log('[API:login] Password validation:', { provided: password, stored: adminPassword, valid: isValid });
         
-        // Track login attempts for rate limiting
-        recentAttempts.push(now);
-        global.rateLimitStore.set(rateLimitKey, recentAttempts);
+        // Track login attempts for rate limiting - DISABLED
+        // recentAttempts.push(now);
+        // global.rateLimitStore.set(rateLimitKey, recentAttempts);
         
         if (!isValid) {
           console.log(`[API:login] Failed login attempt from IP: ${clientIP}`);
-          const remainingAttempts = maxAttempts - recentAttempts.length;
           return res.status(200).json({
             success: false,
-            message: `Invalid password. ${remainingAttempts} attempts remaining.`,
-            remainingAttempts: remainingAttempts,
-            timeRemaining: Math.ceil(windowMs / (1000 * 60))
+            message: 'Invalid password'
           });
         }
         
         return res.status(200).json({
           success: true,
-          message: 'Login successful',
-          remainingAttempts: maxAttempts,
-          timeRemaining: 0
+          message: 'Login successful'
         });
       } catch (err) {
         console.error('[API:login] Unexpected error:', err);

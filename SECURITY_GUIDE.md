@@ -8,11 +8,11 @@
 - ✅ **Automatic hashing** when passwords are saved
 
 ### **2. Rate Limiting**
-- ✅ **10 attempts per 30 minutes** per IP address (increased from 5/15min)
-- ✅ **30 requests per minute** for general API calls (increased from 10/min)
-- ✅ **Automatic blocking** after limit exceeded
-- ✅ **IP tracking** for security monitoring
-- ✅ **User-friendly error messages** with remaining attempts/time
+- ⚠️ **DISABLED** - Rate limiting has been turned off for development
+- ⚠️ **No blocks** - Unlimited login attempts and API requests allowed
+- ⚠️ **Security risk** - This should be re-enabled in production
+- ✅ **IP tracking** for security monitoring (still active)
+- ✅ **User-friendly error messages** (simplified)
 
 ### **3. Secure Headers**
 - ✅ **CSP (Content Security Policy)**
@@ -158,40 +158,30 @@ const response = await fetch('/api/api?action=changePassword', {
 
 ## **Troubleshooting 429 Errors**
 
-### **If You Get "Too Many Requests" Error:**
+### **Rate Limiting Status:**
+- ⚠️ **DISABLED** - All rate limiting has been turned off
+- ✅ **No more 429 errors** - Unlimited attempts allowed
+- ⚠️ **Security warning** - Re-enable for production use
 
-1. **Wait for the time limit to expire:**
-   - Login attempts: 30 minutes
-   - General API calls: 1 minute
+### **If You Need to Re-enable Rate Limiting:**
 
-2. **Clear rate limiting for testing:**
-   ```bash
-   node scripts/clear-rate-limits.js
-   ```
+1. **Node.js API** (`api/api.js`):
+   - Uncomment lines 82-100 (remove `/*` and `*/`)
 
-3. **Check your IP address:**
-   - Rate limiting is based on IP address
-   - If using VPN, try disconnecting
-   - If on shared network, wait for others to stop making requests
+2. **PHP APIs** (`public/websites/*/api.php`):
+   - Uncomment lines 12-25 (remove `/*` and `*/`)
 
-4. **Monitor remaining attempts:**
-   - Failed login attempts show remaining count
-   - API responses include `remainingAttempts` and `timeRemaining`
+3. **Recommended settings for production:**
+   - Login attempts: 5 per 15 minutes
+   - API requests: 10 per minute
 
-### **Rate Limiting Details:**
+### **Current Status:**
+| Type | Status | Limit |
+|------|--------|-------|
+| Login Attempts | ❌ Disabled | Unlimited |
+| API Requests | ❌ Disabled | Unlimited |
+| File Uploads | ❌ Disabled | Unlimited |
 
-| Type | Limit | Window | Reset Time |
-|------|-------|--------|------------|
-| Login Attempts | 10 | 30 minutes | Automatic |
-| API Requests | 30 | 1 minute | Automatic |
-| File Uploads | 10 | 5 minutes | Automatic |
-
-### **Testing Without Rate Limits:**
-
-For development/testing, you can temporarily disable rate limiting by commenting out the rate limiting code in:
-- `api/api.js` (lines 82-100)
-- `public/websites/*/api.php` (lines 12-25)
-
-**⚠️ Warning: Never disable rate limiting in production!**
+**⚠️ Warning: This configuration is for development only!**
 
 --- 

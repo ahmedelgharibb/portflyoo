@@ -8,7 +8,8 @@
 
 session_start();
 
-// --- Rate Limiting (simple IP-based) ---
+// --- Rate Limiting (simple IP-based) - DISABLED ---
+/*
 $ip = $_SERVER['REMOTE_ADDR'];
 $rate_limit_file = sys_get_temp_dir() . '/api_rate_limit_' . md5($ip);
 $rate_limit = 30; // requests per minute (increased from 10)
@@ -30,6 +31,7 @@ if (count($requests) > $rate_limit) {
         'rate_limit' => $rate_limit
     ]));
 }
+*/
 
 // --- Input Validation & Sanitization ---
 function clean_input($data) {
