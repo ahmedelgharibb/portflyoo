@@ -5226,3 +5226,42 @@ function updateQualificationsVisibility(qualifications) {
     }
 }
 
+// Image loading optimizations
+function optimizeImageLoading() {
+    // Preload hero image with high priority
+    const heroImage = document.getElementById('heroImage');
+    if (heroImage) {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = heroImage.src;
+        link.fetchPriority = 'high';
+        document.head.appendChild(link);
+    }
+
+    // Use Intersection Observer for lazy loading about image
+    const aboutImage = document.getElementById('aboutImage');
+    if (aboutImage && 'IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                    }
+                    observer.unobserve(img);
+                }
+            });
+        }, {
+            rootMargin: '50px 0px',
+            threshold: 0.1
+        });
+        
+        imageObserver.observe(aboutImage);
+    }
+}
+
+// Call optimization on page load
+document.addEventListener('DOMContentLoaded', optimizeImageLoading);
+

@@ -98,7 +98,7 @@ export default async function handler(req, res) {
   
   // Define clientIP for logging purposes (rate limiting disabled)
   const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-  
+
   // Parse JSON body if needed (Vercel does not do this automatically)
   if (req.method === 'POST' && !req.body) {
     try {

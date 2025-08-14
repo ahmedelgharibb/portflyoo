@@ -2426,12 +2426,14 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
         align-items: center;
       }
       .hero-image {
-        max-width: 100%;
         width: 100%;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        border-radius: 1.5rem;
+        height: auto;
+        border-radius: 1rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        will-change: transform;
+        content-visibility: auto;
+        contain: layout style paint;
       }
       @media (max-width: 600px) {
         .hero-image-wrap {
@@ -3770,7 +3772,7 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
               padding: 8px 12px;
           }
       }
-
+  
       .admin-panel-btn {
           background-color: var(--primary-color);
           color: white;
@@ -3810,6 +3812,17 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
               width: 100%;
               justify-content: center;
           }
+      }
+
+      .about-image {
+          width: 100%;
+          height: auto;
+          border-radius: 0.5rem;
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease;
+          will-change: transform;
+          content-visibility: auto;
+          contain: layout style paint;
       }
   
   

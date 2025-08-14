@@ -112,7 +112,12 @@
                         </div>
                     </div>
                     <div class="hero-image-wrap">
-                        <img id="heroImage" class="hero-image" src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" alt="Teacher Picture">
+                        <img id="heroImage" class="hero-image" 
+                             src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" 
+                             alt="Teacher Picture"
+                             loading="eager"
+                             decoding="async"
+                             fetchpriority="high">
                         <a href="#about" class="hero-arrow">
                             <i class="fas fa-chevron-down text-xl"></i>
                         </a>
@@ -128,9 +133,11 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div class="relative order-2 md:order-1">
-                        <img id="aboutImage" src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" 
-                             alt="Teacher Picture" 
-                             class="rounded-lg shadow-xl w-full">
+                        <img id="aboutImage" class="about-image" 
+                             src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" 
+                             alt="Teacher About Picture"
+                             loading="lazy"
+                             decoding="async">
                         <!-- <div class="absolute -bottom-6 -right-6 bg-blue-600 text-white p-4 rounded-lg">
                             <p class="text-2xl font-bold">15+</p>
                             <p class="text-sm">Years Experience</p>
@@ -753,6 +760,21 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="websites/dralywael/reviews.js"></script>
         <script src="websites/dralywael/script.js"></script>
+        
+        <!-- Service Worker Registration for Image Caching -->
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/websites/dralywael/sw.js')
+                        .then(registration => {
+                            console.log('Service Worker registered for image caching');
+                        })
+                        .catch(error => {
+                            console.log('Service Worker registration failed:', error);
+                        });
+                });
+            }
+        </script>
     
         <!-- All Reviews Modal -->
         <div id="allReviewsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
