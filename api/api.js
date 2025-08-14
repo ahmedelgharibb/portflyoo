@@ -144,14 +144,18 @@ export default async function handler(req, res) {
         console.log('[API:login] Supabase URL:', process.env.SUPABASE_URL ? 'Set' : 'Not set');
         console.log('[API:login] Supabase Key:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Not set');
         
-        // Get the raw database structure (not flattened like getData)
+        // Get the site ID for this request
+        const { siteId } = await resolveWebsiteContext(req);
+        console.log('[API:login] Resolved site ID:', siteId);
+        
+        // Get the raw database structure for the specific site ID
         const { data: getDataResult, error: getDataError } = await supabase
           .from('teachers_websites')
           .select('data')
-          .limit(1)
+          .eq('id', siteId)
           .maybeSingle();
         
-        console.log('[API:login] Raw database query result:', { data: getDataResult, error: getDataError });
+        console.log('[API:login] Raw database query result for site ID', siteId, ':', { data: getDataResult, error: getDataError });
         
         if (getDataError) {
           console.error('[API:login] Database query error:', getDataError);
@@ -159,8 +163,8 @@ export default async function handler(req, res) {
         }
         
         if (!getDataResult) {
-          console.error('[API:login] No data found in teachers_websites table');
-          return res.status(500).json({ success: false, message: 'No website data found in database' });
+          console.error('[API:login] No data found in teachers_websites table for site ID:', siteId);
+          return res.status(500).json({ success: false, message: 'No website data found in database for this site' });
         }
         
         // Extract admin password from the raw data structure using helper function
