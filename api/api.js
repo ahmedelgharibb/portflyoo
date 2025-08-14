@@ -105,6 +105,9 @@ export default async function handler(req, res) {
     });
   }
   */
+  
+  // Define clientIP for logging purposes (rate limiting disabled)
+  const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
   // Parse JSON body if needed (Vercel does not do this automatically)
   if (req.method === 'POST' && !req.body) {
@@ -193,7 +196,7 @@ export default async function handler(req, res) {
         // global.rateLimitStore.set(rateLimitKey, recentAttempts);
         
         if (!isValid) {
-          console.log(`[API:login] Failed login attempt from IP: ${clientIP}`);
+          console.log(`[API:login] Failed login attempt`);
           return res.status(200).json({
             success: false,
             message: 'Invalid password'

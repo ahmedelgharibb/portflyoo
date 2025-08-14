@@ -68,7 +68,8 @@ export default async function handler(req, res) {
   res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   
-  // Rate limiting for login attempts
+  // Rate limiting for login attempts - DISABLED
+  /*
   const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   const rateLimitKey = `login_attempts_${clientIP}`;
   
@@ -78,19 +79,26 @@ export default async function handler(req, res) {
   }
   
   const now = Date.now();
-  const windowMs = 15 * 60 * 1000; // 15 minutes
-  const maxAttempts = 5;
+  const windowMs = 30 * 60 * 1000; // 30 minutes (increased from 15)
+  const maxAttempts = 10; // Increased from 5 to 10 attempts
   
   const attempts = global.rateLimitStore.get(rateLimitKey) || [];
   const recentAttempts = attempts.filter(time => now - time < windowMs);
   
   if (recentAttempts.length >= maxAttempts) {
+    const remainingTime = Math.ceil((recentAttempts[0] + windowMs - now) / (1000 * 60));
     return res.status(429).json({ 
       success: false, 
-      message: 'Too many login attempts. Please try again in 15 minutes.' 
+      message: `Too many login attempts. Please try again in ${remainingTime} minutes.`,
+      remainingAttempts: 0,
+      timeRemaining: remainingTime
     });
   }
-
+  */
+  
+  // Define clientIP for logging purposes (rate limiting disabled)
+  const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  
   // Parse JSON body if needed (Vercel does not do this automatically)
   if (req.method === 'POST' && !req.body) {
     try {
@@ -162,8 +170,8 @@ export default async function handler(req, res) {
         
         // Compare with stored hash
         const isValid = await bcrypt.compare(password, adminPassword);
-        recentAttempts.push(now);
-        global.rateLimitStore.set(rateLimitKey, recentAttempts);
+        // recentAttempts.push(now); // Rate limiting disabled
+        // global.rateLimitStore.set(rateLimitKey, recentAttempts); // Rate limiting disabled
         if (!isValid) {
           console.log(`[API:login] Failed login attempt from IP: ${clientIP} for site ${siteId}`);
         }
