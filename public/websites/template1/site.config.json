@@ -1,6 +1,6 @@
 {
-  "site_id": 2,
-  "site_name": "Template 1",
+  "site_id": 1,
+  "directory": "template1",
   "religious_modal": {
     "enabled": true,
     "mode": "english_muslim",
