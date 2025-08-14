@@ -3770,5 +3770,46 @@ link[rel="icon"][sizes="512x512"] { transform: scale(1.7); }
               padding: 8px 12px;
           }
       }
+
+      .admin-panel-btn {
+          background-color: var(--primary-color);
+          color: white;
+          border: none;
+          border-radius: 0.375rem;
+          padding: 0.75rem 1rem;
+          font-family: 'Inter', sans-serif;
+          font-weight: 500;
+          font-size: 0.938rem;
+          transition: all 0.3s ease;
+          margin-top: 1rem;
+      }
+
+      .admin-panel-btn:hover {
+          background-color: var(--primary-dark);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Mobile-responsive admin panel buttons */
+      @media (max-width: 640px) {
+          .admin-panel-btn {
+              padding: 0.5rem 0.75rem;
+              font-size: 0.875rem;
+              margin-top: 0.5rem;
+              min-height: 2.5rem;
+          }
+          
+          /* Stack buttons vertically on mobile */
+          .flex.gap-4 {
+              flex-direction: column;
+              gap: 0.5rem !important;
+          }
+          
+          /* Make buttons full width on mobile */
+          .flex.gap-4 .admin-panel-btn {
+              width: 100%;
+              justify-content: center;
+          }
+      }
   
   
