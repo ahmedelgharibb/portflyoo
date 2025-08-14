@@ -1,4 +1,11 @@
 {
-  "site_id": 1,
-  "directory": "template1"
+  "site_id": 2,
+  "site_name": "Template 1",
+  "religious_modal": {
+    "enabled": true,
+    "mode": "english_muslim",
+    "delay_min": 10000,
+    "delay_max": 20000,
+    "duration": 10000
+  }
 } 

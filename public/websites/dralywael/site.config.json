@@ -1,4 +1,11 @@
 {
-  "site_id": 9,
-  "directory": "dralywael"
+  "site_id": 1,
+  "site_name": "Dr. Aly Wael",
+  "religious_modal": {
+    "enabled": true,
+    "mode": "arabic",
+    "delay_min": 10000,
+    "delay_max": 20000,
+    "duration": 10000
+  }
 }
